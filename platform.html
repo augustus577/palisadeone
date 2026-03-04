@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Platform — Palisade One</title>
+  <script src="components.js" defer></script>
+  <style>
+    .platform-hero { min-height:50vh;display:flex;align-items:center;padding:160px 60px 80px;position:relative;overflow:hidden; }
+    .platform-hero-bg { position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 70% 40%,rgba(0,132,255,0.07) 0%,transparent 60%),radial-gradient(ellipse 40% 50% at 20% 70%,rgba(0,255,209,0.04) 0%,transparent 50%); }
+    .arch-section { padding:0 60px 80px; }
+    .arch-diagram { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:48px; }
+    .arch-layer { background:var(--deep);padding:40px 32px;position:relative;overflow:hidden; }
+    .arch-layer::before { content:'';position:absolute;top:0;left:0;right:0;height:2px; }
+    .layer-1::before { background:linear-gradient(to right,transparent,var(--danger),transparent); }
+    .layer-2::before { background:linear-gradient(to right,transparent,var(--accent2),transparent); }
+    .layer-3::before { background:linear-gradient(to right,transparent,var(--accent),transparent); }
+    .arch-layer-num { font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:3px;margin-bottom:16px; }
+    .arch-layer-title { font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);letter-spacing:2px;margin-bottom:12px; }
+    .arch-layer-desc { font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px; }
+    .arch-tags { display:flex;flex-wrap:wrap;gap:8px; }
+    .arch-tag { padding:4px 10px;background:rgba(0,255,209,0.05);border:1px solid rgba(0,255,209,0.15);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px; }
+    .arch-tag.blue { background:rgba(0,132,255,0.05);border-color:rgba(0,132,255,0.15);color:var(--accent2); }
+    .arch-tag.red { background:rgba(255,59,92,0.05);border-color:rgba(255,59,92,0.15);color:var(--danger); }
+    .flow-section { padding:0 60px 80px;background:var(--deep); }
+    .flow-steps { display:flex;flex-direction:column;gap:0;margin-top:48px;border:1px solid var(--border); }
+    .flow-step { display:grid;grid-template-columns:80px 1fr 1fr;gap:0;border-bottom:1px solid var(--border);overflow:hidden; }
+    .flow-step:last-child { border-bottom:none; }
+    .flow-num { background:var(--black);padding:32px 24px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--border);border-right:1px solid var(--border); }
+    .flow-info { padding:32px 40px;border-right:1px solid var(--border); }
+    .flow-title { font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px; }
+    .flow-desc { font-size:13px;color:var(--muted);line-height:1.6; }
+    .flow-tech { padding:32px 40px;display:flex;flex-direction:column;justify-content:center;gap:8px; }
+    .flow-tech-label { font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase; }
+    .flow-tech-value { font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent); }
+    .ai-section { padding:0 60px 80px; }
+    .ai-grid { display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-top:48px; }
+    .ai-features { display:flex;flex-direction:column;gap:20px; }
+    .ai-feature { padding:24px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);transition:border-color 0.3s; }
+    .ai-feature:hover { border-color:var(--accent); }
+    .ai-feature-title { font-size:14px;font-weight:600;color:var(--white);margin-bottom:6px; }
+    .ai-feature-desc { font-size:13px;color:var(--muted);line-height:1.6; }
+    .ai-demo { background:var(--surface);border:1px solid var(--border);overflow:hidden; }
+    .ai-demo-header { background:var(--deep);padding:16px 20px;border-bottom:1px solid var(--border); }
+    .ai-demo-title { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px; }
+    .ai-demo-body { padding:24px; }
+    .ai-message { margin-bottom:20px; }
+    .ai-role { font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;text-transform:uppercase; }
+    .ai-text { font-size:13px;color:var(--text);line-height:1.7;padding:16px;background:var(--deep);border:1px solid var(--border); }
+    .ai-text.response { border-left:3px solid var(--accent);color:var(--white); }
+    .stack-section { padding:0 60px 80px;background:var(--deep); }
+    .stack-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px; }
+    .stack-card { background:var(--black);border:1px solid var(--border);padding:28px 20px;text-align:center;transition:border-color 0.3s; }
+    .stack-card:hover { border-color:var(--accent); }
+    .stack-icon { font-size:32px;margin-bottom:12px; }
+    .stack-name { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;margin-bottom:6px; }
+    .stack-role { font-size:12px;color:var(--muted);line-height:1.5; }
+    .portal-section { padding:0 60px 80px; }
+    .portal-features { display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px; }
+    .portal-feature { background:var(--surface);border:1px solid var(--border);padding:32px;transition:border-color 0.3s,transform 0.3s; }
+    .portal-feature:hover { border-color:var(--accent);transform:translateY(-4px); }
+    .portal-feature-icon { font-size:28px;margin-bottom:16px; }
+    .portal-feature-title { font-size:14px;font-weight:600;color:var(--white);margin-bottom:8px; }
+    .portal-feature-desc { font-size:13px;color:var(--muted);line-height:1.6; }
+    @media(max-width:768px) {
+      .platform-hero { padding:120px 24px 60px; }
+      .arch-section,.flow-section,.ai-section,.stack-section,.portal-section { padding-left:24px;padding-right:24px; }
+      .arch-diagram { grid-template-columns:1fr; }
+      .flow-step { grid-template-columns:48px 1fr; }
+      .flow-tech { display:none; }
+      .flow-num { padding:20px 12px;font-size:24px; }
+      .flow-info { padding:20px; }
+      .ai-grid { grid-template-columns:1fr;gap:40px; }
+      .stack-grid { grid-template-columns:repeat(2,1fr); }
+      .portal-features { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <section class="platform-hero">
+    <div class="platform-hero-bg"></div>
+    <div class="grid-overlay"></div>
+    <div style="position:relative;z-index:2;">
+      <div class="section-label fade-up">The Platform</div>
+      <h1 class="section-title fade-up" style="font-size:clamp(56px,8vw,100px);">ENGINEERED<br><span style="color:var(--accent)">FROM SCRATCH.</span></h1>
+      <p class="section-sub fade-up">No third-party licensing. No stitched-together tools. One unified platform built on enterprise open-source infrastructure — owned and operated by Palisade One.</p>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <div class="arch-section" style="padding-top:80px;">
+    <div class="section-label fade-up">Architecture</div>
+    <h2 class="section-title fade-up">THREE-LAYER<br>DEFENSE MODEL</h2>
+    <div class="arch-diagram">
+      <div class="arch-layer layer-1 fade-up">
+        <div class="arch-layer-num">// LAYER 01 — COLLECTION</div>
+        <div class="arch-layer-title">ENDPOINT & NETWORK TELEMETRY</div>
+        <p class="arch-layer-desc">Lightweight agents on every endpoint send continuous telemetry to our cloud platform. Every process, every file, every connection — captured.</p>
+        <div class="arch-tags">
+          <span class="arch-tag red">Wazuh Agents</span>
+          <span class="arch-tag red">Windows / Mac / Linux</span>
+          <span class="arch-tag red">Network Sensors</span>
+          <span class="arch-tag red">Cloud Connectors</span>
+        </div>
+      </div>
+      <div class="arch-layer layer-2 fade-up">
+        <div class="arch-layer-num">// LAYER 02 — ANALYSIS</div>
+        <div class="arch-layer-title">AI-POWERED THREAT ANALYSIS</div>
+        <p class="arch-layer-desc">Raw telemetry is processed by Elastic ML for anomaly detection, Wazuh rules for known patterns, and Claude AI for contextual reasoning and plain-English reporting.</p>
+        <div class="arch-tags">
+          <span class="arch-tag blue">Elastic Stack</span>
+          <span class="arch-tag blue">Wazuh SIEM</span>
+          <span class="arch-tag blue">Claude AI</span>
+          <span class="arch-tag blue">ML Anomaly Detection</span>
+        </div>
+      </div>
+      <div class="arch-layer layer-3 fade-up">
+        <div class="arch-layer-num">// LAYER 03 — RESPONSE</div>
+        <div class="arch-layer-title">AUTOMATED RESPONSE & REPORTING</div>
+        <p class="arch-layer-desc">Confirmed threats trigger automated responses — isolation, quarantine, blocking — in under one second. n8n orchestrates workflows and notifies the right people instantly.</p>
+        <div class="arch-tags">
+          <span class="arch-tag">n8n SOAR</span>
+          <span class="arch-tag">Auto-Isolation</span>
+          <span class="arch-tag">File Quarantine</span>
+          <span class="arch-tag">Alert Routing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETECTION FLOW -->
+  <div class="flow-section" style="padding-top:80px;">
+    <div class="section-label fade-up">Detection Flow</div>
+    <h2 class="section-title fade-up">FROM ALERT TO<br>RESOLUTION</h2>
+    <div class="flow-steps">
+      <div class="flow-step fade-up">
+        <div class="flow-num">01</div>
+        <div class="flow-info"><div class="flow-title">Telemetry Collected</div><p class="flow-desc">Wazuh agent on the endpoint captures process execution, file activity, registry changes, and network connections in real time.</p></div>
+        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">Wazuh 4.x Agent</div></div>
+      </div>
+      <div class="flow-step fade-up">
+        <div class="flow-num">02</div>
+        <div class="flow-info"><div class="flow-title">Rules & ML Analysis</div><p class="flow-desc">Events matched against 3,000+ Wazuh detection rules and Elastic ML behavioral baselines simultaneously. Statistical outliers flagged automatically.</p></div>
+        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">Elastic ML + Wazuh Rules</div></div>
+      </div>
+      <div class="flow-step fade-up">
+        <div class="flow-num">03</div>
+        <div class="flow-info"><div class="flow-title">AI Contextual Reasoning</div><p class="flow-desc">Claude AI analyzes the full process tree, parent-child relationships, and network behavior to determine intent and severity — eliminating false positives.</p></div>
+        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">Claude AI API</div></div>
+      </div>
+      <div class="flow-step fade-up">
+        <div class="flow-num">04</div>
+        <div class="flow-info"><div class="flow-title">Hash & Reputation Check</div><p class="flow-desc">File hashes checked against 70+ antivirus engines via VirusTotal. Known malicious files quarantined instantly without waiting for AI analysis.</p></div>
+        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">VirusTotal API</div></div>
+      </div>
+      <div class="flow-step fade-up">
+        <div class="flow-num">05</div>
+        <div class="flow-info"><div class="flow-title">Automated Response</div><p class="flow-desc">Confirmed threats trigger immediate automated response — network isolation via PowerShell firewall rules, file quarantine with permission stripping, process termination.</p></div>
+        <div class="flow-tech"><div class="flow-tech-label">Response time</div><div class="flow-tech-value">&lt; 1 second</div></div>
+      </div>
+      <div class="flow-step fade-up">
+        <div class="flow-num">06</div>
+        <div class="flow-info"><div class="flow-title">Notify & Report</div><p class="flow-desc">Client notified instantly via email/SMS with an AI-written plain English explanation of what happened, what was done, and recommended next steps.</p></div>
+        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">n8n + Claude AI</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI SECTION -->
+  <div class="ai-section" style="padding-top:80px;">
+    <div class="section-label fade-up">AI Integration</div>
+    <h2 class="section-title fade-up">INTELLIGENCE<br>AT EVERY LAYER</h2>
+    <div class="ai-grid">
+      <div class="ai-features fade-up">
+        <div class="ai-feature"><div class="ai-feature-title">Alert Summarization</div><p class="ai-feature-desc">Every alert is summarized in plain English. No more decoding raw log lines — your team knows exactly what happened and why it matters.</p></div>
+        <div class="ai-feature"><div class="ai-feature-title">Threat Classification</div><p class="ai-feature-desc">AI classifies threats by technique, tactic, and severity using the MITRE ATT&CK framework — automatically, on every alert.</p></div>
+        <div class="ai-feature"><div class="ai-feature-title">Weekly Security Reports</div><p class="ai-feature-desc">AI generates comprehensive weekly reports for each client — executive summary, threat trends, top risks, and recommended actions.</p></div>
+        <div class="ai-feature"><div class="ai-feature-title">Remediation Guidance</div><p class="ai-feature-desc">When a vulnerability or gap is identified, AI generates specific, actionable remediation steps tailored to the client's exact environment.</p></div>
+      </div>
+      <div class="ai-demo fade-up">
+        <div class="ai-demo-header"><div class="ai-demo-title">// AI ALERT ANALYSIS — LIVE EXAMPLE</div></div>
+        <div class="ai-demo-body">
+          <div class="ai-message"><div class="ai-role">// Raw Alert Input</div><div class="ai-text">winword.exe spawned cmd.exe → powershell.exe -encodedCommand JABz... Process hash: 4a7f2c... VirusTotal: 38/70 engines flagged</div></div>
+          <div class="ai-message"><div class="ai-role">// Claude AI Analysis</div><div class="ai-text response">This alert indicates a macro-based malware execution pattern — a Word document opened by the user contained a malicious macro that launched PowerShell with an encoded command, consistent with a phishing attack. The encoded command attempts to download a secondary payload. The endpoint has been automatically isolated. Recommend: reset user credentials, scan all received emails from the past 48 hours, and review any files opened before this alert.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TECH STACK -->
+  <div class="stack-section" style="padding-top:80px;">
+    <div class="section-label fade-up">Technology Stack</div>
+    <h2 class="section-title fade-up">BUILT ON<br>PROVEN TOOLS</h2>
+    <div class="stack-grid">
+      <div class="stack-card fade-up"><div class="stack-icon">🛡️</div><div class="stack-name">Wazuh</div><div class="stack-role">EDR, SIEM, File Integrity, Vulnerability Detection</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">📊</div><div class="stack-name">Elastic Stack</div><div class="stack-role">Log ingestion, ML anomaly detection, Kibana dashboards</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">🤖</div><div class="stack-name">Claude AI</div><div class="stack-role">Alert analysis, report generation, remediation guidance</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">⚙️</div><div class="stack-name">n8n</div><div class="stack-role">SOAR automation, alert routing, workflow orchestration</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">🖥️</div><div class="stack-name">MeshCentral</div><div class="stack-role">Remote monitoring, remote access, asset management</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">🔒</div><div class="stack-name">OpenZiti</div><div class="stack-role">Zero trust networking, identity-based access</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">🌐</div><div class="stack-name">OpenCTI + MISP</div><div class="stack-role">Threat intelligence feeds, IOC correlation</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">☁️</div><div class="stack-name">Hetzner Cloud</div><div class="stack-role">High-performance EU/US cloud infrastructure</div></div>
+    </div>
+  </div>
+
+  <!-- CLIENT PORTAL -->
+  <div class="portal-section" style="padding-top:80px;padding-bottom:80px;">
+    <div class="section-label fade-up">Client Portal</div>
+    <h2 class="section-title fade-up">YOUR CLIENTS SEE<br>EVERYTHING</h2>
+    <p class="section-sub fade-up">Every client gets a dedicated portal — real-time dashboards, live alerts, security score, and AI-generated reports. Full transparency, no black box.</p>
+    <div class="portal-features">
+      <div class="portal-feature fade-up"><div class="portal-feature-icon">📊</div><div class="portal-feature-title">Live Security Dashboard</div><p class="portal-feature-desc">Real-time view of endpoint health, active alerts, patch compliance, and security score — updated every 60 seconds.</p></div>
+      <div class="portal-feature fade-up"><div class="portal-feature-icon">🔔</div><div class="portal-feature-title">Instant Alert Notifications</div><p class="portal-feature-desc">Push notifications, email, and SMS alerts the moment a threat is detected. No waiting for a weekly report to find out.</p></div>
+      <div class="portal-feature fade-up"><div class="portal-feature-icon">📄</div><div class="portal-feature-title">AI-Generated Reports</div><p class="portal-feature-desc">Weekly and monthly security reports written by AI — executive summaries that any business owner can understand.</p></div>
+      <div class="portal-feature fade-up"><div class="portal-feature-icon">🗂️</div><div class="portal-feature-title">Asset Inventory</div><p class="portal-feature-desc">Complete view of every device — hardware specs, OS version, software installed, patch status, last seen online.</p></div>
+      <div class="portal-feature fade-up"><div class="portal-feature-icon">🔐</div><div class="portal-feature-title">Dark Web Exposure</div><p class="portal-feature-desc">Live dark web monitoring results — see every breach your company's credentials have appeared in, in real time.</p></div>
+      <div class="portal-feature fade-up"><div class="portal-feature-icon">📈</div><div class="portal-feature-title">Security Score Tracking</div><p class="portal-feature-desc">Track your security posture improvement over time with a clear score and breakdown of what's driving it.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:48px;" class="fade-up">
+      <a href="portal.html" class="btn-primary" style="margin-right:16px;">View Client Portal</a>
+      <a href="contact.html" class="btn-secondary">Book a Demo</a>
+    </div>
+  </div>
+</body>
+</html>
