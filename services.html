@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Services — Palisade One</title>
+  <script src="components.js" defer></script>
+  <style>
+    .services-hero { min-height:50vh;display:flex;align-items:center;padding:160px 60px 80px;position:relative;overflow:hidden; }
+    .services-hero-bg { position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 30% 50%,rgba(0,255,209,0.05) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 80% 30%,rgba(0,132,255,0.04) 0%,transparent 50%); }
+    .service-full { padding:80px 60px;border-bottom:1px solid var(--border); }
+    .service-full:last-child { border-bottom:none; }
+    .service-full:nth-child(even) { background:var(--deep); }
+    .service-layout { display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center; }
+    .service-full:nth-child(even) .service-layout { direction:rtl; }
+    .service-full:nth-child(even) .service-layout > * { direction:ltr; }
+    .service-tag { font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px; }
+    .service-name { font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4vw,56px);color:var(--white);letter-spacing:2px;line-height:1;margin-bottom:20px; }
+    .service-desc-full { font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:32px; }
+    .service-features-full { display:flex;flex-direction:column;gap:12px;margin-bottom:32px; }
+    .feature-row { display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:rgba(0,255,209,0.03);border:1px solid rgba(0,255,209,0.08);transition:border-color 0.2s; }
+    .feature-row:hover { border-color:rgba(0,255,209,0.2); }
+    .feature-icon { font-size:16px;flex-shrink:0;margin-top:2px; }
+    .feature-text { font-size:13px;color:var(--text);line-height:1.5; }
+    .feature-text strong { color:var(--white);display:block;margin-bottom:2px;font-weight:600; }
+    .service-visual { position:relative; }
+    .service-card-visual { background:var(--surface);border:1px solid var(--border);padding:32px;position:relative;overflow:hidden; }
+    .service-card-visual::before { content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--accent),transparent); }
+    .visual-title { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;margin-bottom:20px; }
+    .visual-stat { margin-bottom:16px; }
+    .visual-stat-label { font-size:11px;color:var(--muted);margin-bottom:6px; }
+    .visual-bar { height:4px;background:var(--border);border-radius:2px;overflow:hidden; }
+    .visual-bar-fill { height:100%;background:linear-gradient(to right,var(--accent2),var(--accent));border-radius:2px;transition:width 1s ease; }
+    .threat-list { display:flex;flex-direction:column;gap:8px;margin-top:20px; }
+    .threat-item { display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--deep);border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px; }
+    .threat-status { padding:2px 8px;font-size:9px;letter-spacing:1px;font-weight:700; }
+    .status-blocked { background:rgba(0,255,209,0.1);color:var(--accent);border:1px solid rgba(0,255,209,0.3); }
+    .status-quarantined { background:rgba(255,59,92,0.1);color:var(--danger);border:1px solid rgba(255,59,92,0.3); }
+    .status-monitoring { background:rgba(0,132,255,0.1);color:var(--accent2);border:1px solid rgba(0,132,255,0.3); }
+    .who-section { margin-top:32px;padding-top:32px;border-top:1px solid var(--border); }
+    .who-title { font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px; }
+    .who-tags { display:flex;flex-wrap:wrap;gap:8px; }
+    .who-tag { padding:6px 14px;background:rgba(0,132,255,0.08);border:1px solid rgba(0,132,255,0.2);font-size:12px;color:var(--accent2); }
+    @media(max-width:768px) {
+      .services-hero { padding:120px 24px 60px; }
+      .service-full { padding:60px 24px; }
+      .service-layout { grid-template-columns:1fr;gap:40px; }
+      .service-full:nth-child(even) .service-layout { direction:ltr; }
+    }
+  </style>
+</head>
+<body>
+  <section class="services-hero">
+    <div class="services-hero-bg"></div>
+    <div class="grid-overlay"></div>
+    <div style="position:relative;z-index:2;">
+      <div class="section-label fade-up">Our Services</div>
+      <h1 class="section-title fade-up" style="font-size:clamp(56px,8vw,100px);">FULL SPECTRUM<br><span style="color:var(--accent)">CYBER DEFENSE</span></h1>
+      <p class="section-sub fade-up">Six integrated service layers working together as one platform. Not a collection of tools — a unified defense system.</p>
+    </div>
+  </section>
+
+  <!-- EDR -->
+  <div class="service-full">
+    <div class="service-layout">
+      <div class="fade-up">
+        <div class="service-tag">Service 01</div>
+        <h2 class="service-name">EDR & THREAT DETECTION</h2>
+        <p class="service-desc-full">Our AI-powered Endpoint Detection & Response platform monitors every process, file, and network connection on your endpoints in real time. We don't just look for known threats — we analyze behavior to catch zero-day attacks before they cause damage.</p>
+        <div class="service-features-full">
+          <div class="feature-row">
+            <div class="feature-icon">🧠</div>
+            <div class="feature-text"><strong>Behavioral AI Detection</strong>Multiple detection layers including Wazuh rules, Elastic ML anomaly detection, and Claude AI reasoning catch threats that signatures miss.</div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-text"><strong>Sub-Second Endpoint Isolation</strong>When ransomware or malware is detected, the endpoint is automatically isolated from the network in under one second — before encryption can spread.</div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon">🔬</div>
+            <div class="feature-text"><strong>File Quarantine & Hash Analysis</strong>Suspicious files are quarantined instantly and checked against 70+ antivirus engines via VirusTotal integration.</div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon">🗺️</div>
+            <div class="feature-text"><strong>MITRE ATT&CK Mapping</strong>Every alert is automatically mapped to the MITRE ATT&CK framework so your team knows exactly what attack technique is being used.</div>
+          </div>
+        </div>
+        <div class="who-section">
+          <div class="who-title">Best For</div>
+          <div class="who-tags">
+            <span class="who-tag">Medical Offices</span>
+            <span class="who-tag">Law Firms</span>
+            <span class="who-tag">Financial Services</span>
+            <span class="who-tag">Any Business with Sensitive Data</span>
+          </div>
+        </div>
+      </div>
+      <div class="service-visual fade-up">
+        <div class="service-card-visual">
+          <div class="visual-title">// LIVE THREAT FEED</div>
+          <div class="threat-list">
+            <div class="threat-item"><span style="color:var(--muted)">14:22:09</span><span style="color:var(--white)">Ransomware behavior detected</span><span class="threat-status status-blocked">BLOCKED</span></div>
+            <div class="threat-item"><span style="color:var(--muted)">14:18:34</span><span style="color:var(--white)">invoice_final.exe — malicious</span><span class="threat-status status-quarantined">QUARANTINED</span></div>
+            <div class="threat-item"><span style="color:var(--muted)">14:15:01</span><span style="color:var(--white)">Lateral movement attempt</span><span class="threat-status status-blocked">BLOCKED</span></div>
+            <div class="threat-item"><span style="color:var(--muted)">14:10:22</span><span style="color:var(--white)">Encoded PowerShell detected</span><span class="threat-status status-blocked">BLOCKED</span></div>
+            <div class="threat-item"><span style="color:var(--muted)">14:02:15</span><span style="color:var(--white)">Anomaly — baseline deviation</span><span class="threat-status status-monitoring">MONITORING</span></div>
+          </div>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+            <div class="visual-stat">
+              <div class="visual-stat-label">Detection coverage</div>
+              <div class="visual-bar"><div class="visual-bar-fill" style="width:94%"></div></div>
+            </div>
+            <div class="visual-stat">
+              <div class="visual-stat-label">Response automation</div>
+              <div class="visual-bar"><div class="visual-bar-fill" style="width:88%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIEM -->
+  <div class="service-full">
+    <div class="service-layout">
+      <div class="fade-up">
+        <div class="service-tag">Service 02</div>
+        <h2 class="service-name">SIEM & LOG MANAGEMENT</h2>
+        <p class="service-desc-full">Every event across every endpoint, every network connection, every login attempt — ingested, correlated, and analyzed in real time. Our Elastic-powered SIEM platform turns raw log data into actionable security intelligence.</p>
+        <div class="service-features-full">
+          <div class="feature-row"><div class="feature-icon">📡</div><div class="feature-text"><strong>Centralized Log Ingestion</strong>Collect logs from endpoints, firewalls, cloud services, and applications into one unified platform.</div></div>
+          <div class="feature-row"><div class="feature-icon">🤖</div><div class="feature-text"><strong>Machine Learning Anomaly Detection</strong>Elastic ML builds behavioral baselines and automatically flags statistical outliers — catching attacks that rule-based systems miss.</div></div>
+          <div class="feature-row"><div class="feature-icon">🔗</div><div class="feature-text"><strong>Cross-Source Correlation</strong>Connect dots across multiple data sources to identify attack chains that span your entire environment.</div></div>
+          <div class="feature-row"><div class="feature-icon">📊</div><div class="feature-text"><strong>Compliance Reporting</strong>Automated compliance reports for HIPAA, PCI-DSS, and other frameworks — ready to show auditors on demand.</div></div>
+        </div>
+        <div class="who-section">
+          <div class="who-title">Best For</div>
+          <div class="who-tags"><span class="who-tag">Healthcare</span><span class="who-tag">Finance</span><span class="who-tag">Retail (PCI)</span><span class="who-tag">Any Regulated Industry</span></div>
+        </div>
+      </div>
+      <div class="service-visual fade-up">
+        <div class="service-card-visual">
+          <div class="visual-title">// SIEM OVERVIEW — LAST 24H</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+            <div style="background:var(--deep);padding:16px;border:1px solid var(--border);text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent)">48.2K</div><div style="font-size:10px;color:var(--muted);letter-spacing:1px">EVENTS PROCESSED</div></div>
+            <div style="background:var(--deep);padding:16px;border:1px solid var(--border);text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--danger)">127</div><div style="font-size:10px;color:var(--muted);letter-spacing:1px">ALERTS FIRED</div></div>
+            <div style="background:var(--deep);padding:16px;border:1px solid var(--border);text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent2)">3</div><div style="font-size:10px;color:var(--muted);letter-spacing:1px">CRITICAL</div></div>
+            <div style="background:var(--deep);padding:16px;border:1px solid var(--border);text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--white)">99.9%</div><div style="font-size:10px;color:var(--muted);letter-spacing:1px">UPTIME</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZERO TRUST -->
+  <div class="service-full">
+    <div class="service-layout">
+      <div class="fade-up">
+        <div class="service-tag">Service 03</div>
+        <h2 class="service-name">ZERO TRUST SECURITY</h2>
+        <p class="service-desc-full">Never trust, always verify. Zero Trust means every user, every device, and every connection must prove its identity before accessing anything — regardless of whether they're inside or outside your network.</p>
+        <div class="service-features-full">
+          <div class="feature-row"><div class="feature-icon">🔒</div><div class="feature-text"><strong>Application Allowlisting</strong>Only approved applications can run. Everything else is blocked by default — stopping ransomware and malware before they execute.</div></div>
+          <div class="feature-row"><div class="feature-icon">🌐</div><div class="feature-text"><strong>Network Microsegmentation</strong>Divide your network into isolated zones. A breach in one segment cannot spread to others.</div></div>
+          <div class="feature-row"><div class="feature-icon">🪪</div><div class="feature-text"><strong>Identity-Based Access</strong>Access is granted based on verified identity, not network location. Remote workers get the same protection as in-office staff.</div></div>
+          <div class="feature-row"><div class="feature-icon">🔌</div><div class="feature-text"><strong>USB Device Control</strong>Block unauthorized USB devices from connecting to your endpoints — preventing physical data theft and malware injection.</div></div>
+        </div>
+        <div class="who-section">
+          <div class="who-title">Best For</div>
+          <div class="who-tags"><span class="who-tag">Remote Teams</span><span class="who-tag">Multi-Location Offices</span><span class="who-tag">High-Security Environments</span></div>
+        </div>
+      </div>
+      <div class="service-visual fade-up">
+        <div class="service-card-visual">
+          <div class="visual-title">// ZERO TRUST POLICY STATUS</div>
+          <div class="threat-list">
+            <div class="threat-item"><span style="color:var(--white)">Application allowlist</span><span class="threat-status status-blocked" style="background:rgba(0,255,209,0.1);color:var(--accent);border-color:rgba(0,255,209,0.3)">ACTIVE</span></div>
+            <div class="threat-item"><span style="color:var(--white)">USB control policy</span><span class="threat-status status-blocked" style="background:rgba(0,255,209,0.1);color:var(--accent);border-color:rgba(0,255,209,0.3)">ENFORCED</span></div>
+            <div class="threat-item"><span style="color:var(--white)">MFA requirement</span><span class="threat-status status-blocked" style="background:rgba(0,255,209,0.1);color:var(--accent);border-color:rgba(0,255,209,0.3)">ENFORCED</span></div>
+            <div class="threat-item"><span style="color:var(--white)">Network segmentation</span><span class="threat-status status-blocked" style="background:rgba(0,255,209,0.1);color:var(--accent);border-color:rgba(0,255,209,0.3)">ACTIVE</span></div>
+            <div class="threat-item"><span style="color:var(--white)">Script execution policy</span><span class="threat-status status-blocked" style="background:rgba(0,255,209,0.1);color:var(--accent);border-color:rgba(0,255,209,0.3)">ENFORCED</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RMM -->
+  <div class="service-full">
+    <div class="service-layout">
+      <div class="fade-up">
+        <div class="service-tag">Service 04</div>
+        <h2 class="service-name">RMM & PATCH MANAGEMENT</h2>
+        <p class="service-desc-full">Remote Monitoring and Management keeps every endpoint healthy, updated, and visible — without requiring a technician on site. Unpatched systems are the number one cause of breaches. We eliminate that risk automatically.</p>
+        <div class="service-features-full">
+          <div class="feature-row"><div class="feature-icon">🖥️</div><div class="feature-text"><strong>Remote Access & Remediation</strong>Securely access any endpoint to diagnose and fix issues — no VPN required, no truck rolls.</div></div>
+          <div class="feature-row"><div class="feature-icon">🔄</div><div class="feature-text"><strong>Automated Patch Deployment</strong>Windows updates and third-party application patches deployed automatically on your schedule — Chrome, Zoom, Office, and more.</div></div>
+          <div class="feature-row"><div class="feature-icon">📋</div><div class="feature-text"><strong>Complete Asset Inventory</strong>See every device on your network — hardware specs, software installed, patch status, last seen online.</div></div>
+          <div class="feature-row"><div class="feature-icon">📈</div><div class="feature-text"><strong>Performance Monitoring</strong>CPU, RAM, disk, and network metrics monitored continuously with alerts before problems become outages.</div></div>
+        </div>
+        <div class="who-section">
+          <div class="who-title">Best For</div>
+          <div class="who-tags"><span class="who-tag">All Business Sizes</span><span class="who-tag">Multi-Device Environments</span><span class="who-tag">Remote Workforces</span></div>
+        </div>
+      </div>
+      <div class="service-visual fade-up">
+        <div class="service-card-visual">
+          <div class="visual-title">// PATCH COMPLIANCE STATUS</div>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+            <div><div class="visual-stat-label" style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;"><span>Windows Updates</span><span style="color:var(--accent)">94%</span></div><div class="visual-bar"><div class="visual-bar-fill" style="width:94%"></div></div></div>
+            <div><div class="visual-stat-label" style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;"><span>Third-party apps</span><span style="color:var(--accent)">88%</span></div><div class="visual-bar"><div class="visual-bar-fill" style="width:88%"></div></div></div>
+            <div><div class="visual-stat-label" style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;"><span>Security policies</span><span style="color:var(--accent)">100%</span></div><div class="visual-bar"><div class="visual-bar-fill" style="width:100%"></div></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;">
+            <div style="background:var(--deep);padding:12px;border:1px solid var(--border);"><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent)">47</div><div style="font-size:9px;color:var(--muted);letter-spacing:1px">ENDPOINTS</div></div>
+            <div style="background:var(--deep);padding:12px;border:1px solid var(--border);"><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white)">3</div><div style="font-size:9px;color:var(--muted);letter-spacing:1px">PENDING</div></div>
+            <div style="background:var(--deep);padding:12px;border:1px solid var(--border);"><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent)">44</div><div style="font-size:9px;color:var(--muted);letter-spacing:1px">COMPLIANT</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DARK WEB -->
+  <div class="service-full">
+    <div class="service-layout">
+      <div class="fade-up">
+        <div class="service-tag">Service 05</div>
+        <h2 class="service-name">DARK WEB MONITORING</h2>
+        <p class="service-desc-full">Billions of stolen credentials are traded on dark web markets every day. We continuously monitor these sources for your company's email addresses, passwords, and sensitive data — alerting you the moment exposure is detected.</p>
+        <div class="service-features-full">
+          <div class="feature-row"><div class="feature-icon">🕵️</div><div class="feature-text"><strong>Domain-Wide Email Monitoring</strong>Every email address at your domain monitored against breach databases updated in real time.</div></div>
+          <div class="feature-row"><div class="feature-icon">🚨</div><div class="feature-text"><strong>Instant Breach Alerts</strong>The moment your credentials appear in a breach, you and your client are notified immediately — not weeks later.</div></div>
+          <div class="feature-row"><div class="feature-icon">👔</div><div class="feature-text"><strong>Executive Identity Monitoring</strong>C-suite and key personnel get enhanced monitoring including personal email addresses and identity data.</div></div>
+          <div class="feature-row"><div class="feature-icon">🔐</div><div class="feature-text"><strong>Password Exposure Detection</strong>Detect when employee passwords appear in plaintext breach dumps — triggering forced password resets automatically.</div></div>
+        </div>
+        <div class="who-section">
+          <div class="who-title">Best For</div>
+          <div class="who-tags"><span class="who-tag">All Companies</span><span class="who-tag">Executive Teams</span><span class="who-tag">High-Profile Targets</span></div>
+        </div>
+      </div>
+      <div class="service-visual fade-up">
+        <div class="service-card-visual">
+          <div class="visual-title">// DARK WEB SCAN RESULTS</div>
+          <div style="text-align:center;padding:24px 0;border-bottom:1px solid var(--border);margin-bottom:20px;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;color:var(--accent);line-height:1">0</div>
+            <div style="font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:4px">ACTIVE EXPOSURES DETECTED</div>
+          </div>
+          <div class="threat-list">
+            <div class="threat-item"><span style="color:var(--muted)">Breach DB scan</span><span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">CLEAN</span></div>
+            <div class="threat-item"><span style="color:var(--muted)">Paste sites</span><span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">CLEAN</span></div>
+            <div class="threat-item"><span style="color:var(--muted)">Dark web markets</span><span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">CLEAN</span></div>
+            <div class="threat-item"><span style="color:var(--muted)">Last full scan</span><span style="color:var(--white);font-family:'JetBrains Mono',monospace;font-size:11px">2 min ago</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSESSMENT -->
+  <div class="service-full">
+    <div class="service-layout">
+      <div class="fade-up">
+        <div class="service-tag">Service 06</div>
+        <h2 class="service-name">CYBER RISK ASSESSMENT</h2>
+        <p class="service-desc-full">Before you can fix your security posture, you need to understand it. Our AI-powered assessment platform evaluates your environment against NIST, CIS, HIPAA, and PCI-DSS frameworks — producing a clear roadmap to compliance and resilience.</p>
+        <div class="service-features-full">
+          <div class="feature-row"><div class="feature-icon">📋</div><div class="feature-text"><strong>Multi-Framework Assessment</strong>Evaluated against NIST CSF, CIS Controls v8, HIPAA, and PCI-DSS simultaneously in a single engagement.</div></div>
+          <div class="feature-row"><div class="feature-icon">🤖</div><div class="feature-text"><strong>AI-Generated Remediation Roadmap</strong>Claude AI analyzes your scores and generates a prioritized, actionable remediation plan specific to your environment.</div></div>
+          <div class="feature-row"><div class="feature-icon">📄</div><div class="feature-text"><strong>Executive PDF Reports</strong>Board-ready reports in plain English — no technical jargon. Show leadership exactly where risks are and how to address them.</div></div>
+          <div class="feature-row"><div class="feature-icon">📈</div><div class="feature-text"><strong>Historical Score Tracking</strong>Track your security posture improvement over time. Show real progress to clients, auditors, and insurance providers.</div></div>
+        </div>
+        <div style="margin-top:32px;">
+          <a href="contact.html" class="btn-primary">Request an Assessment</a>
+        </div>
+        <div class="who-section">
+          <div class="who-title">Best For</div>
+          <div class="who-tags"><span class="who-tag">HIPAA Covered Entities</span><span class="who-tag">PCI Merchants</span><span class="who-tag">Cyber Insurance Applicants</span><span class="who-tag">New Security Programs</span></div>
+        </div>
+      </div>
+      <div class="service-visual fade-up">
+        <div class="service-card-visual">
+          <div class="visual-title">// RISK ASSESSMENT SCORES</div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;"><span>NIST CSF</span><span style="color:var(--accent2)">62 / 100</span></div><div class="visual-bar"><div class="visual-bar-fill" style="width:62%;background:linear-gradient(to right,var(--accent2),var(--accent2))"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;"><span>CIS Controls v8</span><span style="color:var(--danger)">48 / 100</span></div><div class="visual-bar"><div class="visual-bar-fill" style="width:48%;background:linear-gradient(to right,var(--danger),var(--danger))"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;"><span>HIPAA Readiness</span><span style="color:#F5A623">71 / 100</span></div><div class="visual-bar"><div class="visual-bar-fill" style="width:71%;background:linear-gradient(to right,#F5A623,#F5A623)"></div></div></div>
+          </div>
+          <div style="margin-top:20px;padding:16px;background:rgba(255,59,92,0.05);border:1px solid rgba(255,59,92,0.2);">
+            <div style="font-size:11px;color:var(--danger);letter-spacing:1px;margin-bottom:6px;">⚠ TOP PRIORITY</div>
+            <div style="font-size:12px;color:var(--text)">Implement MFA across all admin accounts — critical gap identified in CIS assessment.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section style="background:var(--deep);text-align:center;padding:80px 60px;">
+    <h2 class="section-title fade-up">READY TO GET PROTECTED?</h2>
+    <p class="section-sub fade-up" style="margin:0 auto 40px;text-align:center;">Book a free demo and see every one of these services live in your environment.</p>
+    <div class="fade-up" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="contact.html" class="btn-primary">Book a Free Demo</a>
+      <a href="pricing.html" class="btn-secondary">See Pricing</a>
+    </div>
+  </section>
+</body>
+</html>

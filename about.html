@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About — Palisade One</title>
+  <script src="components.js" defer></script>
+  <style>
+    .about-hero { min-height:55vh;display:flex;align-items:center;padding:160px 60px 80px;position:relative;overflow:hidden; }
+    .about-hero-bg { position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 20% 50%,rgba(0,255,209,0.05) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 80% 20%,rgba(0,132,255,0.04) 0%,transparent 50%); }
+    .mission-section { padding:120px 60px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center; }
+    .mission-text { }
+    .mission-quote { font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,3vw,40px);color:var(--white);line-height:1.2;letter-spacing:1px;margin-bottom:32px;border-left:3px solid var(--accent);padding-left:24px; }
+    .mission-body { font-size:15px;color:var(--muted);line-height:1.9; }
+    .mission-body p { margin-bottom:20px; }
+    .values-grid { display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border); }
+    .value-card { background:var(--deep);padding:40px;transition:background 0.3s; }
+    .value-card:hover { background:var(--surface); }
+    .value-num { font-family:'Bebas Neue',sans-serif;font-size:48px;color:rgba(0,255,209,0.1);line-height:1;margin-bottom:12px; }
+    .value-title { font-size:15px;font-weight:600;color:var(--white);margin-bottom:10px; }
+    .value-desc { font-size:13px;color:var(--muted);line-height:1.7; }
+    .team-section { padding:120px 60px;background:var(--deep); }
+    .team-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:64px; }
+    .team-card { background:var(--surface);border:1px solid var(--border);padding:40px 32px;position:relative;overflow:hidden;transition:border-color 0.3s; }
+    .team-card:hover { border-color:var(--accent); }
+    .team-card::before { content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--accent),transparent);transform:scaleX(0);transition:transform 0.4s; }
+    .team-card:hover::before { transform:scaleX(1); }
+    .team-avatar { width:64px;height:64px;background:rgba(0,255,209,0.08);border:1px solid rgba(0,255,209,0.2);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px; }
+    .team-name { font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);letter-spacing:2px;margin-bottom:4px; }
+    .team-role { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;margin-bottom:16px; }
+    .team-bio { font-size:13px;color:var(--muted);line-height:1.7; }
+    .stats-section { padding:80px 60px;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border); }
+    .stat-box { background:var(--black);padding:48px 40px;text-align:center; }
+    .stat-big { font-family:'Bebas Neue',sans-serif;font-size:56px;color:var(--accent);letter-spacing:2px;line-height:1; }
+    .stat-label { font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:8px; }
+    .cta-section { padding:120px 60px;text-align:center;background:var(--deep); }
+    @media(max-width:768px) {
+      .about-hero { padding:120px 24px 60px; }
+      .mission-section { grid-template-columns:1fr;gap:48px;padding:80px 24px; }
+      .values-grid { grid-template-columns:1fr; }
+      .team-grid { grid-template-columns:1fr; }
+      .stats-section { grid-template-columns:1fr 1fr;padding:48px 24px; }
+      .team-section,.cta-section { padding:80px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="about-hero">
+    <div class="about-hero-bg"></div>
+    <div class="grid-overlay"></div>
+    <div style="position:relative;z-index:2;max-width:800px;">
+      <div class="section-label fade-up">About Palisade One</div>
+      <h1 class="section-title fade-up" style="font-size:clamp(56px,8vw,96px);">WE BUILT WHAT<br><span style="color:var(--accent)">DIDN'T EXIST.</span></h1>
+      <p class="section-sub fade-up">A team of security professionals who got tired of watching small businesses get destroyed by attacks that enterprise-grade tools could have stopped — if only they were affordable.</p>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-section">
+    <div class="stat-box fade-up"><div class="stat-big">100%</div><div class="stat-label">In-House Built Platform</div></div>
+    <div class="stat-box fade-up"><div class="stat-big">24/7</div><div class="stat-label">SOC Monitoring</div></div>
+    <div class="stat-box fade-up"><div class="stat-big">0</div><div class="stat-label">Third-Party Tool Reliance</div></div>
+    <div class="stat-box fade-up"><div class="stat-big">&lt;1s</div><div class="stat-label">Mean Response Time</div></div>
+  </div>
+
+  <!-- MISSION -->
+  <div class="mission-section">
+    <div class="fade-up">
+      <div class="section-label">Our Mission</div>
+      <h2 class="section-title">THE PROBLEM<br>WE SOLVE</h2>
+      <div class="mission-body">
+        <p>Small and mid-sized businesses are the most targeted — and least protected — organizations in the world. Attackers know that a 20-person accounting firm or a regional medical practice doesn't have the resources of a Fortune 500 company.</p>
+        <p>But they have just as much valuable data. Patient records. Financial documents. Client information. And most of them are running on basic antivirus software from 2015 while ransomware gangs use AI-powered tools to find them.</p>
+        <p>The enterprise security tools that could stop these attacks — SentinelOne, CrowdStrike, Darktrace — exist. But they're priced for enterprises. The platforms that are priced for SMBs don't actually work against modern attacks.</p>
+        <p style="color:var(--white);font-weight:500;">We closed that gap. Palisade One is enterprise-grade security, built from the ground up for businesses that can't afford a breach — and finally priced like they can't afford one either.</p>
+      </div>
+    </div>
+    <div class="fade-up">
+      <div class="mission-quote">"The only difference between a protected business and a breached one is whether someone decided to take security seriously before the attack happened."</div>
+      <div style="display:flex;flex-direction:column;gap:16px;margin-top:32px;">
+        <div style="padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);">
+          <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">We own our entire stack</div>
+          <div style="font-size:12px;color:var(--muted);">No licensing fees from CrowdStrike, S1, or ConnectWise passed to clients. We built it, we control it, you benefit.</div>
+        </div>
+        <div style="padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent2);">
+          <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">AI is built in, not bolted on</div>
+          <div style="font-size:12px;color:var(--muted);">Every alert, report, and recommendation runs through AI. Your team gets context and plain English — not 10,000 raw log lines.</div>
+        </div>
+        <div style="padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--danger);">
+          <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">We assume breach</div>
+          <div style="font-size:12px;color:var(--muted);">Zero trust isn't a feature — it's our default posture. We design every deployment as if attackers are already inside.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VALUES -->
+  <section style="padding:0 60px 120px;background:var(--black);">
+    <div class="section-label fade-up">Our Values</div>
+    <h2 class="section-title fade-up">WHAT WE<br>STAND FOR</h2>
+    <div class="values-grid" style="margin-top:48px;">
+      <div class="value-card fade-up">
+        <div class="value-num">01</div>
+        <div class="value-title">Radical Transparency</div>
+        <p class="value-desc">Your clients see exactly what we see. Real dashboards, real data, no black box security theater. If something happens on their network, they know about it before we tell them — because their portal shows it live.</p>
+      </div>
+      <div class="value-card fade-up">
+        <div class="value-num">02</div>
+        <div class="value-title">Ownership Over Dependency</div>
+        <p class="value-desc">We built our platform instead of reselling someone else's tools. That means we control quality, we control pricing, and we're never one vendor's price increase away from a business crisis.</p>
+      </div>
+      <div class="value-card fade-up">
+        <div class="value-num">03</div>
+        <div class="value-title">Speed as a Feature</div>
+        <p class="value-desc">In cybersecurity, response time is everything. A ransomware attack that takes 30 seconds to detect vs 3 seconds to detect is the difference between a minor incident and a company-ending event. We optimize for speed at every layer.</p>
+      </div>
+      <div class="value-card fade-up">
+        <div class="value-num">04</div>
+        <div class="value-title">Accessibility Without Compromise</div>
+        <p class="value-desc">Enterprise security shouldn't require an enterprise budget. We believe every business — regardless of size — deserves protection that actually works against modern threats. No watered-down products. Full capability, fair pricing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="team-section">
+    <div class="section-label fade-up">The Team</div>
+    <h2 class="section-title fade-up">SECURITY PROFESSIONALS<br>WHO BUILT THE PLATFORM</h2>
+    <div class="team-grid">
+      <div class="team-card fade-up">
+        <div class="team-avatar">🛡️</div>
+        <div class="team-name">Security Operations</div>
+        <div class="team-role">SOC & Threat Analysis</div>
+        <p class="team-bio">Our security operations team monitors client environments 24/7, triages alerts, and leads incident response. Deep expertise in threat hunting, forensics, and MITRE ATT&CK framework analysis.</p>
+      </div>
+      <div class="team-card fade-up">
+        <div class="team-avatar">⚙️</div>
+        <div class="team-name">Platform Engineering</div>
+        <div class="team-role">Infrastructure & Development</div>
+        <p class="team-bio">Built the entire Palisade One platform from the ground up. Specialists in Elastic, Wazuh, AI integration, and the custom tooling that makes our automated response capabilities possible.</p>
+      </div>
+      <div class="team-card fade-up">
+        <div class="team-avatar">📋</div>
+        <div class="team-name">Compliance & Assessment</div>
+        <div class="team-role">GRC & Framework Specialists</div>
+        <p class="team-bio">Certified specialists in NIST, CIS, HIPAA, and PCI-DSS frameworks. Lead our cyber risk assessment practice and help clients navigate compliance requirements with practical, actionable guidance.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2 class="section-title fade-up">JOIN THE BUSINESSES<br><span style="color:var(--accent)">WE PROTECT</span></h2>
+    <p class="section-sub fade-up" style="margin:0 auto 40px;text-align:center;">Book a free demo and see what real enterprise-grade security looks like for your business.</p>
+    <div class="fade-up" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="contact.html" class="btn-primary">Book a Free Demo</a>
+      <a href="services.html" class="btn-secondary">See Our Services</a>
+    </div>
+  </section>
+</body>
+</html>

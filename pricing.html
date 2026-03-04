@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pricing — Palisade One</title>
+  <script src="components.js" defer></script>
+  <style>
+    .pricing-hero { min-height:45vh;display:flex;align-items:center;padding:160px 60px 60px;position:relative;overflow:hidden; }
+    .pricing-hero-bg { position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 40%,rgba(0,132,255,0.06) 0%,transparent 60%); }
+    .calculator-section { padding:0 60px 80px; }
+    .calculator-box { background:var(--surface);border:1px solid var(--border);padding:40px;max-width:700px;margin:0 auto; }
+    .calc-title { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:3px;margin-bottom:24px; }
+    .calc-row { display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap; }
+    .calc-label { font-size:14px;color:var(--text); }
+    .calc-input { background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:16px;width:100px;text-align:center;outline:none; }
+    .calc-input:focus { border-color:var(--accent); }
+    .calc-result { margin-top:24px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px; }
+    .calc-tier-select { display:flex;gap:8px;flex-wrap:wrap; }
+    .tier-btn { padding:8px 16px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;cursor:none;transition:all 0.2s; }
+    .tier-btn.active { border-color:var(--accent);color:var(--accent);background:rgba(0,255,209,0.05); }
+    .calc-price-display { font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent);letter-spacing:2px; }
+    .calc-price-label { font-size:12px;color:var(--muted); }
+    .pricing-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding:0 60px 80px; }
+    .pricing-card { background:var(--surface);border:1px solid var(--border);padding:48px 36px;position:relative;transition:border-color 0.3s,transform 0.3s;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px)); }
+    .pricing-card:hover { border-color:var(--accent);transform:translateY(-4px); }
+    .pricing-card.featured { border-color:var(--accent);background:linear-gradient(135deg,rgba(0,255,209,0.05) 0%,var(--surface) 100%); }
+    .featured-badge { position:absolute;top:-1px;right:24px;background:var(--accent);color:var(--black);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 12px;text-transform:uppercase; }
+    .pricing-tier-label { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px; }
+    .pricing-name { font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--white);letter-spacing:2px;margin-bottom:8px; }
+    .pricing-tagline { font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.5; }
+    .price-main { font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--white);letter-spacing:1px;line-height:1; }
+    .price-main span { font-size:24px;color:var(--muted); }
+    .price-per-user { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-top:4px;margin-bottom:32px; }
+    .pricing-divider { height:1px;background:var(--border);margin:24px 0; }
+    .pricing-features { list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px; }
+    .pricing-features li { font-size:13px;color:var(--text);display:flex;align-items:flex-start;gap:10px;line-height:1.4; }
+    .check { color:var(--accent);font-size:12px;flex-shrink:0;margin-top:1px; }
+    .cross { color:var(--muted);font-size:12px;flex-shrink:0;margin-top:1px; }
+    .pricing-btn { display:block;text-align:center;padding:14px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:all 0.2s;border:1px solid var(--accent);color:var(--accent); }
+    .pricing-btn:hover,.pricing-card.featured .pricing-btn { background:var(--accent);color:var(--black); }
+    .addons-section { padding:0 60px 80px; }
+    .addons-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px; }
+    .addon-card { background:var(--deep);border:1px solid var(--border);padding:24px;transition:border-color 0.3s; }
+    .addon-card:hover { border-color:var(--accent); }
+    .addon-name { font-size:14px;color:var(--white);font-weight:500;margin-bottom:8px; }
+    .addon-desc { font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px; }
+    .addon-price { font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);letter-spacing:1px; }
+    .compare-section { padding:0 60px 80px;overflow-x:auto; }
+    .compare-table { width:100%;border-collapse:collapse;min-width:600px; }
+    .compare-table th { padding:16px 20px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border); }
+    .compare-table th:not(:first-child) { text-align:center; }
+    .compare-table td { padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-size:13px;color:var(--text); }
+    .compare-table td:not(:first-child) { text-align:center; }
+    .compare-table tr:hover td { background:rgba(255,255,255,0.02); }
+    .compare-table .tier-head { font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px; }
+    .t1 { color:var(--muted); }
+    .t2 { color:var(--accent); }
+    .t3 { color:var(--accent2); }
+    .faq-section { padding:0 60px 120px;background:var(--deep); }
+    .faq-grid { display:flex;flex-direction:column;gap:0;margin-top:48px;border:1px solid var(--border); }
+    .faq-item { border-bottom:1px solid var(--border);overflow:hidden; }
+    .faq-item:last-child { border-bottom:none; }
+    .faq-q { padding:20px 24px;font-size:14px;color:var(--white);cursor:none;display:flex;justify-content:space-between;align-items:center;transition:background 0.2s; }
+    .faq-q:hover { background:rgba(255,255,255,0.02); }
+    .faq-toggle { color:var(--accent);font-size:20px;transition:transform 0.3s;line-height:1; }
+    .faq-a { padding:0 24px;font-size:13px;color:var(--muted);line-height:1.8;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s; }
+    .faq-item.open .faq-a { max-height:200px;padding:0 24px 20px; }
+    .faq-item.open .faq-toggle { transform:rotate(45deg); }
+    @media(max-width:768px) {
+      .pricing-hero { padding:120px 24px 60px; }
+      .calculator-section,.pricing-grid,.addons-section,.compare-section,.faq-section { padding-left:24px;padding-right:24px; }
+      .pricing-grid { grid-template-columns:1fr; }
+      .addons-grid { grid-template-columns:1fr; }
+      .calc-row { flex-direction:column;align-items:flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <section class="pricing-hero">
+    <div class="pricing-hero-bg"></div>
+    <div class="grid-overlay"></div>
+    <div style="position:relative;z-index:2;text-align:center;width:100%;">
+      <div class="section-label fade-up" style="justify-content:center;">Pricing</div>
+      <h1 class="section-title fade-up" style="font-size:clamp(56px,8vw,96px);">SIMPLE.<br><span style="color:var(--accent)">TRANSPARENT.</span></h1>
+      <p class="section-sub fade-up" style="margin:0 auto;">No hidden fees. No surprise bills. Per-user pricing that scales with your business.</p>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <div class="calculator-section">
+    <div class="calculator-box fade-up">
+      <div class="calc-title">// COST CALCULATOR</div>
+      <div class="calc-row">
+        <div class="calc-label">Number of users</div>
+        <input type="number" class="calc-input" id="userCount" value="10" min="1" max="500">
+      </div>
+      <div class="calc-row" style="margin-top:20px;">
+        <div class="calc-label">Service tier</div>
+        <div class="calc-tier-select">
+          <button class="tier-btn active" onclick="setTier(1,this)">Monitor</button>
+          <button class="tier-btn" onclick="setTier(2,this)">Defend</button>
+          <button class="tier-btn" onclick="setTier(3,this)">Dominate</button>
+        </div>
+      </div>
+      <div class="calc-result">
+        <div>
+          <div class="calc-price-label">Estimated monthly cost</div>
+          <div class="calc-price-display" id="calcResult">$579</div>
+        </div>
+        <a href="contact.html" class="btn-primary" style="font-size:12px;padding:12px 24px;">Get Exact Quote →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICING CARDS -->
+  <div class="pricing-grid">
+    <div class="pricing-card fade-up">
+      <div class="pricing-tier-label">Tier 01</div>
+      <div class="pricing-name">MONITOR</div>
+      <div class="pricing-tagline">Essential visibility and alerting for businesses taking their first step toward real security.</div>
+      <div class="price-main"><span>$</span>399</div>
+      <div class="price-per-user">base / mo + $18 per user</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li><span class="check">✓</span>SIEM monitoring & log management</li>
+        <li><span class="check">✓</span>24/7 automated threat alerting</li>
+        <li><span class="check">✓</span>Monthly AI-generated security report</li>
+        <li><span class="check">✓</span>Uptime & service monitoring</li>
+        <li><span class="check">✓</span>Email & SMS real-time alerts</li>
+        <li><span class="check">✓</span>Client portal access</li>
+        <li><span class="check">✓</span>Asset inventory tracking</li>
+        <li><span class="cross">–</span><span style="color:var(--muted)">EDR endpoint agents</span></li>
+        <li><span class="cross">–</span><span style="color:var(--muted)">Patch management</span></li>
+        <li><span class="cross">–</span><span style="color:var(--muted)">Dark web monitoring</span></li>
+      </ul>
+      <a href="contact.html" class="pricing-btn">Get Started</a>
+    </div>
+
+    <div class="pricing-card featured fade-up">
+      <div class="featured-badge">Most Popular</div>
+      <div class="pricing-tier-label">Tier 02</div>
+      <div class="pricing-name">DEFEND</div>
+      <div class="pricing-tagline">Full EDR protection with AI-powered detection and automated response for growing businesses.</div>
+      <div class="price-main"><span>$</span>599</div>
+      <div class="price-per-user">base / mo + $28 per user</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li><span class="check">✓</span>Everything in Monitor</li>
+        <li><span class="check">✓</span>EDR agents on all endpoints</li>
+        <li><span class="check">✓</span>Behavioral AI threat detection</li>
+        <li><span class="check">✓</span>Automated endpoint isolation</li>
+        <li><span class="check">✓</span>File quarantine & hash analysis</li>
+        <li><span class="check">✓</span>RMM + remote access</li>
+        <li><span class="check">✓</span>Automated patch management</li>
+        <li><span class="check">✓</span>Dark web monitoring</li>
+        <li><span class="check">✓</span>AI-generated weekly reports</li>
+        <li><span class="cross">–</span><span style="color:var(--muted)">Zero trust architecture</span></li>
+      </ul>
+      <a href="contact.html" class="pricing-btn">Get Started</a>
+    </div>
+
+    <div class="pricing-card fade-up">
+      <div class="pricing-tier-label">Tier 03</div>
+      <div class="pricing-name">DOMINATE</div>
+      <div class="pricing-tagline">The complete enterprise security stack for businesses that handle sensitive data or face compliance requirements.</div>
+      <div class="price-main"><span>$</span>899</div>
+      <div class="price-per-user">base / mo + $45 per user</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li><span class="check">✓</span>Everything in Defend</li>
+        <li><span class="check">✓</span>Zero trust architecture</li>
+        <li><span class="check">✓</span>Application allowlisting</li>
+        <li><span class="check">✓</span>Network microsegmentation</li>
+        <li><span class="check">✓</span>Annual cyber risk assessment</li>
+        <li><span class="check">✓</span>HIPAA / PCI-DSS compliance</li>
+        <li><span class="check">✓</span>Priority incident response (2hr SLA)</li>
+        <li><span class="check">✓</span>Dedicated account manager</li>
+        <li><span class="check">✓</span>Executive quarterly reviews</li>
+        <li><span class="check">✓</span>Cyber insurance documentation</li>
+      </ul>
+      <a href="contact.html" class="pricing-btn">Get Started</a>
+    </div>
+  </div>
+
+  <!-- ADD-ONS -->
+  <div class="addons-section">
+    <div class="section-label fade-up">Add-On Services</div>
+    <h2 class="section-title fade-up">ENHANCE YOUR<br>PROTECTION</h2>
+    <div class="addons-grid">
+      <div class="addon-card fade-up">
+        <div class="addon-name">Cyber Risk Assessment</div>
+        <div class="addon-desc">Full NIST CSF, CIS Controls, and HIPAA assessment with AI-generated remediation roadmap and executive PDF report.</div>
+        <div class="addon-price">$1,500 – $3,000</div>
+      </div>
+      <div class="addon-card fade-up">
+        <div class="addon-name">Incident Response</div>
+        <div class="addon-desc">On-demand incident response for security events. Forensic analysis, containment, eradication, and recovery.</div>
+        <div class="addon-price">$200 / hour</div>
+      </div>
+      <div class="addon-card fade-up">
+        <div class="addon-name">Security Awareness Training</div>
+        <div class="addon-desc">Phishing simulation and security awareness training for all employees. Includes monthly progress reports.</div>
+        <div class="addon-price">$750 / year</div>
+      </div>
+      <div class="addon-card fade-up">
+        <div class="addon-name">Penetration Testing</div>
+        <div class="addon-desc">External and internal penetration testing to identify vulnerabilities before attackers do. Full written report included.</div>
+        <div class="addon-price">$2,500 – $5,000</div>
+      </div>
+      <div class="addon-card fade-up">
+        <div class="addon-name">Compliance Reporting Package</div>
+        <div class="addon-desc">Ongoing compliance documentation for HIPAA, PCI-DSS, or SOC 2 audits. Includes evidence collection and audit prep.</div>
+        <div class="addon-price">$500 / month</div>
+      </div>
+      <div class="addon-card fade-up">
+        <div class="addon-name">Network Sensor (Probe Box)</div>
+        <div class="addon-desc">Physical network sensor deployed at client site for full network traffic visibility, IDS, and DNS filtering.</div>
+        <div class="addon-price">$350 setup + $100/mo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARE TABLE -->
+  <div class="compare-section">
+    <div class="section-label fade-up">Full Comparison</div>
+    <h2 class="section-title fade-up">WHAT'S INCLUDED<br>IN EACH TIER</h2>
+    <table class="compare-table" style="margin-top:40px;">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th><span class="tier-head t1">Monitor</span></th>
+          <th><span class="tier-head t2">Defend</span></th>
+          <th><span class="tier-head t3">Dominate</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>SIEM & log management</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>24/7 automated alerting</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Client portal access</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Uptime monitoring</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Asset inventory</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Monthly security report</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>EDR endpoint agents</td><td>—</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Behavioral AI detection</td><td>—</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Endpoint auto-isolation</td><td>—</td><td>✅</td><td>✅</td></tr>
+        <tr><td>File quarantine</td><td>—</td><td>✅</td><td>✅</td></tr>
+        <tr><td>RMM & remote access</td><td>—</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Patch management</td><td>—</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Dark web monitoring</td><td>—</td><td>✅</td><td>✅</td></tr>
+        <tr><td>AI weekly reports</td><td>—</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Zero trust architecture</td><td>—</td><td>—</td><td>✅</td></tr>
+        <tr><td>Application allowlisting</td><td>—</td><td>—</td><td>✅</td></tr>
+        <tr><td>Annual risk assessment</td><td>—</td><td>—</td><td>✅</td></tr>
+        <tr><td>HIPAA / PCI compliance</td><td>—</td><td>—</td><td>✅</td></tr>
+        <tr><td>Priority response (2hr SLA)</td><td>—</td><td>—</td><td>✅</td></tr>
+        <tr><td>Dedicated account manager</td><td>—</td><td>—</td><td>✅</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <div class="section-label fade-up">FAQ</div>
+    <h2 class="section-title fade-up">COMMON<br>QUESTIONS</h2>
+    <div class="faq-grid fade-up">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How does per-user pricing work? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">You pay a flat base fee plus a monthly amount per user. A user is defined as any person who uses a company device or accesses company resources. All devices belonging to that user are covered under their single user license — no per-device counting.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Are there contracts or can I cancel anytime? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">We offer month-to-month and annual contracts. Annual contracts include a 10% discount. There are no cancellation fees — we earn your business every month by delivering results, not by locking you in.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How long does onboarding take? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Most clients are fully onboarded within 24-48 hours. We send a lightweight agent installer that deploys silently on Windows, Mac, and Linux endpoints. No hardware required, no on-site visits needed for most clients.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Do you support Mac and Linux endpoints? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Yes. Our EDR agent supports Windows, macOS, and Linux. All endpoints regardless of OS are monitored, protected, and visible in the client portal.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What happens when a threat is detected at 3am? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Our automated response platform handles critical threats immediately — isolating endpoints, quarantining files, and blocking connections in under one second. You and your designated contacts receive instant alerts. Our SOC team reviews and follows up during business hours unless escalation is required.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Does my cyber insurance cover this? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Many cyber insurance providers offer premium discounts for businesses with managed security services in place. Our Dominate tier includes documentation specifically designed to support cyber insurance applications and renewals. We recommend checking with your broker — many clients find the insurance savings offset a significant portion of our fees.</div>
+      </div>
+    </div>
+  </div>
+
+  <section style="text-align:center;padding:80px 60px;background:var(--black);">
+    <h2 class="section-title fade-up">STILL HAVE<br><span style="color:var(--accent)">QUESTIONS?</span></h2>
+    <p class="section-sub fade-up" style="margin:0 auto 40px;text-align:center;">Book a free 30-minute demo. No pressure, no sales pitch — just a live look at the platform and an honest conversation about what your business actually needs.</p>
+    <a href="contact.html" class="btn-primary fade-up">Book a Free Demo</a>
+  </section>
+
+  <script>
+    // Calculator
+    const bases = [399, 599, 899];
+    const perUser = [18, 28, 45];
+    let currentTier = 0;
+    function setTier(t, btn) {
+      currentTier = t - 1;
+      document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateCalc();
+    }
+    function updateCalc() {
+      const users = parseInt(document.getElementById('userCount').value) || 1;
+      const total = bases[currentTier] + (users * perUser[currentTier]);
+      document.getElementById('calcResult').textContent = '$' + total.toLocaleString();
+    }
+    document.getElementById('userCount').addEventListener('input', updateCalc);
+
+    // FAQ
+    function toggleFaq(el) {
+      const item = el.parentElement;
+      item.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

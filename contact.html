@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact — Palisade One</title>
+  <script src="components.js" defer></script>
+  <style>
+    .contact-hero { min-height:40vh;display:flex;align-items:center;padding:160px 60px 60px;position:relative;overflow:hidden; }
+    .contact-hero-bg { position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 40% 50%,rgba(0,132,255,0.05) 0%,transparent 60%); }
+    .contact-main { padding:0 60px 120px;display:grid;grid-template-columns:1fr 1.5fr;gap:80px;align-items:start; }
+    .contact-info { display:flex;flex-direction:column;gap:0; }
+    .contact-block { padding:28px 0;border-bottom:1px solid var(--border); }
+    .contact-block:last-child { border-bottom:none; }
+    .contact-block-label { font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px; }
+    .contact-block-value { font-size:14px;color:var(--white);line-height:1.6; }
+    .contact-block-sub { font-size:12px;color:var(--muted);margin-top:4px; }
+    .what-to-expect { background:var(--surface);border:1px solid var(--border);padding:32px;margin-top:32px; }
+    .expect-title { font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:20px; }
+    .expect-steps { display:flex;flex-direction:column;gap:16px; }
+    .expect-step { display:flex;gap:16px;align-items:flex-start; }
+    .step-num { width:28px;height:28px;background:rgba(0,255,209,0.1);border:1px solid rgba(0,255,209,0.2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);flex-shrink:0; }
+    .step-text { font-size:13px;color:var(--muted);line-height:1.6; }
+    .step-text strong { color:var(--text);display:block; }
+    .contact-form-wrap { background:var(--surface);border:1px solid var(--border);padding:48px; }
+    .form-title { font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--white);letter-spacing:2px;margin-bottom:8px; }
+    .form-sub { font-size:13px;color:var(--muted);margin-bottom:32px; }
+    .form-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+    .form-full { grid-column:1/-1; }
+    .form-success { display:none;text-align:center;padding:40px;background:rgba(0,255,209,0.05);border:1px solid rgba(0,255,209,0.2); }
+    .form-success h3 { font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent);letter-spacing:2px;margin-bottom:12px; }
+    .form-success p { font-size:14px;color:var(--muted); }
+    @media(max-width:768px) {
+      .contact-hero { padding:120px 24px 60px; }
+      .contact-main { grid-template-columns:1fr;gap:48px;padding:0 24px 80px; }
+      .contact-form-wrap { padding:28px 20px; }
+      .form-grid { grid-template-columns:1fr; }
+      .form-full { grid-column:1; }
+    }
+  </style>
+</head>
+<body>
+  <section class="contact-hero">
+    <div class="contact-hero-bg"></div>
+    <div class="grid-overlay"></div>
+    <div style="position:relative;z-index:2;">
+      <div class="section-label fade-up">Get In Touch</div>
+      <h1 class="section-title fade-up" style="font-size:clamp(48px,7vw,88px);">LET'S TALK<br><span style="color:var(--accent)">SECURITY.</span></h1>
+      <p class="section-sub fade-up">Book a free demo, request a quote, or just ask a question. We respond within 4 business hours.</p>
+    </div>
+  </section>
+
+  <div class="contact-main">
+    <div class="fade-up">
+      <div class="contact-info">
+        <div class="contact-block">
+          <div class="contact-block-label">Email</div>
+          <div class="contact-block-value">hello@palisadeone.com</div>
+          <div class="contact-block-sub">General inquiries & sales</div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-block-label">Phone</div>
+          <div class="contact-block-value">(XXX) XXX-XXXX</div>
+          <div class="contact-block-sub">Mon–Fri, 9am–6pm EST</div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-block-label">SOC Monitoring</div>
+          <div class="contact-block-value">24 / 7 / 365</div>
+          <div class="contact-block-sub">Active clients monitored around the clock</div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-block-label">Response Time</div>
+          <div class="contact-block-value">Within 4 business hours</div>
+          <div class="contact-block-sub">For all new inquiries</div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-block-label">Coverage</div>
+          <div class="contact-block-value">Nationwide — Fully Remote</div>
+          <div class="contact-block-sub">Serving businesses across the US</div>
+        </div>
+      </div>
+
+      <div class="what-to-expect">
+        <div class="expect-title">// WHAT HAPPENS NEXT</div>
+        <div class="expect-steps">
+          <div class="expect-step">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>We'll reach out within 4 hours</strong>A member of our team contacts you to confirm your demo time and gather basic environment info.</div>
+          </div>
+          <div class="expect-step">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>30-minute live demo</strong>We show you the platform live — real alerts, real dashboards, real AI reports. No slides, no fluff.</div>
+          </div>
+          <div class="expect-step">
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>Custom proposal within 24 hours</strong>Based on your environment, we send a tailored proposal with exact pricing and a recommended tier.</div>
+          </div>
+          <div class="expect-step">
+            <div class="step-num">4</div>
+            <div class="step-text"><strong>Onboarded in 48 hours</strong>Once you're ready, we deploy agents silently and you're fully protected — usually within two business days.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form-wrap fade-up">
+      <div id="form-content">
+        <div class="form-title">BOOK YOUR DEMO</div>
+        <div class="form-sub">Tell us about your environment and we'll prepare a demo tailored to your specific needs.</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">First Name *</label>
+            <input type="text" class="form-input" id="firstName" placeholder="John" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name *</label>
+            <input type="text" class="form-input" id="lastName" placeholder="Smith" required>
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">Business Email *</label>
+            <input type="email" class="form-input" id="email" placeholder="john@company.com" required>
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">Company Name *</label>
+            <input type="text" class="form-input" id="company" placeholder="Smith & Associates LLC" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" class="form-input" id="phone" placeholder="(555) 000-0000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Number of Users</label>
+            <select class="form-select form-input" id="users">
+              <option>1 – 10 users</option>
+              <option>11 – 25 users</option>
+              <option>26 – 50 users</option>
+              <option>50+ users</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Industry</label>
+            <select class="form-select form-input" id="industry">
+              <option>Healthcare / Medical</option>
+              <option>Legal / Law Firm</option>
+              <option>Financial Services</option>
+              <option>Accounting</option>
+              <option>Real Estate</option>
+              <option>Retail / E-Commerce</option>
+              <option>Technology</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Service Interest</label>
+            <select class="form-select form-input" id="tier">
+              <option>Monitor (Tier 1)</option>
+              <option>Defend (Tier 2)</option>
+              <option>Dominate (Tier 3)</option>
+              <option>Not sure yet</option>
+            </select>
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">Current Security Setup</label>
+            <textarea class="form-textarea" id="message" placeholder="Tell us what security tools you currently use, any recent incidents, specific concerns, or compliance requirements (HIPAA, PCI, etc.)..."></textarea>
+          </div>
+          <div class="form-full">
+            <button class="form-submit" onclick="submitForm()">Request Demo — We'll Respond Within 4 Hours →</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-success" id="form-success">
+        <div style="font-size:48px;margin-bottom:16px;">✅</div>
+        <h3>REQUEST RECEIVED</h3>
+        <p>Thank you! We'll reach out within 4 business hours to confirm your demo time. Check your email for a confirmation.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function submitForm() {
+      const required = ['firstName','lastName','email','company'];
+      let valid = true;
+      required.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) { el.style.borderColor = 'var(--danger)'; valid = false; }
+        else el.style.borderColor = 'var(--border)';
+      });
+      if (!valid) return;
+      document.getElementById('form-content').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
