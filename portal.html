@@ -291,15 +291,20 @@
     // Enter key
     document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
 
-    function handleLogin() {
-      const email = document.getElementById('loginEmail').value;
-      const pass = document.getElementById('loginPassword').value;
-      const err = document.getElementById('errorMsg');
-      if (!email || !pass) { err.style.display = 'block'; err.textContent = '⚠ Please enter your email and password.'; return; }
-      err.style.display = 'none';
-      // Placeholder — will connect to real auth when backend is built
-      alert('Portal backend coming soon! Authentication will connect to your Wazuh/Elastic stack.');
-    }
+function handleLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPassword').value;
+  const err = document.getElementById('errorMsg');
+  if (!email || !pass) { err.style.display = 'block'; err.textContent = '⚠ Please enter your email and password.'; return; }
+  err.style.display = 'none';
+  if (email === 'admin@palisadeone.com' && pass === 'PalisadeOne2026!') {
+    window.location.href = 'dashboard.html';
+  } else {
+    err.style.display = 'block';
+    err.textContent = '⚠ Invalid credentials. Please try again.';
+    document.getElementById('loginPassword').value = '';
+  }
+}
 
     function handleSSO() {
       alert('Microsoft 365 SSO integration coming soon!');
