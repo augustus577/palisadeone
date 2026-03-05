@@ -1564,8 +1564,8 @@ async function runFDS() {
   try {
     // Trigger syscheck (FIM) scan + rootcheck scan via Wazuh Manager API
     const [r1, r2] = await Promise.all([
-      fetch(`${PROXY_URL}/syscheck/${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } }),
-      fetch(`${PROXY_URL}/rootcheck/${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } })
+      fetch(`${PROXY_URL}/syscheck?agents_list=${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } }),
+      fetch(`${PROXY_URL}/rootcheck?agents_list=${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } })
     ]);
     if (!r1.ok && !r2.ok) throw new Error('Both endpoints failed');
     showToast('Full Disk Scan triggered — results appear in Wazuh within minutes.', 'success');
