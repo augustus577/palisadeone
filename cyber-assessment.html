@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cyber Assessment — Palisade One GRC</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#03050A;--deep:#070C14;--surface:#0B1220;--surface2:#0F1A2E;
+  --border:#112240;--border2:#1A3050;--accent:#00FFD1;--accent2:#0084FF;
+  --danger:#FF3B5C;--warn:#F5A623;--success:#00C896;--purple:#7B61FF;
+  --text:#C8D8F0;--muted:#4A6080;--white:#F0F6FF;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--black);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;cursor:none;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+.cursor{width:8px;height:8px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:99999;mix-blend-mode:screen;transition:transform .1s}
+.cursor-ring{width:28px;height:28px;border:1px solid rgba(0,255,209,0.4);border-radius:50%;position:fixed;pointer-events:none;z-index:99998;transition:all .12s ease}
+
+/* TOP BAR */
+.topbar{height:52px;background:rgba(3,5,10,0.97);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:20px;flex-shrink:0;z-index:50}
+.topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:8px}
+.topbar-logo span{color:var(--accent)}
+.topbar-sep{width:1px;height:24px;background:var(--border)}
+.topbar-module{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.topbar-back{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-decoration:none;cursor:none;transition:color .15s}
+.topbar-back:hover{color:var(--text)}
+.topbar-client{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px}
+.topbar-client span{color:var(--text)}
+
+/* MAIN LAYOUT */
+.app-body{flex:1;display:flex;overflow:hidden;position:relative}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:rgba(7,12,20,0.98);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-section{padding:16px 0 8px}
+.sidebar-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:3px;padding:0 16px;margin-bottom:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:none;transition:all .15s;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:rgba(0,255,209,0.06);border-left-color:var(--accent);color:var(--white)}
+.nav-item .ni-icon{width:16px;height:16px;flex-shrink:0;opacity:0.6}
+.nav-item.active .ni-icon{opacity:1}
+.nav-item .ni-label{font-size:12px;font-weight:400}
+.nav-item .ni-badge{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;background:var(--danger);color:var(--white);padding:1px 6px;border-radius:10px}
+.nav-item .ni-badge.green{background:var(--success)}
+.nav-item .ni-badge.warn{background:var(--warn);color:var(--black)}
+.sidebar-score{margin:12px;background:var(--surface);border:1px solid var(--border);padding:14px}
+.ss-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px}
+.ss-score{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;margin-bottom:4px}
+.ss-bar{height:3px;background:var(--border);margin-bottom:6px}
+.ss-bar-fill{height:100%;background:linear-gradient(to right,var(--accent),var(--accent2));transition:width 1s ease}
+.ss-risk{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px}
+
+/* MAIN CONTENT */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+
+/* VIEWS */
+.view{display:none;flex:1;padding:32px;animation:fadeIn .2s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE HEADERS */
+.page-header{margin-bottom:28px}
+.page-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:8px}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--white);letter-spacing:2px;margin-bottom:6px}
+.page-sub{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* SETUP VIEW */
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px}
+.setup-card{background:var(--surface);border:1px solid var(--border);padding:24px;transition:border-color .2s;cursor:none}
+.setup-card:hover{border-color:var(--border2)}
+.setup-card.selected{border-color:var(--accent);background:rgba(0,255,209,0.04)}
+.sc-check{width:18px;height:18px;border:1px solid var(--border2);margin-bottom:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.setup-card.selected .sc-check{background:var(--accent);border-color:var(--accent)}
+.sc-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.sc-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--white)}
+.sc-badge{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;border:1px solid;letter-spacing:1px;margin-top:4px;display:inline-block}
+.sc-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.sc-families{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.sc-fam{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);background:var(--deep);border:1px solid var(--border);padding:2px 6px}
+
+/* QUESTIONNAIRE VIEW */
+.q-progress-wrap{background:var(--surface);border:1px solid var(--border);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:20px}
+.q-prog-info{flex:1}
+.q-prog-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:1px;margin-bottom:4px}
+.q-prog-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px}
+.q-prog-bar-wrap{flex:2}
+.q-prog-bar{height:4px;background:var(--border);margin-bottom:6px}
+.q-prog-fill{height:100%;background:linear-gradient(to right,var(--accent),var(--accent2));transition:width .4s ease}
+.q-prog-pct{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);text-align:right}
+.q-section-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.qsn-btn{font-family:'JetBrains Mono',monospace;font-size:9px;padding:4px 10px;border:1px solid var(--border);color:var(--muted);cursor:none;transition:all .15s;letter-spacing:1px}
+.qsn-btn:hover{border-color:var(--border2);color:var(--text)}
+.qsn-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,209,0.05)}
+.qsn-btn.done{border-color:rgba(0,200,150,0.4);color:var(--success)}
+.q-block{background:var(--surface);border:1px solid var(--border);padding:20px;margin-bottom:14px;transition:border-color .15s}
+.q-block.answered{border-color:rgba(0,255,209,0.12)}
+.q-meta{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.q-ctrl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2);letter-spacing:1px}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px}
+.q-text{font-size:13px;color:var(--white);line-height:1.6;margin-bottom:12px}
+.q-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.qt{font-family:'JetBrains Mono',monospace;font-size:7px;padding:2px 6px;border:1px solid;letter-spacing:1px}
+.qt.nist{color:#00FFD1;border-color:rgba(0,255,209,0.2)}
+.qt.soc2{color:#0084FF;border-color:rgba(0,132,255,0.2)}
+.qt.hipaa{color:#7B61FF;border-color:rgba(123,97,255,0.2)}
+.qt.pci{color:#F5A623;border-color:rgba(245,166,35,0.2)}
+.qt.cmmc{color:#FF3B5C;border-color:rgba(255,59,92,0.2)}
+.qt.iso{color:#00C896;border-color:rgba(0,200,150,0.2)}
+.q-opts{display:flex;flex-direction:column;gap:5px}
+.q-opt{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--border);background:var(--deep);cursor:none;transition:all .12s}
+.q-opt:hover{border-color:var(--border2);background:var(--surface2)}
+.q-opt.sel{border-color:var(--accent);background:rgba(0,255,209,0.04)}
+.q-opt.sel .qo-radio{background:var(--accent);border-color:var(--accent)}
+.qo-radio{width:12px;height:12px;border:1px solid var(--border2);border-radius:50%;flex-shrink:0;transition:all .12s}
+.qo-label{font-size:12px;color:var(--text)}
+.q-nav{display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);align-items:center}
+
+/* DASHBOARD VIEW */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.metric-card{background:var(--surface);border:1px solid var(--border);padding:18px}
+.mc-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:10px}
+.mc-val{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;margin-bottom:4px}
+.mc-sub{font-size:11px;color:var(--muted)}
+.mc-bar{height:3px;background:var(--border);margin-top:10px}
+.mc-bar-fill{height:100%;transition:width 1s ease}
+
+.fw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:28px}
+.fw-card{background:var(--surface);border:1px solid var(--border);padding:16px}
+.fw-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;margin-bottom:2px}
+.fw-sub{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:10px}
+.fw-ring-wrap{display:flex;align-items:center;gap:12px}
+.fw-ring{position:relative;width:52px;height:52px;flex-shrink:0}
+.fw-ring svg{transform:rotate(-90deg)}
+.fw-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px}
+.fw-details{flex:1}
+.fw-detail-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.fw-detail-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)}
+.fw-detail-val{font-family:'JetBrains Mono',monospace;font-size:8px}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+.panel{background:var(--surface);border:1px solid var(--border);padding:20px}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.panel-title-action{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);cursor:none;letter-spacing:1px}
+
+.gap-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(17,34,64,0.5)}
+.gap-row:last-child{border-bottom:none}
+.gap-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.gap-name{font-size:12px;color:var(--white);flex:1}
+.gap-score{font-family:'JetBrains Mono',monospace;font-size:10px}
+.gap-badge{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 6px;letter-spacing:1px}
+
+.ctrl-family-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(17,34,64,0.5)}
+.ctrl-family-row:last-child{border-bottom:none}
+.cff-id{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);width:30px;flex-shrink:0}
+.cff-name{font-size:11px;color:var(--text);flex:1}
+.cff-bar{width:80px;height:3px;background:var(--border)}
+.cff-fill{height:100%}
+.cff-pct{font-family:'JetBrains Mono',monospace;font-size:9px;width:28px;text-align:right}
+
+/* TASKS VIEW */
+.tasks-toolbar{display:flex;gap:10px;margin-bottom:20px;align-items:center}
+.task-filter-btn{font-family:'JetBrains Mono',monospace;font-size:9px;padding:5px 12px;border:1px solid var(--border);color:var(--muted);cursor:none;transition:all .15s;letter-spacing:1px}
+.task-filter-btn:hover{border-color:var(--border2);color:var(--text)}
+.task-filter-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,209,0.05)}
+.tasks-spacer{flex:1}
+.task-search{background:var(--surface);border:1px solid var(--border);color:var(--white);padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;outline:none;width:200px}
+.task-search:focus{border-color:var(--accent)}
+.task-card{background:var(--surface);border:1px solid var(--border);padding:16px 18px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;transition:border-color .15s}
+.task-card:hover{border-color:var(--border2)}
+.task-card.done{opacity:0.5}
+.task-check{width:18px;height:18px;border:1px solid var(--border2);flex-shrink:0;cursor:none;transition:all .15s;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.task-check:hover{border-color:var(--accent)}
+.task-card.done .task-check{background:var(--success);border-color:var(--success)}
+.task-body{flex:1}
+.task-title{font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px}
+.task-card.done .task-title{text-decoration:line-through;color:var(--muted)}
+.task-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.task-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.task-framework{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;border:1px solid;letter-spacing:1px}
+.task-ctrl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1px}
+.task-sev{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;letter-spacing:1px}
+.task-sev.critical{color:var(--danger);border:1px solid rgba(255,59,92,0.3)}
+.task-sev.high{color:var(--warn);border:1px solid rgba(245,166,35,0.3)}
+.task-sev.medium{color:var(--accent);border:1px solid rgba(0,255,209,0.3)}
+.task-sev.low{color:var(--muted);border:1px solid var(--border)}
+.task-assign{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.task-assignee{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)}
+.task-due{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)}
+
+/* POLICIES VIEW */
+.policies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.policy-card{background:var(--surface);border:1px solid var(--border);padding:20px;transition:border-color .2s}
+.policy-card:hover{border-color:var(--border2)}
+.policy-card.published{border-color:rgba(0,200,150,0.2)}
+.pc-status{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.pc-status-dot{width:6px;height:6px;border-radius:50%}
+.pc-status-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px}
+.pc-title{font-size:14px;color:var(--white);font-weight:500;margin-bottom:6px}
+.pc-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.pc-frameworks{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+.pc-fw{font-family:'JetBrains Mono',monospace;font-size:7px;padding:2px 6px;border:1px solid var(--border);color:var(--muted)}
+.pc-actions{display:flex;gap:8px}
+.pc-btn{font-family:'JetBrains Mono',monospace;font-size:9px;padding:5px 12px;border:1px solid;cursor:none;transition:all .15s;letter-spacing:1px}
+.pc-btn.primary{border-color:var(--accent);color:var(--accent)}
+.pc-btn.primary:hover{background:rgba(0,255,209,0.08)}
+.pc-btn.secondary{border-color:var(--border);color:var(--muted)}
+.pc-btn.secondary:hover{border-color:var(--border2);color:var(--text)}
+
+/* POLICY MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(3,5,10,0.92);z-index:1000;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.modal{background:var(--deep);border:1px solid var(--border);max-width:760px;width:100%;padding:32px;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);cursor:none;letter-spacing:1px}
+.modal-close:hover{color:var(--text)}
+.modal-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:3px;margin-bottom:10px}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--white);letter-spacing:2px;margin-bottom:20px}
+.policy-content{font-size:13px;color:var(--text);line-height:1.9;white-space:pre-line}
+.policy-content h3{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);letter-spacing:1px;margin:20px 0 8px}
+.policy-content p{margin-bottom:12px;color:var(--muted)}
+.modal-actions{display:flex;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+
+/* HISTORY VIEW */
+.history-list{display:flex;flex-direction:column;gap:12px}
+.history-card{background:var(--surface);border:1px solid var(--border);padding:18px;display:flex;align-items:center;gap:20px}
+.hc-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);width:100px;flex-shrink:0}
+.hc-score{font-family:'Bebas Neue',sans-serif;font-size:28px;width:60px;flex-shrink:0}
+.hc-bar-wrap{flex:1}
+.hc-bar{height:4px;background:var(--border);margin-bottom:4px}
+.hc-bar-fill{height:100%}
+.hc-label{font-family:'JetBrains Mono',monospace;font-size:9px}
+.hc-frameworks{display:flex;gap:4px;flex-wrap:wrap}
+.hc-fw{font-family:'JetBrains Mono',monospace;font-size:7px;padding:2px 6px;border:1px solid var(--border);color:var(--muted)}
+.hc-actions{display:flex;gap:8px;margin-left:auto}
+
+/* BUTTONS */
+.btn{padding:10px 24px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;border:none;cursor:none;transition:all .2s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
+.btn-primary{background:var(--accent);color:var(--black)}
+.btn-primary:hover{background:var(--white)}
+.btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border);clip-path:none}
+.btn-secondary:hover{border-color:var(--border2);color:var(--text)}
+.btn-danger{background:var(--danger);color:var(--white)}
+.btn-sm{padding:7px 16px;font-size:11px}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.es-icon{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--border2);margin-bottom:12px}
+.es-title{font-size:16px;color:var(--text);margin-bottom:8px}
+.es-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+
+/* SETUP WELCOME */
+.welcome-hero{text-align:center;padding:40px 20px;max-width:700px;margin:0 auto 40px}
+.wh-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.wh-tag::before,.wh-tag::after{content:'';width:40px;height:1px;background:var(--accent);opacity:0.3}
+.wh-title{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--white);letter-spacing:2px;line-height:1;margin-bottom:12px}
+.wh-title span{color:var(--accent)}
+.wh-sub{font-size:14px;color:var(--muted);line-height:1.7}
+
+/* STEP INDICATOR */
+.steps{display:flex;gap:0;margin-bottom:32px}
+.step{display:flex;align-items:center;flex:1}
+.step-num{width:28px;height:28px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0;transition:all .2s}
+.step.active .step-num{border-color:var(--accent);color:var(--accent);background:rgba(0,255,209,0.08)}
+.step.done .step-num{background:var(--success);border-color:var(--success);color:var(--black)}
+.step-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;margin-left:8px}
+.step.active .step-label{color:var(--accent)}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 8px}
+
+/* BG */
+.portal-bg{position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 50%,rgba(0,255,209,0.025) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 85% 30%,rgba(0,132,255,0.03) 0%,transparent 50%);pointer-events:none;z-index:0}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,209,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,209,0.012) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%)}
+
+@media(max-width:900px){
+  .sidebar{display:none}
+  body{cursor:auto}
+  .cursor,.cursor-ring{display:none}
+  .dash-grid{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="portal-bg"></div>
+<div class="grid-bg"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <a href="dashboard.html" class="topbar-logo">
+    <svg width="22" height="22" viewBox="0 0 36 36" fill="none">
+      <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" stroke="#00FFD1" stroke-width="1.5" fill="rgba(0,255,209,0.05)"/>
+      <circle cx="18" cy="18" r="3" fill="#00FFD1"/>
+    </svg>
+    PALISADE<span>ONE</span>
+  </a>
+  <div class="topbar-sep"></div>
+  <div class="topbar-module">GRC / CYBER ASSESSMENT</div>
+  <div class="topbar-right">
+    <div class="topbar-client">CLIENT: <span id="clientName">Demo Client</span></div>
+    <a href="dashboard.html" class="topbar-back">← BACK TO DASHBOARD</a>
+  </div>
+</div>
+
+<!-- APP BODY -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div id="sidebarScoreWrap" style="display:none">
+      <div class="sidebar-score">
+        <div class="ss-label">OVERALL RISK SCORE</div>
+        <div class="ss-score" id="sidebarScore" style="color:var(--warn)">--</div>
+        <div class="ss-bar"><div class="ss-bar-fill" id="sidebarScoreBar" style="width:0%"></div></div>
+        <div class="ss-risk" id="sidebarRisk" style="color:var(--warn)">NOT ASSESSED</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">ASSESSMENT</div>
+      <div class="nav-item active" onclick="showView('setup')" id="nav-setup">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>
+        <span class="ni-label">Setup</span>
+      </div>
+      <div class="nav-item" onclick="showView('questionnaire')" id="nav-questionnaire">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 4h12M2 8h8M2 12h10"/></svg>
+        <span class="ni-label">Questionnaire</span>
+        <span class="ni-badge warn" id="qBadge" style="display:none">0%</span>
+      </div>
+      <div class="nav-item" onclick="showView('dashboard-view')" id="nav-dashboard-view">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="5" height="7"/><rect x="9" y="7" width="5" height="7"/><rect x="2" y="11" width="5" height="3"/><rect x="9" y="2" width="5" height="3"/></svg>
+        <span class="ni-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">REMEDIATION</div>
+      <div class="nav-item" onclick="showView('tasks')" id="nav-tasks">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 4l2 2 4-4"/><path d="M2 9l2 2 4-4"/><path d="M10 5h4M10 10h4"/></svg>
+        <span class="ni-label">Tasks</span>
+        <span class="ni-badge" id="taskBadge">0</span>
+      </div>
+      <div class="nav-item" onclick="showView('policies')" id="nav-policies">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 2h8l2 2v10H2V4l2-2z"/><path d="M5 7h6M5 10h4"/></svg>
+        <span class="ni-label">Policies & Procedures</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">HISTORY</div>
+      <div class="nav-item" onclick="showView('history')" id="nav-history">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 2"/></svg>
+        <span class="ni-label">Assessment History</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- SETUP VIEW -->
+    <div class="view active" id="view-setup">
+      <div class="welcome-hero">
+        <div class="wh-tag">PALISADE ONE GRC PLATFORM</div>
+        <div class="wh-title">CYBER RISK<br><span>ASSESSMENT</span></div>
+        <div class="wh-sub">Select your compliance frameworks, complete the assessment, and get a full risk dashboard with auto-generated remediation tasks and policy templates.</div>
+      </div>
+      <div class="steps" style="max-width:600px;margin:0 auto 32px">
+        <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">SELECT FRAMEWORKS</div></div>
+        <div class="step-line"></div>
+        <div class="step" id="step2"><div class="step-num">2</div><div class="step-label">QUESTIONNAIRE</div></div>
+        <div class="step-line"></div>
+        <div class="step" id="step3"><div class="step-num">3</div><div class="step-label">RESULTS</div></div>
+      </div>
+      <div style="max-width:900px;margin:0 auto">
+        <div class="page-eyebrow">STEP 1 — SELECT YOUR FRAMEWORKS</div>
+        <div class="page-title" style="font-size:28px;margin-bottom:6px">Which frameworks apply to your organization?</div>
+        <div class="page-sub" style="margin-bottom:24px">Select all that apply. Your assessment will be scored and mapped against each selected framework.</div>
+        <div class="setup-grid" id="frameworkGrid"></div>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button class="btn btn-primary" onclick="startQuestionnaire()">BEGIN ASSESSMENT →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTIONNAIRE VIEW -->
+    <div class="view" id="view-questionnaire">
+      <div class="page-header">
+        <div class="page-eyebrow">STEP 2 — QUESTIONNAIRE</div>
+        <div class="page-title" style="font-size:28px">Complete Your Assessment</div>
+      </div>
+      <div class="q-progress-wrap">
+        <div class="q-prog-info">
+          <div class="q-prog-title" id="qProgTitle">AC — Access Control</div>
+          <div class="q-prog-sub" id="qProgSub">Section 1 of 20</div>
+        </div>
+        <div class="q-prog-bar-wrap">
+          <div class="q-prog-bar"><div class="q-prog-fill" id="qProgFill" style="width:0%"></div></div>
+          <div class="q-prog-pct" id="qProgPct">0% Complete</div>
+        </div>
+      </div>
+      <div class="q-section-nav" id="qSectionNav"></div>
+      <div id="qContent"></div>
+      <div class="q-nav" id="qNav"></div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div class="view" id="view-dashboard-view">
+      <div class="page-header">
+        <div class="page-eyebrow">RISK DASHBOARD</div>
+        <div class="page-title" style="font-size:28px">Security Posture Overview</div>
+      </div>
+      <div id="dashContent">
+        <div class="empty-state">
+          <div class="es-icon">◈</div>
+          <div class="es-title">No Assessment Data</div>
+          <div class="es-desc">Complete the questionnaire to generate your risk dashboard.</div>
+          <button class="btn btn-primary btn-sm" onclick="showView('questionnaire')">START ASSESSMENT →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASKS VIEW -->
+    <div class="view" id="view-tasks">
+      <div class="page-header">
+        <div class="page-eyebrow">REMEDIATION</div>
+        <div class="page-title" style="font-size:28px">Tasks & Action Items</div>
+        <div class="page-sub">Auto-generated from your assessment gaps. Complete these to improve your risk score.</div>
+      </div>
+      <div id="tasksContent">
+        <div class="empty-state">
+          <div class="es-icon">✓</div>
+          <div class="es-title">No Tasks Yet</div>
+          <div class="es-desc">Tasks are auto-generated after completing your assessment.</div>
+          <button class="btn btn-primary btn-sm" onclick="showView('questionnaire')">START ASSESSMENT →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- POLICIES VIEW -->
+    <div class="view" id="view-policies">
+      <div class="page-header">
+        <div class="page-eyebrow">GOVERNANCE</div>
+        <div class="page-title" style="font-size:28px">Policies & Procedures</div>
+        <div class="page-sub">Pre-built policy templates mapped to your compliance frameworks. Customize and publish.</div>
+      </div>
+      <div id="policiesContent"></div>
+    </div>
+
+    <!-- HISTORY VIEW -->
+    <div class="view" id="view-history">
+      <div class="page-header">
+        <div class="page-eyebrow">HISTORY</div>
+        <div class="page-title" style="font-size:28px">Assessment History</div>
+      </div>
+      <div id="historyContent">
+        <div class="empty-state">
+          <div class="es-icon">◷</div>
+          <div class="es-title">No History Yet</div>
+          <div class="es-desc">Completed assessments will appear here so you can track improvement over time.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- POLICY MODAL -->
+<div class="modal-overlay" id="policyModal">
+  <div class="modal">
+    <div class="modal-close" onclick="closeModal()">✕ CLOSE</div>
+    <div class="modal-eyebrow" id="modalEyebrow">POLICY TEMPLATE</div>
+    <div class="modal-title" id="modalTitle">Policy Name</div>
+    <div class="policy-content" id="modalContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-sm" onclick="publishPolicy()">MARK AS PUBLISHED</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// CURSOR
+const cur=document.getElementById('cursor'),rng=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx-4+'px';cur.style.top=my-4+'px';});
+(function a(){rx+=(mx-rx-14)*0.12;ry+=(my-ry-14)*0.12;rng.style.left=rx+'px';rng.style.top=ry+'px';requestAnimationFrame(a);})();
+
+// STATE
+let state = {
+  selectedFrameworks: [],
+  currentSection: 0,
+  answers: {},
+  scores: null,
+  tasks: [],
+  publishedPolicies: [],
+  assessmentHistory: [],
+  taskStates: {}
+};
+
+// FRAMEWORKS
+const frameworks = [
+  {id:'nist800',name:'NIST 800-53',badge:'Rev 5',color:'#00C896',desc:'Federal security and privacy controls. The gold standard for comprehensive security control coverage.',families:['AC','AT','AU','CA','CM','CP','IA','IR','MA','MP','PE','PL','PS','RA','SA','SC','SI','SR','PM','PT']},
+  {id:'nistcsf',name:'NIST CSF',badge:'v2.0',color:'#00FFD1',desc:'The Cybersecurity Framework — Identify, Protect, Detect, Respond, Recover. Widely adopted across industries.',families:['AC','AU','IR','RA','SC','SI','CP','CM','ID']},
+  {id:'soc2',name:'SOC 2',badge:'Type II',color:'#0084FF',desc:'Trust Service Criteria for security, availability, confidentiality. Required for SaaS and service organizations.',families:['AC','AU','CA','CM','CP','IA','IR','PM','SA','SC','SI']},
+  {id:'hipaa',name:'HIPAA',badge:'Security Rule',color:'#7B61FF',desc:'Required for healthcare organizations and business associates handling protected health information.',families:['AC','AU','CP','IA','IR','MP','PE','PT','SA','SC','SI']},
+  {id:'pci',name:'PCI-DSS',badge:'v4.0',color:'#F5A623',desc:'Required for any organization that stores, processes, or transmits payment card data.',families:['AC','AU','CM','IA','IR','MA','MP','PE','RA','SC','SI','SA']},
+  {id:'cmmc',name:'CMMC',badge:'Level 2',color:'#FF3B5C',desc:'Cybersecurity Maturity Model Certification — required for Department of Defense contractors.',families:['AC','AT','AU','CA','CM','IA','IR','MA','MP','PE','RA','SA','SC','SI','SR','PS']},
+  {id:'iso',name:'ISO 27001',badge:'2022',color:'#C8D8F0',desc:'International standard for information security management systems. Globally recognized certification.',families:['AC','AT','AU','CM','CP','IA','IR','MP','PE','PL','RA','SA','SC','SI','PT']}
+];
+
+// QUESTIONS - 20 control families
+const sections = [
+  {id:'AC',name:'Access Control',desc:'Who can access your systems and data.',questions:[
+    {ctrl:'AC-2',text:'Do you have a formal account management process (creation, modification, removal)?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — documented lifecycle management',s:10},{l:'Partial — some account types managed',s:5},{l:'No formal process',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-3',text:'Is access to systems enforced via role-based access control (RBAC)?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — RBAC on all systems',s:10},{l:'Partial — RBAC on some systems',s:5},{l:'No — broad access granted',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-6',text:'Do you enforce least privilege — users only access what they need?',fw:['nist800','soc2','pci','hipaa','cmmc'],ans:[{l:'Yes — enforced for all roles',s:10},{l:'Partial — inconsistently enforced',s:5},{l:'No — users have broad access',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-7',text:'Do systems lock out users after failed login attempts?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — lockout on all systems',s:10},{l:'Partial — some systems',s:5},{l:'No lockout policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-17',text:'Do you enforce VPN or Zero Trust for all remote access?',fw:['nist800','soc2','cmmc','hipaa'],ans:[{l:'Yes — enforced for all remote users',s:10},{l:'Available but not required',s:6},{l:'No remote access controls',s:0},{l:'No remote access needed',s:8}]}
+  ]},
+  {id:'AT',name:'Awareness & Training',desc:'Security training and phishing awareness.',questions:[
+    {ctrl:'AT-2',text:'Do all employees receive mandatory annual security awareness training?',fw:['nist800','soc2','hipaa','pci','cmmc'],ans:[{l:'Yes — mandatory with completion tracking',s:10},{l:'Occasional, not tracked',s:5},{l:'No training',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AT-3',text:'Do security-sensitive roles receive role-specific training?',fw:['nist800','cmmc','hipaa'],ans:[{l:'Yes — role-based training for all IT/privileged staff',s:10},{l:'Partial',s:5},{l:'No',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AT-2(2)',text:'Do you run phishing simulation exercises?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — regular campaigns',s:10},{l:'Occasional',s:5},{l:'No',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'AU',name:'Audit & Accountability',desc:'Logging and monitoring of security events.',questions:[
+    {ctrl:'AU-2',text:'Do you log logins, access changes, and admin actions on critical systems?',fw:['nist800','soc2','pci','hipaa','cmmc'],ans:[{l:'Yes — comprehensive logging on all critical systems',s:10},{l:'Partial',s:5},{l:'Minimal logging',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AU-6',text:'Are logs reviewed for suspicious activity via SIEM or manual review?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — SIEM with automated alerting',s:10},{l:'Manual periodic review',s:5},{l:'Collected but not reviewed',s:2},{l:'No review',s:0}]},
+    {ctrl:'AU-9',text:'Are audit logs protected from unauthorized modification?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — tamper-proof or write-once storage',s:10},{l:'Partial',s:5},{l:'No protection',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AU-11',text:'How long are audit logs retained?',fw:['nist800','soc2','pci','hipaa'],ans:[{l:'1+ years',s:10},{l:'90 days to 1 year',s:7},{l:'Less than 90 days',s:3},{l:'No retention policy',s:0}]}
+  ]},
+  {id:'CA',name:'Assessment & Authorization',desc:'Security assessments and continuous monitoring.',questions:[
+    {ctrl:'CA-2',text:'Do you conduct annual security control assessments or audits?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — formal annual assessments',s:10},{l:'Informal/ad-hoc',s:5},{l:'No assessments',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CA-7',text:'Do you have continuous monitoring of your security posture?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — automated with defined metrics',s:10},{l:'Periodic only',s:5},{l:'No monitoring',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CA-8',text:'Do you conduct penetration testing?',fw:['nist800','pci','soc2','cmmc'],ans:[{l:'Yes — annual pentest by qualified third party',s:10},{l:'Occasional or internal only',s:5},{l:'No pentesting',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'CM',name:'Configuration Management',desc:'Baseline configurations and change control.',questions:[
+    {ctrl:'CM-2',text:'Do you maintain documented baseline security configurations?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — maintained and enforced',s:10},{l:'Partial',s:5},{l:'No baselines',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-3',text:'Do you have a formal change management process?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — documented with approval workflow',s:10},{l:'Informal process',s:5},{l:'No change management',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-6',text:'Are security configurations enforced via GPO, MDM, or CIS Benchmarks?',fw:['nist800','pci','cmmc','iso'],ans:[{l:'Yes — enforced via automated tools',s:10},{l:'Partial — some manual config',s:5},{l:'Default settings only',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-8',text:'Do you maintain a complete inventory of hardware and software assets?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — complete up-to-date inventory',s:10},{l:'Partial',s:5},{l:'No inventory',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'CP',name:'Contingency Planning',desc:'Business continuity, disaster recovery, and backups.',questions:[
+    {ctrl:'CP-2',text:'Do you have a documented and tested BCP/DRP?',fw:['nist800','soc2','hipaa','iso'],ans:[{l:'Yes — documented, tested, and current',s:10},{l:'Exists but untested',s:6},{l:'No BCP/DRP',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CP-9',text:'Do you have automated backups with offsite/cloud copies?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — automated with offsite/cloud copy',s:10},{l:'Backups exist but not offsite',s:5},{l:'No regular backups',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CP-10',text:'Have you tested backup restoration in the last 12 months?',fw:['nist800','soc2','hipaa'],ans:[{l:'Yes — tested within 12 months',s:10},{l:'Not tested in over a year',s:4},{l:'Never tested',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'IA',name:'Identification & Authentication',desc:'MFA, password policies, and identity management.',questions:[
+    {ctrl:'IA-2',text:'Is MFA enforced for all users on all systems?',fw:['nist800','soc2','pci','cmmc','hipaa'],ans:[{l:'Yes — MFA required for all users',s:10},{l:'MFA for privileged/remote only',s:6},{l:'No MFA',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IA-5',text:'Do you enforce a strong password policy (12+ chars, complexity, no reuse)?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — technically enforced',s:10},{l:'Policy exists but not enforced',s:5},{l:'No password policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IA-8',text:'Do you manage service accounts and API keys with a formal inventory?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — inventoried and reviewed regularly',s:10},{l:'Partial',s:5},{l:'No management',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'IR',name:'Incident Response',desc:'Detection, containment, and recovery from incidents.',questions:[
+    {ctrl:'IR-8',text:'Do you have a documented and tested Incident Response Plan?',fw:['nist800','soc2','hipaa','cmmc','pci'],ans:[{l:'Yes — documented, approved, and tested',s:10},{l:'Exists but untested',s:6},{l:'No IRP',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IR-3',text:'Have you conducted a tabletop IR exercise in the past 12 months?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — formal tabletop or simulation',s:10},{l:'More than a year ago',s:4},{l:'Never',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IR-4',text:'Do you have defined incident containment and eradication procedures?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — documented procedures',s:10},{l:'Informal process',s:5},{l:'No defined process',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IR-6',text:'Do you have a breach notification process meeting regulatory requirements?',fw:['hipaa','pci','soc2'],ans:[{l:'Yes — documented with defined timelines',s:10},{l:'Aware but no formal process',s:5},{l:'No process',s:0},{l:'Not applicable',s:8}]}
+  ]},
+  {id:'MA',name:'Maintenance',desc:'System maintenance controls and authorized personnel.',questions:[
+    {ctrl:'MA-2',text:'Do you have a scheduled maintenance program with documentation?',fw:['nist800','cmmc'],ans:[{l:'Yes — scheduled with records',s:10},{l:'Informal as-needed',s:5},{l:'No program',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MA-4',text:'Is remote maintenance authorized and fully logged?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — requires auth and is logged',s:10},{l:'Partial controls',s:5},{l:'No controls',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'MA-5',text:'Is maintenance performed only by vetted, authorized personnel?',fw:['nist800','hipaa','cmmc'],ans:[{l:'Yes — vetted and access controlled',s:10},{l:'Partial',s:5},{l:'No controls',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'MP',name:'Media Protection',desc:'Portable media controls and secure disposal.',questions:[
+    {ctrl:'MP-3',text:'Is use of USB drives and portable media controlled?',fw:['nist800','hipaa','cmmc','pci'],ans:[{l:'Yes — controlled and logged',s:10},{l:'Partially restricted',s:5},{l:'No controls',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MP-6',text:'Do you formally sanitize/destroy media before disposal?',fw:['nist800','hipaa','pci','cmmc'],ans:[{l:'Yes — wiping or physical destruction with docs',s:10},{l:'Informal process',s:5},{l:'No sanitization',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MP-4',text:'Is sensitive data on portable media encrypted?',fw:['nist800','hipaa','pci','cmmc'],ans:[{l:'Yes — all sensitive data encrypted',s:10},{l:'Partial',s:5},{l:'No encryption',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'PE',name:'Physical & Environmental',desc:'Physical access controls for facilities.',questions:[
+    {ctrl:'PE-3',text:'Is physical access to server rooms controlled (keycard/biometric)?',fw:['nist800','soc2','hipaa','pci'],ans:[{l:'Yes — keycard/biometric with visitor logs',s:10},{l:'Basic lock and key',s:5},{l:'No physical controls',s:0},{l:'Cloud-only — not applicable',s:8}]},
+    {ctrl:'PE-6',text:'Is physical access monitored with CCTV or security staff?',fw:['nist800','pci','soc2'],ans:[{l:'Yes — CCTV and/or security',s:10},{l:'Partial monitoring',s:5},{l:'No monitoring',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'PE-14',text:'Are environmental controls (temp, fire suppression) active?',fw:['nist800','soc2'],ans:[{l:'Yes — monitoring and controls active',s:10},{l:'Basic only',s:5},{l:'None',s:0},{l:'Not applicable',s:8}]}
+  ]},
+  {id:'PL',name:'Planning',desc:'Security plans and acceptable use policies.',questions:[
+    {ctrl:'PL-2',text:'Do you maintain a System Security Plan for critical systems?',fw:['nist800','cmmc','hipaa'],ans:[{l:'Yes — current SSP maintained',s:10},{l:'Partial documentation',s:5},{l:'No SSP',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PL-4',text:'Do all users sign an Acceptable Use Policy?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — signed by all users',s:10},{l:'Policy exists but not signed',s:5},{l:'No AUP',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PL-8',text:'Do you have a documented Information Security Architecture?',fw:['nist800','soc2'],ans:[{l:'Yes — documented',s:10},{l:'Informal only',s:4},{l:'None',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'PS',name:'Personnel Security',desc:'Background checks and termination procedures.',questions:[
+    {ctrl:'PS-3',text:'Do you conduct background checks on all employees?',fw:['nist800','soc2','cmmc','hipaa'],ans:[{l:'Yes — required for all employees',s:10},{l:'Some roles only',s:5},{l:'No checks',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PS-4',text:'Is access revoked same day as employee termination?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — same day revocation',s:10},{l:'Within a week',s:6},{l:'No formal process',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PS-7',text:'Do contractor/vendor agreements include security requirements?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — requirements in all contracts',s:10},{l:'Informal only',s:5},{l:'None',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'RA',name:'Risk Assessment',desc:'Risk identification and vulnerability management.',questions:[
+    {ctrl:'RA-3',text:'Do you conduct formal annual risk assessments?',fw:['nist800','soc2','hipaa','pci','cmmc'],ans:[{l:'Yes — formal with documented results',s:10},{l:'Informal reviews',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'RA-5',text:'Do you run automated vulnerability scans at least monthly?',fw:['nist800','pci','soc2','cmmc'],ans:[{l:'Yes — monthly or more frequent',s:10},{l:'Quarterly or less',s:6},{l:'No scanning',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'RA-7',text:'Do you have SLAs for remediating vulnerabilities by severity?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — SLAs for critical/high/medium/low',s:10},{l:'Remediate when time permits',s:4},{l:'No process',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'SA',name:'System Acquisition',desc:'Security in procurement and SDLC.',questions:[
+    {ctrl:'SA-4',text:'Do procurement contracts include security requirements?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — documented in procurement',s:10},{l:'Informal discussions only',s:5},{l:'No requirements',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SA-11',text:'Do you require security testing for internally developed apps?',fw:['nist800','pci','soc2','cmmc'],ans:[{l:'Yes — formal SDLC security testing',s:10},{l:'Some testing',s:5},{l:'None',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'SA-9',text:'Do you review SOC 2/ISO certs for critical vendors?',fw:['nist800','soc2','hipaa','pci'],ans:[{l:'Yes — reviewed for all critical vendors',s:10},{l:'Some vendors reviewed',s:5},{l:'No reviews',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'SC',name:'System & Comms Protection',desc:'Network security, encryption, and boundary protection.',questions:[
+    {ctrl:'SC-7',text:'Do you have a NGFW with network segmentation?',fw:['nist800','pci','cmmc','iso'],ans:[{l:'Yes — NGFW with DMZ/segmentation',s:10},{l:'Basic firewall only',s:5},{l:'No boundary protection',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SC-8',text:'Is data encrypted in transit (TLS) and at rest?',fw:['nist800','hipaa','pci','cmmc','soc2'],ans:[{l:'Yes — both at rest and in transit',s:10},{l:'In transit only',s:6},{l:'No encryption',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SC-5',text:'Do you have DDoS protection for internet-facing systems?',fw:['nist800','pci'],ans:[{l:'Yes — CDN or provider DDoS protection',s:10},{l:'Partial',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SC-12',text:'Do you have formal cryptographic key management?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — formal key management policy',s:10},{l:'Informal',s:4},{l:'None',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'SI',name:'System & Info Integrity',desc:'Patching, malware protection, and integrity monitoring.',questions:[
+    {ctrl:'SI-2',text:'Do you apply critical patches within 30 days via automated patching?',fw:['nist800','soc2','pci','cmmc','hipaa'],ans:[{l:'Yes — automated patching within 30 days',s:10},{l:'Manual, often delayed',s:5},{l:'No patch management',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SI-3',text:'Do all endpoints have EDR with real-time threat detection?',fw:['nist800','pci','cmmc','hipaa'],ans:[{l:'Yes — EDR on all endpoints',s:10},{l:'Basic AV only',s:5},{l:'No protection',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SI-4',text:'Do you monitor for attacks and indicators of compromise?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — SIEM/IDS with alerting',s:10},{l:'Basic monitoring',s:5},{l:'No monitoring',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SI-10',text:'Do applications validate input to prevent injection attacks?',fw:['nist800','pci','soc2'],ans:[{l:'Yes — enforced and tested',s:10},{l:'Partial',s:5},{l:'None',s:0},{l:'Not applicable',s:8}]}
+  ]},
+  {id:'SR',name:'Supply Chain Risk',desc:'Vendor and supply chain security management.',questions:[
+    {ctrl:'SR-3',text:'Do you have a formal supply chain risk management program?',fw:['nist800','cmmc'],ans:[{l:'Yes — documented program',s:10},{l:'Informal tracking',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SR-6',text:'Do you formally assess critical suppliers?',fw:['nist800','soc2','cmmc','pci'],ans:[{l:'Yes — formal assessments with docs',s:10},{l:'Review certs only',s:6},{l:'No assessments',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SR-11',text:'Do you verify software/hardware integrity from suppliers?',fw:['nist800','cmmc'],ans:[{l:'Yes — checksums/signatures verified',s:10},{l:'Partial',s:5},{l:'None',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'PM',name:'Program Management',desc:'Security program governance and risk strategy.',questions:[
+    {ctrl:'PM-1',text:'Do you have a formal security program with executive sponsorship?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — formal with C-level ownership',s:10},{l:'Managed informally by IT',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PM-9',text:'Is a risk register maintained and reviewed by leadership?',fw:['nist800','soc2'],ans:[{l:'Yes — maintained and reviewed regularly',s:10},{l:'Informal risk discussions',s:5},{l:'No risk register',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PM-14',text:'Do you report security KPIs/KRIs to leadership regularly?',fw:['nist800','soc2'],ans:[{l:'Yes — defined metrics reported regularly',s:10},{l:'Some informal metrics',s:5},{l:'No metrics',s:0},{l:'Unsure',s:2}]}
+  ]},
+  {id:'PT',name:'PII & Privacy',desc:'Personal data processing and privacy controls.',questions:[
+    {ctrl:'PT-1',text:'Do you have a documented Privacy Policy?',fw:['nist800','hipaa','iso','soc2'],ans:[{l:'Yes — comprehensive, publicly available',s:10},{l:'Basic notice only',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PT-2',text:'Do you obtain formal consent before collecting personal data?',fw:['nist800','hipaa','iso'],ans:[{l:'Yes — formal consent with documentation',s:10},{l:'Implied consent only',s:4},{l:'No process',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'PT-6',text:'Do you maintain a data inventory of all personal data you hold?',fw:['nist800','hipaa','iso','soc2'],ans:[{l:'Yes — complete inventory maintained',s:10},{l:'Partial',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PT-8',text:'Do you have a process for data subject access requests (DSAR)?',fw:['nist800','hipaa','iso'],ans:[{l:'Yes — formal DSAR process',s:10},{l:'Handle informally',s:4},{l:'No process',s:0},{l:'Not applicable',s:8}]}
+  ]}
+];
+
+// POLICY TEMPLATES
+const policyTemplates = [
+  {id:'isp',title:'Information Security Policy',status:'draft',desc:'Master security policy defining your organization\'s security posture, objectives, and governance.',frameworks:['nist800','soc2','hipaa','cmmc','iso'],controls:['PM-1','PL-2'],
+   content:`INFORMATION SECURITY POLICY
+
+<h3>1. PURPOSE</h3>
+This Information Security Policy establishes the framework for protecting [COMPANY NAME]'s information assets, systems, and data from unauthorized access, disclosure, modification, or destruction.
+
+<h3>2. SCOPE</h3>
+This policy applies to all employees, contractors, vendors, and third parties who access [COMPANY NAME] information systems or data, regardless of location or device used.
+
+<h3>3. POLICY STATEMENT</h3>
+[COMPANY NAME] is committed to protecting the confidentiality, integrity, and availability of all information assets. Executive leadership is responsible for ensuring adequate resources are allocated to information security.
+
+<h3>4. ROLES & RESPONSIBILITIES</h3>
+• Chief Executive Officer: Ultimate accountability for information security program
+• IT/Security Manager: Day-to-day management of security controls
+• All Employees: Comply with security policies and report incidents
+
+<h3>5. REVIEW</h3>
+This policy shall be reviewed annually and updated as required. All updates require executive approval.
+
+Version: 1.0 | Classification: Internal | Review Date: Annual`},
+  {id:'aup',title:'Acceptable Use Policy',status:'draft',desc:'Defines acceptable and prohibited use of company IT systems, devices, and networks.',frameworks:['nist800','soc2','cmmc'],controls:['PL-4','AC-3'],
+   content:`ACCEPTABLE USE POLICY
+
+<h3>1. PURPOSE</h3>
+This Acceptable Use Policy (AUP) defines the acceptable use of [COMPANY NAME]'s information technology resources including computers, networks, software, and data.
+
+<h3>2. ACCEPTABLE USE</h3>
+• Use systems for authorized business purposes
+• Protect login credentials and never share passwords
+• Report security incidents immediately to IT
+• Use company-approved software and applications only
+
+<h3>3. PROHIBITED ACTIVITIES</h3>
+• Unauthorized access to systems, data, or networks
+• Installing unlicensed or unauthorized software
+• Sharing confidential data outside the organization without authorization
+• Using company systems for personal financial gain
+• Accessing inappropriate or illegal content
+
+<h3>4. PERSONAL DEVICE USE (BYOD)</h3>
+Personal devices used to access company data must comply with minimum security standards including device encryption and screen lock.
+
+<h3>5. CONSEQUENCES</h3>
+Violations may result in disciplinary action up to and including termination and legal action.
+
+Employee Signature: _______________ Date: _______________`},
+  {id:'iam',title:'Access Control & IAM Policy',status:'draft',desc:'Governs user account management, privileged access, MFA requirements, and access reviews.',frameworks:['nist800','soc2','hipaa','pci','cmmc'],controls:['AC-2','AC-3','AC-6','IA-2','IA-5'],
+   content:`ACCESS CONTROL & IDENTITY MANAGEMENT POLICY
+
+<h3>1. ACCOUNT MANAGEMENT</h3>
+• All user accounts must be formally approved by management prior to creation
+• Accounts must be disabled within 24 hours of employee termination
+• Shared or generic accounts are prohibited
+• Access reviews must be conducted quarterly
+
+<h3>2. LEAST PRIVILEGE</h3>
+• Users are granted the minimum access required for their job function
+• Privileged access (admin rights) requires separate dedicated accounts
+• Privileged access must be approved by IT management and documented
+
+<h3>3. AUTHENTICATION REQUIREMENTS</h3>
+• Multi-Factor Authentication (MFA) is required for all system access
+• Passwords must be minimum 12 characters with complexity requirements
+• Passwords must not be reused (minimum 12 password history)
+• Password expiration: 90 days for standard accounts
+
+<h3>4. REMOTE ACCESS</h3>
+• All remote access requires VPN or Zero Trust Network Access (ZTNA)
+• Remote access sessions must time out after 30 minutes of inactivity
+
+<h3>5. ACCESS REVIEWS</h3>
+Access rights must be reviewed quarterly and documented. Unused accounts must be disabled after 90 days.`},
+  {id:'ir',title:'Incident Response Plan',status:'draft',desc:'Procedures for detecting, containing, eradicating, and recovering from security incidents.',frameworks:['nist800','soc2','hipaa','pci','cmmc'],controls:['IR-1','IR-4','IR-8','IR-6'],
+   content:`INCIDENT RESPONSE PLAN
+
+<h3>1. PURPOSE & SCOPE</h3>
+This plan defines the process for responding to cybersecurity incidents affecting [COMPANY NAME] systems and data.
+
+<h3>2. INCIDENT CLASSIFICATION</h3>
+• Critical: Active breach, ransomware, data exfiltration
+• High: Malware infection, unauthorized access confirmed
+• Medium: Phishing attempt, suspicious activity detected
+• Low: Policy violation, minor security event
+
+<h3>3. RESPONSE PHASES</h3>
+
+PHASE 1 — DETECTION & IDENTIFICATION
+• Monitor alerts from SIEM, EDR, and user reports
+• Validate alert and classify incident severity
+• Notify Incident Response Team (IRT)
+
+PHASE 2 — CONTAINMENT
+• Isolate affected systems from the network
+• Preserve evidence (do not power off compromised systems)
+• Document all actions taken with timestamps
+
+PHASE 3 — ERADICATION
+• Remove malware and unauthorized access
+• Patch vulnerabilities that were exploited
+• Reset compromised credentials
+
+PHASE 4 — RECOVERY
+• Restore systems from verified clean backups
+• Monitor for recurrence
+• Return to normal operations
+
+PHASE 5 — LESSONS LEARNED
+• Conduct post-incident review within 2 weeks
+• Document findings and update procedures
+
+<h3>4. NOTIFICATION REQUIREMENTS</h3>
+• HIPAA: Notify HHS within 60 days of breach discovery
+• PCI-DSS: Notify card brands within 24 hours
+• Internal: Notify executive leadership within 4 hours of Critical incidents`},
+  {id:'vuln',title:'Vulnerability Management Policy',status:'draft',desc:'Defines the process for identifying, prioritizing, and remediating security vulnerabilities.',frameworks:['nist800','pci','soc2','cmmc'],controls:['RA-5','RA-7','SI-2'],
+   content:`VULNERABILITY MANAGEMENT POLICY
+
+<h3>1. SCOPE</h3>
+This policy applies to all systems, applications, and infrastructure owned or operated by [COMPANY NAME].
+
+<h3>2. SCANNING REQUIREMENTS</h3>
+• Internal vulnerability scans: Monthly minimum
+• External vulnerability scans: Quarterly minimum
+• Penetration testing: Annual minimum by qualified third party
+• New systems must be scanned before production deployment
+
+<h3>3. REMEDIATION SLAs</h3>
+• Critical (CVSS 9.0-10.0): Remediate within 24 hours
+• High (CVSS 7.0-8.9): Remediate within 7 days
+• Medium (CVSS 4.0-6.9): Remediate within 30 days
+• Low (CVSS 0.1-3.9): Remediate within 90 days
+
+<h3>4. PATCH MANAGEMENT</h3>
+• Critical security patches: Deploy within 48 hours
+• High severity patches: Deploy within 7 days
+• Standard patches: Monthly patch cycle
+• Emergency patches may require change freeze override
+
+<h3>5. EXCEPTIONS</h3>
+Vulnerabilities that cannot be remediated within SLA must have:
+• Documented business justification
+• Compensating controls implemented
+• Management approval
+• Tracked to resolution`},
+  {id:'bcp',title:'Business Continuity & DR Plan',status:'draft',desc:'Procedures to maintain operations during disruptions and recover from disasters.',frameworks:['nist800','soc2','hipaa','iso'],controls:['CP-2','CP-9','CP-10'],
+   content:`BUSINESS CONTINUITY & DISASTER RECOVERY PLAN
+
+<h3>1. PURPOSE</h3>
+Ensure [COMPANY NAME] can continue critical business operations during and after a disaster or major disruption.
+
+<h3>2. RECOVERY OBJECTIVES</h3>
+• Recovery Time Objective (RTO): [DEFINE — e.g., 4 hours]
+• Recovery Point Objective (RPO): [DEFINE — e.g., 1 hour]
+
+<h3>3. BACKUP REQUIREMENTS</h3>
+• All critical data backed up daily minimum
+• Backups stored in geographically separate location (offsite/cloud)
+• Backup integrity tested monthly
+• Full restoration test conducted annually
+
+<h3>4. CRITICAL SYSTEMS PRIORITY</h3>
+Tier 1 (0-4 hours): [List mission-critical systems]
+Tier 2 (4-24 hours): [List important systems]
+Tier 3 (24-72 hours): [List supporting systems]
+
+<h3>5. PLAN TESTING</h3>
+• Tabletop exercise: Annually minimum
+• Full DR test: Annually minimum
+• Results documented and plan updated accordingly
+
+<h3>6. PLAN MAINTENANCE</h3>
+This plan must be reviewed and updated annually and after any significant infrastructure change.`},
+  {id:'dataclass',title:'Data Classification Policy',status:'draft',desc:'Defines how data is classified, labeled, and handled based on sensitivity.',frameworks:['hipaa','pci','soc2','nist800'],controls:['MP-3','SC-8','SC-28'],
+   content:`DATA CLASSIFICATION POLICY
+
+<h3>1. CLASSIFICATION LEVELS</h3>
+
+CONFIDENTIAL (Highest)
+• Protected Health Information (PHI)
+• Payment card data (PCI)
+• Personally Identifiable Information (PII)
+• Trade secrets and IP
+Handling: Encrypt at rest and in transit, strict access controls, no removable media without approval
+
+INTERNAL
+• Business strategies and plans
+• Employee records
+• Financial data
+Handling: Access on need-to-know, do not share externally without authorization
+
+PUBLIC
+• Marketing materials
+• Published documentation
+Handling: No special requirements
+
+<h3>2. DATA HANDLING REQUIREMENTS</h3>
+• All Confidential data must be encrypted at rest and in transit
+• Confidential data must not be stored on personal devices
+• Confidential data must not be transmitted via personal email
+
+<h3>3. DATA RETENTION</h3>
+• Define retention periods per data type
+• Data must be securely disposed of when retention period expires
+• Secure disposal methods: NIST 800-88 compliant wiping or physical destruction`},
+  {id:'privacy',title:'Privacy Policy',status:'draft',desc:'Explains how personal data is collected, used, stored, and protected.',frameworks:['hipaa','iso','nist800','soc2'],controls:['PT-1','PT-2','PT-6','PT-8'],
+   content:`PRIVACY POLICY
+
+<h3>1. INTRODUCTION</h3>
+[COMPANY NAME] is committed to protecting the privacy of individuals whose personal data we collect and process. This policy describes our data practices.
+
+<h3>2. DATA WE COLLECT</h3>
+• Contact information (name, email, phone)
+• Account credentials
+• Usage and activity data
+• [Add specific data types relevant to your business]
+
+<h3>3. HOW WE USE DATA</h3>
+• Providing and improving our services
+• Communicating with clients and prospects
+• Legal and compliance requirements
+• [Add specific use cases]
+
+<h3>4. DATA SHARING</h3>
+We do not sell personal data. We may share data with:
+• Service providers under confidentiality agreements
+• Legal authorities when required by law
+
+<h3>5. YOUR RIGHTS</h3>
+You have the right to:
+• Access your personal data
+• Correct inaccurate data
+• Request deletion of your data
+• Object to processing
+
+<h3>6. CONTACT</h3>
+For privacy requests: privacy@[COMPANY DOMAIN]
+Response time: 30 days`}
+];
+
+// TASK TEMPLATES (generated from gap analysis)
+const taskTemplates = {
+  'AC': [
+    {title:'Implement Role-Based Access Control (RBAC)',desc:'Configure RBAC across all critical systems. Define roles, assign permissions, and document the access matrix.',sev:'critical',ctrl:'AC-3',fw:'nist800'},
+    {title:'Enforce Account Lifecycle Management',desc:'Document and implement formal process for creating, modifying, and revoking user accounts. Integrate with HR offboarding.',sev:'critical',ctrl:'AC-2',fw:'nist800'},
+    {title:'Deploy Privileged Access Workstations',desc:'Separate privileged admin accounts from standard user accounts. Deploy dedicated PAWs for admin tasks.',sev:'high',ctrl:'AC-6',fw:'cmmc'}
+  ],
+  'AT': [
+    {title:'Launch Annual Security Awareness Training',desc:'Deploy mandatory security awareness training for all employees. Track completion rates and document results.',sev:'high',ctrl:'AT-2',fw:'soc2'},
+    {title:'Implement Phishing Simulation Program',desc:'Subscribe to a phishing simulation platform (KnowBe4, Proofpoint) and run quarterly simulations.',sev:'high',ctrl:'AT-2(2)',fw:'nist800'}
+  ],
+  'AU': [
+    {title:'Deploy SIEM Solution',desc:'Deploy a Security Information and Event Management system to centralize log collection and automated alerting.',sev:'critical',ctrl:'AU-6',fw:'nist800'},
+    {title:'Define Log Retention Policy',desc:'Implement 1-year minimum log retention. Configure tamper-proof log storage.',sev:'high',ctrl:'AU-11',fw:'pci'}
+  ],
+  'CA': [
+    {title:'Schedule Annual Penetration Test',desc:'Engage a qualified third-party penetration testing firm for annual external and internal pentest.',sev:'high',ctrl:'CA-8',fw:'pci'},
+    {title:'Implement Continuous Security Monitoring',desc:'Define security metrics and implement automated monitoring dashboards reviewed weekly.',sev:'medium',ctrl:'CA-7',fw:'nist800'}
+  ],
+  'CM': [
+    {title:'Document Security Baselines',desc:'Define and document baseline security configurations for all system types using CIS Benchmarks.',sev:'high',ctrl:'CM-2',fw:'nist800'},
+    {title:'Deploy Asset Inventory System',desc:'Implement automated asset discovery and maintain complete hardware/software inventory.',sev:'high',ctrl:'CM-8',fw:'soc2'},
+    {title:'Implement Change Management Process',desc:'Document and enforce a formal change management workflow with approval, testing, and rollback procedures.',sev:'medium',ctrl:'CM-3',fw:'soc2'}
+  ],
+  'CP': [
+    {title:'Document Business Continuity Plan',desc:'Create and document a formal BCP/DRP including RTOs, RPOs, and recovery procedures.',sev:'critical',ctrl:'CP-2',fw:'soc2'},
+    {title:'Test Backup Restoration',desc:'Schedule and complete a full backup restoration test. Document results.',sev:'high',ctrl:'CP-10',fw:'nist800'},
+    {title:'Implement Offsite Backup Storage',desc:'Configure automated backups to geographically separate cloud storage.',sev:'high',ctrl:'CP-9',fw:'hipaa'}
+  ],
+  'IA': [
+    {title:'Enforce MFA Across All Systems',desc:'Enable and enforce MFA for all user accounts. Prioritize email, VPN, and admin consoles.',sev:'critical',ctrl:'IA-2',fw:'pci'},
+    {title:'Implement Password Manager',desc:'Deploy enterprise password manager and enforce strong password policy technically.',sev:'high',ctrl:'IA-5',fw:'nist800'}
+  ],
+  'IR': [
+    {title:'Draft Incident Response Plan',desc:'Document IRP including roles, contact list, classification levels, containment, and notification procedures.',sev:'critical',ctrl:'IR-8',fw:'nist800'},
+    {title:'Conduct Tabletop Exercise',desc:'Schedule and conduct a tabletop IR exercise with key stakeholders. Document lessons learned.',sev:'high',ctrl:'IR-3',fw:'soc2'}
+  ],
+  'MP': [
+    {title:'Implement USB/Media Control Policy',desc:'Deploy endpoint controls to block or restrict unauthorized USB devices. Document exceptions.',sev:'high',ctrl:'MP-3',fw:'cmmc'},
+    {title:'Create Media Disposal Procedure',desc:'Document and implement secure media disposal procedures aligned to NIST 800-88.',sev:'medium',ctrl:'MP-6',fw:'hipaa'}
+  ],
+  'RA': [
+    {title:'Conduct Formal Risk Assessment',desc:'Perform and document a comprehensive risk assessment. Present findings to leadership.',sev:'critical',ctrl:'RA-3',fw:'nist800'},
+    {title:'Deploy Vulnerability Scanner',desc:'Implement automated vulnerability scanning (Tenable, Qualys, or similar) running monthly.',sev:'critical',ctrl:'RA-5',fw:'pci'},
+    {title:'Define Vulnerability Remediation SLAs',desc:'Document SLAs for patch/remediation by severity level and enforce tracking.',sev:'high',ctrl:'RA-7',fw:'nist800'}
+  ],
+  'SC': [
+    {title:'Implement Network Segmentation',desc:'Segment network into security zones (guest, corporate, servers, DMZ). Update firewall rules.',sev:'critical',ctrl:'SC-7',fw:'pci'},
+    {title:'Enforce Encryption at Rest and In Transit',desc:'Enable full disk encryption and ensure all data in transit uses TLS 1.2+.',sev:'high',ctrl:'SC-8',fw:'hipaa'}
+  ],
+  'SI': [
+    {title:'Deploy EDR Solution',desc:'Install EDR (Wazuh, CrowdStrike, or similar) on all endpoints for real-time threat detection.',sev:'critical',ctrl:'SI-3',fw:'nist800'},
+    {title:'Implement Automated Patch Management',desc:'Deploy automated patching solution ensuring critical patches deployed within 30 days.',sev:'high',ctrl:'SI-2',fw:'pci'}
+  ],
+  'PM': [
+    {title:'Establish Security Program Charter',desc:'Document formal security program with executive sponsorship, budget, and defined objectives.',sev:'high',ctrl:'PM-1',fw:'soc2'},
+    {title:'Create Security Risk Register',desc:'Build and maintain a risk register reviewed monthly by leadership.',sev:'medium',ctrl:'PM-9',fw:'nist800'}
+  ],
+  'PS': [
+    {title:'Implement Background Check Process',desc:'Establish background check requirements for all new hires and contractors.',sev:'high',ctrl:'PS-3',fw:'cmmc'},
+    {title:'Define Employee Termination Checklist',desc:'Create and enforce same-day access revocation checklist for employee offboarding.',sev:'critical',ctrl:'PS-4',fw:'soc2'}
+  ],
+  'PT': [
+    {title:'Publish Privacy Policy',desc:'Draft and publish a comprehensive privacy policy on your website covering data collection, use, and rights.',sev:'high',ctrl:'PT-1',fw:'hipaa'},
+    {title:'Build Data Inventory',desc:'Catalog all personal data held by the organization including source, storage location, and retention period.',sev:'high',ctrl:'PT-6',fw:'iso'}
+  ],
+  'SR': [
+    {title:'Implement Vendor Risk Assessment Process',desc:'Create vendor security questionnaire and assessment process for all critical third-party vendors.',sev:'high',ctrl:'SR-6',fw:'soc2'}
+  ],
+  'PL': [
+    {title:'Create and Distribute Acceptable Use Policy',desc:'Draft AUP covering system use, BYOD, and prohibited activities. Require all employees to sign.',sev:'medium',ctrl:'PL-4',fw:'cmmc'}
+  ],
+  'MA': [
+    {title:'Document Maintenance Procedures',desc:'Create formal maintenance schedule and logging procedures for all critical systems.',sev:'low',ctrl:'MA-2',fw:'nist800'}
+  ],
+  'PE': [
+    {title:'Implement Physical Access Controls',desc:'Install keycard or badge access system for server rooms with visitor logging.',sev:'high',ctrl:'PE-3',fw:'pci'}
+  ]
+};
+
+// RENDER FRAMEWORK SELECTION
+function renderFrameworkGrid() {
+  const grid = document.getElementById('frameworkGrid');
+  grid.innerHTML = frameworks.map(fw => `
+    <div class="setup-card ${state.selectedFrameworks.includes(fw.id)?'selected':''}" onclick="toggleFramework('${fw.id}',this)">
+      <div class="sc-top">
+        <div class="sc-check">${state.selectedFrameworks.includes(fw.id)?'<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="#03050A" stroke-width="2" fill="none"/></svg>':''}</div>
+        <div>
+          <div class="sc-name" style="color:${fw.color}">${fw.name}</div>
+          <div class="sc-badge" style="color:${fw.color};border-color:${fw.color}40">${fw.badge}</div>
+        </div>
+      </div>
+      <div class="sc-desc">${fw.desc}</div>
+      <div class="sc-families">${fw.families.slice(0,8).map(f=>`<span class="sc-fam">${f}</span>`).join('')}${fw.families.length>8?`<span class="sc-fam">+${fw.families.length-8}</span>`:''}</div>
+    </div>`).join('');
+}
+
+function toggleFramework(id, el) {
+  if(state.selectedFrameworks.includes(id)) {
+    state.selectedFrameworks = state.selectedFrameworks.filter(f=>f!==id);
+    el.classList.remove('selected');
+    el.querySelector('.sc-check').innerHTML = '';
+  } else {
+    state.selectedFrameworks.push(id);
+    el.classList.add('selected');
+    el.querySelector('.sc-check').innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="#03050A" stroke-width="2" fill="none"/></svg>';
+  }
+}
+
+// START QUESTIONNAIRE
+function startQuestionnaire() {
+  if(state.selectedFrameworks.length === 0) {
+    alert('Please select at least one compliance framework.');
+    return;
+  }
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step1').classList.add('done');
+  document.getElementById('step1').querySelector('.step-num').innerHTML = '✓';
+  document.getElementById('step2').classList.add('active');
+  state.currentSection = 0;
+  renderQuestionnaire(0);
+  showView('questionnaire');
+  document.getElementById('nav-questionnaire').querySelector('.ni-badge').style.display = 'inline';
+}
+
+// RENDER QUESTIONNAIRE
+function renderQuestionnaire(idx) {
+  state.currentSection = idx;
+  const sec = sections[idx];
+  const totalQ = sections.reduce((a,s)=>a+s.questions.length,0);
+  const doneQ = sections.slice(0,idx).reduce((a,s)=>a+s.questions.length,0);
+  const totalAns = Object.keys(state.answers).filter(k=>!k.includes('_ai')).length;
+  const pct = Math.round((totalAns/totalQ)*100);
+
+  document.getElementById('qProgTitle').textContent = sec.id + ' — ' + sec.name;
+  document.getElementById('qProgSub').textContent = 'Section ' + (idx+1) + ' of ' + sections.length;
+  document.getElementById('qProgFill').style.width = pct + '%';
+  document.getElementById('qProgPct').textContent = pct + '% Complete';
+  document.getElementById('nav-questionnaire').querySelector('.ni-badge').textContent = pct + '%';
+
+  // Section nav
+  const snav = document.getElementById('qSectionNav');
+  snav.innerHTML = sections.map((s,i) => {
+    const isDone = s.questions.every((_,qi)=>state.answers[s.id+'_'+qi]!==undefined);
+    return `<div class="qsn-btn ${i===idx?'active':''} ${isDone?'done':''}" onclick="renderQuestionnaire(${i})">${s.id}</div>`;
+  }).join('');
+
+  // Questions
+  const content = document.getElementById('qContent');
+  content.innerHTML = sec.questions.map((q,qi) => `
+    <div class="q-block ${state.answers[sec.id+'_'+qi]!==undefined?'answered':''}" id="qb_${qi}">
+      <div class="q-meta">
+        <div class="q-ctrl">${q.ctrl}</div>
+        <div class="q-num">Q${doneQ+qi+1}/${totalQ}</div>
+      </div>
+      <div class="q-text">${q.text}</div>
+      <div class="q-tags">${q.fw.map(f=>`<span class="qt ${f}">${f==='nist800'?'NIST 800-53':f==='nistcsf'?'NIST CSF':f==='iso'?'ISO 27001':f.toUpperCase()}</span>`).join('')}</div>
+      <div class="q-opts">${q.ans.map((a,ai)=>`
+        <div class="q-opt ${state.answers[sec.id+'_'+qi+'_ai']===ai?'sel':''}" onclick="selAns('${sec.id}',${qi},${ai},${a.s},this)">
+          <div class="qo-radio"></div>
+          <div class="qo-label">${a.l}</div>
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // Nav
+  const nav = document.getElementById('qNav');
+  nav.innerHTML = `
+    ${idx>0?`<button class="btn btn-secondary btn-sm" onclick="renderQuestionnaire(${idx-1})">← BACK</button>`:''}
+    <div style="flex:1"></div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);cursor:none" onclick="renderQuestionnaire(${Math.min(idx+1,sections.length-1)})">SKIP SECTION</span>
+    ${idx<sections.length-1
+      ?`<button class="btn btn-primary btn-sm" onclick="renderQuestionnaire(${idx+1})">NEXT →</button>`
+      :`<button class="btn btn-primary btn-sm" onclick="completeAssessment()">COMPLETE ASSESSMENT →</button>`}`;
+}
+
+function selAns(sid,qi,ai,score,el) {
+  el.closest('.q-opts').querySelectorAll('.q-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  state.answers[sid+'_'+qi] = score;
+  state.answers[sid+'_'+qi+'_ai'] = ai;
+  document.getElementById('qb_'+qi).classList.add('answered');
+}
+
+// COMPLETE ASSESSMENT
+function completeAssessment() {
+  state.scores = calcScores();
+  state.tasks = generateTasks();
+  
+  // Update history
+  state.assessmentHistory.unshift({
+    date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    score: state.scores.overall,
+    risk: getRisk(state.scores.overall).lvl,
+    frameworks: state.selectedFrameworks
+  });
+
+  // Update sidebar
+  const risk = getRisk(state.scores.overall);
+  document.getElementById('sidebarScore').textContent = state.scores.overall;
+  document.getElementById('sidebarScore').style.color = risk.c;
+  document.getElementById('sidebarScoreBar').style.width = state.scores.overall+'%';
+  document.getElementById('sidebarRisk').textContent = risk.lvl;
+  document.getElementById('sidebarRisk').style.color = risk.c;
+  document.getElementById('sidebarScoreWrap').style.display = 'block';
+  document.getElementById('taskBadge').textContent = state.tasks.length;
+
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step2').classList.add('done');
+  document.getElementById('step2').querySelector('.step-num').innerHTML = '✓';
+  document.getElementById('step3').classList.add('active');
+  document.getElementById('step3').querySelector('.step-num').innerHTML = '✓';
+
+  renderDashboard();
+  renderTasks();
+  renderPolicies();
+  renderHistory();
+  showView('dashboard-view');
+}
+
+// CALC SCORES
+function calcScores() {
+  let tot=0,mx=0;
+  const secs={};
+  sections.forEach(sec=>{
+    let ss=0,sm=0;
+    sec.questions.forEach((q,qi)=>{
+      const m=Math.max(...q.ans.map(a=>a.s));
+      const u=state.answers[sec.id+'_'+qi]!==undefined?state.answers[sec.id+'_'+qi]:0;
+      ss+=u;sm+=m;tot+=u;mx+=m;
+    });
+    secs[sec.id]={s:ss,m:sm,p:sm>0?Math.round((ss/sm)*100):0,name:sec.name};
+  });
+  const fwMap={
+    'nist800':{c:'#00C896',n:'NIST 800-53',ids:['AC','AU','CM','IA','IR','RA','SC','SI','CA','SA','CP','PM']},
+    'nistcsf':{c:'#00FFD1',n:'NIST CSF',ids:['AC','AU','IR','RA','SC','SI','CP','CM']},
+    'soc2':{c:'#0084FF',n:'SOC 2',ids:['AC','AU','CA','CM','CP','IA','IR','PM','SA','SC','SI']},
+    'hipaa':{c:'#7B61FF',n:'HIPAA',ids:['AC','AU','CP','IA','IR','MP','PE','PT','SA','SC','SI']},
+    'pci':{c:'#F5A623',n:'PCI-DSS',ids:['AC','AU','CM','IA','IR','MA','MP','PE','RA','SC','SI','SA']},
+    'cmmc':{c:'#FF3B5C',n:'CMMC',ids:['AC','AT','AU','CA','CM','IA','IR','MA','MP','PE','RA','SA','SC','SI','SR','PS']},
+    'iso':{c:'#C8D8F0',n:'ISO 27001',ids:['AC','AT','AU','CM','CP','IA','IR','MP','PE','PL','RA','SA','SC','SI','PT']}
+  };
+  const fws={};
+  state.selectedFrameworks.forEach(fid=>{
+    const fw=fwMap[fid];
+    if(!fw)return;
+    let fs=0,fm=0;
+    fw.ids.forEach(id=>{if(secs[id]){fs+=secs[id].s;fm+=secs[id].m;}});
+    fws[fid]={...fw,p:fm>0?Math.round((fs/fm)*100):0};
+  });
+  return{overall:mx>0?Math.round((tot/mx)*100):0,secs,fws};
+}
+
+function getRisk(p){
+  if(p>=80)return{lvl:'LOW RISK',c:'#00C896',bg:'rgba(0,200,150,0.08)',bc:'rgba(0,200,150,0.3)',i:'🛡️',d:'Strong security posture. Focus on continuous improvement and audit preparation.'};
+  if(p>=65)return{lvl:'MODERATE RISK',c:'#F5A623',bg:'rgba(245,166,35,0.08)',bc:'rgba(245,166,35,0.3)',i:'⚠️',d:'Security foundation exists but key gaps remain. Prioritize critical control areas.'};
+  if(p>=40)return{lvl:'HIGH RISK',c:'#FF3B5C',bg:'rgba(255,59,92,0.08)',bc:'rgba(255,59,92,0.3)',i:'🚨',d:'Serious gaps present. Elevated breach risk and likely non-compliant with selected frameworks.'};
+  return{lvl:'CRITICAL RISK',c:'#FF3B5C',bg:'rgba(255,59,92,0.14)',bc:'rgba(255,59,92,0.5)',i:'💀',d:'Immediate action required. Fundamental controls missing. Urgent remediation needed.'};
+}
+
+// RENDER DASHBOARD
+function renderDashboard() {
+  const sc=state.scores, risk=getRisk(sc.overall);
+  const circ=2*Math.PI*22, dash=circ*(1-sc.overall/100);
+  const weakest=Object.entries(sc.secs).sort((a,b)=>a[1].p-b[1].p).slice(0,6);
+  const totalTasks=state.tasks.length;
+  const doneTasks=state.tasks.filter(t=>state.taskStates[t.id]).length;
+
+  document.getElementById('dashContent').innerHTML = `
+    <div class="dash-grid">
+      <div class="metric-card">
+        <div class="mc-label">OVERALL RISK SCORE</div>
+        <div class="mc-val" style="color:${risk.c}">${sc.overall}</div>
+        <div class="mc-sub" style="color:${risk.c}">${risk.lvl}</div>
+        <div class="mc-bar"><div class="mc-bar-fill" style="width:${sc.overall}%;background:${risk.c}"></div></div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">FRAMEWORKS ASSESSED</div>
+        <div class="mc-val" style="color:var(--accent2)">${Object.keys(sc.fws).length}</div>
+        <div class="mc-sub">${state.selectedFrameworks.map(f=>sc.fws[f]?sc.fws[f].n:'').join(', ')}</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">OPEN TASKS</div>
+        <div class="mc-val" style="color:var(--warn)">${totalTasks-doneTasks}</div>
+        <div class="mc-sub">${doneTasks} of ${totalTasks} complete</div>
+        <div class="mc-bar"><div class="mc-bar-fill" style="width:${totalTasks>0?Math.round((doneTasks/totalTasks)*100):0}%;background:var(--success)"></div></div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">CRITICAL GAPS</div>
+        <div class="mc-val" style="color:var(--danger)">${weakest.filter(([,s])=>s.p<40).length}</div>
+        <div class="mc-sub">Control families below 40%</div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid ${risk.bc};padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:18px">${risk.i}</span>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${risk.c};letter-spacing:2px">${risk.lvl}</div>
+        <div style="font-size:12px;color:var(--muted)">${risk.d}</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px">FRAMEWORK READINESS</div>
+    <div class="fw-grid" style="margin-bottom:28px">
+      ${Object.entries(sc.fws).map(([fid,fw])=>{
+        const c2=2*Math.PI*22, d2=c2*(1-fw.p/100);
+        return `<div class="fw-card">
+          <div class="fw-name" style="color:${fw.c}">${fw.n}</div>
+          <div class="fw-sub">COMPLIANCE READINESS</div>
+          <div class="fw-ring-wrap">
+            <div class="fw-ring">
+              <svg width="52" height="52" viewBox="0 0 52 52">
+                <circle cx="26" cy="26" r="22" fill="none" stroke="#112240" stroke-width="5"/>
+                <circle cx="26" cy="26" r="22" fill="none" stroke="${fw.c}" stroke-width="5"
+                  stroke-dasharray="${c2}" stroke-dashoffset="${d2}" stroke-linecap="round"
+                  transform="rotate(-90 26 26)" style="transition:stroke-dashoffset 1s ease"/>
+              </svg>
+              <div class="fw-ring-num" style="color:${fw.c}">${fw.p}%</div>
+            </div>
+            <div class="fw-details">
+              <div class="fw-detail-row"><span class="fw-detail-label">SCORE</span><span class="fw-detail-val" style="color:${fw.c}">${fw.p}/100</span></div>
+              <div class="fw-detail-row"><span class="fw-detail-label">STATUS</span><span class="fw-detail-val" style="color:${fw.p>=70?'var(--success)':fw.p>=50?'var(--warn)':'var(--danger)'}">
+                ${fw.p>=70?'ON TRACK':fw.p>=50?'NEEDS WORK':'AT RISK'}</span></div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">CONTROL FAMILY SCORES <span class="panel-title-action" onclick="showView('tasks')">VIEW TASKS →</span></div>
+        ${Object.entries(sc.secs).map(([id,s])=>{
+          const c=s.p<40?'var(--danger)':s.p<65?'var(--warn)':'var(--success)';
+          return `<div class="ctrl-family-row">
+            <div class="cff-id">${id}</div>
+            <div class="cff-name">${s.name}</div>
+            <div class="cff-bar"><div class="cff-fill" style="width:${s.p}%;background:${c}"></div></div>
+            <div class="cff-pct" style="color:${c}">${s.p}%</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="panel">
+        <div class="panel-title">CRITICAL GAPS <span class="panel-title-action" onclick="showView('tasks')">REMEDIATE →</span></div>
+        ${weakest.map(([id,s])=>{
+          const c=s.p<40?'var(--danger)':s.p<65?'var(--warn)':'var(--success)';
+          const sev=s.p<40?'CRITICAL':s.p<65?'HIGH':'MEDIUM';
+          const sevColor=s.p<40?'#FF3B5C':s.p<65?'#F5A623':'#00C896';
+          return `<div class="gap-row">
+            <div class="gap-dot" style="background:${c}"></div>
+            <div class="gap-name">${id} — ${s.name}</div>
+            <span class="gap-badge" style="color:${sevColor};border:1px solid ${sevColor}40">${sev}</span>
+            <div class="gap-score" style="color:${c}">${s.p}%</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+// GENERATE TASKS
+function generateTasks() {
+  const tasks = [];
+  let id = 1;
+  const sc = state.scores;
+  
+  sections.forEach(sec => {
+    const secScore = sc.secs[sec.id];
+    if(!secScore || secScore.p >= 75) return; // Only generate tasks for gaps
+    
+    const templates = taskTemplates[sec.id] || [];
+    templates.forEach(tmpl => {
+      // Check if this control's answer was low
+      const qIdx = sec.questions.findIndex(q=>q.ctrl===tmpl.ctrl);
+      if(qIdx >= 0) {
+        const ans = state.answers[sec.id+'_'+qIdx];
+        if(ans !== undefined && ans >= 8) return; // Already doing well
+      }
+      tasks.push({
+        id: 't'+id++,
+        ...tmpl,
+        family: sec.id,
+        dueDate: getDueDate(tmpl.sev)
+      });
+    });
+  });
+  return tasks;
+}
+
+function getDueDate(sev) {
+  const d = new Date();
+  if(sev==='critical') d.setDate(d.getDate()+7);
+  else if(sev==='high') d.setDate(d.getDate()+30);
+  else if(sev==='medium') d.setDate(d.getDate()+60);
+  else d.setDate(d.getDate()+90);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+// RENDER TASKS
+function renderTasks(filter='all') {
+  const tasks = filter==='all' ? state.tasks :
+    filter==='open' ? state.tasks.filter(t=>!state.taskStates[t.id]) :
+    filter==='done' ? state.tasks.filter(t=>state.taskStates[t.id]) :
+    state.tasks.filter(t=>t.sev===filter);
+
+  if(state.tasks.length===0){
+    document.getElementById('tasksContent').innerHTML = `<div class="empty-state"><div class="es-icon">✓</div><div class="es-title">No Tasks</div><div class="es-desc">Complete the assessment to generate remediation tasks.</div><button class="btn btn-primary btn-sm" onclick="showView('questionnaire')">START ASSESSMENT →</button></div>`;
+    return;
+  }
+
+  const sevColors={critical:'#FF3B5C',high:'#F5A623',medium:'#00FFD1',low:'#4A6080'};
+  const sevFw={nist800:'#00C896',soc2:'#0084FF',hipaa:'#7B61FF',pci:'#F5A623',cmmc:'#FF3B5C',iso:'#C8D8F0',nistcsf:'#00FFD1'};
+  const fwNames={nist800:'NIST 800-53',soc2:'SOC 2',hipaa:'HIPAA',pci:'PCI-DSS',cmmc:'CMMC',iso:'ISO 27001',nistcsf:'NIST CSF'};
+
+  const done=state.tasks.filter(t=>state.taskStates[t.id]).length;
+  document.getElementById('tasksContent').innerHTML = `
+    <div class="tasks-toolbar">
+      <div class="task-filter-btn ${filter==='all'?'active':''}" onclick="renderTasks('all')">ALL (${state.tasks.length})</div>
+      <div class="task-filter-btn ${filter==='open'?'active':''}" onclick="renderTasks('open')">OPEN (${state.tasks.length-done})</div>
+      <div class="task-filter-btn ${filter==='done'?'active':''}" onclick="renderTasks('done')">DONE (${done})</div>
+      <div class="task-filter-btn ${filter==='critical'?'active':''}" onclick="renderTasks('critical')">CRITICAL</div>
+      <div class="task-filter-btn ${filter==='high'?'active':''}" onclick="renderTasks('high')">HIGH</div>
+      <div class="tasks-spacer"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${done}/${state.tasks.length} COMPLETE</div>
+    </div>
+    ${tasks.map(t=>`
+      <div class="task-card ${state.taskStates[t.id]?'done':''}" id="tc_${t.id}">
+        <div class="task-check" onclick="toggleTask('${t.id}')">
+          ${state.taskStates[t.id]?'<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg>':''}
+        </div>
+        <div class="task-body">
+          <div class="task-title">${t.title}</div>
+          <div class="task-desc">${t.desc}</div>
+          <div class="task-meta">
+            <span class="task-framework" style="color:${sevFw[t.fw]||'#fff'};border-color:${(sevFw[t.fw]||'#fff')}40">${fwNames[t.fw]||t.fw}</span>
+            <span class="task-ctrl">${t.ctrl}</span>
+            <span class="task-sev ${t.sev}">${t.sev.toUpperCase()}</span>
+          </div>
+        </div>
+        <div class="task-assign">
+          <div class="task-due">DUE: ${t.dueDate}</div>
+          <div class="task-assignee">${state.taskStates[t.id]?'✓ COMPLETE':'PENDING'}</div>
+        </div>
+      </div>`).join('')}`;
+}
+
+function toggleTask(id) {
+  state.taskStates[id] = !state.taskStates[id];
+  const done=state.tasks.filter(t=>state.taskStates[t.id]).length;
+  document.getElementById('taskBadge').textContent = state.tasks.length-done;
+  renderTasks();
+  if(state.scores) renderDashboard();
+}
+
+// RENDER POLICIES
+function renderPolicies() {
+  const container = document.getElementById('policiesContent');
+  container.innerHTML = `
+    <div class="policies-grid">
+      ${policyTemplates.map(p=>`
+        <div class="policy-card ${state.publishedPolicies.includes(p.id)?'published':''}">
+          <div class="pc-status">
+            <div class="pc-status-dot" style="background:${state.publishedPolicies.includes(p.id)?'var(--success)':'var(--warn)'}"></div>
+            <div class="pc-status-label" style="color:${state.publishedPolicies.includes(p.id)?'var(--success)':'var(--warn)'}">${state.publishedPolicies.includes(p.id)?'PUBLISHED':'DRAFT'}</div>
+          </div>
+          <div class="pc-title">${p.title}</div>
+          <div class="pc-desc">${p.desc}</div>
+          <div class="pc-frameworks">${p.frameworks.map(f=>`<span class="pc-fw">${f==='nist800'?'NIST 800-53':f==='soc2'?'SOC 2':f==='nistcsf'?'NIST CSF':f.toUpperCase()}</span>`).join('')}</div>
+          <div class="pc-actions">
+            <div class="pc-btn primary" onclick="openPolicy('${p.id}')">VIEW & EDIT</div>
+            ${!state.publishedPolicies.includes(p.id)?`<div class="pc-btn secondary" onclick="publishPolicy('${p.id}')">PUBLISH</div>`:'<div class="pc-btn secondary">PUBLISHED</div>'}
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// RENDER HISTORY
+function renderHistory() {
+  if(state.assessmentHistory.length===0) return;
+  const container = document.getElementById('historyContent');
+  container.innerHTML = `<div class="history-list">${state.assessmentHistory.map((h,i)=>{
+    const risk=getRisk(h.score);
+    const fwNames={nist800:'NIST 800-53',soc2:'SOC 2',hipaa:'HIPAA',pci:'PCI-DSS',cmmc:'CMMC',iso:'ISO 27001',nistcsf:'NIST CSF'};
+    return `<div class="history-card">
+      <div class="hc-date">${h.date}</div>
+      <div class="hc-score" style="color:${risk.c}">${h.score}</div>
+      <div class="hc-bar-wrap">
+        <div class="hc-bar"><div class="hc-bar-fill" style="width:${h.score}%;background:${risk.c}"></div></div>
+        <div class="hc-label" style="color:${risk.c}">${risk.lvl}</div>
+      </div>
+      <div>
+        <div class="hc-frameworks">${h.frameworks.map(f=>`<span class="hc-fw">${fwNames[f]||f}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// POLICY MODAL
+let currentPolicyId = null;
+function openPolicy(id) {
+  const p = policyTemplates.find(p=>p.id===id);
+  if(!p) return;
+  currentPolicyId = id;
+  document.getElementById('modalEyebrow').textContent = 'POLICY TEMPLATE — ' + p.controls.join(', ');
+  document.getElementById('modalTitle').textContent = p.title;
+  document.getElementById('modalContent').innerHTML = p.content;
+  document.getElementById('policyModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('policyModal').classList.remove('open');
+  currentPolicyId = null;
+}
+function publishPolicy(id) {
+  const pid = id || currentPolicyId;
+  if(!pid) return;
+  if(!state.publishedPolicies.includes(pid)) state.publishedPolicies.push(pid);
+  renderPolicies();
+  closeModal();
+}
+document.getElementById('policyModal').addEventListener('click',function(e){
+  if(e.target===this) closeModal();
+});
+
+// NAV
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  const navEl = document.getElementById('nav-'+id);
+  if(navEl) navEl.classList.add('active');
+}
+
+// INIT
+renderFrameworkGrid();
+renderPolicies();
+
+// URL params for client name
+const params = new URLSearchParams(window.location.search);
+if(params.get('client')) document.getElementById('clientName').textContent = params.get('client');
+</script>
+</body>
+</html>
