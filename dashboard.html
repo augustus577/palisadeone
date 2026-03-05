@@ -664,6 +664,54 @@
 
 <script>
 const PROXY_URL = 'https://api.palisadeone.com:9443';
+const PORTAL_USER = 'admin';
+const PORTAL_PASS = 'PalisadeOne2026!';
+let currentView = 'overview';
+
+function updateTime() {
+  document.getElementById('topbar-time').textContent = new Date().toLocaleTimeString('en-US', {hour12: false}) + ' UTC';
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+function doLogin() {
+  const user = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+  const status = document.getElementById('login-status');
+  if (user === PORTAL_USER && pass === PORTAL_PASS) {
+    document.getElementById('login-screen').style.opacity = '0';
+    document.getElementById('login-screen').style.transition = 'opacity 0.5s';
+    setTimeout(() => {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      initDashboard();
+    }, 500);
+  } else {
+    status.textContent = '// AUTHENTICATION FAILED — INVALID CREDENTIALS';
+    document.getElementById('login-pass').value = '';
+  }
+}
+document.addEventListener('keypress', (e) => { if (e.key === 'Enter') doLogin(); });
+
+function logout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-screen').style.opacity = '1';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-status').textContent = '';
+}
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('page-title').textContent = name.toUpperCase();
+  currentView = name;
+  if (name === 'alerts') loadAlerts();
+  if (name === 'devices') loadDevices();
+  if (name === 'compliance') loadCompliance();
+}
 
 function updatePreview() {
   const name = document.getElementById('client-name-input').value || '...';
