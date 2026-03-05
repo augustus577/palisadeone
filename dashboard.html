@@ -260,6 +260,27 @@
     #ep-toast.info { border-color: rgba(0,132,255,0.4); color: var(--accent2); }
     @media (max-width: 900px) { #ep-panel { width: 100%; } }
 
+    /* DARK WEB MONITOR */
+    .dw-breach-row { display: grid; grid-template-columns: 1fr 100px 120px 80px; gap: 12px; padding: 12px 20px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; transition: background 0.2s; }
+    .dw-breach-row:hover { background: rgba(255,255,255,0.02); }
+    .dw-breach-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+    .dw-breach-name { font-size: 13px; color: var(--white); font-weight: 500; }
+    .dw-breach-domain { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .dw-data-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .dw-data-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 6px; border-radius: 2px; background: rgba(0,132,255,0.1); border: 1px solid rgba(0,132,255,0.2); color: var(--accent2); }
+    .dw-data-tag.sensitive { background: rgba(255,59,92,0.1); border-color: rgba(255,59,92,0.25); color: var(--danger); }
+    .dw-email-item { padding: 10px 20px; border-bottom: 1px solid rgba(17,34,64,0.5); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .dw-email-item:last-child { border-bottom: none; }
+    .dw-email-addr { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); }
+    .dw-email-count { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
+    .dw-email-count.clean { color: var(--accent); }
+    .dw-email-count.breached { color: var(--danger); }
+    .dw-scan-btn { padding: 4px 10px; font-size: 10px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; background: transparent; font-family: 'JetBrains Mono', monospace; transition: all 0.2s; }
+    .dw-scan-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .dw-api-notice { padding: 16px 20px; background: rgba(245,166,35,0.05); border-bottom: 1px solid rgba(245,166,35,0.15); display: flex; align-items: flex-start; gap: 12px; }
+    .dw-setup-input { background: var(--deep); border: 1px solid var(--border); padding: 8px 12px; color: var(--white); font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; transition: border-color 0.2s; width: 100%; }
+    .dw-setup-input:focus { border-color: var(--accent); }
+
     /* LIGHT MODE */
     html[data-theme="light"] {
       --black: #EEF2F7; --deep: #E3EAF2; --surface: #FFFFFF; --surface2: #F5F8FC;
@@ -350,6 +371,11 @@
       <div class="nav-item" onclick="showView('devices')">
         <span class="nav-icon">💻</span>
         <span>Devices</span>
+      </div>
+      <div class="nav-item" onclick="showView('darkweb')">
+        <span class="nav-icon">🕵️</span>
+        <span>Dark Web Monitor</span>
+        <span class="nav-badge" id="dw-badge" style="display:none">0</span>
       </div>
       <div class="nav-section">Management</div>
       <div class="nav-item" onclick="showView('clients')">
@@ -777,6 +803,82 @@
         </div>
       </div>
 
+      <!-- DARK WEB MONITOR VIEW -->
+      <div class="view" id="view-darkweb">
+        <div class="stats-row">
+          <div class="stat-card red">
+            <div class="stat-label">Total Breaches Found</div>
+            <div class="stat-value danger" id="dw-stat-total">--</div>
+            <div class="stat-sub">Across all monitored emails</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-label">Emails Monitored</div>
+            <div class="stat-value" style="color:var(--warning)" id="dw-stat-emails">--</div>
+            <div class="stat-sub">Active watch list</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">Clients Affected</div>
+            <div class="stat-value blue" id="dw-stat-clients">--</div>
+            <div class="stat-sub">With at least 1 breach</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Last Scanned</div>
+            <div class="stat-value accent" id="dw-stat-scanned" style="font-size:18px;line-height:1.2">NEVER</div>
+            <div class="stat-sub">Click Scan All to update</div>
+          </div>
+        </div>
+
+        <!-- API KEY SETUP -->
+        <div class="panel" id="dw-setup-panel">
+          <div class="panel-header">
+            <div class="panel-title">API Configuration</div>
+            <div class="panel-action" onclick="saveDWApiKey()">SAVE KEY</div>
+          </div>
+          <div class="dw-api-notice">
+            <div style="font-size:18px;flex-shrink:0;">⚠</div>
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--warning);letter-spacing:1px;margin-bottom:4px;">HIBP API KEY REQUIRED</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Get a free API key at <strong style="color:var(--accent2);">haveibeenpwned.com/API/Key</strong> (~$3.50/mo for email breach checks). Paste it below to enable dark web monitoring.</div>
+            </div>
+          </div>
+          <div style="padding:16px 20px;display:flex;gap:10px;align-items:center;">
+            <input type="password" id="dw-api-key-input" class="dw-setup-input" placeholder="Paste your HIBP API key here..." style="max-width:420px;"/>
+            <button onclick="saveDWApiKey()" style="background:var(--accent);color:var(--black);border:none;padding:9px 20px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;">SAVE &amp; ACTIVATE</button>
+          </div>
+        </div>
+
+        <!-- MONITORED EMAILS -->
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Monitored Emails</div>
+              <button onclick="scanAllEmails()" id="dw-scan-all-btn" style="background:var(--accent2);color:#fff;border:none;padding:5px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;">↺ SCAN ALL</button>
+            </div>
+            <div style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;gap:8px;">
+              <input type="email" id="dw-add-email-input" placeholder="add@email.com" style="flex:1;background:var(--deep);border:1px solid var(--border);padding:7px 12px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
+              <select id="dw-add-client-select" style="background:var(--deep);border:1px solid var(--border);padding:7px 10px;color:var(--white);font-family:'Outfit',sans-serif;font-size:12px;outline:none;">
+                <option value="">— Client —</option>
+              </select>
+              <button onclick="addMonitoredEmail()" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:7px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px;">+ ADD</button>
+            </div>
+            <div id="dw-email-list">
+              <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading watch list...</div>
+            </div>
+          </div>
+
+          <!-- RECENT BREACHES -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Recent Breaches</div>
+              <div class="panel-action" id="dw-breach-filter" style="font-size:10px;">ALL CLIENTS</div>
+            </div>
+            <div id="dw-breach-list">
+              <div style="padding:32px;text-align:center;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;">// Scan emails to discover breaches</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- COMPLIANCE VIEW -->
       <div class="view" id="view-compliance">
 
@@ -978,6 +1080,7 @@ function showView(name) {
   if (name === 'devices') loadDevices();
   if (name === 'compliance') loadCompliance();
   if (name === 'clients') loadClients();
+  if (name === 'darkweb') initDarkWeb();
 }
 
 function updatePreview() {
@@ -1614,6 +1717,230 @@ async function deleteClient(clientId) {
 
 function copyClientToken(token) {
   navigator.clipboard.writeText(token).then(() => showToast('Token copied to clipboard!', 'success'));
+}
+
+// ============================================================
+// DARK WEB MONITORING
+// ============================================================
+const HIBP_BASE = 'https://haveibeenpwned.com/api/v3';
+const SENSITIVE_TYPES = ['Passwords','Password hints','Credit cards','Bank account numbers','Social security numbers','Private messages','Health records'];
+
+function getDWApiKey() { return localStorage.getItem('p1-hibp-key') || ''; }
+
+function saveDWApiKey() {
+  const key = document.getElementById('dw-api-key-input').value.trim();
+  if (!key) { showToast('Paste your API key first', 'error'); return; }
+  localStorage.setItem('p1-hibp-key', key);
+  document.getElementById('dw-setup-panel').style.display = 'none';
+  showToast('API key saved — ready to scan', 'success');
+  renderDWEmailList();
+}
+
+// Monitored emails stored per client in clients.json under dw_emails: []
+let dwEmailCache = []; // [{email, clientId, clientName, breaches, lastScanned}]
+
+async function initDarkWeb() {
+  const key = getDWApiKey();
+  if (key) {
+    document.getElementById('dw-api-key-input').value = key;
+    document.getElementById('dw-setup-panel').style.display = 'none';
+  }
+  await loadDWEmails();
+  updateDWStats();
+  populateDWClientSelect();
+}
+
+async function loadDWEmails() {
+  try {
+    const clients = await fetchClients();
+    dwEmailCache = [];
+    clients.forEach(c => {
+      (c.dw_emails || []).forEach(entry => {
+        dwEmailCache.push({
+          email: entry.email,
+          clientId: c.id,
+          clientName: c.name,
+          breaches: entry.breaches || null,
+          lastScanned: entry.lastScanned || null
+        });
+      });
+    });
+    document.getElementById('dw-stat-emails').textContent = dwEmailCache.length || '0';
+    renderDWEmailList();
+  } catch(e) { console.log('DW load error:', e); }
+}
+
+function renderDWEmailList() {
+  const el = document.getElementById('dw-email-list');
+  if (dwEmailCache.length === 0) {
+    el.innerHTML = '<div style="padding:24px;text-align:center;font-size:12px;color:var(--muted);font-family:\'JetBrains Mono\',monospace;">// No emails monitored yet — add one above</div>';
+    return;
+  }
+  el.innerHTML = dwEmailCache.map((item, idx) => {
+    const count = item.breaches === null ? '?' : item.breaches.length;
+    const countClass = item.breaches === null ? '' : (count > 0 ? 'breached' : 'clean');
+    const timeAgo = item.lastScanned ? fmtRelTime(item.lastScanned) : 'never';
+    return `<div class="dw-email-item">
+      <div>
+        <div class="dw-email-addr">${item.email}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${item.clientName} · scanned ${timeAgo}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="dw-email-count ${countClass}">${count}</div>
+        <button class="dw-scan-btn" onclick="scanEmail(${idx})">SCAN</button>
+        <button class="dw-scan-btn" onclick="removeDWEmail(${idx})" style="border-color:rgba(255,59,92,0.3);color:var(--danger);">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function fmtRelTime(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const h = Math.floor(diff / 3600000);
+  if (h < 1) return 'just now';
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h/24) + 'd ago';
+}
+
+async function scanEmail(idx) {
+  const item = dwEmailCache[idx];
+  const key = getDWApiKey();
+  if (!key) { showToast('Set your HIBP API key first', 'error'); return; }
+  showToast('Scanning ' + item.email + '...', 'info');
+  try {
+    const res = await fetch(`${HIBP_BASE}/breachedaccount/${encodeURIComponent(item.email)}?truncateResponse=false`, {
+      headers: { 'hibp-api-key': key, 'user-agent': 'PalisadeOne-Dashboard' }
+    });
+    if (res.status === 404) {
+      item.breaches = [];
+    } else if (res.status === 401) {
+      showToast('Invalid API key — check your HIBP key', 'error'); return;
+    } else if (res.status === 429) {
+      showToast('Rate limited — wait a moment and try again', 'error'); return;
+    } else {
+      item.breaches = await res.json();
+    }
+    item.lastScanned = new Date().toISOString();
+    await saveDWEmailToClient(item);
+    renderDWEmailList();
+    updateDWStats();
+    renderBreachList();
+    const n = item.breaches.length;
+    showToast(`${item.email}: ${n === 0 ? 'Clean — no breaches found' : n + ' breach' + (n > 1 ? 'es' : '') + ' found'}`, n > 0 ? 'error' : 'success');
+  } catch(e) {
+    showToast('Scan error: ' + e.message, 'error');
+  }
+}
+
+async function scanAllEmails() {
+  const key = getDWApiKey();
+  if (!key) { showToast('Set your HIBP API key first', 'error'); return; }
+  const btn = document.getElementById('dw-scan-all-btn');
+  btn.textContent = 'SCANNING...';
+  btn.disabled = true;
+  for (let i = 0; i < dwEmailCache.length; i++) {
+    await scanEmail(i);
+    if (i < dwEmailCache.length - 1) await new Promise(r => setTimeout(r, 1600)); // HIBP rate limit
+  }
+  document.getElementById('dw-stat-scanned').textContent = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit'});
+  btn.textContent = '↺ SCAN ALL';
+  btn.disabled = false;
+  showToast('All emails scanned', 'success');
+}
+
+async function saveDWEmailToClient(item) {
+  const clients = await fetchClients();
+  const client = clients.find(c => c.id === item.clientId);
+  if (!client) return;
+  if (!client.dw_emails) client.dw_emails = [];
+  const existing = client.dw_emails.find(e => e.email === item.email);
+  const entry = { email: item.email, breaches: item.breaches, lastScanned: item.lastScanned };
+  if (existing) { Object.assign(existing, entry); }
+  else { client.dw_emails.push(entry); }
+  await pushClients(clients);
+}
+
+async function addMonitoredEmail() {
+  const emailInput = document.getElementById('dw-add-email-input');
+  const clientSelect = document.getElementById('dw-add-client-select');
+  const email = emailInput.value.trim().toLowerCase();
+  const clientId = clientSelect.value;
+  if (!email || !email.includes('@')) { showToast('Enter a valid email address', 'error'); return; }
+  if (!clientId) { showToast('Select a client', 'error'); return; }
+  const already = dwEmailCache.find(e => e.email === email);
+  if (already) { showToast('Already monitoring that email', 'error'); return; }
+  const clients = await fetchClients();
+  const client = clients.find(c => c.id === clientId);
+  if (!client) return;
+  if (!client.dw_emails) client.dw_emails = [];
+  client.dw_emails.push({ email, breaches: null, lastScanned: null });
+  await pushClients(clients);
+  emailInput.value = '';
+  showToast(email + ' added to watch list', 'success');
+  await loadDWEmails();
+  updateDWStats();
+}
+
+async function removeDWEmail(idx) {
+  const item = dwEmailCache[idx];
+  if (!confirm('Stop monitoring ' + item.email + '?')) return;
+  const clients = await fetchClients();
+  const client = clients.find(c => c.id === item.clientId);
+  if (client && client.dw_emails) {
+    client.dw_emails = client.dw_emails.filter(e => e.email !== item.email);
+  }
+  await pushClients(clients);
+  await loadDWEmails();
+  updateDWStats();
+}
+
+function populateDWClientSelect() {
+  fetchClients().then(clients => {
+    const sel = document.getElementById('dw-add-client-select');
+    sel.innerHTML = '<option value="">— Client —</option>' + clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  });
+}
+
+function updateDWStats() {
+  const total = dwEmailCache.reduce((s, e) => s + (e.breaches ? e.breaches.length : 0), 0);
+  const affectedClients = new Set(dwEmailCache.filter(e => e.breaches && e.breaches.length > 0).map(e => e.clientId)).size;
+  document.getElementById('dw-stat-total').textContent = total;
+  document.getElementById('dw-stat-clients').textContent = affectedClients;
+  const badge = document.getElementById('dw-badge');
+  if (total > 0) { badge.textContent = total; badge.style.display = ''; }
+  else { badge.style.display = 'none'; }
+  renderBreachList();
+}
+
+function renderBreachList() {
+  const el = document.getElementById('dw-breach-list');
+  const allBreaches = [];
+  dwEmailCache.forEach(item => {
+    (item.breaches || []).forEach(b => allBreaches.push({ ...b, _email: item.email, _clientName: item.clientName }));
+  });
+  allBreaches.sort((a, b) => new Date(b.BreachDate) - new Date(a.BreachDate));
+  if (allBreaches.length === 0) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;font-size:12px;color:var(--accent);font-family:\'JetBrains Mono\',monospace;">// No breaches detected — all clear</div>';
+    return;
+  }
+  el.innerHTML = `<div class="dw-breach-row header"><div>Breach</div><div>Date</div><div>Email</div><div>Severity</div></div>` +
+    allBreaches.slice(0, 30).map(b => {
+      const sensitive = (b.DataClasses || []).some(d => SENSITIVE_TYPES.includes(d));
+      const sev = sensitive ? `<span style="color:var(--danger);font-family:'JetBrains Mono',monospace;font-size:11px;">HIGH</span>`
+                            : `<span style="color:var(--warning);font-family:'JetBrains Mono',monospace;font-size:11px;">MED</span>`;
+      const tags = (b.DataClasses || []).slice(0, 3).map(d =>
+        `<span class="dw-data-tag ${SENSITIVE_TYPES.includes(d) ? 'sensitive' : ''}">${d}</span>`).join('');
+      return `<div class="dw-breach-row">
+        <div>
+          <div class="dw-breach-name">${b.Name || b.Title || '?'}</div>
+          <div class="dw-breach-domain">${b.Domain || ''}</div>
+          <div class="dw-data-tags">${tags}</div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${(b.BreachDate || '').slice(0,7)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2)">${b._email}</div>
+        <div>${sev}</div>
+      </div>`;
+    }).join('');
 }
 </script>
 </body>
