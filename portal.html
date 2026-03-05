@@ -298,6 +298,7 @@ function handleLogin() {
   if (!email || !pass) { err.style.display = 'block'; err.textContent = '⚠ Please enter your email and password.'; return; }
   err.style.display = 'none';
   if (email === 'admin@palisadeone.com' && pass === 'PalisadeOne2026!') {
+    sessionStorage.setItem('p1_auth', 'true');
     window.location.href = 'dashboard.html';
   } else {
     err.style.display = 'block';

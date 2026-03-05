@@ -666,6 +666,15 @@
 const PROXY_URL = 'https://api.palisadeone.com:9443';
 const PORTAL_USER = 'admin';
 const PORTAL_PASS = 'PalisadeOne2026!';
+
+// Auto-login if coming from portal.html
+if (sessionStorage.getItem('p1_auth') === 'true') {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initDashboard();
+  });
+}
 let currentView = 'overview';
 
 function updateTime() {
@@ -694,12 +703,14 @@ function doLogin() {
 document.addEventListener('keypress', (e) => { if (e.key === 'Enter') doLogin(); });
 
 function logout() {
+  sessionStorage.removeItem('p1_auth');
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-screen').style.opacity = '1';
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-status').textContent = '';
+  window.location.href = 'portal.html';
 }
 
 function showView(name) {
@@ -838,12 +849,14 @@ function generateScriptContent(clientName) {
   ].join("\r\n");
 }
 function logout() {
+  sessionStorage.removeItem('p1_auth');
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-screen').style.opacity = '1';
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-status').textContent = '';
+  window.location.href = 'portal.html';
 }
 
 function showView(name) {
