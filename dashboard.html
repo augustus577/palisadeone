@@ -263,6 +263,10 @@
         <span class="nav-icon">📋</span>
         <span>Compliance</span>
       </div>
+      <div class="nav-item" onclick="showView('onboarding')">
+        <span class="nav-icon">📦</span>
+        <span>Onboarding</span>
+      </div>
       <div class="nav-section">Platform</div>
       <div class="nav-item" onclick="window.open('https://soc.palisadeone.com','_blank')">
         <span class="nav-icon">📡</span>
@@ -496,6 +500,19 @@
         </div>
       </div>
 
+      <!-- ONBOARDING VIEW -->
+      <div class="view" id="view-onboarding">
+        <div class="stats-row">
+          <div class="stat-card green"><div class="stat-label">Onboarding Method</div><div class="stat-value accent" style="font-size:24px;">PowerShell</div><div class="stat-sub">One-command install</div></div>
+          <div class="stat-card blue"><div class="stat-label">Installs</div><div class="stat-value blue">2</div><div class="stat-sub">Wazuh EDR + MeshCentral RMM</div></div>
+          <div class="stat-card yellow"><div class="stat-label">Target OS</div><div class="stat-value" style="color:var(--warning);font-size:24px;">Windows</div><div class="stat-sub">x64 — Windows 10/11</div></div>
+          <div class="stat-card red"><div class="stat-label">Requires</div><div class="stat-value danger" style="font-size:24px;">Admin</div><div class="stat-sub">Run as Administrator</div></div>
+        </div>
+        <div class="panel" style="margin-bottom:16px;"><div class="panel-header"><div class="panel-title">Quick Install — One Liner</div><div class="panel-action" onclick="copyOneliner()">⎘ Copy Command</div></div><div style="padding:24px;"><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Run this in PowerShell as Administrator on the client machine:</div><div style="background:var(--deep);border:1px solid var(--border2);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;"><code id="oneliner-cmd" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);word-break:break-all;">irm https://palisadeone.com/install.ps1 | iex</code><button class="action-btn" onclick="copyOneliner()" style="white-space:nowrap;flex-shrink:0;">⎘ COPY</button></div><div style="margin-top:12px;font-size:12px;color:var(--muted);">This command downloads and runs the Palisade One onboarding script automatically.</div></div></div>
+        <div class="grid-2"><div class="panel"><div class="panel-header"><div class="panel-title">Manual Install — Script</div><div class="panel-action" onclick="downloadScript()">⬇ Download .ps1</div></div><div style="padding:20px;"><div style="font-size:13px;color:var(--text);margin-bottom:16px;">Download the PowerShell script and run it manually with the client name as a parameter.</div><div style="background:var(--deep);border:1px solid var(--border);padding:16px;margin-bottom:16px;"><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);">.\PalisadeOne-Onboard.ps1 -ClientName "Acme Corp"</div></div><div style="display:flex;gap:8px;"><button class="login-btn" style="width:auto;padding:10px 20px;font-size:11px;" onclick="downloadScript()">⬇ DOWNLOAD SCRIPT</button><button class="action-btn" style="padding:10px 20px;" onclick="copyManual()">⎘ COPY COMMAND</button></div></div></div><div class="panel"><div class="panel-header"><div class="panel-title">What Gets Installed</div></div><div style="padding:20px;display:flex;flex-direction:column;gap:16px;"><div style="display:flex;gap:16px;align-items:flex-start;"><div style="width:36px;height:36px;background:rgba(0,255,209,0.1);border:1px solid rgba(0,255,209,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">🛡️</div><div><div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Wazuh EDR Agent 4.7.5</div><div style="font-size:12px;color:var(--muted);">Endpoint detection and response. Reports to soc.palisadeone.com.</div></div></div><div style="border-top:1px solid var(--border);padding-top:16px;display:flex;gap:16px;align-items:flex-start;"><div style="width:36px;height:36px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">🖥️</div><div><div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">MeshCentral RMM Agent</div><div style="font-size:12px;color:var(--muted);">Remote monitoring and management. Connects to mesh.palisadeone.com:444.</div></div></div><div style="border-top:1px solid var(--border);padding-top:16px;display:flex;gap:16px;align-items:flex-start;"><div style="width:36px;height:36px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">⚙️</div><div><div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">VC++ Redistributable</div><div style="font-size:12px;color:var(--muted);">Required dependency for MeshCentral. Installed automatically if missing.</div></div></div></div></div></div>
+        <div class="panel"><div class="panel-header"><div class="panel-title">Client Onboarding Checklist</div></div><div style="padding:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;"><div style="background:var(--deep);border:1px solid var(--border);padding:16px;"><div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent);margin-bottom:8px;">01</div><div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:6px;">Run Installer</div><div style="font-size:12px;color:var(--muted);">Run the PowerShell script on each client machine as Administrator.</div></div><div style="background:var(--deep);border:1px solid var(--border);padding:16px;"><div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent2);margin-bottom:8px;">02</div><div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:6px;">Verify in Dashboard</div><div style="font-size:12px;color:var(--muted);">Check Devices view and MeshCentral to confirm agent is reporting.</div></div><div style="background:var(--deep);border:1px solid var(--border);padding:16px;"><div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--warning);margin-bottom:8px;">03</div><div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:6px;">Monitor and Respond</div><div style="font-size:12px;color:var(--muted);">Alerts appear in Security Alerts view within minutes of install.</div></div></div></div>
+      </div>
+
       <!-- COMPLIANCE VIEW -->
       <div class="view" id="view-compliance">
         <div class="stats-row">
@@ -537,6 +554,28 @@
 
 <script>
 const PROXY_URL = 'https://api.palisadeone.com:9443';
+
+function copyOneliner() {
+  navigator.clipboard.writeText('irm https://palisadeone.com/install.ps1 | iex');
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = '✓ COPIED';
+  btn.style.color = 'var(--accent)';
+  setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
+}
+
+function copyManual() {
+  navigator.clipboard.writeText('.\PalisadeOne-Onboard.ps1 -ClientName "Client Name"');
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = '✓ COPIED';
+  btn.style.color = 'var(--accent)';
+  setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
+}
+
+function downloadScript() {
+  window.open('https://palisadeone.com/install.ps1', '_blank');
+}
 const PORTAL_USER = 'admin';
 const PORTAL_PASS = 'PalisadeOne2026!';
 let currentView = 'overview';
