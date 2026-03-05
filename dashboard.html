@@ -1059,11 +1059,7 @@ async function loadAlerts() {
 const agentsData = {};
 
 function isAgentOnline(agent) {
-  if (agent.status === 'active') return true;
-  if (agent.status === 'disconnected' || agent.status === 'never_connected') return false;
-  const lastSeen = agent.lastKeepAlive || agent.lastSeen || agent._lastAlertTime;
-  if (!lastSeen) return false;
-  return (Date.now() - new Date(lastSeen).getTime()) < 5 * 60 * 1000;
+  return agent.status === 'active';
 }
 
 function fmtDateTime(ts) {
@@ -1073,55 +1069,21 @@ function fmtDateTime(ts) {
 
 async function loadDevices() {
   try {
-    let agents = [];
+    // Use Wazuh Manager API directly — real status, OS, last keepalive
+    const res = await fetch(`${PROXY_URL}/agents?limit=500&sort=-dateAdd`, { headers: { 'Content-Type': 'application/json' } });
+    const json = await res.json();
+    const agents = (json?.data?.affected_items || []).filter(a => a.id !== '000');
 
-    // Try wazuh-monitoring-* first (has real agent status + OS details)
-    const monData = await indexerSearch('wazuh-monitoring-*', {
-      size: 0,
-      aggs: {
-        unique_agents: {
-          terms: { field: 'agent.id', size: 200 },
-          aggs: { latest: { top_hits: { size: 1, sort: [{ '@timestamp': { order: 'desc' } }], _source: ['agent'] } } }
-        }
-      }
-    });
-    const monBuckets = monData?.aggregations?.unique_agents?.buckets || [];
-    monBuckets.forEach(b => {
-      const src = b.latest?.hits?.hits?.[0]?._source;
-      if (src?.agent && src.agent.id !== '000') {
-        agentsData[src.agent.id] = src.agent;
-        agents.push(src.agent);
-      }
-    });
+    // Cache all agents
+    agents.forEach(a => agentsData[a.id] = a);
 
-    // Fallback to alerts aggregation if monitoring index unavailable
-    if (agents.length === 0) {
-      const data = await indexerSearch('wazuh-alerts-4.x-*', {
-        size: 0,
-        aggs: {
-          unique_agents: {
-            terms: { field: 'agent.id', size: 200 },
-            aggs: { latest: { top_hits: { size: 1, sort: [{ timestamp: { order: 'desc' } }], _source: ['agent', 'timestamp'] } } }
-          }
-        }
-      });
-      (data?.aggregations?.unique_agents?.buckets || []).forEach(b => {
-        const hit = b.latest?.hits?.hits?.[0]?._source;
-        if (hit?.agent && hit.agent.id !== '000') {
-          const a = { ...hit.agent, _lastAlertTime: hit.timestamp };
-          agentsData[a.id] = a;
-          agents.push(a);
-        }
-      });
-    }
-
-    const total = agents.length;
-    document.getElementById('stat-agents').textContent = total || '--';
-    document.getElementById('dum-count').textContent = total || '--';
+    const active = agents.filter(a => a.status === 'active').length;
+    document.getElementById('stat-agents').textContent = agents.length || '--';
+    document.getElementById('dum-count').textContent = agents.length || '--';
 
     const renderRow = (a) => {
-      const online = isAgentOnline(a);
-      const os = a.os?.name || a.os?.platform || 'Windows';
+      const online = a.status === 'active';
+      const os = a.os?.name || a.os?.platform || 'Unknown';
       const id = a.id || '';
       return `<div class="device-row" onclick="openEndpointPanel('${id}')" style="cursor:pointer;">
         <div><div class="device-name">${a.name||'Unknown'}</div><div class="device-ip">${a.ip||'N/A'}</div></div>
