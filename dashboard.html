@@ -932,29 +932,52 @@ async function loadAlerts() {
 
 async function loadDevices() {
   try {
-    const data = await indexerSearch('wazuh-monitoring-*', {
-      size: 50,
-      sort: [{ '@timestamp': { order: 'desc' } }],
-      collapse: { field: 'agent.id' }
+    // Use aggregation to get latest record per unique agent
+    const data = await indexerSearch('wazuh-agents-*,wazuh-monitoring-*', {
+      size: 0,
+      aggs: {
+        agents: {
+          terms: { field: 'agent.id', size: 200 },
+          aggs: {
+            latest: { top_hits: { size: 1, sort: [{ '@timestamp': { order: 'desc' } }] } }
+          }
+        }
+      }
     });
-    const agents = data?.hits?.hits?.map(h => h._source) || [];
-    const total = Math.max(agents.filter(a => a.agent?.id !== '000').length, 1);
+
+    let agents = [];
+    const buckets = data?.aggregations?.agents?.buckets || [];
+    buckets.forEach(b => {
+      const src = b.latest?.hits?.hits?.[0]?._source;
+      if (src && src.agent?.id !== '000') agents.push(src);
+    });
+
+    // Fallback: try direct search if aggregation returns nothing
+    if (agents.length === 0) {
+      const fallback = await indexerSearch('wazuh-monitoring-*', {
+        size: 100,
+        sort: [{ '@timestamp': { order: 'desc' } }],
+        query: { bool: { must_not: [{ term: { 'agent.id': '000' } }] } }
+      });
+      const seen = new Set();
+      (fallback?.hits?.hits || []).forEach(h => {
+        const id = h._source?.agent?.id;
+        if (id && !seen.has(id)) { seen.add(id); agents.push(h._source); }
+      });
+    }
+
+    const total = agents.length || 1;
     document.getElementById('stat-agents').textContent = total;
     document.getElementById('dum-count').textContent = total;
 
-    const rows = agents.filter(a => a.agent?.id !== '000').map(a => `
+    const rows = agents.map(a => `
       <div class="device-row">
         <div><div class="device-name">${a.agent?.name||'Unknown'}</div><div class="device-ip">${a.agent?.ip||'N/A'}</div></div>
         <div class="device-ip">${a.agent?.ip||'--'}</div>
         <div class="device-os">${a.agent?.version||'Wazuh Agent'}</div>
         <div><span class="online-badge online"><div class="online-dot on"></div>ONLINE</span></div>
         <div class="device-action"><button class="action-btn" onclick="window.open('https://soc.palisadeone.com','_blank')">VIEW</button></div>
-      </div>`).join('') || `<div class="device-row">
-        <div><div class="device-name">test-machine</div><div class="device-ip">10.0.0.111</div></div>
-        <div class="device-ip">10.0.0.111</div><div class="device-os">Windows 11</div>
-        <div><span class="online-badge online"><div class="online-dot on"></div>ONLINE</span></div>
-        <div class="device-action"><button class="action-btn" onclick="window.open('https://soc.palisadeone.com','_blank')">VIEW</button></div>
-      </div>`;
+      </div>`).join('') || '<div style="padding:20px;color:var(--muted);font-size:13px;text-align:center;">No devices found</div>';
 
     document.getElementById('devices-list').innerHTML = rows;
     document.getElementById('overview-devices').innerHTML = `<div class="device-row header"><div>Device</div><div>IP</div><div>OS</div><div>Status</div><div>Actions</div></div>${rows}`;
