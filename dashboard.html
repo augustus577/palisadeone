@@ -690,100 +690,105 @@ function generateInstaller() {
 }
 
 function generateScriptContent(clientName) {
-  return `# ============================================================
-#  PALISADE ONE - Client Onboarding Script
-#  Generated: ${new Date().toISOString()}
-#  Client: ${clientName}
-#  Run as Administrator in PowerShell
-# ============================================================
+  const manager = "178.156.234.30";
+  const meshUrl = "https://mesh.palisadeone.com:444/meshagents?id=4&meshid=iIWY3osoTJeAkMJl9O@0Nu@sFzPwr7x8SJrgrESmEZ3bzPWR7UTBA9o6jflJensO&installflags=0";
+  const vcUrl = "https://aka.ms/vs/17/release/vc_redist.x64.exe";
+  const wazuhUrl = "https://packages.wazuh.com/4.x/windows/wazuh-agent-4.7.5-1.msi";
+  const generated = new Date().toISOString();
 
-$ClientName        = "${clientName}"
-$WAZUH_MANAGER     = "178.156.234.30"
-$WAZUH_VERSION     = "4.7.5-1"
-$WAZUH_MSI_URL     = "https://packages.wazuh.com/4.x/windows/wazuh-agent-$($WAZUH_VERSION).msi"
-$MESH_AGENT_URL    = "https://mesh.palisadeone.com:444/meshagents?id=4&meshid=iIWY3osoTJeAkMJl9O@0Nu@sFzPwr7x8SJrgrESmEZ3bzPWR7UTBA9o6jflJensO&installflags=0"
-$VC_REDIST_URL     = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
-$LOG_FILE          = "$env:TEMP\PalisadeOne-Onboard.log"
-
-function Write-Log {
-    param([string]$Message, [string]$Level = "INFO")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $entry = "[$timestamp] [$Level] $Message"
-    $color = if ($Level -eq "ERROR") { "Red" } elseif ($Level -eq "WARN") { "Yellow" } elseif ($Level -eq "SUCCESS") { "Green" } else { "Cyan" }
-    Write-Host $entry -ForegroundColor $color
-    Add-Content -Path $LOG_FILE -Value $entry
+  return [
+    "# ============================================================",
+    "#  PALISADE ONE - Client Onboarding Script",
+    "#  Generated: " + generated,
+    "#  Client: " + clientName,
+    "#  Run as Administrator in PowerShell",
+    "# ============================================================",
+    "",
+    '$ClientName        = "' + clientName + '"',
+    '$WAZUH_MANAGER     = "' + manager + '"',
+    '$WAZUH_MSI_URL     = "' + wazuhUrl + '"',
+    '$MESH_AGENT_URL    = "' + meshUrl + '"',
+    '$VC_REDIST_URL     = "' + vcUrl + '"',
+    '$LOG_FILE          = "$env:TEMP\\PalisadeOne-Onboard.log"',
+    "",
+    "function Write-Log {",
+    "    param([string]$Message, [string]$Level = 'INFO')",
+    "    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'",
+    "    $entry = \"[$timestamp] [$Level] $Message\"",
+    "    $color = if ($Level -eq 'ERROR') { 'Red' } elseif ($Level -eq 'WARN') { 'Yellow' } elseif ($Level -eq 'SUCCESS') { 'Green' } else { 'Cyan' }",
+    "    Write-Host $entry -ForegroundColor $color",
+    "    Add-Content -Path $LOG_FILE -Value $entry",
+    "}",
+    "",
+    "function Test-Admin {",
+    "    $p = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())",
+    "    return $p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)",
+    "}",
+    "",
+    "if (-not (Test-Admin)) { Write-Log 'Must run as Administrator.' 'ERROR'; exit 1 }",
+    "",
+    "Clear-Host",
+    'Write-Host "  PALISADE ONE - Onboarding: ' + clientName + '" -ForegroundColor Cyan',
+    'Write-Host "  Device: $env:COMPUTERNAME" -ForegroundColor Cyan',
+    'Write-Host ""',
+    "",
+    "# Step 1 - VC++ Redistributable",
+    "Write-Log 'Checking VC++ Redistributable...'",
+    '$vcKey = "HKLM:\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\X64"',
+    "if (-not (Test-Path $vcKey)) {",
+    "    Write-Log 'Installing VC++ Redistributable...'",
+    '    $vcPath = "$env:TEMP\\vc_redist.exe"',
+    "    Invoke-WebRequest -Uri $VC_REDIST_URL -OutFile $vcPath -UseBasicParsing",
+    "    Start-Process -FilePath $vcPath -ArgumentList '/install /quiet /norestart' -Wait",
+    "    Write-Log 'VC++ installed.' 'SUCCESS'",
+    "} else { Write-Log 'VC++ already installed.' 'SUCCESS' }",
+    "",
+    "# Step 2 - Wazuh EDR Agent",
+    "Write-Log 'Checking Wazuh agent...'",
+    "if (-not (Get-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue)) {",
+    "    Write-Log 'Downloading Wazuh agent...'",
+    '    $msiPath = "$env:TEMP\\wazuh-agent.msi"',
+    "    Invoke-WebRequest -Uri $WAZUH_MSI_URL -OutFile $msiPath -UseBasicParsing",
+    '    $agentName = ($ClientName -replace \'[^a-zA-Z0-9-]\',\'-\') + "-" + $env:COMPUTERNAME',
+    "    Write-Log \"Installing Wazuh agent as: $agentName\"",
+    '    $args = "/i `"$msiPath`" /q WAZUH_MANAGER=`"$WAZUH_MANAGER`" WAZUH_AGENT_NAME=`"$agentName`" WAZUH_REGISTRATION_SERVER=`"$WAZUH_MANAGER`""',
+    "    Start-Process 'msiexec.exe' -ArgumentList $args -Wait",
+    "    Start-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue",
+    "    if ((Get-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue).Status -eq 'Running') {",
+    "        Write-Log 'Wazuh agent installed and running.' 'SUCCESS'",
+    "    } else { Write-Log 'Wazuh may not have started - check manually.' 'WARN' }",
+    "} else { Write-Log 'Wazuh already installed.' 'WARN' }",
+    "",
+    "# Step 3 - MeshCentral RMM Agent",
+    "Write-Log 'Checking MeshCentral agent...'",
+    "if (-not (Get-Service -Name 'Mesh Agent' -ErrorAction SilentlyContinue)) {",
+    "    Write-Log 'Downloading MeshCentral agent...'",
+    '    $meshPath = "$env:TEMP\\meshagent.exe"',
+    "    add-type @'",
+    "        using System.Net; using System.Security.Cryptography.X509Certificates;",
+    "        public class TrustAll : ICertificatePolicy {",
+    "            public bool CheckValidationResult(ServicePoint s, X509Certificate c, WebRequest r, int p) { return true; }",
+    "        }",
+    "'@",
+    "    [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAll",
+    "    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12",
+    "    Invoke-WebRequest -Uri $MESH_AGENT_URL -OutFile $meshPath -UseBasicParsing",
+    "    Write-Log 'Installing MeshCentral agent...'",
+    "    Start-Process -FilePath $meshPath -ArgumentList '-install' -Wait -NoNewWindow",
+    "    if (Get-Service -Name 'Mesh Agent' -ErrorAction SilentlyContinue) {",
+    "        Write-Log 'MeshCentral agent installed.' 'SUCCESS'",
+    "    } else { Write-Log 'MeshCentral may not have installed - check RMM console.' 'WARN' }",
+    "} else { Write-Log 'MeshCentral already installed.' 'WARN' }",
+    "",
+    'Write-Host ""',
+    'Write-Host "  ============================================" -ForegroundColor Green',
+    'Write-Host "  PALISADE ONE ONBOARDING COMPLETE" -ForegroundColor Green',
+    'Write-Host "  Client : ' + clientName + '" -ForegroundColor Green',
+    'Write-Host "  Device : $env:COMPUTERNAME" -ForegroundColor Green',
+    'Write-Host "  Log    : $LOG_FILE" -ForegroundColor Green',
+    'Write-Host "  ============================================" -ForegroundColor Green',
+  ].join("\r\n");
 }
-
-function Test-Admin {
-    $p = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-    return $p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
-
-if (-not (Test-Admin)) { Write-Log "Must run as Administrator." "ERROR"; exit 1 }
-
-Clear-Host
-Write-Host "  PALISADE ONE - Onboarding: ${clientName}" -ForegroundColor Cyan
-Write-Host "  Device: $env:COMPUTERNAME" -ForegroundColor Cyan
-Write-Host ""
-
-# Step 1 - VC++ Redistributable
-Write-Log "Checking VC++ Redistributable..."
-$vcKey = "HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X64"
-if (-not (Test-Path $vcKey)) {
-    Write-Log "Installing VC++ Redistributable..."
-    $vcPath = "$env:TEMP\vc_redist.exe"
-    Invoke-WebRequest -Uri $VC_REDIST_URL -OutFile $vcPath -UseBasicParsing
-    Start-Process -FilePath $vcPath -ArgumentList "/install /quiet /norestart" -Wait
-    Write-Log "VC++ installed." "SUCCESS"
-} else { Write-Log "VC++ already installed." "SUCCESS" }
-
-# Step 2 - Wazuh EDR Agent
-Write-Log "Checking Wazuh agent..."
-if (-not (Get-Service -Name "WazuhSvc" -ErrorAction SilentlyContinue)) {
-    Write-Log "Downloading Wazuh agent..."
-    $msiPath = "$env:TEMP\wazuh-agent.msi"
-    Invoke-WebRequest -Uri $WAZUH_MSI_URL -OutFile $msiPath -UseBasicParsing
-    $agentName = ("${clientName}" -replace '[^a-zA-Z0-9-]','-') + "-" + $env:COMPUTERNAME
-    Write-Log "Installing Wazuh agent as: $agentName"
-    Start-Process "msiexec.exe" -ArgumentList "/i \`"$msiPath\`" /q WAZUH_MANAGER=\`"$WAZUH_MANAGER\`" WAZUH_AGENT_NAME=\`"$agentName\`" WAZUH_REGISTRATION_SERVER=\`"$WAZUH_MANAGER\`"" -Wait
-    Start-Service -Name "WazuhSvc" -ErrorAction SilentlyContinue
-    if ((Get-Service -Name "WazuhSvc" -ErrorAction SilentlyContinue).Status -eq "Running") {
-        Write-Log "Wazuh agent installed and running." "SUCCESS"
-    } else { Write-Log "Wazuh may not have started - check manually." "WARN" }
-} else { Write-Log "Wazuh already installed." "WARN" }
-
-# Step 3 - MeshCentral RMM Agent
-Write-Log "Checking MeshCentral agent..."
-if (-not (Get-Service -Name "Mesh Agent" -ErrorAction SilentlyContinue)) {
-    Write-Log "Downloading MeshCentral agent..."
-    $meshPath = "$env:TEMP\meshagent.exe"
-    add-type @"
-        using System.Net; using System.Security.Cryptography.X509Certificates;
-        public class TrustAll : ICertificatePolicy {
-            public bool CheckValidationResult(ServicePoint s, X509Certificate c, WebRequest r, int p) { return true; }
-        }
-"@
-    [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAll
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
-    Invoke-WebRequest -Uri $MESH_AGENT_URL -OutFile $meshPath -UseBasicParsing
-    Write-Log "Installing MeshCentral agent..."
-    Start-Process -FilePath $meshPath -ArgumentList "-install" -Wait -NoNewWindow
-    if (Get-Service -Name "Mesh Agent" -ErrorAction SilentlyContinue) {
-        Write-Log "MeshCentral agent installed." "SUCCESS"
-    } else { Write-Log "MeshCentral may not have installed - check RMM console." "WARN" }
-} else { Write-Log "MeshCentral already installed." "WARN" }
-
-Write-Host ""
-Write-Host "  ============================================" -ForegroundColor Green
-Write-Host "  PALISADE ONE ONBOARDING COMPLETE" -ForegroundColor Green
-Write-Host "  Client : ${clientName}" -ForegroundColor Green
-Write-Host "  Device : $env:COMPUTERNAME" -ForegroundColor Green
-Write-Host "  Log    : $LOG_FILE" -ForegroundColor Green
-Write-Host "  ============================================" -ForegroundColor Green
-`;
-}
-
-
 function logout() {
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
