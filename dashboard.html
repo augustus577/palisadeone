@@ -260,6 +260,33 @@
     #ep-toast.info { border-color: rgba(0,132,255,0.4); color: var(--accent2); }
     @media (max-width: 900px) { #ep-panel { width: 100%; } }
 
+    /* LIGHT MODE */
+    html[data-theme="light"] {
+      --black: #EEF2F7; --deep: #E3EAF2; --surface: #FFFFFF; --surface2: #F5F8FC;
+      --border: #CBD8E8; --border2: #ADC0D4;
+      --accent: #008F7E; --accent2: #0070CC;
+      --danger: #D42B47; --warning: #C47800;
+      --success: #008F7E;
+      --text: #1E2E3D; --muted: #5A7A9A; --white: #0A1828;
+    }
+    html[data-theme="light"] body::before {
+      background-image: linear-gradient(rgba(0,143,126,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,143,126,0.04) 1px, transparent 1px);
+    }
+    html[data-theme="light"] .sidebar { background: var(--deep); border-right-color: var(--border); }
+    html[data-theme="light"] .topbar { background: rgba(238,242,247,0.9); border-bottom-color: var(--border); }
+    html[data-theme="light"] #ep-panel { background: var(--deep); border-left-color: var(--border2); }
+    html[data-theme="light"] .ep-header { background: var(--surface); }
+    html[data-theme="light"] #ep-overlay { background: rgba(200,216,232,0.6); }
+    html[data-theme="light"] #ep-toast { background: var(--surface2); }
+    html[data-theme="light"] .level-low { background: rgba(0,143,126,0.08); }
+    html[data-theme="light"] #login-screen { background: var(--black); }
+    html[data-theme="light"] .login-box { background: var(--surface); border-color: var(--border2); }
+    html[data-theme="light"] .mobile-menu { background: rgba(238,242,247,0.98); }
+
+    /* THEME TOGGLE BTN */
+    .theme-toggle-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.2s; border-radius: 2px; }
+    .theme-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
     /* RESPONSIVE */
     @media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 900px) {
@@ -371,6 +398,7 @@
       </div>
       <div class="topbar-right">
         <div class="topbar-time" id="topbar-time"></div>
+        <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span id="theme-icon">☀</span></button>
         <button class="topbar-btn" onclick="refreshAll()">↻ REFRESH</button>
         <button class="topbar-btn" onclick="logout()">LOGOUT</button>
       </div>
@@ -872,6 +900,24 @@
 <div id="ep-toast"></div>
 
 <script>
+// Apply theme before render to prevent flash
+(function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('p1-theme') || 'dark'); })();
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('p1-theme', theme);
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = theme === 'light' ? '☽' : '☀';
+}
+function toggleTheme() {
+  applyTheme((document.documentElement.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark');
+}
+// Init icon after DOM
+document.addEventListener('DOMContentLoaded', () => {
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = (localStorage.getItem('p1-theme') || 'dark') === 'light' ? '☽' : '☀';
+});
+
 const PROXY_URL = 'https://api.palisadeone.com:9443';
 const PORTAL_USER = 'admin';
 const PORTAL_PASS = 'PalisadeOne2026!';

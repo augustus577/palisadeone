@@ -171,6 +171,23 @@
     .ticket-btn { background: var(--accent); color: var(--black); border: none; padding: 11px 24px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
     .ticket-btn:hover { background: var(--white); }
 
+    /* LIGHT MODE */
+    html[data-theme="light"] {
+      --black: #EEF2F7; --deep: #E3EAF2; --surface: #FFFFFF; --surface2: #F5F8FC;
+      --border: #CBD8E8; --border2: #ADC0D4;
+      --accent: #008F7E; --accent2: #0070CC;
+      --danger: #D42B47; --warning: #C47800; --success: #008F7E;
+      --text: #1E2E3D; --muted: #5A7A9A; --white: #0A1828;
+    }
+    html[data-theme="light"] body::before { background-image: linear-gradient(rgba(0,143,126,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,143,126,0.04) 1px, transparent 1px); }
+    html[data-theme="light"] .sidebar { background: var(--deep); border-right-color: var(--border); }
+    html[data-theme="light"] .topbar { background: rgba(238,242,247,0.9); border-bottom-color: var(--border); }
+    html[data-theme="light"] #login-screen { background: var(--black); }
+    html[data-theme="light"] .login-box { background: var(--surface); border-color: var(--border2); }
+    /* THEME TOGGLE */
+    .theme-toggle-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.2s; border-radius: 2px; }
+    .theme-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
     @media (max-width: 1100px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 900px) { .sidebar { width: 54px; } .sidebar-logo-text, .sidebar-client-badge, .sidebar-footer span, .nav-item span:not(.nav-icon) { display: none; } .nav-item { justify-content: center; } .main { margin-left: 54px; } .grid-2, .grid-3 { grid-template-columns: 1fr; } }
     @media (max-width: 600px) { .stats-row { grid-template-columns: 1fr; } .content { padding: 14px; } }
@@ -246,6 +263,7 @@
       <div class="page-title" id="page-title">OVERVIEW</div>
       <div class="topbar-right">
         <div class="topbar-time" id="topbar-time"></div>
+        <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span id="theme-icon">☀</span></button>
         <button class="topbar-btn" onclick="refreshAll()">↻ REFRESH</button>
         <button class="topbar-btn" onclick="doLogout()">LOGOUT</button>
       </div>
@@ -445,6 +463,22 @@
 </div><!-- /app -->
 
 <script>
+(function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('p1-theme') || 'dark'); })();
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('p1-theme', theme);
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = theme === 'light' ? '☽' : '☀';
+}
+function toggleTheme() {
+  applyTheme((document.documentElement.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = (localStorage.getItem('p1-theme') || 'dark') === 'light' ? '☽' : '☀';
+});
+
 const PROXY_URL = 'https://api.palisadeone.com:9443';
 let currentClient = null;
 let clientAgentIds = [];

@@ -1,6 +1,11 @@
 // Palisade One — Shared Components
 // Nav + Footer injected on every page
 
+// Apply theme immediately to prevent flash of unstyled content
+(function() {
+  document.documentElement.setAttribute('data-theme', localStorage.getItem('p1-theme') || 'dark');
+})();
+
 function getCurrentPage() {
   const path = window.location.pathname;
   if (path.includes('services')) return 'services';
@@ -41,6 +46,7 @@ function injectNav() {
       `).join('')}
       <li><a href="portal.html" class="nav-portal">Client Portal</a></li>
       <li><a href="contact.html" class="nav-cta">Book Demo</a></li>
+      <li><button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span id="theme-icon">☀</span></button></li>
     </ul>
 
     <button class="hamburger" id="hamburger" aria-label="Menu">
@@ -290,6 +296,37 @@ function injectSharedStyles() {
     .form-submit { background:var(--accent);color:var(--black);border:none;padding:16px 32px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:none;transition:all 0.2s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));width:100%; }
     .form-submit:hover { background:var(--white);transform:translateY(-2px); }
 
+    /* THEME TOGGLE BUTTON */
+    .theme-toggle-btn { background:transparent;border:1px solid var(--border);color:var(--muted);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:none;font-size:14px;transition:all 0.2s;border-radius:2px;flex-shrink:0; }
+    .theme-toggle-btn:hover { border-color:var(--accent);color:var(--accent); }
+
+    /* LIGHT MODE */
+    html[data-theme="light"] {
+      --black: #EEF2F7; --deep: #E3EAF2; --surface: #FFFFFF; --surface2: #F5F8FC;
+      --border: #CBD8E8; --border2: #ADC0D4;
+      --accent: #008F7E; --accent2: #0070CC;
+      --danger: #D42B47; --warning: #C47800;
+      --text: #1E2E3D; --muted: #5A7A9A; --white: #0A1828;
+    }
+    html[data-theme="light"] body::before {
+      background-image: linear-gradient(rgba(0,143,126,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,143,126,0.04) 1px, transparent 1px);
+    }
+    html[data-theme="light"] #main-nav {
+      background: linear-gradient(to bottom, rgba(238,242,247,0.97) 0%, rgba(238,242,247,0.8) 100%);
+      border-bottom-color: rgba(203,216,232,0.8);
+    }
+    html[data-theme="light"] #main-nav.scrolled {
+      background: rgba(238,242,247,0.99);
+      border-bottom-color: var(--border);
+    }
+    html[data-theme="light"] .mobile-menu { background: rgba(238,242,247,0.98); }
+    html[data-theme="light"] .mobile-menu a { color: var(--text) !important; }
+    html[data-theme="light"] .mobile-menu a:hover, html[data-theme="light"] .mobile-menu a.nav-active { color: var(--accent) !important; }
+    html[data-theme="light"] .mobile-menu .mobile-cta { background: var(--accent); color: #fff !important; }
+    html[data-theme="light"] footer { background: var(--deep); border-top-color: var(--border); }
+    html[data-theme="light"] .grid-overlay { background-image: linear-gradient(rgba(0,143,126,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,143,126,0.04) 1px, transparent 1px); }
+    html[data-theme="light"] .portal-bg { background: radial-gradient(ellipse 60% 60% at 20% 50%, rgba(0,143,126,0.06) 0%, transparent 60%), radial-gradient(ellipse 50% 50% at 80% 30%, rgba(0,112,204,0.07) 0%, transparent 50%); }
+
     /* RESPONSIVE */
     @media (max-width:768px) {
       #main-nav { padding:16px 24px; }
@@ -308,6 +345,23 @@ function injectSharedStyles() {
   document.head.appendChild(style);
 }
 
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('p1-theme', theme);
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = theme === 'light' ? '☽' : '☀';
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+function initTheme() {
+  const theme = localStorage.getItem('p1-theme') || 'dark';
+  applyTheme(theme);
+}
+
 // Init everything
 document.addEventListener('DOMContentLoaded', () => {
   injectSharedStyles();
@@ -316,4 +370,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initCursor();
   initScrollAnimations();
   initSmoothScroll();
+  initTheme();
 });

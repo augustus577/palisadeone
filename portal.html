@@ -190,6 +190,25 @@
       letter-spacing: 1px; margin-bottom: 16px; display: none;
     }
 
+    /* THEME TOGGLE */
+    .theme-toggle-btn { position: fixed; top: 20px; right: 20px; z-index: 100; background: rgba(11,18,32,0.7); border: 1px solid var(--border); color: var(--muted); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: none; font-size: 16px; transition: all 0.2s; backdrop-filter: blur(10px); }
+    .theme-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* LIGHT MODE */
+    html[data-theme="light"] {
+      --black: #EEF2F7; --deep: #E3EAF2; --surface: #FFFFFF;
+      --border: #CBD8E8; --accent: #008F7E; --accent2: #0070CC;
+      --danger: #D42B47; --text: #1E2E3D; --muted: #5A7A9A; --white: #0A1828;
+    }
+    html[data-theme="light"] body { background: var(--black); }
+    html[data-theme="light"] .portal-bg { background: radial-gradient(ellipse 60% 60% at 20% 50%, rgba(0,143,126,0.06) 0%, transparent 60%), radial-gradient(ellipse 50% 50% at 80% 30%, rgba(0,112,204,0.07) 0%, transparent 50%); }
+    html[data-theme="light"] .grid-overlay { background-image: linear-gradient(rgba(0,143,126,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,143,126,0.04) 1px, transparent 1px); }
+    html[data-theme="light"] .portal-box { background: var(--surface); border-color: var(--border); }
+    html[data-theme="light"] .form-input { background: var(--deep); color: var(--text); }
+    html[data-theme="light"] .theme-toggle-btn { background: rgba(238,242,247,0.8); }
+    html[data-theme="light"] .sso-btn { color: var(--text); }
+    html[data-theme="light"] .scanline { display: none; }
+
     /* MOBILE */
     @media (max-width: 480px) {
       body { cursor: auto; overflow: auto; align-items: flex-start; padding-top: 60px; }
@@ -199,6 +218,7 @@
   </style>
 </head>
 <body>
+  <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span id="theme-icon">☀</span></button>
   <div class="cursor" id="cursor"></div>
   <div class="cursor-ring" id="cursorRing"></div>
   <div class="portal-bg"></div>
@@ -271,6 +291,21 @@
   </div>
 
   <script>
+    (function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('p1-theme') || 'dark'); })();
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('p1-theme', theme);
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = theme === 'light' ? '☽' : '☀';
+    }
+    function toggleTheme() {
+      applyTheme((document.documentElement.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark');
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = (localStorage.getItem('p1-theme') || 'dark') === 'light' ? '☽' : '☀';
+    });
+
     // Cursor
     const cursor = document.getElementById('cursor');
     const ring = document.getElementById('cursorRing');
