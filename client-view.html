@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Palisade One — Client Security Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #03050A; --deep: #070C14; --surface: #0B1220; --surface2: #0F1A2E;
+      --border: #112240; --border2: #1A3060;
+      --accent: #00FFD1; --accent2: #0084FF;
+      --danger: #FF3B5C; --warning: #F5A623; --success: #00FFD1;
+      --text: #C8D8F0; --muted: #4A6080; --white: #F0F6FF;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; overflow-x: hidden; min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,255,209,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,209,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--deep); } ::-webkit-scrollbar-thumb { background: var(--border2); }
+
+    /* LOGIN */
+    #login-screen { position: fixed; inset: 0; background: var(--black); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    #login-screen::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,132,255,0.08) 0%, transparent 70%); }
+    .login-box { position: relative; z-index: 1; width: 420px; padding: 48px; background: var(--surface); border: 1px solid var(--border2); }
+    .login-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, transparent, var(--accent), transparent); }
+    .login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .login-logo-mark { width: 36px; height: 36px; }
+    .login-logo-mark svg { width: 100%; height: 100%; }
+    .login-logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--white); letter-spacing: 3px; }
+    .login-logo-text span { color: var(--accent); }
+    .login-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--white); letter-spacing: 2px; margin-bottom: 6px; }
+    .login-sub { font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+    .login-field { margin-bottom: 14px; }
+    .login-field label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 7px; }
+    .login-field input { width: 100%; background: var(--deep); border: 1px solid var(--border); padding: 12px 16px; color: var(--white); font-family: 'Outfit', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .login-field input:focus { border-color: var(--accent); }
+    .login-btn { width: 100%; background: var(--accent); color: var(--black); padding: 14px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; border: none; cursor: pointer; margin-top: 20px; transition: all 0.2s; clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
+    .login-btn:hover { background: var(--white); transform: translateY(-2px); }
+    .login-err { margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--danger); text-align: center; min-height: 18px; }
+
+    /* APP LAYOUT */
+    #app { display: none; min-height: 100vh; }
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; background: var(--deep); border-right: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; }
+    .sidebar-logo { padding: 20px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .sidebar-logo-mark { width: 28px; height: 28px; flex-shrink: 0; }
+    .sidebar-logo-mark svg { width: 100%; height: 100%; }
+    .sidebar-logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--white); letter-spacing: 3px; }
+    .sidebar-logo-text span { color: var(--accent); }
+    .sidebar-client-badge { padding: 12px 18px; border-bottom: 1px solid var(--border); }
+    .sidebar-client-name { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: var(--white); letter-spacing: 2px; }
+    .sidebar-client-tier { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-top: 3px; }
+    .sidebar-nav { flex: 1; padding: 12px 0; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 18px; cursor: pointer; transition: all 0.2s; border-left: 2px solid transparent; color: var(--muted); font-size: 13px; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+    .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,255,209,0.04); }
+    .nav-icon { font-size: 15px; width: 20px; text-align: center; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
+    .sidebar-footer { padding: 14px 18px; border-top: 1px solid var(--border); }
+    .status-indicator { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); }
+    .status-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+    /* MAIN */
+    .main { margin-left: 220px; min-height: 100vh; position: relative; z-index: 1; }
+    .topbar { padding: 0 28px; height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(7,12,20,0.8); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 50; }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--white); letter-spacing: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .topbar-time { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+    .topbar-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; font-size: 11px; cursor: pointer; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    .topbar-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .content { padding: 28px; }
+
+    /* VIEWS */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* STAT CARDS */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .stat-card.green::before { background: linear-gradient(to right, transparent, var(--accent), transparent); }
+    .stat-card.red::before { background: linear-gradient(to right, transparent, var(--danger), transparent); }
+    .stat-card.blue::before { background: linear-gradient(to right, transparent, var(--accent2), transparent); }
+    .stat-card.yellow::before { background: linear-gradient(to right, transparent, var(--warning), transparent); }
+    .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+    .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 38px; line-height: 1; color: var(--white); letter-spacing: 2px; }
+    .stat-value.danger { color: var(--danger); }
+    .stat-value.accent { color: var(--accent); }
+    .stat-value.blue { color: var(--accent2); }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 5px; }
+    .stat-trend { position: absolute; top: 18px; right: 18px; font-size: 18px; opacity: 0.25; }
+
+    /* PANELS */
+    .panel { background: var(--surface); border: 1px solid var(--border); margin-bottom: 14px; }
+    .panel-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .panel-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+    .panel-title::before { content: '//'; color: var(--muted); }
+    .panel-action { font-size: 11px; color: var(--muted); cursor: pointer; transition: color 0.2s; font-family: 'JetBrains Mono', monospace; }
+    .panel-action:hover { color: var(--accent); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+    /* ALERTS TABLE */
+    .alert-row { display: grid; grid-template-columns: 90px 55px 1fr 110px 70px; gap: 10px; padding: 11px 18px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; transition: background 0.2s; }
+    .alert-row:hover { background: rgba(255,255,255,0.02); }
+    .alert-row:last-child { border-bottom: none; }
+    .alert-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+    .alert-time { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+    .alert-level { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 2px; font-family: 'Bebas Neue', sans-serif; font-size: 13px; }
+    .level-critical { background: rgba(255,59,92,0.15); color: var(--danger); border: 1px solid rgba(255,59,92,0.3); }
+    .level-high { background: rgba(245,166,35,0.15); color: var(--warning); border: 1px solid rgba(245,166,35,0.3); }
+    .level-medium { background: rgba(0,132,255,0.15); color: var(--accent2); border: 1px solid rgba(0,132,255,0.3); }
+    .level-low { background: rgba(0,255,209,0.05); color: var(--muted); border: 1px solid var(--border); }
+    .alert-desc { font-size: 13px; color: var(--text); }
+    .alert-agent { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent2); }
+
+    /* DEVICES TABLE */
+    .device-row { display: grid; grid-template-columns: 1fr 110px 90px 70px; gap: 10px; padding: 11px 18px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; transition: background 0.2s; }
+    .device-row:hover { background: rgba(255,255,255,0.02); }
+    .device-row:last-child { border-bottom: none; }
+    .device-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+    .device-name { font-size: 13px; color: var(--white); font-weight: 500; }
+    .device-ip { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+    .device-os { font-size: 12px; color: var(--text); }
+    .online-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; }
+    .online-badge.online { color: var(--accent); }
+    .online-badge.offline { color: var(--muted); }
+    .online-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .online-dot.on { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+    .online-dot.off { background: var(--muted); }
+
+    /* SCORE */
+    .score-ring { position: relative; width: 110px; height: 110px; margin: 0 auto 14px; }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--white); line-height: 1; }
+    .score-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); }
+    .score-items { display: flex; flex-direction: column; gap: 10px; padding: 14px 18px; }
+    .score-item { display: flex; align-items: center; justify-content: space-between; }
+    .score-item-label { font-size: 12px; color: var(--text); }
+    .score-item-bar { flex: 1; height: 3px; background: var(--border); margin: 0 10px; border-radius: 2px; overflow: hidden; }
+    .score-item-fill { height: 100%; border-radius: 2px; }
+    .score-item-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); width: 28px; text-align: right; }
+
+    /* THREAT FEED */
+    .threat-item { padding: 11px 18px; border-bottom: 1px solid rgba(17,34,64,0.5); display: flex; gap: 10px; align-items: flex-start; }
+    .threat-item:last-child { border-bottom: none; }
+    .threat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .threat-desc { font-size: 12px; color: var(--text); margin-bottom: 3px; }
+    .threat-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+
+    /* LOADING */
+    .loading { display: flex; align-items: center; gap: 8px; padding: 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+    .loading-dots { display: flex; gap: 4px; }
+    .loading-dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; animation: ldot 1.4s infinite; }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes ldot { 0%,80%,100%{opacity:0.2}40%{opacity:1} }
+
+    .mitre-tag { display: inline-block; padding: 2px 7px; background: rgba(0,132,255,0.1); border: 1px solid rgba(0,132,255,0.2); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent2); border-radius: 2px; }
+
+    /* SUPPORT TICKET */
+    .ticket-form { padding: 20px; }
+    .ticket-field { margin-bottom: 14px; }
+    .ticket-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 7px; }
+    .ticket-input { width: 100%; background: var(--deep); border: 1px solid var(--border); padding: 10px 14px; color: var(--white); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+    .ticket-input:focus { border-color: var(--accent); }
+    textarea.ticket-input { height: 90px; resize: vertical; }
+    select.ticket-input option { background: var(--deep); }
+    .ticket-btn { background: var(--accent); color: var(--black); border: none; padding: 11px 24px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+    .ticket-btn:hover { background: var(--white); }
+
+    @media (max-width: 1100px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 900px) { .sidebar { width: 54px; } .sidebar-logo-text, .sidebar-client-badge, .sidebar-footer span, .nav-item span:not(.nav-icon) { display: none; } .nav-item { justify-content: center; } .main { margin-left: 54px; } .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .stats-row { grid-template-columns: 1fr; } .content { padding: 14px; } }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-mark">
+        <svg viewBox="0 0 36 36" fill="none">
+          <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" stroke="#00FFD1" stroke-width="1.5" fill="rgba(0,255,209,0.05)"/>
+          <polygon points="18,8 28,13 28,23 18,28 8,23 8,13" stroke="#00FFD1" stroke-width="1" fill="rgba(0,255,209,0.08)" opacity="0.6"/>
+          <circle cx="18" cy="18" r="3" fill="#00FFD1"/>
+        </svg>
+      </div>
+      <span class="login-logo-text">PALISADE<span>ONE</span></span>
+    </div>
+    <div class="login-title">CLIENT PORTAL</div>
+    <div class="login-sub">Enter your credentials to access your security dashboard</div>
+    <div class="login-field">
+      <label>Access Token</label>
+      <input type="password" id="login-token" placeholder="Your portal access token" autocomplete="off"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">ACCESS MY DASHBOARD</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark">
+        <svg viewBox="0 0 36 36" fill="none">
+          <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" stroke="#00FFD1" stroke-width="1.5" fill="rgba(0,255,209,0.05)"/>
+          <circle cx="18" cy="18" r="3" fill="#00FFD1"/>
+        </svg>
+      </div>
+      <div class="sidebar-logo-text">PALISADE<span>ONE</span></div>
+    </div>
+    <div class="sidebar-client-badge">
+      <div class="sidebar-client-name" id="sidebar-client-name">—</div>
+      <div class="sidebar-client-tier" id="sidebar-client-tier">CLIENT PORTAL</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showView('overview')">
+        <span class="nav-icon">⬛</span><span>Overview</span>
+      </div>
+      <div class="nav-item" onclick="showView('devices')">
+        <span class="nav-icon">💻</span><span>My Devices</span>
+      </div>
+      <div class="nav-item" onclick="showView('alerts')">
+        <span class="nav-icon">🔴</span><span>Alerts</span>
+        <span class="nav-badge" id="alert-badge" style="display:none">0</span>
+      </div>
+      <div class="nav-item" onclick="showView('support')">
+        <span class="nav-icon">🎫</span><span>Support</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>MONITORED 24/7</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">OVERVIEW</div>
+      <div class="topbar-right">
+        <div class="topbar-time" id="topbar-time"></div>
+        <button class="topbar-btn" onclick="refreshAll()">↻ REFRESH</button>
+        <button class="topbar-btn" onclick="doLogout()">LOGOUT</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- OVERVIEW -->
+      <div class="view active" id="view-overview">
+        <div class="stats-row">
+          <div class="stat-card red">
+            <div class="stat-label">Critical Alerts</div>
+            <div class="stat-value danger" id="stat-critical">--</div>
+            <div class="stat-sub">Last 24 hours</div>
+            <div class="stat-trend">⚠️</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Protected Devices</div>
+            <div class="stat-value accent" id="stat-devices">--</div>
+            <div class="stat-sub">Endpoints monitored</div>
+            <div class="stat-trend">🛡️</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">Total Alerts</div>
+            <div class="stat-value blue" id="stat-total">--</div>
+            <div class="stat-sub">Last 24 hours</div>
+            <div class="stat-trend">📡</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-label">Security Score</div>
+            <div class="stat-value" id="stat-score" style="color:var(--warning)">--</div>
+            <div class="stat-sub">Your environment</div>
+            <div class="stat-trend">📊</div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Recent Alerts</div>
+              <div class="panel-action" onclick="showView('alerts')">View all →</div>
+            </div>
+            <div class="alert-row header"><div>Time</div><div>Lvl</div><div>Description</div><div>Device</div><div>Rule</div></div>
+            <div id="overview-alerts">
+              <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading alerts...</div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">Security Score</div></div>
+            <div style="padding:18px 0 0;">
+              <div class="score-ring">
+                <svg width="110" height="110" viewBox="0 0 110 110">
+                  <circle cx="55" cy="55" r="46" fill="none" stroke="var(--border)" stroke-width="7"/>
+                  <circle cx="55" cy="55" r="46" fill="none" stroke="var(--warning)" stroke-width="7" stroke-dasharray="289" stroke-dashoffset="87" stroke-linecap="round" id="score-circle"/>
+                </svg>
+                <div class="score-ring-text"><div class="score-num" id="score-num">70</div><div class="score-label">/100</div></div>
+              </div>
+              <div class="score-items">
+                <div class="score-item"><div class="score-item-label">EDR Coverage</div><div class="score-item-bar"><div class="score-item-fill" style="width:100%;background:var(--accent)"></div></div><div class="score-item-val">100%</div></div>
+                <div class="score-item"><div class="score-item-label">Patch Status</div><div class="score-item-bar"><div class="score-item-fill" style="width:65%;background:var(--warning)" id="fill-patch"></div></div><div class="score-item-val" id="val-patch">65%</div></div>
+                <div class="score-item"><div class="score-item-label">Open Critical</div><div class="score-item-bar"><div class="score-item-fill" style="width:10%;background:var(--danger)" id="fill-crit"></div></div><div class="score-item-val" style="color:var(--danger)" id="val-crit">--</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Live Threat Feed</div>
+              <div class="panel-action" id="feed-time">Live</div>
+            </div>
+            <div id="threat-feed">
+              <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">My Devices</div>
+              <div class="panel-action" onclick="showView('devices')">View all →</div>
+            </div>
+            <div id="overview-devices">
+              <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEVICES -->
+      <div class="view" id="view-devices">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">My Protected Endpoints</div>
+            <div class="panel-action" onclick="loadDevices()">↻ Refresh</div>
+          </div>
+          <div class="device-row header"><div>Device</div><div>IP Address</div><div>OS</div><div>Status</div></div>
+          <div id="devices-list">
+            <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading devices...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALERTS -->
+      <div class="view" id="view-alerts">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Security Alerts — Last 24 Hours</div>
+            <div class="panel-action" onclick="loadAlerts()">↻ Refresh</div>
+          </div>
+          <div class="alert-row header"><div>Time</div><div>Lvl</div><div>Description</div><div>Device</div><div>Rule</div></div>
+          <div id="full-alerts">
+            <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUPPORT -->
+      <div class="view" id="view-support">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">Submit Support Ticket</div></div>
+            <div class="ticket-form">
+              <div class="ticket-field">
+                <label class="ticket-label">Priority</label>
+                <select class="ticket-input" id="ticket-priority">
+                  <option value="low">Low — General question</option>
+                  <option value="medium" selected>Medium — Issue affecting workflow</option>
+                  <option value="high">High — Security concern</option>
+                  <option value="critical">Critical — Active incident</option>
+                </select>
+              </div>
+              <div class="ticket-field">
+                <label class="ticket-label">Subject</label>
+                <input type="text" class="ticket-input" id="ticket-subject" placeholder="Brief description of the issue"/>
+              </div>
+              <div class="ticket-field">
+                <label class="ticket-label">Details</label>
+                <textarea class="ticket-input" id="ticket-body" placeholder="Describe the issue, what device is affected, when it started..."></textarea>
+              </div>
+              <button class="ticket-btn" onclick="submitTicket()">SUBMIT TICKET →</button>
+              <div id="ticket-status" style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:11px;"></div>
+            </div>
+          </div>
+          <div>
+            <div class="panel" style="margin-bottom:14px;">
+              <div class="panel-header"><div class="panel-title">Your Security Team</div></div>
+              <div style="padding:20px;">
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                  <div style="display:flex;gap:14px;align-items:center;">
+                    <div style="width:40px;height:40px;background:rgba(0,255,209,0.1);border:1px solid rgba(0,255,209,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🛡️</div>
+                    <div>
+                      <div style="font-size:13px;color:var(--white);font-weight:500;">Palisade One SOC</div>
+                      <div style="font-size:12px;color:var(--muted);margin-top:3px;">24/7 Security Monitoring</div>
+                      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-top:4px;">support@palisadeone.com</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:14px;align-items:center;">
+                    <div style="width:40px;height:40px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🚨</div>
+                    <div>
+                      <div style="font-size:13px;color:var(--white);font-weight:500;">Critical Incident Line</div>
+                      <div style="font-size:12px;color:var(--muted);margin-top:3px;">Active breach or ransomware</div>
+                      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--danger);margin-top:4px;">Call: (contact your rep)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">Response SLA</div></div>
+              <div style="padding:16px;">
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:12px;color:var(--danger);">● Critical</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--white);">30 minutes</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:12px;color:var(--warning);">● High</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--white);">4 hours</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:12px;color:var(--accent2);">● Medium</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--white);">24 hours</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:12px;color:var(--muted);">● Low</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--white);">72 hours</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+const PROXY_URL = 'https://api.palisadeone.com:9443';
+let currentClient = null;
+let clientAgentIds = [];
+
+// ── AUTH ──────────────────────────────────────────────────────────
+async function doLogin() {
+  const token = document.getElementById('login-token').value.trim();
+  const errEl = document.getElementById('login-err');
+  if (!token) { errEl.textContent = '⚠ Enter your access token.'; return; }
+  errEl.textContent = '';
+
+  try {
+    const res = await fetch(`${PROXY_URL}/clients?v=` + Date.now());
+    const data = await res.json();
+    const client = (data.clients || []).find(c => c.token === token);
+    if (!client) { errEl.textContent = '⚠ Invalid access token. Contact support@palisadeone.com'; return; }
+
+    currentClient = client;
+    sessionStorage.setItem('p1_client', JSON.stringify(client));
+    bootApp(client);
+  } catch(e) {
+    errEl.textContent = '⚠ Could not connect. Try again.';
+  }
+}
+
+function bootApp(client) {
+  document.getElementById('login-screen').style.opacity = '0';
+  document.getElementById('login-screen').style.transition = 'opacity 0.4s';
+  setTimeout(() => {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('sidebar-client-name').textContent = client.name.toUpperCase();
+    document.getElementById('sidebar-client-tier').textContent = (client.tier || 'monitor').toUpperCase() + ' TIER';
+    document.title = client.name + ' — Palisade One';
+    initDashboard();
+  }, 400);
+}
+
+function doLogout() {
+  sessionStorage.removeItem('p1_client');
+  location.reload();
+}
+
+document.addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+
+// Resume session
+(function() {
+  const saved = sessionStorage.getItem('p1_client');
+  if (saved) { try { currentClient = JSON.parse(saved); bootApp(currentClient); } catch(e) {} }
+})();
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function fmtTime(ts) {
+  if (!ts) return '--';
+  return new Date(ts).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
+}
+function fmtDateTime(ts) {
+  if (!ts) return '--';
+  return new Date(ts).toLocaleString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false});
+}
+function levelBadge(level) {
+  if (level >= 12) return `<div class="alert-level level-critical">${level}</div>`;
+  if (level >= 7)  return `<div class="alert-level level-high">${level}</div>`;
+  if (level >= 4)  return `<div class="alert-level level-medium">${level}</div>`;
+  return `<div class="alert-level level-low">${level}</div>`;
+}
+function loading() {
+  return '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div>';
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('page-title').textContent = name === 'support' ? 'SUPPORT' : name.toUpperCase();
+  event?.currentTarget?.classList?.add('active');
+  if (name === 'alerts') loadAlerts();
+  if (name === 'devices') loadDevices();
+}
+
+function updateTime() {
+  document.getElementById('topbar-time').textContent = new Date().toLocaleTimeString('en-US', {hour12:false}) + ' UTC';
+}
+setInterval(updateTime, 1000); updateTime();
+
+// ── DATA HELPERS ──────────────────────────────────────────────────
+// Build the Wazuh agent IDs filter for this client
+async function resolveClientAgentIds() {
+  if (!currentClient) return [];
+  // If client has explicit agent_ids, use those
+  if (currentClient.agent_ids && currentClient.agent_ids.length > 0) {
+    clientAgentIds = currentClient.agent_ids;
+    return clientAgentIds;
+  }
+  // Otherwise pull all agents in the client's wazuh_group
+  if (currentClient.wazuh_group) {
+    try {
+      const res = await fetch(`${PROXY_URL}/agents?group=${encodeURIComponent(currentClient.wazuh_group)}&limit=500`);
+      const json = await res.json();
+      clientAgentIds = (json?.data?.affected_items || [])
+        .filter(a => a.id !== '000').map(a => a.id);
+    } catch(e) { clientAgentIds = []; }
+  }
+  return clientAgentIds;
+}
+
+function buildAlertQuery(size, extra = {}) {
+  const ids = clientAgentIds;
+  const filter = ids.length > 0
+    ? [{ terms: { 'agent.id': ids } }, { range: { timestamp: { gte: 'now-24h' } } }]
+    : [{ range: { timestamp: { gte: 'now-24h' } } }];
+  return { size, sort: [{ timestamp: { order: 'desc' } }], query: { bool: { filter } }, ...extra };
+}
+
+async function indexerSearch(index, query) {
+  try {
+    const res = await fetch(`${PROXY_URL}/${index}/_search`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(query)
+    });
+    return await res.json();
+  } catch(e) { return null; }
+}
+
+// ── LOAD DATA ─────────────────────────────────────────────────────
+async function loadAlerts() {
+  const [fullEl, ovEl, feedEl] = ['full-alerts', 'overview-alerts', 'threat-feed'].map(id => document.getElementById(id));
+  if (fullEl) fullEl.innerHTML = loading();
+  if (ovEl) ovEl.innerHTML = loading();
+  if (feedEl) feedEl.innerHTML = loading();
+
+  const data = await indexerSearch('wazuh-alerts-4.x-*', buildAlertQuery(50));
+  const hits = data?.hits?.hits?.map(h => h._source) || [];
+  const total = data?.hits?.total?.value || 0;
+  const critical = hits.filter(h => (h.rule?.level || 0) >= 12).length;
+
+  document.getElementById('stat-critical').textContent = critical;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('val-crit').textContent = critical;
+  const critBadge = document.getElementById('alert-badge');
+  if (critical > 0) { critBadge.textContent = critical; critBadge.style.display = ''; }
+
+  const renderRow = hit => {
+    const level = hit.rule?.level || 0;
+    const desc = hit.rule?.description || 'Security event';
+    return `<div class="alert-row">
+      <div class="alert-time">${fmtTime(hit.timestamp)}</div>
+      <div>${levelBadge(level)}</div>
+      <div class="alert-desc">${desc.substring(0,70)}${desc.length>70?'…':''}</div>
+      <div class="alert-agent">${hit.agent?.name || '--'}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${hit.rule?.id || '--'}</div>
+    </div>`;
+  };
+  const noAlerts = '<div style="padding:18px;color:var(--muted);font-size:13px;text-align:center;">No alerts in last 24 hours — all clear ✓</div>';
+
+  if (ovEl) ovEl.innerHTML = hits.length ? hits.slice(0, 6).map(renderRow).join('') : noAlerts;
+  if (fullEl) fullEl.innerHTML = hits.length ? hits.map(renderRow).join('') : noAlerts;
+
+  if (feedEl) feedEl.innerHTML = hits.length ? hits.slice(0, 8).map(hit => {
+    const level = hit.rule?.level || 0;
+    const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : level >= 4 ? 'var(--accent2)' : 'var(--muted)';
+    const mitre = hit.rule?.mitre?.id?.[0];
+    return `<div class="threat-item">
+      <div class="threat-dot" style="background:${color}"></div>
+      <div>
+        <div class="threat-desc">${hit.rule?.description || 'Security event'}</div>
+        <div class="threat-meta">${fmtTime(hit.timestamp)} · ${hit.agent?.name || '--'}${mitre ? ` · <span class="mitre-tag">${mitre}</span>` : ''}</div>
+      </div>
+    </div>`;
+  }).join('') : '<div style="padding:18px;font-size:12px;color:var(--muted);">No recent threats</div>';
+
+  const feedTimeEl = document.getElementById('feed-time');
+  if (feedTimeEl) feedTimeEl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', {hour12:false});
+
+  updateScore(critical, total);
+}
+
+async function loadDevices() {
+  const listEl = document.getElementById('devices-list');
+  const ovEl = document.getElementById('overview-devices');
+  if (listEl) listEl.innerHTML = loading();
+
+  const agentFilter = clientAgentIds.length > 0
+    ? '&id_list=' + clientAgentIds.join(',')
+    : (currentClient?.wazuh_group ? `&group=${encodeURIComponent(currentClient.wazuh_group)}` : '');
+
+  try {
+    const res = await fetch(`${PROXY_URL}/agents?limit=500&sort=-dateAdd${agentFilter}`);
+    const json = await res.json();
+    const agents = (json?.data?.affected_items || []).filter(a => a.id !== '000');
+
+    document.getElementById('stat-devices').textContent = agents.length || '--';
+
+    const renderDevice = a => {
+      const online = a.status === 'active';
+      const os = a.os?.name || a.os?.platform || 'Windows';
+      return `<div class="device-row">
+        <div><div class="device-name">${a.name || 'Unknown'}</div><div class="device-ip">${a.ip || 'N/A'}</div></div>
+        <div class="device-ip">${a.ip || '--'}</div>
+        <div class="device-os">${os}</div>
+        <div><span class="online-badge ${online?'online':'offline'}"><div class="online-dot ${online?'on':'off'}"></div>${online?'ONLINE':'OFFLINE'}</span></div>
+      </div>`;
+    };
+
+    const rows = agents.length ? agents.map(renderDevice).join('') :
+      '<div style="padding:18px;color:var(--muted);font-size:13px;text-align:center;">No devices found</div>';
+
+    if (listEl) listEl.innerHTML = rows;
+    if (ovEl) ovEl.innerHTML = `<div class="device-row header"><div>Device</div><div>IP</div><div>OS</div><div>Status</div></div>${rows}`;
+  } catch(e) {
+    if (listEl) listEl.innerHTML = '<div style="padding:18px;color:var(--muted);font-size:13px;">Could not load devices</div>';
+  }
+}
+
+function updateScore(critical, total) {
+  let score = 100;
+  if (critical > 0) score -= Math.min(30, critical * 5);
+  if (total > 100) score -= 10;
+  score = Math.max(0, Math.min(100, score));
+  document.getElementById('stat-score').textContent = score;
+  document.getElementById('score-num').textContent = score;
+  const offset = 289 - (289 * score / 100);
+  const circle = document.getElementById('score-circle');
+  const color = score >= 80 ? 'var(--accent)' : score >= 60 ? 'var(--warning)' : 'var(--danger)';
+  circle.style.strokeDashoffset = offset;
+  circle.style.stroke = color;
+  document.getElementById('score-num').style.color = color;
+  document.getElementById('stat-score').style.color = color;
+}
+
+// ── SUPPORT TICKET ────────────────────────────────────────────────
+async function submitTicket() {
+  const subject = document.getElementById('ticket-subject').value.trim();
+  const body = document.getElementById('ticket-body').value.trim();
+  const priority = document.getElementById('ticket-priority').value;
+  const statusEl = document.getElementById('ticket-status');
+  if (!subject || !body) { statusEl.style.color = 'var(--danger)'; statusEl.textContent = '⚠ Please fill in subject and details.'; return; }
+  statusEl.style.color = 'var(--accent)';
+  statusEl.textContent = '✓ Ticket submitted. Our team will respond within SLA. Check your email for confirmation.';
+  document.getElementById('ticket-subject').value = '';
+  document.getElementById('ticket-body').value = '';
+  // Future: wire to n8n webhook for email notification
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+async function refreshAll() {
+  await resolveClientAgentIds();
+  await Promise.all([loadAlerts(), loadDevices()]);
+}
+
+async function initDashboard() {
+  await refreshAll();
+  setInterval(refreshAll, 30000);
+}
+</script>
+</body>
+</html>

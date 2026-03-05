@@ -190,6 +190,29 @@
     ::-webkit-scrollbar-track { background: var(--deep); }
     ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
+    /* CLIENT CARDS */
+    .client-card { background: var(--surface2); border: 1px solid var(--border); padding: 20px; transition: border-color 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+    .client-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, transparent, var(--accent), transparent); transition: opacity 0.2s; }
+    .client-card:hover { border-color: var(--border2); }
+    .client-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+    .client-card-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--white); letter-spacing: 2px; }
+    .tier-badge { padding: 3px 10px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; border: 1px solid; border-radius: 2px; }
+    .tier-monitor { border-color: rgba(0,255,209,0.4); color: var(--accent); background: rgba(0,255,209,0.06); }
+    .tier-defend { border-color: rgba(0,132,255,0.4); color: var(--accent2); background: rgba(0,132,255,0.06); }
+    .tier-dominate { border-color: rgba(245,166,35,0.4); color: var(--warning); background: rgba(245,166,35,0.06); }
+    .client-card-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+    .client-stat { text-align: center; }
+    .client-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--white); line-height: 1; }
+    .client-stat-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 1px; margin-top: 3px; }
+    .client-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
+    .client-email { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+    .client-mrr { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--accent); letter-spacing: 1px; }
+    .client-actions { display: flex; gap: 6px; margin-top: 12px; }
+    .client-btn { padding: 5px 12px; font-size: 10px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; background: transparent; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    .client-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .client-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+    .empty-clients { padding: 48px; text-align: center; }
+
     /* ENDPOINT DETAIL PANEL */
     #ep-overlay { position: fixed; inset: 0; background: rgba(3,5,10,0.65); z-index: 200; display: none; backdrop-filter: blur(4px); }
     #ep-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 520px; background: var(--deep); border-left: 1px solid var(--border2); z-index: 201; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); overflow: hidden; }
@@ -519,12 +542,12 @@
         <div class="stats-row">
           <div class="stat-card green">
             <div class="stat-label">Active Clients</div>
-            <div class="stat-value accent">1</div>
+            <div class="stat-value accent" id="client-count">--</div>
             <div class="stat-sub">Currently managed</div>
           </div>
           <div class="stat-card blue">
             <div class="stat-label">MRR</div>
-            <div class="stat-value blue">$0</div>
+            <div class="stat-value blue" id="mrr-total">$0</div>
             <div class="stat-sub">Monthly recurring</div>
           </div>
           <div class="stat-card yellow">
@@ -538,15 +561,67 @@
             <div class="stat-sub">Requiring attention</div>
           </div>
         </div>
+
         <div class="panel">
           <div class="panel-header">
             <div class="panel-title">Client Accounts</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="panel-action" onclick="loadClients()">↻ Refresh</div>
+              <button onclick="openAddClient()" style="background:var(--accent);color:var(--black);border:none;padding:6px 16px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;">+ ADD CLIENT</button>
+            </div>
           </div>
-          <div style="padding:40px;text-align:center;">
-            <div style="font-size:48px;margin-bottom:16px;">👥</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);letter-spacing:2px;margin-bottom:8px;">NO CLIENTS ONBOARDED YET</div>
-            <div style="font-size:13px;color:var(--muted);max-width:400px;margin:0 auto 24px;">Once you onboard your first client, their devices, alerts, and security scores will appear here.</div>
-            <button class="login-btn" style="width:auto;padding:12px 32px;" onclick="window.open('https://palisadeone.com/contact.html','_blank')">ONBOARD FIRST CLIENT</button>
+          <div id="clients-grid" style="padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;">
+            <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading clients...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADD CLIENT MODAL -->
+      <div id="add-client-modal" style="display:none;position:fixed;inset:0;background:rgba(3,5,10,0.85);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+        <div style="background:var(--surface);border:1px solid var(--border2);width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative;">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--accent),transparent);"></div>
+          <div style="padding:24px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;">ADD NEW CLIENT</div>
+            <button onclick="closeAddClient()" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+          </div>
+          <div style="padding:24px 28px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div>
+                <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:7px;">Company Name *</label>
+                <input type="text" id="ac-name" placeholder="Acme Corp" style="width:100%;background:var(--deep);border:1px solid var(--border);padding:10px 14px;color:var(--white);font-family:'Outfit',sans-serif;font-size:13px;outline:none;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
+              </div>
+              <div>
+                <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:7px;">Service Tier *</label>
+                <select id="ac-tier" style="width:100%;background:var(--deep);border:1px solid var(--border);padding:10px 14px;color:var(--white);font-family:'Outfit',sans-serif;font-size:13px;outline:none;">
+                  <option value="monitor">Monitor — $299/mo</option>
+                  <option value="defend" selected>Defend — $499/mo</option>
+                  <option value="dominate">Dominate — $799/mo</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:7px;">Contact Email *</label>
+                <input type="email" id="ac-email" placeholder="admin@company.com" style="width:100%;background:var(--deep);border:1px solid var(--border);padding:10px 14px;color:var(--white);font-family:'Outfit',sans-serif;font-size:13px;outline:none;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
+              </div>
+              <div>
+                <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:7px;">Monthly Rate ($)</label>
+                <input type="number" id="ac-mrr" placeholder="499" style="width:100%;background:var(--deep);border:1px solid var(--border);padding:10px 14px;color:var(--white);font-family:'Outfit',sans-serif;font-size:13px;outline:none;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
+              </div>
+              <div style="grid-column:span 2;">
+                <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:7px;">Wazuh Group Name</label>
+                <input type="text" id="ac-group" placeholder="Auto-generated from company name" style="width:100%;background:var(--deep);border:1px solid var(--border);padding:10px 14px;color:var(--white);font-family:'Outfit',sans-serif;font-size:13px;outline:none;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
+                <div style="font-size:11px;color:var(--muted);margin-top:5px;">Leave blank to auto-generate. Used to filter this client's agents.</div>
+              </div>
+            </div>
+            <div style="margin-top:20px;padding:14px;background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.15);">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:6px;">PORTAL ACCESS TOKEN</div>
+              <div id="ac-token-display" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--white);letter-spacing:2px;"></div>
+              <div style="font-size:11px;color:var(--muted);margin-top:5px;">Auto-generated. Share this token with the client so they can access <strong style="color:var(--text);">palisadeone.com/client-view.html</strong></div>
+            </div>
+            <div id="ac-status" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-top:12px;min-height:18px;"></div>
+          </div>
+          <div style="padding:16px 28px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;">
+            <button onclick="closeAddClient()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px 20px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;text-transform:uppercase;">CANCEL</button>
+            <button onclick="saveClient()" style="background:var(--accent);color:var(--black);border:none;padding:10px 24px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;">CREATE CLIENT →</button>
           </div>
         </div>
       </div>
@@ -856,6 +931,7 @@ function showView(name) {
   if (name === 'alerts') loadAlerts();
   if (name === 'devices') loadDevices();
   if (name === 'compliance') loadCompliance();
+  if (name === 'clients') loadClients();
 }
 
 function updatePreview() {
@@ -1322,6 +1398,176 @@ function showToast(msg, type = 'info') {
   t.className = 'show ' + type;
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.className = '', 4500);
+}
+
+// ============================================================
+// CLIENT MANAGEMENT
+// ============================================================
+const CLIENTS_ADMIN_TOKEN = 'P1AdminKey2026!';
+
+async function fetchClients() {
+  const res = await fetch(`${PROXY_URL}/clients`, {
+    headers: { 'Authorization': `Bearer ${CLIENTS_ADMIN_TOKEN}` }
+  });
+  const data = await res.json();
+  return data.clients || [];
+}
+
+async function pushClients(clients) {
+  const res = await fetch(`${PROXY_URL}/clients`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CLIENTS_ADMIN_TOKEN}` },
+    body: JSON.stringify({ version: 1, clients })
+  });
+  return res.ok;
+}
+
+async function loadClients() {
+  const grid = document.getElementById('clients-grid');
+  grid.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading clients...</div>';
+  try {
+    const clients = await fetchClients();
+    document.getElementById('client-count').textContent = clients.length || '0';
+    const mrr = clients.reduce((s, c) => s + (c.mrr || 0), 0);
+    document.getElementById('mrr-total').textContent = '$' + mrr.toLocaleString();
+
+    // Build group → device count map from cached agentsData
+    const groupMap = {};
+    Object.values(agentsData).forEach(a => {
+      (a.group || []).forEach(g => { groupMap[g] = (groupMap[g] || 0) + 1; });
+    });
+
+    if (clients.length === 0) {
+      grid.innerHTML = `<div class="empty-clients" style="grid-column:1/-1;text-align:center;padding:60px 20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;">// NO CLIENTS CONFIGURED</div>
+        <div style="font-size:13px;color:var(--text);margin-bottom:24px;">Add your first client to start managing their security.</div>
+        <button onclick="openAddClient()" style="background:var(--accent);color:var(--black);border:none;padding:10px 24px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;">+ ADD FIRST CLIENT</button>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = clients.map(c => renderClientCard(c, groupMap[c.wazuh_group] || 0)).join('');
+
+    // Load per-client alert counts async
+    clients.forEach(c => loadClientAlertCount(c));
+  } catch(e) {
+    grid.innerHTML = '<div style="padding:24px;color:var(--muted);font-size:13px;font-family:\'JetBrains Mono\',monospace;">⚠ Could not load clients — ' + e.message + '</div>';
+  }
+}
+
+async function loadClientAlertCount(client) {
+  try {
+    const filter = client.wazuh_group
+      ? { term: { 'agent.groups': client.wazuh_group } }
+      : { match_all: {} };
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 0,
+      query: { bool: { filter: [filter, { range: { timestamp: { gte: 'now-24h' } } }] } },
+      aggs: { total: { value_count: { field: '_id' } }, critical: { filter: { range: { 'rule.level': { gte: 12 } } } } }
+    });
+    const total = data?.hits?.total?.value || 0;
+    const critical = data?.aggregations?.critical?.doc_count || 0;
+    const score = Math.max(0, 100 - Math.min(30, critical * 5) - (total > 100 ? 10 : 0));
+    const alertEl = document.getElementById(`cc-alerts-${client.id}`);
+    const scoreEl = document.getElementById(`cc-score-${client.id}`);
+    if (alertEl) alertEl.textContent = total;
+    if (scoreEl) { scoreEl.textContent = score; scoreEl.style.color = score >= 80 ? 'var(--accent)' : score >= 60 ? 'var(--warning)' : 'var(--danger)'; }
+  } catch(e) { /* silent */ }
+}
+
+function renderClientCard(client, deviceCount) {
+  const tierClass = 'tier-' + (client.tier || 'monitor');
+  const tierLabel = { monitor: 'MONITOR', defend: 'DEFEND', dominate: 'DOMINATE' }[client.tier] || (client.tier || '').toUpperCase();
+  const mrr = client.mrr ? '$' + Number(client.mrr).toLocaleString() + '/mo' : '--';
+  const safeToken = (client.token || '').replace(/'/g, "\\'");
+  return `<div class="client-card">
+    <div class="client-card-header">
+      <div class="client-card-name">${client.name || 'Unknown'}</div>
+      <div class="tier-badge ${tierClass}">${tierLabel}</div>
+    </div>
+    <div class="client-card-stats">
+      <div class="client-stat"><div class="client-stat-val">${deviceCount}</div><div class="client-stat-lbl">DEVICES</div></div>
+      <div class="client-stat"><div class="client-stat-val" id="cc-alerts-${client.id}">--</div><div class="client-stat-lbl">ALERTS/24H</div></div>
+      <div class="client-stat"><div class="client-stat-val" id="cc-score-${client.id}">--</div><div class="client-stat-lbl">SEC SCORE</div></div>
+    </div>
+    <div class="client-card-footer">
+      <div class="client-email">${client.contact || '--'}</div>
+      <div class="client-mrr">${mrr}</div>
+    </div>
+    <div class="client-actions">
+      <button class="client-btn" onclick="copyClientToken('${safeToken}')">📋 TOKEN</button>
+      <button class="client-btn" onclick="window.open('client-view.html','_blank')">PORTAL</button>
+      <button class="client-btn danger" onclick="deleteClient('${client.id}')">✕ REMOVE</button>
+    </div>
+  </div>`;
+}
+
+function openAddClient() {
+  const token = generateToken();
+  document.getElementById('ac-token-display').textContent = token;
+  document.getElementById('ac-token-display').dataset.token = token;
+  ['ac-name', 'ac-email', 'ac-group', 'ac-mrr'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ac-tier').value = 'defend';
+  document.getElementById('ac-status').textContent = '';
+  document.getElementById('add-client-modal').style.display = 'flex';
+}
+
+function closeAddClient() {
+  document.getElementById('add-client-modal').style.display = 'none';
+}
+
+function generateToken() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let t = 'P1-';
+  for (let i = 0; i < 32; i++) t += chars[Math.floor(Math.random() * chars.length)];
+  return t;
+}
+
+async function saveClient() {
+  const name = document.getElementById('ac-name').value.trim();
+  const email = document.getElementById('ac-email').value.trim();
+  const tier = document.getElementById('ac-tier').value;
+  const mrr = parseInt(document.getElementById('ac-mrr').value) || 0;
+  const groupInput = document.getElementById('ac-group').value.trim();
+  const token = document.getElementById('ac-token-display').dataset.token;
+  const statusEl = document.getElementById('ac-status');
+
+  if (!name) { statusEl.textContent = '⚠ Company name is required'; statusEl.style.color = 'var(--danger)'; return; }
+  if (!email) { statusEl.textContent = '⚠ Contact email is required'; statusEl.style.color = 'var(--danger)'; return; }
+
+  const group = groupInput || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+  statusEl.textContent = 'Saving...';
+  statusEl.style.color = 'var(--muted)';
+  try {
+    const existing = await fetchClients();
+    existing.push({ id: 'c_' + Date.now(), name, tier, contact: email, mrr, wazuh_group: group, token, created: new Date().toISOString() });
+    const ok = await pushClients(existing);
+    if (ok) {
+      statusEl.textContent = '✓ Client created!';
+      statusEl.style.color = 'var(--accent)';
+      setTimeout(() => { closeAddClient(); loadClients(); }, 1000);
+    } else {
+      statusEl.textContent = '✗ Save failed';
+      statusEl.style.color = 'var(--danger)';
+    }
+  } catch(e) {
+    statusEl.textContent = '✗ Error: ' + e.message;
+    statusEl.style.color = 'var(--danger)';
+  }
+}
+
+async function deleteClient(clientId) {
+  if (!confirm('Remove this client? This cannot be undone.')) return;
+  try {
+    const clients = await fetchClients();
+    const ok = await pushClients(clients.filter(c => c.id !== clientId));
+    if (ok) loadClients();
+  } catch(e) { showToast('Could not remove client', 'error'); }
+}
+
+function copyClientToken(token) {
+  navigator.clipboard.writeText(token).then(() => showToast('Token copied to clipboard!', 'success'));
 }
 </script>
 </body>
