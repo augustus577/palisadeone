@@ -699,9 +699,9 @@
             <div class="stat-sub">x64 — Windows 10/11</div>
           </div>
           <div class="stat-card red">
-            <div class="stat-label">Requires</div>
-            <div class="stat-value danger" style="font-size:22px;">Admin</div>
-            <div class="stat-sub">Run as Administrator</div>
+            <div class="stat-label">Elevation</div>
+            <div class="stat-value danger" style="font-size:22px;">Auto</div>
+            <div class="stat-sub">UAC prompt on double-click</div>
           </div>
         </div>
 
@@ -722,12 +722,12 @@
               </div>
             </div>
             <div style="background:var(--deep);border:1px solid var(--border);padding:16px 20px;">
-              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">PREVIEW — RUN ON CLIENT MACHINE AS ADMIN:</div>
-              <code id="install-preview" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);">.\PalisadeOne-Onboard.ps1 -ClientName "..."</code>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">OUTPUT FILE — CLIENT DOUBLE-CLICKS THIS:</div>
+              <code id="install-preview" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);">Double-click: PalisadeOne-...-Setup.cmd  (auto-elevates to Admin)</code>
             </div>
             <div style="margin-top:12px;display:flex;align-items:center;gap:8px;">
               <div style="width:6px;height:6px;background:var(--accent);border-radius:50%;"></div>
-              <div style="font-size:12px;color:var(--muted);">This installer is generated privately in your browser — it is never hosted at a public URL and cannot be accessed without logging in first.</div>
+              <div style="font-size:12px;color:var(--muted);">Generated privately in your browser — never hosted publicly. Client just double-clicks the .cmd file; Windows UAC handles elevation automatically.</div>
             </div>
           </div>
         </div>
@@ -742,29 +742,29 @@
               <div style="display:flex;gap:16px;align-items:flex-start;">
                 <div style="width:32px;height:32px;background:rgba(0,255,209,0.1);border:1px solid rgba(0,255,209,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);">01</div>
                 <div>
-                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Enter client name above & download</div>
-                  <div style="font-size:12px;color:var(--muted);">Type the client company name and click Generate & Download. A customized .ps1 file will save to your computer.</div>
+                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Generate from Clients view or enter name above</div>
+                  <div style="font-size:12px;color:var(--muted);">Click the ⬇ INSTALLER button on a client card to auto-fill their name, or type manually above. Click Generate & Download — a .cmd file saves to your computer.</div>
                 </div>
               </div>
               <div style="display:flex;gap:16px;align-items:flex-start;">
                 <div style="width:32px;height:32px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent2);">02</div>
                 <div>
-                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Send script to client or run yourself</div>
-                  <div style="font-size:12px;color:var(--muted);">Transfer the script to each client machine via email, USB, or remote session. Do not post it publicly.</div>
+                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Send the .cmd file to the client machine</div>
+                  <div style="font-size:12px;color:var(--muted);">Transfer via email, USB, or remote session. The file is pre-configured for this client — do not share publicly.</div>
                 </div>
               </div>
               <div style="display:flex;gap:16px;align-items:flex-start;">
                 <div style="width:32px;height:32px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--warning);">03</div>
                 <div>
-                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Run as Administrator on each machine</div>
-                  <div style="font-size:12px;color:var(--muted);">Right-click PowerShell → Run as Administrator. Navigate to the script and run it. Takes ~2 minutes per device.</div>
+                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Double-click the .cmd file — that's it</div>
+                  <div style="font-size:12px;color:var(--muted);">Windows will prompt for Administrator access — click Yes. The installer handles everything automatically. Takes ~2 minutes per device.</div>
                 </div>
               </div>
               <div style="display:flex;gap:16px;align-items:flex-start;">
                 <div style="width:32px;height:32px;background:rgba(255,59,92,0.1);border:1px solid rgba(255,59,92,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--danger);">04</div>
                 <div>
                   <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Verify device appears in dashboard</div>
-                  <div style="font-size:12px;color:var(--muted);">Check the Devices view — the endpoint should appear within 60 seconds. Also verify in MeshCentral RMM.</div>
+                  <div style="font-size:12px;color:var(--muted);">Check the Devices view — the endpoint should appear within 60 seconds, automatically assigned to the correct client group.</div>
                 </div>
               </div>
             </div>
@@ -1085,100 +1085,101 @@ function showView(name) {
 
 function updatePreview() {
   const name = document.getElementById('client-name-input').value || '...';
-  document.getElementById('install-preview').textContent = `.\PalisadeOne-Onboard.ps1 -ClientName "${name}"`;
+  const safeName = (name).replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-');
+  document.getElementById('install-preview').textContent = `Double-click: PalisadeOne-${safeName}-Setup.cmd  (auto-elevates to Admin)`;
 }
 
 function generateInstaller() {
   const clientName = document.getElementById('client-name-input').value.trim();
+  const wazuhGroup = document.getElementById('client-name-input').dataset.wazuhGroup || '';
   if (!clientName) {
     document.getElementById('client-name-input').style.borderColor = 'var(--danger)';
     setTimeout(() => document.getElementById('client-name-input').style.borderColor = 'var(--border)', 2000);
     return;
   }
   const safeName = clientName.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-');
-  const script = generateScriptContent(clientName);
+  const script = generateCmdContent(clientName, wazuhGroup);
   const blob = new Blob([script], {type: 'text/plain'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `PalisadeOne-${safeName}-Setup.ps1`;
+  a.download = `PalisadeOne-${safeName}-Setup.cmd`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
+  showToast('Installer downloaded — send to client, they just double-click it.', 'success');
 }
 
-function generateScriptContent(clientName) {
+function generateCmdContent(clientName, wazuhGroup) {
   const manager = "178.156.234.30";
+  const group = wazuhGroup || clientName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const meshUrl = "https://mesh.palisadeone.com:444/meshagents?id=4&meshid=iIWY3osoTJeAkMJl9O@0Nu@sFzPwr7x8SJrgrESmEZ3bzPWR7UTBA9o6jflJensO&installflags=0";
   const vcUrl = "https://aka.ms/vs/17/release/vc_redist.x64.exe";
   const wazuhUrl = "https://packages.wazuh.com/4.x/windows/wazuh-agent-4.7.5-1.msi";
   const generated = new Date().toISOString();
 
-  return [
+  const ps = [
     "# ============================================================",
-    "#  PALISADE ONE - Client Onboarding Script",
-    "#  Generated: " + generated,
-    "#  Client: " + clientName,
-    "#  Run as Administrator in PowerShell",
+    "#  PALISADE ONE - Client Onboarding",
+    "#  Generated : " + generated,
+    "#  Client    : " + clientName,
+    "#  Group     : " + group,
     "# ============================================================",
     "",
-    '$ClientName        = "' + clientName + '"',
-    '$WAZUH_MANAGER     = "' + manager + '"',
-    '$WAZUH_MSI_URL     = "' + wazuhUrl + '"',
-    '$MESH_AGENT_URL    = "' + meshUrl + '"',
-    '$VC_REDIST_URL     = "' + vcUrl + '"',
-    '$LOG_FILE          = "$env:TEMP\\PalisadeOne-Onboard.log"',
+    '$ClientName    = "' + clientName + '"',
+    '$WazuhGroup    = "' + group + '"',
+    '$WAZUH_MANAGER = "' + manager + '"',
+    '$WAZUH_URL     = "' + wazuhUrl + '"',
+    '$MESH_URL      = "' + meshUrl + '"',
+    '$VC_URL        = "' + vcUrl + '"',
+    '$LOG           = "$env:TEMP\\PalisadeOne-Onboard.log"',
     "",
     "function Write-Log {",
-    "    param([string]$Message, [string]$Level = 'INFO')",
-    "    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'",
-    "    $entry = \"[$timestamp] [$Level] $Message\"",
-    "    $color = if ($Level -eq 'ERROR') { 'Red' } elseif ($Level -eq 'WARN') { 'Yellow' } elseif ($Level -eq 'SUCCESS') { 'Green' } else { 'Cyan' }",
-    "    Write-Host $entry -ForegroundColor $color",
-    "    Add-Content -Path $LOG_FILE -Value $entry",
+    "    param([string]$Msg, [string]$Lvl = 'INFO')",
+    "    $ts = Get-Date -Format 'HH:mm:ss'",
+    "    $line = \"[$ts][$Lvl] $Msg\"",
+    "    $col = switch ($Lvl) { 'ERROR'{'Red'} 'WARN'{'Yellow'} 'SUCCESS'{'Green'} default{'Cyan'} }",
+    "    Write-Host $line -ForegroundColor $col",
+    "    Add-Content -Path $LOG -Value $line -ErrorAction SilentlyContinue",
     "}",
-    "",
-    "function Test-Admin {",
-    "    $p = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())",
-    "    return $p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)",
-    "}",
-    "",
-    "if (-not (Test-Admin)) { Write-Log 'Must run as Administrator.' 'ERROR'; exit 1 }",
     "",
     "Clear-Host",
-    'Write-Host "  PALISADE ONE - Onboarding: ' + clientName + '" -ForegroundColor Cyan',
-    'Write-Host "  Device: $env:COMPUTERNAME" -ForegroundColor Cyan',
+    'Write-Host "  ================================================" -ForegroundColor Cyan',
+    'Write-Host "   PALISADE ONE  -  Security Agent Installer" -ForegroundColor Cyan',
+    'Write-Host "   Client : ' + clientName + '" -ForegroundColor Cyan',
+    'Write-Host "   Device : $env:COMPUTERNAME" -ForegroundColor Cyan',
+    'Write-Host "  ================================================" -ForegroundColor Cyan',
     'Write-Host ""',
     "",
-    "# Step 1 - VC++ Redistributable",
+    "# Step 1 — VC++ Redistributable",
     "Write-Log 'Checking VC++ Redistributable...'",
     '$vcKey = "HKLM:\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\X64"',
     "if (-not (Test-Path $vcKey)) {",
-    "    Write-Log 'Installing VC++ Redistributable...'",
+    "    Write-Log 'Downloading VC++ Redistributable...'",
     '    $vcPath = "$env:TEMP\\vc_redist.exe"',
-    "    Invoke-WebRequest -Uri $VC_REDIST_URL -OutFile $vcPath -UseBasicParsing",
+    "    Invoke-WebRequest -Uri $VC_URL -OutFile $vcPath -UseBasicParsing",
     "    Start-Process -FilePath $vcPath -ArgumentList '/install /quiet /norestart' -Wait",
     "    Write-Log 'VC++ installed.' 'SUCCESS'",
-    "} else { Write-Log 'VC++ already installed.' 'SUCCESS' }",
+    "} else { Write-Log 'VC++ already present.' 'SUCCESS' }",
     "",
-    "# Step 2 - Wazuh EDR Agent",
-    "Write-Log 'Checking Wazuh agent...'",
+    "# Step 2 — Wazuh EDR Agent",
+    "Write-Log 'Checking Wazuh EDR agent...'",
     "if (-not (Get-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue)) {",
-    "    Write-Log 'Downloading Wazuh agent...'",
+    "    Write-Log 'Downloading Wazuh agent MSI...'",
     '    $msiPath = "$env:TEMP\\wazuh-agent.msi"',
-    "    Invoke-WebRequest -Uri $WAZUH_MSI_URL -OutFile $msiPath -UseBasicParsing",
+    "    Invoke-WebRequest -Uri $WAZUH_URL -OutFile $msiPath -UseBasicParsing",
     '    $agentName = ($ClientName -replace \'[^a-zA-Z0-9-]\',\'-\') + "-" + $env:COMPUTERNAME',
-    "    Write-Log \"Installing Wazuh agent as: $agentName\"",
-    '    $args = "/i `"$msiPath`" /q WAZUH_MANAGER=`"$WAZUH_MANAGER`" WAZUH_AGENT_NAME=`"$agentName`" WAZUH_REGISTRATION_SERVER=`"$WAZUH_MANAGER`""',
-    "    Start-Process 'msiexec.exe' -ArgumentList $args -Wait",
+    "    Write-Log \"Registering agent as: $agentName in group: $WazuhGroup\"",
+    '    $msiArgs = "/i `"$msiPath`" /q WAZUH_MANAGER=`"$WAZUH_MANAGER`" WAZUH_AGENT_NAME=`"$agentName`" WAZUH_REGISTRATION_SERVER=`"$WAZUH_MANAGER`" WAZUH_AGENT_GROUP=`"$WazuhGroup`""',
+    "    Start-Process 'msiexec.exe' -ArgumentList $msiArgs -Wait",
     "    Start-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue",
     "    if ((Get-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue).Status -eq 'Running') {",
-    "        Write-Log 'Wazuh agent installed and running.' 'SUCCESS'",
-    "    } else { Write-Log 'Wazuh may not have started - check manually.' 'WARN' }",
-    "} else { Write-Log 'Wazuh already installed.' 'WARN' }",
+    "        Write-Log 'Wazuh EDR agent installed and running.' 'SUCCESS'",
+    "    } else { Write-Log 'Wazuh may not have started — check dashboard.' 'WARN' }",
+    "} else { Write-Log 'Wazuh EDR already installed.' 'SUCCESS' }",
     "",
-    "# Step 3 - MeshCentral RMM Agent",
-    "Write-Log 'Checking MeshCentral agent...'",
+    "# Step 3 — MeshCentral RMM Agent",
+    "Write-Log 'Checking MeshCentral RMM agent...'",
     "if (-not (Get-Service -Name 'Mesh Agent' -ErrorAction SilentlyContinue)) {",
     "    Write-Log 'Downloading MeshCentral agent...'",
     '    $meshPath = "$env:TEMP\\meshagent.exe"',
@@ -1190,21 +1191,58 @@ function generateScriptContent(clientName) {
     "'@",
     "    [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAll",
     "    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12",
-    "    Invoke-WebRequest -Uri $MESH_AGENT_URL -OutFile $meshPath -UseBasicParsing",
-    "    Write-Log 'Installing MeshCentral agent...'",
+    "    Invoke-WebRequest -Uri $MESH_URL -OutFile $meshPath -UseBasicParsing",
+    "    Write-Log 'Installing MeshCentral RMM agent...'",
     "    Start-Process -FilePath $meshPath -ArgumentList '-install' -Wait -NoNewWindow",
     "    if (Get-Service -Name 'Mesh Agent' -ErrorAction SilentlyContinue) {",
-    "        Write-Log 'MeshCentral agent installed.' 'SUCCESS'",
-    "    } else { Write-Log 'MeshCentral may not have installed - check RMM console.' 'WARN' }",
-    "} else { Write-Log 'MeshCentral already installed.' 'WARN' }",
+    "        Write-Log 'MeshCentral RMM agent installed.' 'SUCCESS'",
+    "    } else { Write-Log 'MeshCentral may not have installed — check RMM console.' 'WARN' }",
+    "} else { Write-Log 'MeshCentral RMM already installed.' 'SUCCESS' }",
+    "",
+    "# Step 4 — PalisadeOne Isolation Response Scripts",
+    "Write-Log 'Deploying P1 isolation scripts...'",
+    "$arBin = 'C:\\Program Files (x86)\\ossec-agent\\active-response\\bin'",
+    "if (Test-Path $arBin) {",
+    "    '@echo off','setlocal','set M=178.156.234.30','netsh advfirewall firewall add rule name=\"P1-Wazuh-Out\" dir=out action=allow protocol=tcp remoteip=%M% remoteport=1514','netsh advfirewall firewall add rule name=\"P1-Wazuh-In\" dir=in action=allow protocol=tcp remoteip=%M%','netsh advfirewall firewall add rule name=\"P1-Loop-Out\" dir=out action=allow remoteip=127.0.0.1','netsh advfirewall firewall add rule name=\"P1-Loop-In\" dir=in action=allow remoteip=127.0.0.1','netsh advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound','echo PALISADEONE: Host isolated.' | Out-File \"$arBin\\isolate-win.bat\" -Encoding ASCII -Force",
+    "    '@echo off','netsh advfirewall firewall delete rule name=\"P1-Wazuh-Out\"','netsh advfirewall firewall delete rule name=\"P1-Wazuh-In\"','netsh advfirewall firewall delete rule name=\"P1-Loop-Out\"','netsh advfirewall firewall delete rule name=\"P1-Loop-In\"','netsh advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound','echo PALISADEONE: Host unisolated.' | Out-File \"$arBin\\unisolate-win.bat\" -Encoding ASCII -Force",
+    "    Write-Log 'Isolation scripts installed.' 'SUCCESS'",
+    "} else { Write-Log 'Wazuh AR path not found - run installer again after Wazuh installs.' 'WARN' }",
     "",
     'Write-Host ""',
-    'Write-Host "  ============================================" -ForegroundColor Green',
-    'Write-Host "  PALISADE ONE ONBOARDING COMPLETE" -ForegroundColor Green',
-    'Write-Host "  Client : ' + clientName + '" -ForegroundColor Green',
-    'Write-Host "  Device : $env:COMPUTERNAME" -ForegroundColor Green',
-    'Write-Host "  Log    : $LOG_FILE" -ForegroundColor Green',
-    'Write-Host "  ============================================" -ForegroundColor Green',
+    'Write-Host "  ================================================" -ForegroundColor Green',
+    'Write-Host "   ONBOARDING COMPLETE" -ForegroundColor Green',
+    'Write-Host "   Client : ' + clientName + '" -ForegroundColor Green',
+    'Write-Host "   Device : $env:COMPUTERNAME" -ForegroundColor Green',
+    'Write-Host "   Log    : $LOG" -ForegroundColor Green',
+    'Write-Host "   Device should appear in dashboard within 60s." -ForegroundColor Green',
+    'Write-Host "  ================================================" -ForegroundColor Green',
+    'Write-Host ""',
+    'Read-Host "Press Enter to close"',
+  ].join("\r\n");
+
+  // Wrap PowerShell in a self-elevating .cmd launcher
+  return [
+    "@echo off",
+    ":: PalisadeOne Security Agent Installer",
+    ":: Client: " + clientName,
+    ":: Generated: " + generated,
+    "::",
+    ":: Double-click to run. Automatically requests Administrator access.",
+    "",
+    "net session >nul 2>&1",
+    "if %errorLevel% neq 0 (",
+    "    echo Requesting Administrator privileges...",
+    "    powershell -Command \"Start-Process -FilePath cmd -ArgumentList '/c \\\"%~f0\\\"' -Verb RunAs -Wait\"",
+    "    exit /b",
+    ")",
+    "",
+    "set \"P1SELF=%~f0\"",
+    "powershell.exe -ExecutionPolicy Bypass -NoProfile -Command \"$s=[IO.File]::ReadAllText($env:P1SELF);$i=$s.IndexOf('<#PS#>')+6;$e=$s.LastIndexOf('<#/PS#>');if($i-gt5-and$e-gt$i){iex($s.Substring($i,$e-$i))}else{Write-Host 'Installer error: could not parse script.' -ForegroundColor Red;pause}\"",
+    "exit /b 0",
+    "",
+    "<#PS#>",
+    ps,
+    "<#/PS#>",
   ].join("\r\n");
 }
 
@@ -1499,7 +1537,7 @@ async function isolateAgent() {
   try {
     const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: 'firewall-drop5', arguments: [], alert: { data: { srcip: '0.0.0.0/0' } } })
+      body: JSON.stringify({ command: 'isolate-win', arguments: [] })
     });
     if (!res.ok) throw new Error(res.status);
     showToast('Isolation command sent. Verify in Wazuh.', 'success');
@@ -1508,28 +1546,30 @@ async function isolateAgent() {
 
 async function reconnectAgent() {
   if (!activeAgentId) return;
-  showToast('Sending restart command → agent ' + activeAgentId + '...', 'info');
+  showToast('Sending unisolate command → agent ' + activeAgentId + '...', 'info');
   try {
-    const res = await fetch(`${PROXY_URL}/agents/${activeAgentId}/restart`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' }
+    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ command: 'unisolate-win', arguments: [] })
     });
     if (!res.ok) throw new Error(res.status);
-    showToast('Agent restart command sent.', 'success');
-  } catch(e) { showToast('Manager API unreachable — proxy /agents/{id}/restart route required.', 'error'); }
+    showToast('Unisolate command sent — network access being restored.', 'success');
+  } catch(e) { showToast('Could not send unisolate command.', 'error'); }
 }
 
 async function runFDS() {
   if (!activeAgentId) return;
   const name = agentsData[activeAgentId]?.name || activeAgentId;
-  showToast('Dispatching Full Disk Scan → ' + name + '...', 'info');
+  showToast('Triggering Full Disk Scan on ' + name + '...', 'info');
   try {
-    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: 'run-fullscan', arguments: [] })
-    });
-    if (!res.ok) throw new Error(res.status);
-    showToast('FDS dispatched. Check Wazuh for scan progress.', 'success');
-  } catch(e) { showToast('Manager API unreachable — proxy /active-response route + run-fullscan script required.', 'error'); }
+    // Trigger syscheck (FIM) scan + rootcheck scan via Wazuh Manager API
+    const [r1, r2] = await Promise.all([
+      fetch(`${PROXY_URL}/syscheck/${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } }),
+      fetch(`${PROXY_URL}/rootcheck/${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } })
+    ]);
+    if (!r1.ok && !r2.ok) throw new Error('Both endpoints failed');
+    showToast('Full Disk Scan triggered — results appear in Wazuh within minutes.', 'success');
+  } catch(e) { showToast('FDS command failed — check agent connectivity.', 'error'); }
 }
 
 function openInMesh() {
@@ -1646,9 +1686,21 @@ function renderClientCard(client, deviceCount) {
     <div class="client-actions">
       <button class="client-btn" onclick="copyClientToken('${safeToken}')">📋 TOKEN</button>
       <button class="client-btn" onclick="window.open('client-view.html','_blank')">PORTAL</button>
+      <button class="client-btn" onclick="openClientInstaller('${(client.name||'').replace(/'/g,"\\'")}','${(client.wazuh_group||'').replace(/'/g,"\\'")}')">⬇ INSTALLER</button>
       <button class="client-btn danger" onclick="deleteClient('${client.id}')">✕ REMOVE</button>
     </div>
   </div>`;
+}
+
+function openClientInstaller(clientName, wazuhGroup) {
+  showView('onboarding');
+  const input = document.getElementById('client-name-input');
+  input.value = clientName;
+  input.dataset.wazuhGroup = wazuhGroup || '';
+  updatePreview();
+  // Scroll generator into view
+  setTimeout(() => input.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+  showToast('Ready to generate installer for ' + clientName, 'info');
 }
 
 function openAddClient() {
