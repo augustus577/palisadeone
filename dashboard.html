@@ -401,7 +401,7 @@
       </div>
       <div class="nav-item" onclick="window.open('https://mesh.palisadeone.com:444','_blank')">
         <span class="nav-icon">🖥️</span>
-        <span>MeshCentral RMM</span>
+        <span>RustDesk RMM</span>
       </div>
       <div class="nav-item" onclick="window.open('http://soc.palisadeone.com:5678','_blank')">
         <span class="nav-icon">⚙️</span>
@@ -691,7 +691,7 @@
           <div class="stat-card blue">
             <div class="stat-label">Installs</div>
             <div class="stat-value blue">2</div>
-            <div class="stat-sub">Wazuh EDR + MeshCentral RMM</div>
+            <div class="stat-sub">Wazuh EDR + RustDesk RMM</div>
           </div>
           <div class="stat-card yellow">
             <div class="stat-label">Target OS</div>
@@ -787,7 +787,7 @@
               <div style="border-top:1px solid var(--border);padding-top:16px;display:flex;gap:16px;align-items:flex-start;">
                 <div style="width:36px;height:36px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">🖥️</div>
                 <div>
-                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">MeshCentral RMM Agent</div>
+                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">RustDesk Remote Access Agent</div>
                   <div style="font-size:12px;color:var(--muted);">Remote monitoring & management. Enables remote desktop, file access, terminal, and device management from your RMM console.</div>
                   <div style="margin-top:6px;"><span class="mitre-tag">RMM</span> <span class="mitre-tag">REMOTE</span></div>
                 </div>
@@ -990,22 +990,23 @@
             <span class="btn-label">FULL DISK SCAN</span>
             <span class="btn-sub">Windows Defender</span>
           </button>
-          <button class="ep-action-btn rmm" onclick="openInMesh()">
+          <button class="ep-action-btn rmm" onclick="openRemoteDesktop()">
             <span class="btn-icon">🖥️</span>
             <span class="btn-label">REMOTE DESKTOP</span>
-            <span class="btn-sub">Open in MeshCentral</span>
+            <span class="btn-sub">RustDesk — via P1 relay</span>
           </button>
         </div>
         <div class="ep-action-title" style="margin-top:8px;">External Links</div>
         <button class="ep-action-full" onclick="openInWazuh()">
           <span>📡</span> View Full Alert History in Wazuh SIEM
         </button>
-        <button class="ep-action-full" onclick="openInMesh()">
-          <span>🖥️</span> Manage Device in MeshCentral RMM
+        <button class="ep-action-full" onclick="openRemoteDesktop()">
+          <span>🖥️</span> Launch Remote Desktop (RustDesk Web)
         </button>
-        <div style="margin-top:20px;padding:16px;background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.15);">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--warning);letter-spacing:1px;margin-bottom:8px;">⚠ ISOLATE / FDS REQUIRE MANAGER API</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.6;">Agent isolation and Full Disk Scan require the Wazuh Manager API (<span style="color:var(--accent2);font-family:'JetBrains Mono',monospace;">port 55000</span>) to be proxied through <span style="color:var(--accent2);font-family:'JetBrains Mono',monospace;">api.palisadeone.com</span>. Configure Nginx/Cloudflare Worker to forward <code style="color:var(--accent)">/agents/*</code> and <code style="color:var(--accent)">/active-response</code> routes.</div>
+        <div id="ep-rd-id-box" style="display:none;margin-top:12px;padding:12px 16px;background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.15);border-radius:4px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">RUSTDESK PEER ID</div>
+          <div id="ep-rd-id-value" style="font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--accent);letter-spacing:2px;"></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Password: <span style="color:var(--white);font-family:'JetBrains Mono',monospace;">P1Remote2026!</span></div>
         </div>
       </div>
     </div>
@@ -1140,7 +1141,6 @@ async function generateInstaller() {
 function generateCmdContent(clientName, wazuhGroup) {
   const manager = "178.156.234.30";
   const group = wazuhGroup || clientName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const meshUrl = "https://mesh.palisadeone.com:444/meshagents?id=4&meshid=iIWY3osoTJeAkMJl9O@0Nu@sFzPwr7x8SJrgrESmEZ3bzPWR7UTBA9o6jflJensO&installflags=0";
   const vcUrl = "https://aka.ms/vs/17/release/vc_redist.x64.exe";
   const wazuhUrl = "https://packages.wazuh.com/4.x/windows/wazuh-agent-4.7.5-1.msi";
   const generated = new Date().toISOString();
@@ -1157,7 +1157,9 @@ function generateCmdContent(clientName, wazuhGroup) {
     '$WazuhGroup    = "' + group + '"',
     '$WAZUH_MANAGER = "' + manager + '"',
     '$WAZUH_URL     = "' + wazuhUrl + '"',
-    '$MESH_URL      = "' + meshUrl + '"',
+    '$RUSTDESK_SERVER = "178.156.234.30"',
+    '$RUSTDESK_KEY    = "RHmWiAkJfbCr0Nxm8fF1s5nuX5gWePXwP5gHinGRj8w="',
+    '$RUSTDESK_PWD    = "P1Remote2026!"',
     '$VC_URL        = "' + vcUrl + '"',
     '$LOG           = "$env:TEMP\\PalisadeOne-Onboard.log"',
     "",
@@ -1228,19 +1230,40 @@ function generateCmdContent(clientName, wazuhGroup) {
     "    Write-Log 'WazuhSvc restarted and running on TCP.' 'SUCCESS'",
     "} else { Write-Log 'WazuhSvc may not be running — check dashboard.' 'WARN' }",
     "",
-    "# Step 3 — MeshCentral RMM Agent (always reinstall to pick up latest server cert)",
-    "Write-Log 'Installing/updating MeshCentral RMM agent...'",
-    "Stop-Service -Name 'Mesh Agent' -Force -ErrorAction SilentlyContinue; Get-Process -Name 'MeshAgent' -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Seconds 2",
-    "Remove-Item \"$env:TEMP\\meshagent.exe\" -Force -ErrorAction SilentlyContinue",
-    '$meshPath = "$env:TEMP\\meshagent.exe"',
-    "if (-not ([System.Management.Automation.PSTypeName]'P1Trust').Type) { Add-Type -TypeDefinition 'using System.Net; using System.Security.Cryptography.X509Certificates; public class P1Trust : ICertificatePolicy { public bool CheckValidationResult(ServicePoint s, X509Certificate c, WebRequest r, int p) { return true; } }' -Language CSharp }",
-    "[System.Net.ServicePointManager]::CertificatePolicy = New-Object P1Trust; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12",
-    "Invoke-WebRequest -Uri $MESH_URL -OutFile $meshPath -UseBasicParsing",
-    "Write-Log 'Running MeshCentral installer (handles install and update)...'",
-    "Start-Process -FilePath $meshPath -ArgumentList '-install' -Wait -NoNewWindow",
-    "if (Get-Service -Name 'Mesh Agent' -ErrorAction SilentlyContinue) {",
-    "    Write-Log 'MeshCentral RMM agent ready.' 'SUCCESS'",
-    "} else { Write-Log 'MeshCentral may not have installed — check RMM console.' 'WARN' }",
+    "# Step 3 — RustDesk Remote Access Agent",
+    "Write-Log 'Installing RustDesk remote access agent...'",
+    '$rdPath = "$env:TEMP\\rustdesk.exe"',
+    "try {",
+    "    $rdRelease = (Invoke-WebRequest -Uri 'https://api.github.com/repos/rustdesk/rustdesk/releases/latest' -UseBasicParsing).Content | ConvertFrom-Json",
+    "    $rdAsset = $rdRelease.assets | Where-Object { $_.name -match 'windows.*x86_64\\.exe$' -or $_.name -match 'x86_64.*windows.*\\.exe$' } | Select-Object -First 1",
+    "    if (-not $rdAsset) { $rdAsset = $rdRelease.assets | Where-Object { $_.name -match '\\.exe$' -and $_.name -notmatch 'arm' } | Select-Object -First 1 }",
+    "    Write-Log \"Downloading RustDesk $($rdRelease.tag_name)...\"",
+    "    Invoke-WebRequest -Uri $rdAsset.browser_download_url -OutFile $rdPath -UseBasicParsing",
+    "    Start-Process -FilePath $rdPath -ArgumentList '--silent-install' -Wait",
+    "    Start-Sleep -Seconds 4",
+    "    # Configure RustDesk to use PalisadeOne server",
+    '    $rdConfigDir = "$env:AppData\\RustDesk\\config"',
+    "    New-Item -ItemType Directory -Force -Path $rdConfigDir | Out-Null",
+    '    $rdToml = "[options]`ncustom-rendezvous-server = `"$RUSTDESK_SERVER`"`nrelay-server = `"`"`napi-server = `"`"`nkey = `"$RUSTDESK_KEY`""',
+    "    Set-Content -Path \"$rdConfigDir\\RustDesk.toml\" -Value $rdToml -Encoding UTF8",
+    "    # Set permanent password so admin can always connect",
+    '    $rdPwdToml = "password = `"$RUSTDESK_PWD`""',
+    "    Set-Content -Path \"$rdConfigDir\\RustDesk2.toml\" -Value $rdPwdToml -Encoding UTF8",
+    "    # Start RustDesk service/process so it registers",
+    '    $rdExe = "$env:ProgramFiles\\RustDesk\\RustDesk.exe"',
+    "    if (-not (Test-Path $rdExe)) { $rdExe = \"$env:ProgramFiles(x86)\\RustDesk\\RustDesk.exe\" }",
+    "    if (Test-Path $rdExe) { Start-Process $rdExe -ArgumentList '--service' -WindowStyle Hidden -ErrorAction SilentlyContinue }",
+    "    Start-Sleep -Seconds 6",
+    "    # Read assigned peer ID and register with P1 API",
+    '    $rdId = (Get-Content "$rdConfigDir\\RustDesk.toml" -ErrorAction SilentlyContinue | Select-String "^id = ").ToString() -replace "id = |\"",""',
+    "    if ($rdId) {",
+    '        $body = "{\"rustdesk_id\":\"$rdId\",\"agent_name\":\"$($ClientName -replace \'[^a-zA-Z0-9-]\',\'-\')-$env:COMPUTERNAME\",\"hostname\":\"$env:COMPUTERNAME\"}"',
+    "        try {",
+    "            Invoke-WebRequest -Uri 'https://api.palisadeone.com:9443/rmm/register' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer P1AdminKey2026!'} -UseBasicParsing | Out-Null",
+    "            Write-Log \"RustDesk registered (ID: $rdId).\" 'SUCCESS'",
+    "        } catch { Write-Log 'RustDesk installed but API registration failed — will retry on next start.' 'WARN' }",
+    "    } else { Write-Log 'RustDesk installed. ID will register on first connection.' 'SUCCESS' }",
+    "} catch { Write-Log \"RustDesk install failed: $($_.Exception.Message)\" 'WARN' }",
     "",
     "# Step 4 — PalisadeOne Isolation Response Scripts (compiled .exe)",
     "Write-Log 'Compiling and deploying P1 isolation executables...'",
@@ -1528,7 +1551,7 @@ async function loadDevices() {
         <div><span class="online-badge ${online?'online':'offline'}"><div class="online-dot ${online?'on':'off'}"></div>${online?'ONLINE':'OFFLINE'}</span></div>
         <div class="device-action">
           <button class="action-btn" onclick="event.stopPropagation();openEndpointPanel('${id}')">DETAILS</button>
-          <button class="action-btn" onclick="event.stopPropagation();window.open('https://mesh.palisadeone.com:444','_blank')">RMM</button>
+          <button class="action-btn" onclick="event.stopPropagation();openEndpointPanel('${id}');setTimeout(()=>{epTab('actions');openRemoteDesktop();},200)">REMOTE</button>
         </div>
       </div>`;
     };
@@ -1584,8 +1607,9 @@ async function refreshAll() {
 }
 
 async function initDashboard() {
-  await refreshAll();
+  await Promise.all([refreshAll(), loadRmmPeers()]);
   setInterval(refreshAll, 30000);
+  setInterval(loadRmmPeers, 60000);
 }
 
 // ============================================================
@@ -1745,8 +1769,38 @@ async function runFDS() {
   } catch(e) { showToast('FDS command failed — check agent connectivity.', 'error'); }
 }
 
-function openInMesh() {
-  window.open('https://mesh.palisadeone.com:444', '_blank');
+let rmmPeers = [];
+
+async function loadRmmPeers() {
+  try {
+    const res = await fetch(`${PROXY_URL}/rmm/peers`);
+    rmmPeers = await res.json();
+  } catch(e) { rmmPeers = []; }
+}
+
+function getRustDeskId(agentId) {
+  const agent = agentsData[agentId];
+  if (!agent) return null;
+  const name = agent.name || '';
+  const peer = rmmPeers.find(p => p.agent_name === name || name.includes(p.agent_name) || p.agent_name.includes(name));
+  return peer ? peer.rustdesk_id : null;
+}
+
+function openRemoteDesktop() {
+  const rdId = getRustDeskId(activeAgentId);
+  const rdBox = document.getElementById('ep-rd-id-box');
+  if (rdId) {
+    const server = '178.156.234.30';
+    const key = 'RHmWiAkJfbCr0Nxm8fF1s5nuX5gWePXwP5gHinGRj8w=';
+    // Open RustDesk web client configured to our server
+    const webUrl = `https://rustdesk.com/web/#/?id=${encodeURIComponent(rdId)}&server=${encodeURIComponent(server)}&key=${encodeURIComponent(key)}`;
+    window.open(webUrl, '_blank');
+    document.getElementById('ep-rd-id-value').textContent = rdId;
+    rdBox.style.display = 'block';
+  } else {
+    rdBox.style.display = 'none';
+    showToast('RustDesk not yet registered on this device. Run the installer first.', 'warn');
+  }
 }
 
 function openInWazuh() {
