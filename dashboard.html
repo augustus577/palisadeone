@@ -1090,7 +1090,7 @@ function updatePreview() {
   document.getElementById('install-preview').textContent = `Double-click: PalisadeOne-${safeName}-Setup.cmd  (auto-elevates to Admin)`;
 }
 
-function generateInstaller() {
+async function generateInstaller() {
   const clientName = document.getElementById('client-name-input').value.trim();
   const wazuhGroup = document.getElementById('client-name-input').dataset.wazuhGroup || '';
   if (!clientName) {
@@ -1098,8 +1098,18 @@ function generateInstaller() {
     setTimeout(() => document.getElementById('client-name-input').style.borderColor = 'var(--border)', 2000);
     return;
   }
+  const group = wazuhGroup || clientName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  // Auto-create the Wazuh group on the server if it doesn't exist
+  try {
+    await fetch(`${PROXY_URL}/groups`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ group_id: group })
+    });
+  } catch(e) { /* group may already exist, that's fine */ }
+
   const safeName = clientName.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-');
-  const script = generateCmdContent(clientName, wazuhGroup);
+  const script = generateCmdContent(clientName, group);
   const blob = new Blob([script], {type: 'text/plain'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1108,7 +1118,7 @@ function generateInstaller() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
-  showToast('Installer downloaded — send to client, they just double-click it.', 'success');
+  showToast('Installer downloaded — Wazuh group ready, send to client.', 'success');
 }
 
 function generateCmdContent(clientName, wazuhGroup) {
