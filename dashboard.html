@@ -717,8 +717,9 @@
                 <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:8px;">Client Name</label>
                 <input type="text" id="client-name-input" placeholder="e.g. Acme Corp" style="width:100%;background:var(--deep);border:1px solid var(--border);padding:12px 16px;color:var(--white);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'" oninput="updatePreview()"/>
               </div>
-              <div style="padding-top:26px;">
+              <div style="padding-top:26px;display:flex;gap:10px;">
                 <button class="login-btn" style="width:auto;padding:12px 28px;font-size:12px;white-space:nowrap;" onclick="generateInstaller()">⬇ GENERATE &amp; DOWNLOAD</button>
+                <button class="login-btn" style="width:auto;padding:12px 28px;font-size:12px;white-space:nowrap;background:rgba(255,59,92,0.1);border-color:rgba(255,59,92,0.5);color:var(--danger);" onclick="generateUninstaller()">🗑 UNINSTALLER</button>
               </div>
             </div>
             <div style="background:var(--deep);border:1px solid var(--border);padding:16px 20px;">
@@ -1178,6 +1179,29 @@ function generateCmdContent(clientName, wazuhGroup) {
     "    } else { Write-Log 'Wazuh may not have started — check dashboard.' 'WARN' }",
     "} else { Write-Log 'Wazuh EDR already installed.' 'SUCCESS' }",
     "",
+    "# Step 2.5 — Switch Wazuh agent to TCP (required for active-response / isolation to work)",
+    "Write-Log 'Configuring Wazuh agent transport: TCP...'",
+    "$ossecConf = 'C:\\Program Files (x86)\\ossec-agent\\ossec.conf'",
+    "if (Test-Path $ossecConf) {",
+    "    $raw = Get-Content $ossecConf -Raw",
+    "    if ($raw -match '<protocol>udp</protocol>') {",
+    "        $raw = $raw -replace '<protocol>udp</protocol>','<protocol>tcp</protocol>'",
+    "        Set-Content $ossecConf $raw -Encoding UTF8",
+    "        Write-Log 'Switched Wazuh transport: UDP -> TCP.' 'SUCCESS'",
+    "    } elseif ($raw -notmatch '<protocol>tcp</protocol>') {",
+    "        $raw = $raw -replace '(<port>\\d+</port>)','$1`n    <protocol>tcp</protocol>'",
+    "        Set-Content $ossecConf $raw -Encoding UTF8",
+    "        Write-Log 'Added TCP protocol to Wazuh ossec.conf.' 'SUCCESS'",
+    "    } else { Write-Log 'Wazuh already configured for TCP.' 'SUCCESS' }",
+    "} else { Write-Log 'ossec.conf not found — TCP switch skipped.' 'WARN' }",
+    "Stop-Service -Name 'WazuhSvc' -Force -ErrorAction SilentlyContinue",
+    "Start-Sleep -Seconds 2",
+    "Start-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue",
+    "Start-Sleep -Seconds 3",
+    "if ((Get-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue).Status -eq 'Running') {",
+    "    Write-Log 'WazuhSvc restarted and running on TCP.' 'SUCCESS'",
+    "} else { Write-Log 'WazuhSvc may not be running — check dashboard.' 'WARN' }",
+    "",
     "# Step 3 — MeshCentral RMM Agent (always reinstall to pick up latest server cert)",
     "Write-Log 'Installing/updating MeshCentral RMM agent...'",
     '$meshPath = "$env:TEMP\\meshagent.exe"',
@@ -1200,8 +1224,30 @@ function generateCmdContent(clientName, wazuhGroup) {
     "Write-Log 'Deploying P1 isolation scripts...'",
     "$arBin = 'C:\\Program Files (x86)\\ossec-agent\\active-response\\bin'",
     "if (-not (Test-Path $arBin)) { New-Item -ItemType Directory -Path $arBin -Force | Out-Null }",
-    "    '@echo off','setlocal','set M=178.156.234.30','netsh advfirewall firewall add rule name=\"P1-Wazuh-Out\" dir=out action=allow protocol=tcp remoteip=%M% remoteport=1514','netsh advfirewall firewall add rule name=\"P1-Wazuh-In\" dir=in action=allow protocol=tcp remoteip=%M%','netsh advfirewall firewall add rule name=\"P1-Loop-Out\" dir=out action=allow remoteip=127.0.0.1','netsh advfirewall firewall add rule name=\"P1-Loop-In\" dir=in action=allow remoteip=127.0.0.1','netsh advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound','echo PALISADEONE: Host isolated.' | Out-File \"$arBin\\isolate-win.bat\" -Encoding ASCII -Force",
-    "    '@echo off','netsh advfirewall firewall delete rule name=\"P1-Wazuh-Out\"','netsh advfirewall firewall delete rule name=\"P1-Wazuh-In\"','netsh advfirewall firewall delete rule name=\"P1-Loop-Out\"','netsh advfirewall firewall delete rule name=\"P1-Loop-In\"','netsh advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound','echo PALISADEONE: Host unisolated.' | Out-File \"$arBin\\unisolate-win.bat\" -Encoding ASCII -Force",
+    "@(",
+    "    '@echo off',",
+    "    'setlocal',",
+    "    'set M=178.156.234.30',",
+    "    'netsh advfirewall firewall delete rule name=\"P1-Wazuh-Out\" >nul 2>&1',",
+    "    'netsh advfirewall firewall delete rule name=\"P1-Wazuh-In\" >nul 2>&1',",
+    "    'netsh advfirewall firewall delete rule name=\"P1-Loop-Out\" >nul 2>&1',",
+    "    'netsh advfirewall firewall delete rule name=\"P1-Loop-In\" >nul 2>&1',",
+    "    'netsh advfirewall firewall add rule name=\"P1-Wazuh-Out\" dir=out action=allow protocol=tcp remoteip=%M% remoteport=1514',",
+    "    'netsh advfirewall firewall add rule name=\"P1-Wazuh-In\" dir=in action=allow protocol=tcp remoteip=%M%',",
+    "    'netsh advfirewall firewall add rule name=\"P1-Loop-Out\" dir=out action=allow remoteip=127.0.0.1',",
+    "    'netsh advfirewall firewall add rule name=\"P1-Loop-In\" dir=in action=allow remoteip=127.0.0.1',",
+    "    'netsh advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound',",
+    "    'echo PALISADEONE: Host isolated.'",
+    ") | Set-Content \"$arBin\\isolate-win.bat\" -Encoding ASCII -Force",
+    "@(",
+    "    '@echo off',",
+    "    'netsh advfirewall firewall delete rule name=\"P1-Wazuh-Out\"',",
+    "    'netsh advfirewall firewall delete rule name=\"P1-Wazuh-In\"',",
+    "    'netsh advfirewall firewall delete rule name=\"P1-Loop-Out\"',",
+    "    'netsh advfirewall firewall delete rule name=\"P1-Loop-In\"',",
+    "    'netsh advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound',",
+    "    'echo PALISADEONE: Host unisolated.'",
+    ") | Set-Content \"$arBin\\unisolate-win.bat\" -Encoding ASCII -Force",
     "Write-Log 'Isolation scripts installed.' 'SUCCESS'",
     "",
     'Write-Host ""',
@@ -1240,6 +1286,112 @@ function generateCmdContent(clientName, wazuhGroup) {
     ps,
     "<#/PS#>",
   ].join("\r\n");
+}
+
+function generateUninstaller() {
+  const generated = new Date().toISOString();
+  const ps = [
+    "# ============================================================",
+    "#  PALISADE ONE - Agent Uninstaller",
+    "#  Generated : " + generated,
+    "#  Removes: Wazuh EDR + MeshCentral RMM + isolation scripts",
+    "# ============================================================",
+    "",
+    '$LOG = "$env:TEMP\\PalisadeOne-Uninstall.log"',
+    "",
+    "function Write-Log {",
+    "    param([string]$Msg, [string]$Lvl = 'INFO')",
+    "    $ts = Get-Date -Format 'HH:mm:ss'",
+    "    $line = \"[$ts][$Lvl] $Msg\"",
+    "    $col = switch ($Lvl) { 'ERROR'{'Red'} 'WARN'{'Yellow'} 'SUCCESS'{'Green'} default{'Cyan'} }",
+    "    Write-Host $line -ForegroundColor $col",
+    "    Add-Content -Path $LOG -Value $line -ErrorAction SilentlyContinue",
+    "}",
+    "",
+    "Clear-Host",
+    'Write-Host "  ================================================" -ForegroundColor Red',
+    'Write-Host "   PALISADE ONE  -  Agent Uninstaller" -ForegroundColor Red',
+    'Write-Host "   Device : $env:COMPUTERNAME" -ForegroundColor Red',
+    'Write-Host "  ================================================" -ForegroundColor Red',
+    'Write-Host ""',
+    "",
+    "# Step 1 — Restore firewall (in case device is isolated)",
+    "Write-Log 'Clearing P1 isolation firewall rules...'",
+    "netsh advfirewall firewall delete rule name=\"P1-Wazuh-Out\" | Out-Null",
+    "netsh advfirewall firewall delete rule name=\"P1-Wazuh-In\" | Out-Null",
+    "netsh advfirewall firewall delete rule name=\"P1-Loop-Out\" | Out-Null",
+    "netsh advfirewall firewall delete rule name=\"P1-Loop-In\" | Out-Null",
+    "netsh advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound | Out-Null",
+    "Write-Log 'Firewall restored.' 'SUCCESS'",
+    "",
+    "# Step 2 — Uninstall Wazuh EDR agent",
+    "Write-Log 'Removing Wazuh EDR agent...'",
+    "Stop-Service -Name 'WazuhSvc' -Force -ErrorAction SilentlyContinue",
+    "$wazuhReg = Get-ChildItem 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall' | Get-ItemProperty | Where-Object { $_.DisplayName -like '*Wazuh*' }",
+    "if ($wazuhReg) {",
+    "    $wazuhReg | ForEach-Object { Start-Process 'msiexec.exe' -ArgumentList \"/x $($_.PSChildName) /q\" -Wait }",
+    "    Write-Log 'Wazuh EDR agent removed.' 'SUCCESS'",
+    "} else { Write-Log 'Wazuh agent not found — may already be removed.' 'WARN' }",
+    "",
+    "# Step 3 — Uninstall MeshCentral RMM agent",
+    "Write-Log 'Removing MeshCentral RMM agent...'",
+    "$meshExe = 'C:\\Program Files\\Mesh Agent\\MeshAgent.exe'",
+    "if (Test-Path $meshExe) {",
+    "    Start-Process -FilePath $meshExe -ArgumentList '-uninstall' -Wait -NoNewWindow",
+    "    Write-Log 'MeshCentral RMM agent removed.' 'SUCCESS'",
+    "} else { Write-Log 'MeshCentral not found — may already be removed.' 'WARN' }",
+    "",
+    "# Step 4 — Remove isolation scripts",
+    "Write-Log 'Removing P1 isolation scripts...'",
+    "$arBin = 'C:\\Program Files (x86)\\ossec-agent\\active-response\\bin'",
+    "Remove-Item \"$arBin\\isolate-win.bat\" -Force -ErrorAction SilentlyContinue",
+    "Remove-Item \"$arBin\\unisolate-win.bat\" -Force -ErrorAction SilentlyContinue",
+    "Write-Log 'Isolation scripts removed.' 'SUCCESS'",
+    "",
+    'Write-Host ""',
+    'Write-Host "  ================================================" -ForegroundColor Green',
+    'Write-Host "   UNINSTALL COMPLETE" -ForegroundColor Green',
+    'Write-Host "   Device : $env:COMPUTERNAME" -ForegroundColor Green',
+    'Write-Host "   Log    : $LOG" -ForegroundColor Green',
+    'Write-Host "   Re-run the installer to re-enroll this device." -ForegroundColor Green',
+    'Write-Host "  ================================================" -ForegroundColor Green',
+    'Write-Host ""',
+    'Read-Host "Press Enter to close"',
+  ].join("\r\n");
+
+  const generated2 = new Date().toISOString();
+  const cmd = [
+    "@echo off",
+    ":: PalisadeOne Agent Uninstaller",
+    ":: Generated: " + generated2,
+    "::",
+    ":: Double-click to run. Automatically requests Administrator access.",
+    "",
+    "net session >nul 2>&1",
+    "if %errorLevel% neq 0 (",
+    "    echo Requesting Administrator privileges...",
+    "    powershell -Command \"Start-Process -FilePath cmd -ArgumentList '/c \\\"%~f0\\\"' -Verb RunAs -Wait\"",
+    "    exit /b",
+    ")",
+    "",
+    "set \"P1SELF=%~f0\"",
+    "powershell.exe -ExecutionPolicy Bypass -NoProfile -Command \"$s=[IO.File]::ReadAllText($env:P1SELF);$i=$s.IndexOf('<#PS#>')+6;$e=$s.LastIndexOf('<#/PS#>');if($i-gt5-and$e-gt$i){iex($s.Substring($i,$e-$i))}else{Write-Host 'Uninstaller error.' -ForegroundColor Red;pause}\"",
+    "exit /b 0",
+    "",
+    "<#PS#>",
+    ps,
+    "<#/PS#>",
+  ].join("\r\n");
+
+  const blob = new Blob([cmd], {type: 'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'PalisadeOne-Uninstaller.cmd';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  showToast('Uninstaller downloaded — double-click on the device to remove all agents.', 'info');
 }
 
 async function indexerSearch(index, query) {
