@@ -2648,6 +2648,8 @@ document.getElementById('policyModal').addEventListener('click',function(e){
 });
 
 // VULNERABILITY SCANNING
+const SCAN_API = 'https://api.palisadeone.com:9443';
+const SCAN_TOKEN = 'P1AdminKey2026!';
 let scanState = {
   type: 'external',
   scans: [],
@@ -2660,7 +2662,7 @@ function selectScanType(type, el) {
   el.classList.add('selected');
 }
 
-function startVulnScan() {
+async function startVulnScan() {
   const name = document.getElementById('scanName').value || 'Untitled Scan';
   const targets = document.getElementById('scanTargets').value.trim();
   const profile = document.getElementById('scanProfile').value;
@@ -2668,13 +2670,16 @@ function startVulnScan() {
 
   if(!targets) { alert('Please enter at least one target IP, range, or domain.'); return; }
 
+  const targetList = targets.split('\n').map(t=>t.trim()).filter(Boolean);
+  const exclusionList = exclusions ? exclusions.split('\n').map(t=>t.trim()).filter(Boolean) : [];
+
   const scan = {
-    id: 'scan_' + Date.now(),
+    id: null,
     name: name,
     type: scanState.type,
-    profile: profile,
-    targets: targets.split('\n').filter(t=>t.trim()),
-    exclusions: exclusions ? exclusions.split('\n').filter(t=>t.trim()) : [],
+    profile: profile === 'full' ? 'standard' : profile === 'quick' ? 'quick' : profile === 'web' ? 'standard' : 'deep',
+    targets: targetList,
+    exclusions: exclusionList,
     startTime: new Date(),
     status: 'running',
     progress: 0,
@@ -2682,74 +2687,87 @@ function startVulnScan() {
   };
 
   scanState.currentScan = scan;
-  scanState.scans.unshift(scan);
   renderScanProgress(scan);
-  simulateScan(scan);
+
+  try {
+    const resp = await fetch(SCAN_API + '/scan/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SCAN_TOKEN },
+      body: JSON.stringify({ type: scanState.type, profile: scan.profile, targets: targetList, exclusions: exclusionList })
+    });
+    const data = await resp.json();
+    if(!resp.ok) throw new Error(data.error || 'Scan failed to start');
+    scan.id = data.id;
+    scanState.scans.unshift(scan);
+    pollScanStatus(scan);
+  } catch(e) {
+    scan.status = 'error';
+    const area = document.getElementById('scanResultsArea');
+    area.innerHTML = `<div class="scan-results-wrap"><div class="sr-header"><div class="sr-status" style="background:rgba(255,59,92,0.15);color:#FF3B5C">ERROR</div><div class="sr-title">Scan Failed</div><div class="sr-meta">${e.message}</div></div></div>`;
+  }
 }
 
-function simulateScan(scan) {
-  const profileNames = {full:'Full Vulnerability Scan',quick:'Quick Scan',web:'Web Application Scan',compliance:'Compliance Scan'};
-  const typeNames = {external:'EXTERNAL',internal:'INTERNAL',webapp:'WEB APP'};
+function pollScanStatus(scan) {
   let progress = 0;
-  const interval = setInterval(()=>{
-    progress += Math.random() * 8 + 2;
-    if(progress >= 100) {
-      progress = 100;
-      clearInterval(interval);
-      scan.status = 'complete';
-      scan.progress = 100;
-      scan.endTime = new Date();
-      scan.findings = generateScanFindings(scan);
-      renderScanResults(scan);
-      renderScanHistory();
-    } else {
-      scan.progress = Math.round(progress);
-      updateScanProgress(scan);
+  const pollInterval = setInterval(async ()=>{
+    try {
+      const resp = await fetch(SCAN_API + '/scan/status/' + scan.id);
+      const data = await resp.json();
+
+      if(data.status === 'completed' || data.status === 'error') {
+        clearInterval(pollInterval);
+        scan.progress = 100;
+        updateScanProgress(scan);
+
+        // Fetch full results
+        const resResp = await fetch(SCAN_API + '/scan/results/' + scan.id);
+        const results = await resResp.json();
+
+        scan.status = data.status === 'error' ? 'error' : 'complete';
+        scan.endTime = new Date(data.completedAt || Date.now());
+        scan.findings = (results.findings || []).map((f, i) => ({
+          id: 'f' + i,
+          name: f.title || 'Unknown',
+          sev: mapSeverity(f.severity),
+          cvss: f.cvss || 0,
+          port: f.port || 0,
+          service: f.service || '',
+          host: f.host || '',
+          solution: f.solution || 'Refer to vendor advisory',
+          source: f.source || '',
+          cve: f.cve || null,
+          description: f.description || ''
+        }));
+
+        if(data.status === 'error' && data.error) {
+          scan.findings = [];
+          const area = document.getElementById('scanResultsArea');
+          area.innerHTML = `<div class="scan-results-wrap"><div class="sr-header"><div class="sr-status" style="background:rgba(255,59,92,0.15);color:#FF3B5C">ERROR</div><div class="sr-title">Scan Error</div><div class="sr-meta">${data.error}</div></div></div>`;
+        } else {
+          renderScanResults(scan);
+        }
+        renderScanHistory();
+      } else {
+        // Still running - increment progress smoothly
+        progress = Math.min(progress + Math.random() * 5 + 1, 95);
+        scan.progress = Math.round(progress);
+        updateScanProgress(scan);
+      }
+    } catch(e) {
+      // Network error - keep polling
+      console.error('[scan poll]', e);
     }
-  }, 400);
+  }, 3000);
 }
 
-function generateScanFindings(scan) {
-  const vulnDB = [
-    {name:'Apache HTTP Server CVE-2024-38476 - SSRF via mod_rewrite',sev:'crit',cvss:9.8,port:443,service:'HTTPS',solution:'Update Apache to 2.4.62+'},
-    {name:'OpenSSH CVE-2024-6387 - Remote Code Execution (regreSSHion)',sev:'crit',cvss:9.1,port:22,service:'SSH',solution:'Update OpenSSH to 9.8p1+'},
-    {name:'SMBv1 Enabled - EternalBlue Vulnerability (MS17-010)',sev:'crit',cvss:9.8,port:445,service:'SMB',solution:'Disable SMBv1, apply MS17-010 patch'},
-    {name:'TLS 1.0/1.1 Enabled - Protocol Downgrade Risk',sev:'high',cvss:7.5,port:443,service:'HTTPS',solution:'Disable TLS 1.0 and 1.1, enforce TLS 1.2+'},
-    {name:'SSL Certificate Expiring Within 30 Days',sev:'high',cvss:7.0,port:443,service:'HTTPS',solution:'Renew SSL certificate before expiration'},
-    {name:'WordPress Version Outdated (< 6.5)',sev:'high',cvss:7.8,port:80,service:'HTTP',solution:'Update WordPress to latest version'},
-    {name:'RDP Exposed to Internet Without NLA',sev:'high',cvss:8.1,port:3389,service:'RDP',solution:'Enable NLA, restrict RDP to VPN only'},
-    {name:'MySQL Default Root Password',sev:'crit',cvss:9.0,port:3306,service:'MySQL',solution:'Change default credentials immediately'},
-    {name:'DNS Zone Transfer Allowed (AXFR)',sev:'med',cvss:5.3,port:53,service:'DNS',solution:'Restrict zone transfers to authorized IPs'},
-    {name:'HTTP Security Headers Missing (CSP, HSTS, X-Frame)',sev:'med',cvss:5.0,port:443,service:'HTTPS',solution:'Add Content-Security-Policy, HSTS, X-Frame-Options headers'},
-    {name:'SNMP Public Community String',sev:'high',cvss:7.5,port:161,service:'SNMP',solution:'Change community string, restrict SNMP access'},
-    {name:'FTP Anonymous Login Allowed',sev:'high',cvss:7.5,port:21,service:'FTP',solution:'Disable anonymous FTP access'},
-    {name:'PHP Version End-of-Life (< 8.1)',sev:'med',cvss:6.5,port:80,service:'HTTP',solution:'Upgrade PHP to supported version (8.2+)'},
-    {name:'ICMP Timestamp Response Enabled',sev:'low',cvss:2.1,port:0,service:'ICMP',solution:'Disable ICMP timestamp responses'},
-    {name:'SSH Weak Key Exchange Algorithms',sev:'med',cvss:5.9,port:22,service:'SSH',solution:'Disable diffie-hellman-group1-sha1 and weak KEX'},
-    {name:'Server Version Disclosure in HTTP Headers',sev:'low',cvss:2.0,port:80,service:'HTTP',solution:'Remove Server header version information'},
-    {name:'jQuery Version < 3.5.0 - XSS Vulnerability',sev:'med',cvss:6.1,port:443,service:'HTTPS',solution:'Update jQuery to 3.7+'},
-    {name:'Cross-Site Request Forgery (CSRF) - Missing Token',sev:'med',cvss:6.5,port:443,service:'HTTPS',solution:'Implement CSRF tokens on all forms'},
-    {name:'Directory Listing Enabled',sev:'med',cvss:5.3,port:80,service:'HTTP',solution:'Disable directory listing in web server config'},
-    {name:'X-Powered-By Header Information Leak',sev:'info',cvss:0,port:80,service:'HTTP',solution:'Remove X-Powered-By header'},
-    {name:'SSL/TLS Weak Cipher Suites Supported',sev:'med',cvss:5.9,port:443,service:'HTTPS',solution:'Disable weak cipher suites (RC4, DES, 3DES)'},
-    {name:'Windows SMB Signing Not Required',sev:'med',cvss:5.9,port:445,service:'SMB',solution:'Enable SMB signing requirement via GPO'},
-    {name:'LDAP Cleartext Authentication Allowed',sev:'high',cvss:7.5,port:389,service:'LDAP',solution:'Enforce LDAPS (port 636) and disable cleartext LDAP'},
-    {name:'NTP Mode 6 Queries Enabled',sev:'low',cvss:3.1,port:123,service:'NTP',solution:'Disable NTP mode 6 queries'}
-  ];
-
-  const count = scan.profile === 'full' ? Math.floor(Math.random()*8)+8 :
-                scan.profile === 'quick' ? Math.floor(Math.random()*5)+4 :
-                scan.profile === 'web' ? Math.floor(Math.random()*6)+5 :
-                Math.floor(Math.random()*7)+6;
-
-  const shuffled = vulnDB.sort(()=>Math.random()-0.5);
-  const selected = shuffled.slice(0, Math.min(count, shuffled.length));
-
-  return selected.map((v,i) => ({
-    ...v,
-    id: 'f'+i,
-    host: scan.targets[Math.floor(Math.random()*scan.targets.length)]
-  }));
+function mapSeverity(sev) {
+  if(!sev) return 'info';
+  sev = sev.toLowerCase();
+  if(sev === 'critical') return 'crit';
+  if(sev === 'high') return 'high';
+  if(sev === 'medium') return 'med';
+  if(sev === 'low') return 'low';
+  return 'info';
 }
 
 function renderScanProgress(scan) {
@@ -2809,7 +2827,7 @@ function renderScanResults(scan) {
               <td style="color:var(--white);font-weight:400">${v.name}</td>
               <td style="font-family:'JetBrains Mono',monospace;font-size:10px">${v.host}</td>
               <td style="font-family:'JetBrains Mono',monospace;font-size:10px">${v.port||'—'}</td>
-              <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${v.cvss>=9?'#FF3B5C':v.cvss>=7?'#F5A623':v.cvss>=4?'#00FFD1':'#4A6080'}">${v.cvss.toFixed(1)}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${(v.cvss||0)>=9?'#FF3B5C':(v.cvss||0)>=7?'#F5A623':(v.cvss||0)>=4?'#00FFD1':'#4A6080'}">${v.cvss!=null?v.cvss.toFixed(1):'—'}</td>
               <td style="font-size:10px;color:var(--muted)">${v.solution}</td>
             </tr>`).join('')}
         </tbody>
@@ -2823,22 +2841,51 @@ function renderScanResults(scan) {
 
 function renderScanHistory() {
   const list = document.getElementById('scanHistoryList');
-  if(scanState.scans.length === 0) return;
+  if(scanState.scans.length === 0) {
+    list.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px;font-size:12px">No scan history yet</div>';
+    return;
+  }
   list.innerHTML = scanState.scans.map(s => {
     const crits = s.findings ? s.findings.filter(v=>v.sev==='crit').length : 0;
     const highs = s.findings ? s.findings.filter(v=>v.sev==='high').length : 0;
     const total = s.findings ? s.findings.length : 0;
+    const dateStr = s.startTime instanceof Date ? s.startTime.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : new Date(s.startTime).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     return `<div class="scan-history-row" onclick="${s.status==='complete'?`renderScanResults(scanState.scans.find(x=>x.id==='${s.id}'))`:''}">
-      <div class="shr-type">${s.type.toUpperCase()}</div>
-      <div class="shr-target">${s.name} — ${s.targets.join(', ')}</div>
+      <div class="shr-type">${(s.type||'external').toUpperCase()}</div>
+      <div class="shr-target">${s.name||'Scan'} — ${(s.targets||[]).join(', ')}</div>
       <div class="shr-findings">
         ${crits?`<span class="shr-badge" style="color:#FF3B5C;border:1px solid rgba(255,59,92,0.3)">${crits} CRIT</span>`:''}
         ${highs?`<span class="shr-badge" style="color:#F5A623;border:1px solid rgba(245,166,35,0.3)">${highs} HIGH</span>`:''}
         <span class="shr-badge" style="color:var(--muted);border:1px solid var(--border)">${total} TOTAL</span>
       </div>
-      <div class="shr-date">${s.startTime.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+      <div class="shr-date">${dateStr}</div>
     </div>`;
   }).join('');
+}
+
+async function loadScanHistory() {
+  try {
+    const resp = await fetch(SCAN_API + '/scan/list');
+    const list = await resp.json();
+    for(const s of list) {
+      if(!scanState.scans.find(x=>x.id===s.id)) {
+        scanState.scans.push({
+          id: s.id,
+          name: s.targets ? s.targets.join(', ') : 'Scan',
+          type: s.type || 'external',
+          profile: s.profile || 'standard',
+          targets: s.targets || [],
+          startTime: new Date(s.startedAt),
+          endTime: s.completedAt ? new Date(s.completedAt) : null,
+          status: s.status === 'completed' ? 'complete' : s.status,
+          progress: s.status === 'completed' ? 100 : 0,
+          findings: [],
+          findingCount: s.findingCount || 0
+        });
+      }
+    }
+    renderScanHistory();
+  } catch(e) { console.error('[scan history]', e); }
 }
 
 function exportScanReport(scanId) {
@@ -2854,7 +2901,7 @@ function createTasksFromScan(scanId) {
     state.tasks.push({
       id: 't_scan_'+(Date.now()+added),
       title: 'Remediate: ' + f.name.split(' - ')[0],
-      desc: f.solution + ' (Found on ' + f.host + ':' + f.port + ', CVSS ' + f.cvss.toFixed(1) + ')',
+      desc: f.solution + ' (Found on ' + f.host + ':' + f.port + ', CVSS ' + (f.cvss!=null?f.cvss.toFixed(1):'N/A') + ')',
       sev: f.sev === 'crit' ? 'critical' : 'high',
       ctrl: 'RA-5',
       fw: 'nist800',
@@ -2881,6 +2928,7 @@ function showView(id) {
 renderClientBoard();
 renderFrameworkGrid();
 renderPolicies();
+loadScanHistory();
 
 // URL params for client name
 const params = new URLSearchParams(window.location.search);
