@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Palisade One EDR — Endpoint Detection & Response</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #03050A; --deep: #070C14; --surface: #0B1220; --surface2: #0F1A2E;
+      --border: #112240; --border2: #1A3060;
+      --accent: #00FFD1; --accent2: #0084FF;
+      --danger: #FF3B5C; --warning: #F5A623; --success: #00FFD1;
+      --text: #C8D8F0; --muted: #4A6080; --white: #F0F6FF;
+      --purple: #A855F7; --orange: #FB923C;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; overflow-x: hidden; min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,255,209,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,209,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+
+    /* LAYOUT */
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; background: var(--deep); border-right: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; }
+    .sidebar-logo { padding: 20px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .sidebar-logo-icon { width: 32px; height: 32px; background: rgba(0,255,209,0.1); border: 1px solid rgba(0,255,209,0.3); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .sidebar-logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: var(--white); letter-spacing: 3px; }
+    .sidebar-logo-text span { color: var(--accent); }
+    .sidebar-logo-sub { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--accent2); letter-spacing: 2px; margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+    .nav-section { padding: 12px 16px 4px; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; transition: all 0.2s; border-left: 2px solid transparent; color: var(--muted); font-size: 13px; font-weight: 400; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+    .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,255,209,0.04); }
+    .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
+    .sidebar-footer { padding: 12px 16px; border-top: 1px solid var(--border); }
+    .sidebar-footer a { font-size: 12px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+    .sidebar-footer a:hover { color: var(--accent); }
+
+    .main { margin-left: 220px; min-height: 100vh; position: relative; z-index: 1; }
+    .topbar { padding: 0 24px; height: 56px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(7,12,20,0.85); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 50; }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--white); letter-spacing: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; font-size: 11px; cursor: pointer; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    .topbar-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .topbar-time { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+    .content { padding: 24px; }
+
+    /* VIEWS */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* STAT CARDS */
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 18px; position: relative; overflow: hidden; transition: border-color 0.3s; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .stat-card.red::before { background: linear-gradient(to right, transparent, var(--danger), transparent); }
+    .stat-card.green::before { background: linear-gradient(to right, transparent, var(--accent), transparent); }
+    .stat-card.blue::before { background: linear-gradient(to right, transparent, var(--accent2), transparent); }
+    .stat-card.yellow::before { background: linear-gradient(to right, transparent, var(--warning), transparent); }
+    .stat-card.purple::before { background: linear-gradient(to right, transparent, var(--purple), transparent); }
+    .stat-card:hover { border-color: var(--border2); }
+    .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1; color: var(--white); letter-spacing: 2px; }
+    .stat-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+    /* PANELS */
+    .panel { background: var(--surface); border: 1px solid var(--border); margin-bottom: 16px; }
+    .panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .panel-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .panel-title::before { content: '//'; color: var(--muted); }
+    .panel-actions { display: flex; gap: 8px; align-items: center; }
+    .panel-btn { font-size: 10px; color: var(--muted); cursor: pointer; transition: color 0.2s; font-family: 'JetBrains Mono', monospace; background: none; border: 1px solid var(--border); padding: 4px 10px; letter-spacing: 1px; }
+    .panel-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .panel-btn.primary { background: var(--accent); color: var(--black); border-color: var(--accent); font-weight: 600; }
+    .panel-btn.primary:hover { background: var(--white); }
+    .panel-btn.danger { border-color: rgba(255,59,92,0.4); color: var(--danger); }
+    .panel-btn.danger:hover { background: rgba(255,59,92,0.1); }
+
+    /* FILTER BAR */
+    .filter-bar { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: var(--deep); }
+    .filter-select, .filter-input { background: var(--surface); border: 1px solid var(--border); padding: 6px 10px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 12px; outline: none; transition: border-color 0.2s; }
+    .filter-select:focus, .filter-input:focus { border-color: var(--accent); }
+    .filter-select { min-width: 120px; }
+    .filter-input { min-width: 180px; flex: 1; max-width: 300px; }
+    .filter-tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: rgba(0,132,255,0.1); border: 1px solid rgba(0,132,255,0.25); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent2); }
+    .filter-tag .remove { cursor: pointer; color: var(--muted); margin-left: 4px; }
+    .filter-tag .remove:hover { color: var(--danger); }
+
+    /* TABLE */
+    .tbl { width: 100%; border-collapse: collapse; }
+    .tbl th { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; user-select: none; cursor: pointer; }
+    .tbl th:hover { color: var(--text); }
+    .tbl td { padding: 10px 12px; border-bottom: 1px solid rgba(17,34,64,0.5); font-size: 12px; vertical-align: middle; }
+    .tbl tr:hover td { background: rgba(255,255,255,0.015); }
+    .tbl tr { cursor: pointer; transition: background 0.15s; }
+
+    /* SEVERITY BADGES */
+    .sev { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 22px; padding: 0 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; border-radius: 2px; }
+    .sev-critical { background: rgba(255,59,92,0.15); color: var(--danger); border: 1px solid rgba(255,59,92,0.3); }
+    .sev-high { background: rgba(245,166,35,0.15); color: var(--warning); border: 1px solid rgba(245,166,35,0.3); }
+    .sev-medium { background: rgba(0,132,255,0.15); color: var(--accent2); border: 1px solid rgba(0,132,255,0.3); }
+    .sev-low { background: rgba(0,255,209,0.05); color: var(--muted); border: 1px solid var(--border); }
+    .sev-info { background: rgba(168,85,247,0.1); color: var(--purple); border: 1px solid rgba(168,85,247,0.25); }
+
+    /* STATUS BADGES */
+    .status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .status-online .status-dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+    .status-online { color: var(--accent); }
+    .status-offline .status-dot { background: var(--muted); }
+    .status-offline { color: var(--muted); }
+    .status-isolated .status-dot { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+    .status-isolated { color: var(--danger); }
+
+    /* MITRE & TAGS */
+    .tag { display: inline-block; padding: 2px 7px; font-family: 'JetBrains Mono', monospace; font-size: 9px; border-radius: 2px; margin-right: 4px; margin-bottom: 2px; }
+    .tag-mitre { background: rgba(0,132,255,0.1); border: 1px solid rgba(0,132,255,0.2); color: var(--accent2); }
+    .tag-ai { background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.2); color: var(--purple); }
+    .tag-static { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.2); color: var(--warning); }
+    .tag-hash { background: rgba(0,255,209,0.06); border: 1px solid rgba(0,255,209,0.15); color: var(--accent); }
+    .tag-group { background: rgba(0,132,255,0.06); border: 1px solid rgba(0,132,255,0.15); color: var(--accent2); }
+
+    /* INCIDENT STATUS */
+    .inc-status { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; padding: 3px 8px; border: 1px solid; border-radius: 2px; }
+    .inc-new { border-color: rgba(255,59,92,0.5); color: var(--danger); background: rgba(255,59,92,0.08); }
+    .inc-investigating { border-color: rgba(245,166,35,0.5); color: var(--warning); background: rgba(245,166,35,0.08); }
+    .inc-resolved { border-color: rgba(0,255,209,0.4); color: var(--accent); background: rgba(0,255,209,0.06); }
+    .inc-fp { border-color: var(--border2); color: var(--muted); background: rgba(74,96,128,0.08); }
+
+    /* DETAIL PANEL (SLIDE-IN) */
+    .detail-overlay { position: fixed; inset: 0; background: rgba(3,5,10,0.6); z-index: 200; display: none; backdrop-filter: blur(4px); }
+    .detail-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 680px; max-width: 100vw; background: var(--deep); border-left: 1px solid var(--border2); z-index: 201; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); overflow: hidden; }
+    .detail-panel.open { transform: translateX(0); }
+    .detail-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; background: var(--surface); flex-shrink: 0; }
+    .detail-close { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 28px; height: 28px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+    .detail-close:hover { border-color: var(--danger); color: var(--danger); }
+    .detail-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .detail-tab { flex: 1; padding: 10px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .detail-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .detail-tab:hover:not(.active) { color: var(--text); }
+    .detail-body { flex: 1; overflow-y: auto; }
+    .detail-section { display: none; }
+    .detail-section.active { display: block; }
+
+    /* PROCESS TREE */
+    .ptree { padding: 16px 20px; }
+    .ptree-node { margin-left: 20px; position: relative; padding: 6px 0; }
+    .ptree-node::before { content: ''; position: absolute; left: -14px; top: 0; bottom: 0; width: 1px; background: var(--border2); }
+    .ptree-node::after { content: ''; position: absolute; left: -14px; top: 14px; width: 12px; height: 1px; background: var(--border2); }
+    .ptree-node:last-child::before { bottom: calc(100% - 14px); }
+    .ptree-root { margin-left: 0; }
+    .ptree-root::before, .ptree-root::after { display: none; }
+    .ptree-label { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px; background: var(--surface); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text); cursor: pointer; transition: all 0.2s; }
+    .ptree-label:hover { border-color: var(--accent2); }
+    .ptree-label.malicious { border-color: rgba(255,59,92,0.5); background: rgba(255,59,92,0.05); }
+    .ptree-label.suspicious { border-color: rgba(245,166,35,0.4); background: rgba(245,166,35,0.04); }
+    .ptree-pid { color: var(--muted); font-size: 9px; }
+    .ptree-icon { font-size: 13px; }
+
+    /* INFO GRID */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
+    .info-cell { background: var(--deep); padding: 12px 16px; }
+    .info-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+    .info-value { font-size: 12px; color: var(--white); font-weight: 500; word-break: break-all; }
+    .info-value.mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent2); }
+
+    /* EXCLUSION FORM */
+    .exc-form { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-bottom: 1px solid var(--border); background: var(--deep); }
+    .exc-form .full { grid-column: span 2; }
+    .exc-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 2px; display: block; margin-bottom: 5px; }
+    .exc-input, .exc-select { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 8px 10px; color: var(--white); font-family: 'Outfit', sans-serif; font-size: 12px; outline: none; }
+    .exc-input:focus, .exc-select:focus { border-color: var(--accent); }
+    .exc-textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 8px 10px; color: var(--white); font-family: 'JetBrains Mono', monospace; font-size: 11px; outline: none; min-height: 60px; resize: vertical; }
+    .exc-textarea:focus { border-color: var(--accent); }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3,5,10,0.85); z-index: 500; display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+    .modal-overlay.show { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border2); width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; position: relative; }
+    .modal::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, transparent, var(--accent), transparent); }
+    .modal-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--white); letter-spacing: 2px; }
+
+    /* LOADING */
+    .loading { display: flex; align-items: center; gap: 8px; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+    .loading-dots { display: flex; gap: 4px; }
+    .loading-dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; animation: ldot 1.4s infinite; }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes ldot { 0%,80%,100%{opacity:0.2}40%{opacity:1} }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 18px; background: var(--surface2); border: 1px solid var(--border2); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; z-index: 600; transform: translateY(80px); opacity: 0; transition: all 0.3s; max-width: 400px; pointer-events: none; }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-color: rgba(0,255,209,0.5); color: var(--accent); }
+    #toast.error { border-color: rgba(255,59,92,0.5); color: var(--danger); }
+    #toast.info { border-color: rgba(0,132,255,0.4); color: var(--accent2); }
+
+    /* CHECKBOX */
+    .chk { appearance: none; width: 14px; height: 14px; border: 1px solid var(--border2); background: var(--surface); cursor: pointer; position: relative; vertical-align: middle; flex-shrink: 0; }
+    .chk:checked { border-color: var(--accent); background: rgba(0,255,209,0.15); }
+    .chk:checked::after { content: ''; position: absolute; left: 3px; top: 1px; width: 5px; height: 8px; border: solid var(--accent); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+
+    /* EMPTY STATE */
+    .empty { padding: 48px 20px; text-align: center; }
+    .empty-icon { font-size: 32px; opacity: 0.3; margin-bottom: 12px; }
+    .empty-text { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: var(--deep); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    /* LIGHT MODE */
+    html[data-theme="light"] {
+      --black: #EEF2F7; --deep: #E3EAF2; --surface: #FFFFFF; --surface2: #F5F8FC;
+      --border: #CBD8E8; --border2: #ADC0D4;
+      --accent: #008F7E; --accent2: #0070CC;
+      --danger: #D42B47; --warning: #C47800; --success: #008F7E;
+      --text: #1E2E3D; --muted: #5A7A9A; --white: #0A1828;
+      --purple: #7C3AED; --orange: #EA580C;
+    }
+    html[data-theme="light"] body::before { background-image: linear-gradient(rgba(0,143,126,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,143,126,0.04) 1px, transparent 1px); }
+
+    /* THEME TOGGLE */
+    .theme-toggle { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* RESPONSIVE */
+    @media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 900px) {
+      .sidebar { width: 54px; }
+      .sidebar-logo-text, .sidebar-logo-sub, .nav-item span:not(.nav-icon), .nav-section, .sidebar-footer { display: none; }
+      .nav-item { justify-content: center; padding: 10px; }
+      .main { margin-left: 54px; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .detail-panel { width: 100%; }
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+    .pulse { animation: pulse 2s infinite; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">P1</div>
+    <div>
+      <div class="sidebar-logo-text">PALISADE<span>ONE</span></div>
+      <div class="sidebar-logo-sub">EDR CONSOLE</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Detection & Response</div>
+    <div class="nav-item active" onclick="showView('incidents')">
+      <span class="nav-icon">!</span>
+      <span>Incidents</span>
+      <span class="nav-badge" id="inc-badge">0</span>
+    </div>
+    <div class="nav-item" onclick="showView('endpoints')">
+      <span class="nav-icon">+</span>
+      <span>Endpoints</span>
+    </div>
+    <div class="nav-section">Configuration</div>
+    <div class="nav-item" onclick="showView('exclusions')">
+      <span class="nav-icon">=</span>
+      <span>Exclusions</span>
+    </div>
+    <div class="nav-item" onclick="showView('blacklist')">
+      <span class="nav-icon">X</span>
+      <span>Blacklist</span>
+    </div>
+    <div class="nav-item" onclick="showView('policies')">
+      <span class="nav-icon">*</span>
+      <span>Policies</span>
+    </div>
+    <div class="nav-section">Threat Intel</div>
+    <div class="nav-item" onclick="showView('hunting')">
+      <span class="nav-icon">?</span>
+      <span>Threat Hunting</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="dashboard.html"><span>&#8592;</span> Back to Dashboard</a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="page-title">INCIDENTS</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-time" id="topbar-time"></div>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">S</span></button>
+      <button class="topbar-btn" onclick="refreshAll()">REFRESH</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ==================== INCIDENTS VIEW ==================== -->
+    <div class="view active" id="view-incidents">
+      <div class="stats-row">
+        <div class="stat-card red">
+          <div class="stat-label">Active Incidents</div>
+          <div class="stat-value" id="inc-active" style="color:var(--danger)">--</div>
+          <div class="stat-sub">Unresolved threats</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">Critical / High</div>
+          <div class="stat-value" id="inc-crithigh" style="color:var(--warning)">--</div>
+          <div class="stat-sub">Last 7 days</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Total Detections</div>
+          <div class="stat-value" id="inc-total" style="color:var(--accent2)">--</div>
+          <div class="stat-sub">Last 24 hours</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">AI Detections</div>
+          <div class="stat-value" id="inc-ai" style="color:var(--purple)">--</div>
+          <div class="stat-sub">Behavioral engine</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Mitigated</div>
+          <div class="stat-value" id="inc-mitigated" style="color:var(--accent)">--</div>
+          <div class="stat-sub">Auto-resolved</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Incident Queue</div>
+          <div class="panel-actions">
+            <button class="panel-btn" onclick="loadIncidents()">REFRESH</button>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <select class="filter-select" id="inc-sev-filter" onchange="filterIncidents()">
+            <option value="">All Severities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <select class="filter-select" id="inc-status-filter" onchange="filterIncidents()">
+            <option value="">All Statuses</option>
+            <option value="new">New</option>
+            <option value="investigating">Investigating</option>
+            <option value="resolved">Resolved</option>
+            <option value="false_positive">False Positive</option>
+          </select>
+          <select class="filter-select" id="inc-company-filter" onchange="filterIncidents()">
+            <option value="">All Companies</option>
+          </select>
+          <select class="filter-select" id="inc-type-filter" onchange="filterIncidents()">
+            <option value="">All Types</option>
+            <option value="behavioral">Behavioral AI</option>
+            <option value="static">Static Analysis</option>
+            <option value="signature">Signature</option>
+          </select>
+          <input class="filter-input" type="text" id="inc-search" placeholder="Search incidents..." oninput="filterIncidents()"/>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th style="width:30px;"><input type="checkbox" class="chk" id="inc-select-all" onclick="toggleSelectAll('inc')"/></th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Threat</th>
+                <th>Endpoint</th>
+                <th>Company</th>
+                <th>Detection</th>
+                <th>MITRE</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="inc-table-body">
+              <tr><td colspan="9"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading incidents...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ENDPOINTS VIEW ==================== -->
+    <div class="view" id="view-endpoints">
+      <div class="stats-row">
+        <div class="stat-card green">
+          <div class="stat-label">Total Endpoints</div>
+          <div class="stat-value" id="ep-total" style="color:var(--accent)">--</div>
+          <div class="stat-sub">Enrolled agents</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Online</div>
+          <div class="stat-value" id="ep-online" style="color:var(--accent2)">--</div>
+          <div class="stat-sub">Connected now</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">Offline</div>
+          <div class="stat-value" id="ep-offline" style="color:var(--warning)">--</div>
+          <div class="stat-sub">Disconnected</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Isolated</div>
+          <div class="stat-value" id="ep-isolated" style="color:var(--danger)">0</div>
+          <div class="stat-sub">Network contained</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Companies</div>
+          <div class="stat-value" id="ep-companies" style="color:var(--purple)">--</div>
+          <div class="stat-sub">Client groups</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Managed Endpoints</div>
+          <div class="panel-actions">
+            <button class="panel-btn" onclick="loadEndpoints()">REFRESH</button>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <select class="filter-select" id="ep-status-filter" onchange="filterEndpoints()">
+            <option value="">All Statuses</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+            <option value="isolated">Isolated</option>
+          </select>
+          <select class="filter-select" id="ep-company-filter" onchange="filterEndpoints()">
+            <option value="">All Companies</option>
+          </select>
+          <select class="filter-select" id="ep-os-filter" onchange="filterEndpoints()">
+            <option value="">All OS</option>
+            <option value="windows">Windows</option>
+            <option value="linux">Linux</option>
+            <option value="macos">macOS</option>
+          </select>
+          <input class="filter-input" type="text" id="ep-search" placeholder="Search endpoints..." oninput="filterEndpoints()"/>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th style="width:30px;"><input type="checkbox" class="chk" id="ep-select-all" onclick="toggleSelectAll('ep')"/></th>
+                <th>Endpoint</th>
+                <th>IP Address</th>
+                <th>OS</th>
+                <th>Company</th>
+                <th>Agent Version</th>
+                <th>Status</th>
+                <th>Last Seen</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ep-table-body">
+              <tr><td colspan="9"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading endpoints...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== EXCLUSIONS VIEW ==================== -->
+    <div class="view" id="view-exclusions">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Exclusions / Whitelist</div>
+          <div class="panel-actions">
+            <button class="panel-btn primary" onclick="openExclusionForm()">+ ADD EXCLUSION</button>
+          </div>
+        </div>
+        <div id="exc-form-container" style="display:none;">
+          <div class="exc-form">
+            <div>
+              <label class="exc-label">Type</label>
+              <select class="exc-select" id="exc-type">
+                <option value="path">File / Folder Path</option>
+                <option value="hash">File Hash (SHA256)</option>
+                <option value="publisher">Publisher / Certificate</option>
+                <option value="process">Process Name</option>
+                <option value="behavioral">Behavioral Rule</option>
+              </select>
+            </div>
+            <div>
+              <label class="exc-label">Scope</label>
+              <select class="exc-select" id="exc-scope">
+                <option value="global">Global (All Endpoints)</option>
+                <option value="company">Specific Company</option>
+              </select>
+            </div>
+            <div class="full">
+              <label class="exc-label">Value</label>
+              <input class="exc-input" type="text" id="exc-value" placeholder="e.g. C:\Program Files\App\*, SHA256 hash, or publisher name"/>
+            </div>
+            <div class="full">
+              <label class="exc-label">Description / Reason</label>
+              <input class="exc-input" type="text" id="exc-desc" placeholder="Why is this excluded?"/>
+            </div>
+            <div class="full" style="display:flex;gap:8px;justify-content:flex-end;">
+              <button class="panel-btn" onclick="closeExclusionForm()">CANCEL</button>
+              <button class="panel-btn primary" onclick="saveExclusion()">SAVE EXCLUSION</button>
+            </div>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <select class="filter-select" id="exc-type-filter" onchange="renderExclusions()">
+            <option value="">All Types</option>
+            <option value="path">Path</option>
+            <option value="hash">Hash</option>
+            <option value="publisher">Publisher</option>
+            <option value="process">Process</option>
+            <option value="behavioral">Behavioral</option>
+          </select>
+          <input class="filter-input" type="text" id="exc-search" placeholder="Search exclusions..." oninput="renderExclusions()"/>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Value</th>
+                <th>Scope</th>
+                <th>Description</th>
+                <th>Added</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="exc-table-body">
+              <tr><td colspan="6"><div class="empty"><div class="empty-icon">=</div><div class="empty-text">No exclusions configured</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== BLACKLIST VIEW ==================== -->
+    <div class="view" id="view-blacklist">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Blacklist / Block Rules</div>
+          <div class="panel-actions">
+            <button class="panel-btn danger" onclick="openBlacklistForm()">+ ADD BLOCK RULE</button>
+          </div>
+        </div>
+        <div id="bl-form-container" style="display:none;">
+          <div class="exc-form">
+            <div>
+              <label class="exc-label">Block Type</label>
+              <select class="exc-select" id="bl-type">
+                <option value="hash">File Hash (SHA256 / MD5)</option>
+                <option value="publisher">Publisher / Certificate</option>
+                <option value="path">File Path</option>
+                <option value="process">Process Name</option>
+                <option value="ip">IP Address</option>
+                <option value="domain">Domain</option>
+              </select>
+            </div>
+            <div>
+              <label class="exc-label">Action</label>
+              <select class="exc-select" id="bl-action">
+                <option value="block_kill">Block & Kill Process</option>
+                <option value="block">Block Execution</option>
+                <option value="alert">Alert Only</option>
+              </select>
+            </div>
+            <div class="full">
+              <label class="exc-label">Value(s) — one per line for bulk add</label>
+              <textarea class="exc-textarea" id="bl-value" placeholder="e.g. a1b2c3d4... (SHA256) or malware.exe"></textarea>
+            </div>
+            <div class="full">
+              <label class="exc-label">Description</label>
+              <input class="exc-input" type="text" id="bl-desc" placeholder="Why is this blocked?"/>
+            </div>
+            <div class="full" style="display:flex;gap:8px;justify-content:flex-end;">
+              <button class="panel-btn" onclick="closeBlacklistForm()">CANCEL</button>
+              <button class="panel-btn danger" onclick="saveBlacklistRule()">ADD TO BLACKLIST</button>
+            </div>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <select class="filter-select" id="bl-type-filter" onchange="renderBlacklist()">
+            <option value="">All Types</option>
+            <option value="hash">Hash</option>
+            <option value="publisher">Publisher</option>
+            <option value="path">Path</option>
+            <option value="process">Process</option>
+            <option value="ip">IP</option>
+            <option value="domain">Domain</option>
+          </select>
+          <input class="filter-input" type="text" id="bl-search" placeholder="Search blacklist..." oninput="renderBlacklist()"/>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Value</th>
+                <th>Action</th>
+                <th>Hits</th>
+                <th>Description</th>
+                <th>Added</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tbody id="bl-table-body">
+              <tr><td colspan="7"><div class="empty"><div class="empty-icon">X</div><div class="empty-text">No block rules configured</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== POLICIES VIEW ==================== -->
+    <div class="view" id="view-policies">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Endpoint Protection Policies</div>
+          <div class="panel-actions">
+            <button class="panel-btn primary" onclick="openPolicyForm()">+ CREATE POLICY</button>
+          </div>
+        </div>
+        <div id="policies-list"></div>
+      </div>
+    </div>
+
+    <!-- ==================== THREAT HUNTING VIEW ==================== -->
+    <div class="view" id="view-hunting">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Deep Visibility — Threat Hunting</div>
+        </div>
+        <div style="padding:16px;">
+          <div style="display:flex;gap:8px;">
+            <input class="filter-input" type="text" id="hunt-query" placeholder='Query: e.g. process.name = "powershell.exe" AND cmdline CONTAINS "encodedcommand"' style="flex:1;max-width:none;font-family:'JetBrains Mono',monospace;font-size:12px;padding:10px 14px;"/>
+            <button class="panel-btn primary" onclick="runHuntQuery()" style="padding:10px 20px;">HUNT</button>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="panel-btn" onclick="setHuntPreset('powershell')">PowerShell Activity</button>
+            <button class="panel-btn" onclick="setHuntPreset('mimikatz')">Credential Dumping</button>
+            <button class="panel-btn" onclick="setHuntPreset('lateral')">Lateral Movement</button>
+            <button class="panel-btn" onclick="setHuntPreset('persistence')">Persistence</button>
+            <button class="panel-btn" onclick="setHuntPreset('exfil')">Data Exfiltration</button>
+          </div>
+        </div>
+        <div id="hunt-results">
+          <div class="empty"><div class="empty-icon">?</div><div class="empty-text">Run a query to search across all endpoint telemetry</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- INCIDENT DETAIL PANEL -->
+<div class="detail-overlay" id="inc-overlay" onclick="closeIncidentPanel()"></div>
+<div class="detail-panel" id="inc-panel">
+  <div class="detail-header">
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;margin-bottom:4px;" id="inc-detail-title">INCIDENT</div>
+      <div style="display:flex;gap:8px;align-items:center;" id="inc-detail-badges"></div>
+    </div>
+    <button class="detail-close" onclick="closeIncidentPanel()">X</button>
+  </div>
+  <div class="detail-tabs">
+    <div class="detail-tab active" onclick="incTab('overview')" id="inc-tab-overview">OVERVIEW</div>
+    <div class="detail-tab" onclick="incTab('storyline')" id="inc-tab-storyline">STORYLINE</div>
+    <div class="detail-tab" onclick="incTab('artifacts')" id="inc-tab-artifacts">ARTIFACTS</div>
+    <div class="detail-tab" onclick="incTab('response')" id="inc-tab-response">RESPONSE</div>
+  </div>
+  <div class="detail-body">
+    <!-- Overview -->
+    <div class="detail-section active" id="inc-sec-overview">
+      <div class="info-grid" id="inc-info-grid"></div>
+      <div style="padding:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">AI ANALYSIS</div>
+        <div id="inc-ai-analysis" style="font-size:12px;color:var(--text);line-height:1.6;padding:12px;background:var(--surface);border:1px solid var(--border);"></div>
+      </div>
+      <div style="padding:0 16px 16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">RELATED ALERTS</div>
+        <div id="inc-related-alerts"></div>
+      </div>
+    </div>
+    <!-- Storyline / Process Tree -->
+    <div class="detail-section" id="inc-sec-storyline">
+      <div style="padding:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;">PROCESS TREE — ATTACK STORYLINE</div>
+        <div id="inc-process-tree"></div>
+      </div>
+    </div>
+    <!-- Artifacts -->
+    <div class="detail-section" id="inc-sec-artifacts">
+      <div style="padding:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">FILE ARTIFACTS</div>
+        <div id="inc-artifacts-list"></div>
+      </div>
+    </div>
+    <!-- Response Actions -->
+    <div class="detail-section" id="inc-sec-response">
+      <div style="padding:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;">RESPONSE ACTIONS</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+          <button class="panel-btn danger" onclick="incAction('isolate')" style="padding:14px;text-align:center;">
+            <div style="font-size:18px;margin-bottom:4px;">LOCK</div>
+            <div style="font-size:10px;font-weight:600;">ISOLATE ENDPOINT</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px;">Block all network access</div>
+          </button>
+          <button class="panel-btn" onclick="incAction('reconnect')" style="padding:14px;text-align:center;border-color:rgba(0,255,209,0.3);color:var(--accent);">
+            <div style="font-size:18px;margin-bottom:4px;">UNLOCK</div>
+            <div style="font-size:10px;font-weight:600;">RECONNECT</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px;">Restore network access</div>
+          </button>
+          <button class="panel-btn" onclick="incAction('scan')" style="padding:14px;text-align:center;border-color:rgba(0,132,255,0.3);color:var(--accent2);">
+            <div style="font-size:18px;margin-bottom:4px;">SCAN</div>
+            <div style="font-size:10px;font-weight:600;">FULL DISK SCAN</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px;">Run FIM + rootcheck</div>
+          </button>
+          <button class="panel-btn" onclick="incAction('remote')" style="padding:14px;text-align:center;border-color:rgba(245,166,35,0.3);color:var(--warning);">
+            <div style="font-size:18px;margin-bottom:4px;">RMM</div>
+            <div style="font-size:10px;font-weight:600;">REMOTE DESKTOP</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px;">Open RustDesk session</div>
+          </button>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">UPDATE STATUS</div>
+        <div style="display:flex;gap:8px;">
+          <button class="panel-btn" onclick="setIncStatus('investigating')" style="border-color:rgba(245,166,35,0.4);color:var(--warning);">INVESTIGATING</button>
+          <button class="panel-btn" onclick="setIncStatus('resolved')" style="border-color:rgba(0,255,209,0.4);color:var(--accent);">RESOLVED</button>
+          <button class="panel-btn" onclick="setIncStatus('false_positive')" style="border-color:var(--border2);color:var(--muted);">FALSE POSITIVE</button>
+        </div>
+        <div style="margin-top:16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">ANALYST NOTES</div>
+          <textarea id="inc-notes" class="exc-textarea" placeholder="Add investigation notes..." style="min-height:80px;"></textarea>
+          <button class="panel-btn" onclick="saveIncNotes()" style="margin-top:8px;">SAVE NOTES</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENDPOINT DETAIL PANEL -->
+<div class="detail-overlay" id="ep-detail-overlay" onclick="closeEpDetail()"></div>
+<div class="detail-panel" id="ep-detail-panel">
+  <div class="detail-header">
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;" id="ep-detail-name">ENDPOINT</div>
+      <div id="ep-detail-status" style="margin-top:4px;"></div>
+    </div>
+    <button class="detail-close" onclick="closeEpDetail()">X</button>
+  </div>
+  <div class="detail-tabs">
+    <div class="detail-tab active" onclick="epDetailTab('info')" id="ep-dtab-info">INFO</div>
+    <div class="detail-tab" onclick="epDetailTab('alerts')" id="ep-dtab-alerts">ALERTS</div>
+    <div class="detail-tab" onclick="epDetailTab('actions')" id="ep-dtab-actions">ACTIONS</div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-section active" id="ep-dsec-info">
+      <div class="info-grid" id="ep-detail-grid"></div>
+    </div>
+    <div class="detail-section" id="ep-dsec-alerts">
+      <div id="ep-detail-alerts" style="padding:0;"></div>
+    </div>
+    <div class="detail-section" id="ep-dsec-actions">
+      <div style="padding:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button class="panel-btn danger" onclick="epAction('isolate')" style="padding:14px;text-align:center;">ISOLATE</button>
+          <button class="panel-btn" onclick="epAction('reconnect')" style="padding:14px;text-align:center;border-color:rgba(0,255,209,0.3);color:var(--accent);">RECONNECT</button>
+          <button class="panel-btn" onclick="epAction('scan')" style="padding:14px;text-align:center;border-color:rgba(0,132,255,0.3);color:var(--accent2);">FULL DISK SCAN</button>
+          <button class="panel-btn" onclick="epAction('remote')" style="padding:14px;text-align:center;border-color:rgba(245,166,35,0.3);color:var(--warning);">REMOTE DESKTOP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// THEME
+// ============================================================
+(function(){ document.documentElement.setAttribute('data-theme', localStorage.getItem('p1-theme') || 'dark'); })();
+function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('p1-theme', t); document.getElementById('theme-icon').textContent = t === 'light' ? 'M' : 'S'; }
+function toggleTheme() { applyTheme((document.documentElement.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark'); }
+document.addEventListener('DOMContentLoaded', () => { document.getElementById('theme-icon').textContent = (localStorage.getItem('p1-theme') || 'dark') === 'light' ? 'M' : 'S'; });
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+const PROXY_URL = 'https://api.palisadeone.com:9443';
+const CLIENTS_TOKEN = 'P1AdminKey2026!';
+
+// ============================================================
+// TIME
+// ============================================================
+function updateTime() { document.getElementById('topbar-time').textContent = new Date().toLocaleTimeString('en-US', {hour12:false}) + ' UTC'; }
+setInterval(updateTime, 1000); updateTime();
+function fmtTime(ts) { return ts ? new Date(ts).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}) : '--'; }
+function fmtDateTime(ts) { return ts ? new Date(ts).toLocaleString('en-US', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}) : '--'; }
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+let currentView = 'incidents';
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const view = document.getElementById('view-' + name);
+  if (view) view.classList.add('active');
+  const titles = { incidents:'INCIDENTS', endpoints:'ENDPOINTS', exclusions:'EXCLUSIONS', blacklist:'BLACKLIST', policies:'POLICIES', hunting:'THREAT HUNTING' };
+  document.getElementById('page-title').textContent = titles[name] || name.toUpperCase();
+  document.querySelectorAll('.nav-item').forEach(n => { if (n.textContent.toLowerCase().includes(name)) n.classList.add('active'); });
+  currentView = name;
+  if (name === 'incidents') loadIncidents();
+  if (name === 'endpoints') loadEndpoints();
+  if (name === 'exclusions') renderExclusions();
+  if (name === 'blacklist') renderBlacklist();
+  if (name === 'policies') renderPolicies();
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  clearTimeout(t._t); t._t = setTimeout(() => t.className = '', 4000);
+}
+
+// ============================================================
+// API HELPERS
+// ============================================================
+async function indexerSearch(index, query) {
+  try {
+    const res = await fetch(`${PROXY_URL}/${index}/_search`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query) });
+    return await res.json();
+  } catch(e) { console.error('Indexer error:', e); return null; }
+}
+
+async function fetchClients() {
+  try {
+    const res = await fetch(`${PROXY_URL}/clients`, { headers: { 'Authorization': `Bearer ${CLIENTS_TOKEN}` } });
+    const d = await res.json();
+    return d.clients || [];
+  } catch(e) { return []; }
+}
+
+// ============================================================
+// DATA STORES
+// ============================================================
+let agentsCache = {};
+let clientsCache = [];
+let incidentsData = [];
+let exclusionsData = JSON.parse(localStorage.getItem('p1-exclusions') || '[]');
+let blacklistData = JSON.parse(localStorage.getItem('p1-blacklist') || '[]');
+let policiesData = JSON.parse(localStorage.getItem('p1-policies') || 'null');
+
+if (!policiesData) {
+  policiesData = [
+    { id: 'pol_default', name: 'Default Protection', description: 'Standard EDR protection for all endpoints', mode: 'protect', settings: { realtime_protection: true, behavioral_ai: true, anti_tamper: true, script_control: true, usb_control: false, firewall_control: false }, groups: ['all'], created: new Date().toISOString() },
+    { id: 'pol_aggressive', name: 'Aggressive Protection', description: 'Maximum security — blocks suspicious activity proactively', mode: 'protect', settings: { realtime_protection: true, behavioral_ai: true, anti_tamper: true, script_control: true, usb_control: true, firewall_control: true }, groups: [], created: new Date().toISOString() }
+  ];
+  localStorage.setItem('p1-policies', JSON.stringify(policiesData));
+}
+
+// ============================================================
+// INCIDENTS
+// ============================================================
+async function loadIncidents() {
+  try {
+    const [alertData, clients] = await Promise.all([
+      indexerSearch('wazuh-alerts-4.x-*', {
+        size: 100,
+        sort: [{ timestamp: { order: 'desc' } }],
+        query: { range: { timestamp: { gte: 'now-7d' } } }
+      }),
+      fetchClients()
+    ]);
+    clientsCache = clients;
+    populateCompanyFilters(clients);
+
+    const hits = alertData?.hits?.hits?.map(h => h._source) || [];
+    const total24h = hits.filter(h => new Date(h.timestamp) > new Date(Date.now() - 86400000)).length;
+
+    // Build incidents from high-severity alerts (7+) — group by agent+rule
+    const incMap = {};
+    hits.forEach(hit => {
+      const level = hit.rule?.level || 0;
+      if (level < 4) return;
+      const key = `${hit.agent?.id||'?'}_${hit.rule?.id||'?'}`;
+      if (!incMap[key]) {
+        const agentGroups = hit.agent?.labels?.groups || [];
+        const company = findCompanyForGroups(agentGroups, clients);
+        const detectionType = classifyDetection(hit);
+        const severity = level >= 12 ? 'critical' : level >= 7 ? 'high' : level >= 4 ? 'medium' : 'low';
+
+        // Check if we have a stored status for this incident
+        const storedIncs = JSON.parse(localStorage.getItem('p1-inc-statuses') || '{}');
+        const storedStatus = storedIncs[key];
+
+        incMap[key] = {
+          id: key,
+          severity,
+          status: storedStatus || (level >= 7 ? 'new' : 'resolved'),
+          threat: hit.rule?.description || 'Security Event',
+          endpoint: hit.agent?.name || 'Unknown',
+          agentId: hit.agent?.id || '',
+          company: company,
+          companyGroup: agentGroups,
+          detectionType,
+          mitre: hit.rule?.mitre?.id || [],
+          mitreTactic: hit.rule?.mitre?.tactic || [],
+          ruleId: hit.rule?.id || '',
+          ruleLevel: level,
+          timestamp: hit.timestamp,
+          count: 0,
+          alerts: [],
+          srcIp: hit.data?.srcip || hit.data?.src_ip || '',
+          dstIp: hit.data?.dstip || '',
+          process: hit.data?.process?.name || hit.data?.win?.eventdata?.image || '',
+          path: hit.data?.process?.executable || hit.data?.win?.eventdata?.targetFilename || '',
+          user: hit.data?.user || hit.data?.win?.eventdata?.user || '',
+          hash: hit.data?.win?.eventdata?.hashes || '',
+          cmdline: hit.data?.win?.eventdata?.commandLine || hit.data?.process?.args || '',
+          notes: storedIncs[key + '_notes'] || ''
+        };
+      }
+      incMap[key].count++;
+      incMap[key].alerts.push(hit);
+    });
+
+    incidentsData = Object.values(incMap).sort((a, b) => {
+      const sevOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+      const statusOrder = { new: 0, investigating: 1, resolved: 2, false_positive: 3 };
+      return (sevOrder[a.severity] - sevOrder[b.severity]) || (statusOrder[a.status] - statusOrder[b.status]) || new Date(b.timestamp) - new Date(a.timestamp);
+    });
+
+    // Update stats
+    const active = incidentsData.filter(i => i.status === 'new' || i.status === 'investigating').length;
+    const critHigh = incidentsData.filter(i => i.severity === 'critical' || i.severity === 'high').length;
+    const aiCount = incidentsData.filter(i => i.detectionType === 'behavioral').length;
+    const mitigated = incidentsData.filter(i => i.status === 'resolved').length;
+
+    document.getElementById('inc-active').textContent = active;
+    document.getElementById('inc-crithigh').textContent = critHigh;
+    document.getElementById('inc-total').textContent = total24h;
+    document.getElementById('inc-ai').textContent = aiCount;
+    document.getElementById('inc-mitigated').textContent = mitigated;
+    document.getElementById('inc-badge').textContent = active;
+
+    filterIncidents();
+  } catch(e) { console.error('Load incidents error:', e); }
+}
+
+function classifyDetection(hit) {
+  const ruleId = parseInt(hit.rule?.id || '0');
+  const groups = hit.rule?.groups || [];
+  // Behavioral indicators: sysmon process creation, anomaly detection, MITRE-mapped behavioral rules
+  if (groups.includes('sysmon') || groups.includes('audit') || groups.includes('ossec-rootcheck')) return 'behavioral';
+  if (hit.rule?.mitre?.id?.length > 0) return 'behavioral';
+  if (ruleId >= 100000) return 'signature'; // Custom rules
+  return 'static';
+}
+
+function findCompanyForGroups(agentGroups, clients) {
+  if (!agentGroups || agentGroups.length === 0) return 'Unassigned';
+  for (const c of clients) {
+    if (c.wazuh_group && agentGroups.includes(c.wazuh_group)) return c.name;
+  }
+  return agentGroups[0] || 'Unassigned';
+}
+
+function filterIncidents() {
+  const sev = document.getElementById('inc-sev-filter').value;
+  const status = document.getElementById('inc-status-filter').value;
+  const company = document.getElementById('inc-company-filter').value;
+  const type = document.getElementById('inc-type-filter').value;
+  const search = document.getElementById('inc-search').value.toLowerCase();
+
+  const filtered = incidentsData.filter(inc => {
+    if (sev && inc.severity !== sev) return false;
+    if (status && inc.status !== status) return false;
+    if (company && inc.company !== company) return false;
+    if (type && inc.detectionType !== type) return false;
+    if (search && !inc.threat.toLowerCase().includes(search) && !inc.endpoint.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  renderIncidentTable(filtered);
+}
+
+function renderIncidentTable(items) {
+  const tbody = document.getElementById('inc-table-body');
+  if (items.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">!</div><div class="empty-text">No incidents match filters</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = items.map(inc => {
+    const sevClass = 'sev-' + inc.severity;
+    const statusClass = 'inc-' + inc.status.replace('_', '');
+    const statusLabel = { new:'NEW', investigating:'INVESTIGATING', resolved:'RESOLVED', false_positive:'FALSE POS' }[inc.status] || inc.status;
+    const typeTag = inc.detectionType === 'behavioral' ? '<span class="tag tag-ai">AI</span>' :
+                    inc.detectionType === 'static' ? '<span class="tag tag-static">STATIC</span>' :
+                    '<span class="tag tag-hash">SIG</span>';
+    const mitreTags = inc.mitre.slice(0, 2).map(m => `<span class="tag tag-mitre">${m}</span>`).join('');
+    return `<tr onclick="openIncident('${inc.id}')">
+      <td onclick="event.stopPropagation()"><input type="checkbox" class="chk inc-chk" data-id="${inc.id}"/></td>
+      <td><span class="sev ${sevClass}">${inc.severity.toUpperCase().slice(0,4)}</span></td>
+      <td><span class="inc-status ${statusClass}">${statusLabel}</span></td>
+      <td>
+        <div style="font-size:12px;color:var(--white);font-weight:500;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${inc.threat}</div>
+        <div style="margin-top:3px;">${typeTag}</div>
+      </td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);">${inc.endpoint}</td>
+      <td><span class="tag tag-group">${inc.company}</span></td>
+      <td style="font-size:11px;color:var(--muted);">${inc.count}x</td>
+      <td>${mitreTags || '<span style="color:var(--muted);font-size:10px;">--</span>'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtDateTime(inc.timestamp)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// INCIDENT DETAIL PANEL
+// ============================================================
+let activeIncident = null;
+
+function openIncident(incId) {
+  const inc = incidentsData.find(i => i.id === incId);
+  if (!inc) return;
+  activeIncident = inc;
+
+  document.getElementById('inc-detail-title').textContent = inc.threat.substring(0, 60);
+  document.getElementById('inc-detail-badges').innerHTML = `
+    <span class="sev sev-${inc.severity}">${inc.severity.toUpperCase()}</span>
+    <span class="inc-status inc-${inc.status.replace('_','')}">${inc.status.replace('_',' ').toUpperCase()}</span>
+    ${inc.detectionType === 'behavioral' ? '<span class="tag tag-ai">BEHAVIORAL AI</span>' : '<span class="tag tag-static">STATIC</span>'}
+    ${inc.mitre.map(m => `<span class="tag tag-mitre">${m}</span>`).join('')}
+  `;
+
+  // Info grid
+  document.getElementById('inc-info-grid').innerHTML = `
+    <div class="info-cell"><div class="info-label">Endpoint</div><div class="info-value">${inc.endpoint}</div></div>
+    <div class="info-cell"><div class="info-label">Company</div><div class="info-value">${inc.company}</div></div>
+    <div class="info-cell"><div class="info-label">Agent ID</div><div class="info-value mono">#${inc.agentId}</div></div>
+    <div class="info-cell"><div class="info-label">Rule ID</div><div class="info-value mono">${inc.ruleId} (Level ${inc.ruleLevel})</div></div>
+    <div class="info-cell"><div class="info-label">First Seen</div><div class="info-value">${fmtDateTime(inc.timestamp)}</div></div>
+    <div class="info-cell"><div class="info-label">Occurrences</div><div class="info-value">${inc.count}</div></div>
+    ${inc.srcIp ? `<div class="info-cell"><div class="info-label">Source IP</div><div class="info-value mono">${inc.srcIp}</div></div>` : ''}
+    ${inc.user ? `<div class="info-cell"><div class="info-label">User</div><div class="info-value">${inc.user}</div></div>` : ''}
+    ${inc.process ? `<div class="info-cell" style="grid-column:span 2"><div class="info-label">Process</div><div class="info-value mono">${inc.process}</div></div>` : ''}
+    ${inc.path ? `<div class="info-cell" style="grid-column:span 2"><div class="info-label">File Path</div><div class="info-value mono" style="font-size:10px;">${inc.path}</div></div>` : ''}
+    ${inc.cmdline ? `<div class="info-cell" style="grid-column:span 2"><div class="info-label">Command Line</div><div class="info-value mono" style="font-size:10px;">${sanitize(inc.cmdline)}</div></div>` : ''}
+    ${inc.hash ? `<div class="info-cell" style="grid-column:span 2"><div class="info-label">Hash</div><div class="info-value mono" style="font-size:10px;">${inc.hash}</div></div>` : ''}
+    ${inc.mitreTactic.length ? `<div class="info-cell" style="grid-column:span 2"><div class="info-label">MITRE ATT&CK Tactics</div><div class="info-value">${inc.mitreTactic.join(', ')}</div></div>` : ''}
+  `;
+
+  // AI Analysis
+  const aiEl = document.getElementById('inc-ai-analysis');
+  aiEl.innerHTML = generateAIAnalysis(inc);
+
+  // Related alerts
+  const relEl = document.getElementById('inc-related-alerts');
+  relEl.innerHTML = inc.alerts.slice(0, 10).map(a => {
+    const lvl = a.rule?.level || 0;
+    const color = lvl >= 12 ? 'var(--danger)' : lvl >= 7 ? 'var(--warning)' : 'var(--accent2)';
+    return `<div style="padding:8px 12px;border-bottom:1px solid rgba(17,34,64,0.5);display:flex;gap:10px;align-items:center;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${color};width:20px;">${lvl}</span>
+      <span style="font-size:11px;color:var(--text);flex:1;">${a.rule?.description || 'Event'}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtTime(a.timestamp)}</span>
+    </div>`;
+  }).join('') || '<div style="padding:12px;font-size:12px;color:var(--muted);">No related alerts</div>';
+
+  // Process tree
+  buildProcessTree(inc);
+
+  // Artifacts
+  buildArtifacts(inc);
+
+  // Notes
+  document.getElementById('inc-notes').value = inc.notes || '';
+
+  // Show panel
+  incTab('overview');
+  document.getElementById('inc-overlay').style.display = 'block';
+  document.getElementById('inc-panel').classList.add('open');
+}
+
+function sanitize(str) {
+  const el = document.createElement('div');
+  el.textContent = str;
+  return el.innerHTML;
+}
+
+function generateAIAnalysis(inc) {
+  const sev = inc.severity;
+  const tactics = inc.mitreTactic.join(', ') || 'Unknown';
+  const proc = inc.process || 'N/A';
+  let analysis = `<strong style="color:var(--white);">Threat Assessment:</strong> `;
+  if (sev === 'critical' || sev === 'high') {
+    analysis += `This is a <span style="color:var(--danger);font-weight:600;">${sev.toUpperCase()}</span> severity detection that requires immediate investigation. `;
+  } else {
+    analysis += `This is a <span style="color:var(--accent2);">${sev.toUpperCase()}</span> severity event. `;
+  }
+  analysis += `The detection was triggered by rule <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;">${inc.ruleId}</span> on endpoint <strong style="color:var(--white);">${inc.endpoint}</strong>. `;
+  if (inc.mitre.length > 0) {
+    analysis += `<br><br><strong style="color:var(--white);">MITRE ATT&CK Mapping:</strong> ${inc.mitre.join(', ')} — Tactic: ${tactics}. `;
+  }
+  if (proc && proc !== 'N/A') {
+    analysis += `<br><br><strong style="color:var(--white);">Process Context:</strong> The process <span style="font-family:'JetBrains Mono',monospace;color:var(--accent2);">${sanitize(proc)}</span> was involved in this detection. `;
+  }
+  if (inc.cmdline) {
+    analysis += `Review the command line arguments for suspicious parameters such as encoded commands, download cradles, or credential dumping tools.`;
+  }
+  analysis += `<br><br><strong style="color:var(--white);">Recommended Action:</strong> `;
+  if (sev === 'critical') analysis += 'Immediately isolate the endpoint, investigate the process tree, and check for lateral movement indicators.';
+  else if (sev === 'high') analysis += 'Investigate the alert chain, review process ancestry, and determine if this is a true positive before taking containment action.';
+  else analysis += 'Review the event context and process behavior. If legitimate, consider adding an exclusion.';
+  return analysis;
+}
+
+function buildProcessTree(inc) {
+  const el = document.getElementById('inc-process-tree');
+  const proc = inc.process || 'unknown.exe';
+  const path = inc.path || '';
+  const cmdline = inc.cmdline || '';
+  const isMalicious = inc.severity === 'critical' || inc.severity === 'high';
+
+  // Build a simulated process tree from available data
+  el.innerHTML = `
+    <div class="ptree-node ptree-root">
+      <div class="ptree-label"><span class="ptree-icon">S</span> System <span class="ptree-pid">PID 4</span></div>
+      <div class="ptree-node">
+        <div class="ptree-label"><span class="ptree-icon">W</span> services.exe <span class="ptree-pid">PID 672</span></div>
+        <div class="ptree-node">
+          <div class="ptree-label"><span class="ptree-icon">S</span> svchost.exe <span class="ptree-pid">PID 1024</span></div>
+          <div class="ptree-node">
+            <div class="ptree-label ${isMalicious ? 'malicious' : 'suspicious'}">
+              <span class="ptree-icon">${isMalicious ? '!' : '?'}</span>
+              ${sanitize(proc)} <span class="ptree-pid">PID ${1000 + Math.floor(Math.random()*8000)}</span>
+              <span class="sev sev-${inc.severity}" style="margin-left:8px;font-size:8px;">${inc.severity.toUpperCase()}</span>
+            </div>
+            ${cmdline ? `<div style="margin-left:20px;margin-top:4px;padding:6px 10px;background:var(--surface);border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);max-width:500px;overflow:hidden;text-overflow:ellipsis;">${sanitize(cmdline)}</div>` : ''}
+            ${path ? `<div style="margin-left:20px;margin-top:2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">Path: ${sanitize(path)}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:12px;background:rgba(0,132,255,0.05);border:1px solid rgba(0,132,255,0.15);font-size:11px;color:var(--muted);">
+      <strong style="color:var(--accent2);">Storyline ID:</strong> <span style="font-family:'JetBrains Mono',monospace;">${inc.id}</span>
+      — All events in this detection chain are correlated under this storyline.
+    </div>
+  `;
+}
+
+function buildArtifacts(inc) {
+  const el = document.getElementById('inc-artifacts-list');
+  const artifacts = [];
+  if (inc.path) artifacts.push({ type: 'File', value: inc.path, detail: inc.hash || 'No hash available' });
+  if (inc.process) artifacts.push({ type: 'Process', value: inc.process, detail: inc.cmdline || '' });
+  if (inc.srcIp) artifacts.push({ type: 'Source IP', value: inc.srcIp, detail: '' });
+  if (inc.dstIp) artifacts.push({ type: 'Dest IP', value: inc.dstIp, detail: '' });
+  if (inc.user) artifacts.push({ type: 'User', value: inc.user, detail: '' });
+
+  if (artifacts.length === 0) {
+    el.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);">No artifacts extracted</div>';
+    return;
+  }
+  el.innerHTML = artifacts.map(a => `
+    <div style="padding:10px 12px;border-bottom:1px solid rgba(17,34,64,0.5);display:flex;gap:12px;align-items:flex-start;">
+      <span class="tag tag-mitre" style="flex-shrink:0;">${a.type}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--white);word-break:break-all;">${sanitize(a.value)}</div>
+        ${a.detail ? `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;word-break:break-all;">${sanitize(a.detail)}</div>` : ''}
+      </div>
+      ${a.type === 'File' && inc.hash ? `<button class="panel-btn danger" onclick="event.stopPropagation();quickBlacklist('${sanitize(inc.hash)}')" style="font-size:9px;padding:3px 8px;flex-shrink:0;">BLOCK HASH</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function closeIncidentPanel() {
+  document.getElementById('inc-panel').classList.remove('open');
+  document.getElementById('inc-overlay').style.display = 'none';
+  activeIncident = null;
+}
+
+function incTab(tab) {
+  document.querySelectorAll('#inc-panel .detail-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#inc-panel .detail-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('inc-tab-' + tab).classList.add('active');
+  document.getElementById('inc-sec-' + tab).classList.add('active');
+}
+
+function setIncStatus(status) {
+  if (!activeIncident) return;
+  activeIncident.status = status;
+  const stored = JSON.parse(localStorage.getItem('p1-inc-statuses') || '{}');
+  stored[activeIncident.id] = status;
+  localStorage.setItem('p1-inc-statuses', JSON.stringify(stored));
+  toast('Incident marked as ' + status.replace('_', ' ').toUpperCase(), 'success');
+  filterIncidents();
+  // Refresh badges in detail panel
+  openIncident(activeIncident.id);
+}
+
+function saveIncNotes() {
+  if (!activeIncident) return;
+  const notes = document.getElementById('inc-notes').value;
+  activeIncident.notes = notes;
+  const stored = JSON.parse(localStorage.getItem('p1-inc-statuses') || '{}');
+  stored[activeIncident.id + '_notes'] = notes;
+  localStorage.setItem('p1-inc-statuses', JSON.stringify(stored));
+  toast('Notes saved', 'success');
+}
+
+async function incAction(action) {
+  if (!activeIncident) return;
+  const agentId = activeIncident.agentId;
+  if (action === 'isolate') {
+    toast('Sending isolation command to agent ' + agentId + '...', 'info');
+    try {
+      await fetch(`${PROXY_URL}/active-response?agents_list=${agentId}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: 'isolate-win', arguments: [] })
+      });
+      toast('Isolation command sent.', 'success');
+    } catch(e) { toast('Failed to send isolation command.', 'error'); }
+  } else if (action === 'reconnect') {
+    toast('Sending reconnect command...', 'info');
+    try {
+      await fetch(`${PROXY_URL}/active-response?agents_list=${agentId}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: 'unisolate-win', arguments: [] })
+      });
+      toast('Reconnect command sent.', 'success');
+    } catch(e) { toast('Failed to send reconnect command.', 'error'); }
+  } else if (action === 'scan') {
+    toast('Triggering full disk scan...', 'info');
+    try {
+      await Promise.all([
+        fetch(`${PROXY_URL}/syscheck?agents_list=${agentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } }),
+        fetch(`${PROXY_URL}/rootcheck?agents_list=${agentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } })
+      ]);
+      toast('Full disk scan triggered.', 'success');
+    } catch(e) { toast('Scan command failed.', 'error'); }
+  } else if (action === 'remote') {
+    window.open(`https://mesh.palisadeone.com:444`, '_blank');
+  }
+}
+
+function quickBlacklist(hash) {
+  if (!hash) return;
+  const cleanHash = hash.replace(/^(SHA256|MD5|SHA1)=/i, '').split(',')[0].trim();
+  blacklistData.push({
+    id: 'bl_' + Date.now(),
+    type: 'hash',
+    value: cleanHash,
+    action: 'block_kill',
+    description: 'Blocked from incident detail',
+    hits: 0,
+    created: new Date().toISOString()
+  });
+  localStorage.setItem('p1-blacklist', JSON.stringify(blacklistData));
+  toast('Hash added to blacklist', 'success');
+}
+
+// ============================================================
+// ENDPOINTS
+// ============================================================
+async function loadEndpoints() {
+  try {
+    const [agentRes, clients] = await Promise.all([
+      fetch(`${PROXY_URL}/agents?limit=500&sort=-dateAdd`, { headers: { 'Content-Type': 'application/json' } }),
+      fetchClients()
+    ]);
+    const json = await agentRes.json();
+    const agents = (json?.data?.affected_items || []).filter(a => a.id !== '000' && a.status !== 'never_connected');
+    clientsCache = clients;
+    agents.forEach(a => agentsCache[a.id] = a);
+    populateCompanyFilters(clients);
+
+    const online = agents.filter(a => isOnline(a)).length;
+    const offline = agents.length - online;
+    const companies = new Set();
+    agents.forEach(a => (a.group || []).forEach(g => {
+      const c = clients.find(cl => cl.wazuh_group === g);
+      if (c) companies.add(c.name);
+    }));
+
+    document.getElementById('ep-total').textContent = agents.length;
+    document.getElementById('ep-online').textContent = online;
+    document.getElementById('ep-offline').textContent = offline;
+    document.getElementById('ep-companies').textContent = companies.size || '--';
+
+    filterEndpoints();
+  } catch(e) { console.error('Endpoint load error:', e); }
+}
+
+function isOnline(agent) {
+  if (agent.status !== 'active') return false;
+  const lk = agent.lastKeepAlive ? new Date(agent.lastKeepAlive) : null;
+  return lk ? (Date.now() - lk.getTime()) < 5 * 60 * 1000 : false;
+}
+
+function getAgentCompany(agent) {
+  const groups = agent.group || [];
+  for (const c of clientsCache) {
+    if (c.wazuh_group && groups.includes(c.wazuh_group)) return c.name;
+  }
+  return groups[0] || 'Unassigned';
+}
+
+function filterEndpoints() {
+  const status = document.getElementById('ep-status-filter').value;
+  const company = document.getElementById('ep-company-filter').value;
+  const os = document.getElementById('ep-os-filter').value;
+  const search = document.getElementById('ep-search').value.toLowerCase();
+
+  const agents = Object.values(agentsCache).filter(a => {
+    if (a.id === '000' || a.status === 'never_connected') return false;
+    const online = isOnline(a);
+    if (status === 'online' && !online) return false;
+    if (status === 'offline' && online) return false;
+    const comp = getAgentCompany(a);
+    if (company && comp !== company) return false;
+    const osName = (a.os?.name || a.os?.platform || '').toLowerCase();
+    if (os === 'windows' && !osName.includes('windows')) return false;
+    if (os === 'linux' && !osName.includes('linux') && !osName.includes('ubuntu') && !osName.includes('centos')) return false;
+    if (os === 'macos' && !osName.includes('mac') && !osName.includes('darwin')) return false;
+    if (search && !(a.name || '').toLowerCase().includes(search) && !(a.ip || '').includes(search)) return false;
+    return true;
+  });
+
+  renderEndpointTable(agents);
+}
+
+function renderEndpointTable(agents) {
+  const tbody = document.getElementById('ep-table-body');
+  if (agents.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">+</div><div class="empty-text">No endpoints match filters</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = agents.map(a => {
+    const online = isOnline(a);
+    const statusClass = online ? 'status-online' : 'status-offline';
+    const statusLabel = online ? 'ONLINE' : 'OFFLINE';
+    const osName = a.os?.name || a.os?.platform || 'Unknown';
+    const company = getAgentCompany(a);
+    return `<tr onclick="openEpDetail('${a.id}')">
+      <td onclick="event.stopPropagation()"><input type="checkbox" class="chk ep-chk" data-id="${a.id}"/></td>
+      <td><div style="font-size:12px;color:var(--white);font-weight:500;">${a.name || 'Unknown'}</div></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${a.ip || '--'}</td>
+      <td style="font-size:11px;">${osName}</td>
+      <td><span class="tag tag-group">${company}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${a.version || '--'}</td>
+      <td><span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusLabel}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtDateTime(a.lastKeepAlive)}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="panel-btn" onclick="openEpDetail('${a.id}')" style="font-size:9px;padding:3px 8px;">DETAIL</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// ENDPOINT DETAIL
+// ============================================================
+let activeEpId = null;
+
+function openEpDetail(agentId) {
+  const agent = agentsCache[agentId];
+  if (!agent) return;
+  activeEpId = agentId;
+  const online = isOnline(agent);
+  const os = [agent.os?.name, agent.os?.version].filter(Boolean).join(' ') || 'Unknown';
+
+  document.getElementById('ep-detail-name').textContent = (agent.name || 'Unknown').toUpperCase();
+  document.getElementById('ep-detail-status').innerHTML = `<span class="status-badge ${online ? 'status-online' : 'status-offline'}"><span class="status-dot"></span>${online ? 'ONLINE' : 'OFFLINE'}</span>`;
+
+  document.getElementById('ep-detail-grid').innerHTML = `
+    <div class="info-cell"><div class="info-label">Agent ID</div><div class="info-value mono">#${agent.id}</div></div>
+    <div class="info-cell"><div class="info-label">IP Address</div><div class="info-value mono">${agent.ip || '--'}</div></div>
+    <div class="info-cell" style="grid-column:span 2"><div class="info-label">Operating System</div><div class="info-value">${os}</div></div>
+    <div class="info-cell"><div class="info-label">Agent Version</div><div class="info-value mono">${agent.version || '--'}</div></div>
+    <div class="info-cell"><div class="info-label">Company</div><div class="info-value">${getAgentCompany(agent)}</div></div>
+    <div class="info-cell"><div class="info-label">Groups</div><div class="info-value">${(agent.group || []).join(', ') || '--'}</div></div>
+    <div class="info-cell"><div class="info-label">Last Seen</div><div class="info-value">${fmtDateTime(agent.lastKeepAlive)}</div></div>
+    <div class="info-cell"><div class="info-label">Date Added</div><div class="info-value">${fmtDateTime(agent.dateAdd)}</div></div>
+    <div class="info-cell"><div class="info-label">Node Name</div><div class="info-value">${agent.node_name || '--'}</div></div>
+  `;
+
+  // Load alerts
+  loadEpDetailAlerts(agentId);
+
+  epDetailTab('info');
+  document.getElementById('ep-detail-overlay').style.display = 'block';
+  document.getElementById('ep-detail-panel').classList.add('open');
+}
+
+async function loadEpDetailAlerts(agentId) {
+  const el = document.getElementById('ep-detail-alerts');
+  el.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading alerts...</div>';
+  try {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 30, sort: [{ timestamp: { order: 'desc' } }],
+      query: { bool: { filter: [{ term: { 'agent.id': agentId } }, { range: { timestamp: { gte: 'now-48h' } } }] } }
+    });
+    const hits = data?.hits?.hits?.map(h => h._source) || [];
+    if (hits.length === 0) {
+      el.innerHTML = '<div style="padding:24px;text-align:center;font-size:12px;color:var(--accent);font-family:\'JetBrains Mono\',monospace;">No alerts in last 48h — endpoint clean</div>';
+      return;
+    }
+    el.innerHTML = hits.map(h => {
+      const lvl = h.rule?.level || 0;
+      const color = lvl >= 12 ? 'var(--danger)' : lvl >= 7 ? 'var(--warning)' : lvl >= 4 ? 'var(--accent2)' : 'var(--muted)';
+      return `<div style="padding:8px 12px;border-bottom:1px solid rgba(17,34,64,0.5);display:flex;gap:8px;align-items:center;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${color};width:20px;">${lvl}</span>
+        <span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h.rule?.description || 'Event'}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtTime(h.timestamp)}</span>
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:11px;">Could not load alerts</div>'; }
+}
+
+function closeEpDetail() {
+  document.getElementById('ep-detail-panel').classList.remove('open');
+  document.getElementById('ep-detail-overlay').style.display = 'none';
+  activeEpId = null;
+}
+
+function epDetailTab(tab) {
+  document.querySelectorAll('#ep-detail-panel .detail-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#ep-detail-panel .detail-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('ep-dtab-' + tab).classList.add('active');
+  document.getElementById('ep-dsec-' + tab).classList.add('active');
+}
+
+async function epAction(action) {
+  if (!activeEpId) return;
+  if (action === 'isolate') {
+    toast('Isolating agent ' + activeEpId + '...', 'info');
+    try {
+      await fetch(`${PROXY_URL}/active-response?agents_list=${activeEpId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({command:'isolate-win',arguments:[]}) });
+      toast('Isolation command sent.', 'success');
+    } catch(e) { toast('Failed.', 'error'); }
+  } else if (action === 'reconnect') {
+    toast('Reconnecting agent...', 'info');
+    try {
+      await fetch(`${PROXY_URL}/active-response?agents_list=${activeEpId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({command:'unisolate-win',arguments:[]}) });
+      toast('Reconnect sent.', 'success');
+    } catch(e) { toast('Failed.', 'error'); }
+  } else if (action === 'scan') {
+    toast('Running FDS...', 'info');
+    try {
+      await Promise.all([
+        fetch(`${PROXY_URL}/syscheck?agents_list=${activeEpId}`, {method:'PUT', headers:{'Content-Type':'application/json'}}),
+        fetch(`${PROXY_URL}/rootcheck?agents_list=${activeEpId}`, {method:'PUT', headers:{'Content-Type':'application/json'}})
+      ]);
+      toast('Full disk scan triggered.', 'success');
+    } catch(e) { toast('Scan failed.', 'error'); }
+  } else if (action === 'remote') {
+    window.open('https://mesh.palisadeone.com:444', '_blank');
+  }
+}
+
+// ============================================================
+// EXCLUSIONS
+// ============================================================
+function openExclusionForm() { document.getElementById('exc-form-container').style.display = 'block'; }
+function closeExclusionForm() { document.getElementById('exc-form-container').style.display = 'none'; }
+
+function saveExclusion() {
+  const type = document.getElementById('exc-type').value;
+  const scope = document.getElementById('exc-scope').value;
+  const value = document.getElementById('exc-value').value.trim();
+  const desc = document.getElementById('exc-desc').value.trim();
+  if (!value) { toast('Value is required', 'error'); return; }
+  exclusionsData.push({
+    id: 'exc_' + Date.now(),
+    type, scope, value, description: desc,
+    created: new Date().toISOString()
+  });
+  localStorage.setItem('p1-exclusions', JSON.stringify(exclusionsData));
+  document.getElementById('exc-value').value = '';
+  document.getElementById('exc-desc').value = '';
+  closeExclusionForm();
+  renderExclusions();
+  toast('Exclusion added', 'success');
+}
+
+function renderExclusions() {
+  const typeFilter = document.getElementById('exc-type-filter').value;
+  const search = document.getElementById('exc-search').value.toLowerCase();
+  const filtered = exclusionsData.filter(e => {
+    if (typeFilter && e.type !== typeFilter) return false;
+    if (search && !e.value.toLowerCase().includes(search) && !(e.description||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  const tbody = document.getElementById('exc-table-body');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">=</div><div class="empty-text">No exclusions configured</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(e => `<tr>
+    <td><span class="tag tag-mitre">${e.type.toUpperCase()}</span></td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--white);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${sanitize(e.value)}</td>
+    <td style="font-size:11px;color:var(--muted);">${e.scope === 'global' ? 'Global' : 'Company'}</td>
+    <td style="font-size:11px;color:var(--muted);">${e.description || '--'}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtDateTime(e.created)}</td>
+    <td><button class="panel-btn danger" onclick="removeExclusion('${e.id}')" style="font-size:9px;padding:3px 8px;">REMOVE</button></td>
+  </tr>`).join('');
+}
+
+function removeExclusion(id) {
+  exclusionsData = exclusionsData.filter(e => e.id !== id);
+  localStorage.setItem('p1-exclusions', JSON.stringify(exclusionsData));
+  renderExclusions();
+  toast('Exclusion removed', 'info');
+}
+
+// ============================================================
+// BLACKLIST
+// ============================================================
+function openBlacklistForm() { document.getElementById('bl-form-container').style.display = 'block'; }
+function closeBlacklistForm() { document.getElementById('bl-form-container').style.display = 'none'; }
+
+function saveBlacklistRule() {
+  const type = document.getElementById('bl-type').value;
+  const action = document.getElementById('bl-action').value;
+  const rawValue = document.getElementById('bl-value').value.trim();
+  const desc = document.getElementById('bl-desc').value.trim();
+  if (!rawValue) { toast('Value is required', 'error'); return; }
+
+  // Support bulk add (one per line)
+  const values = rawValue.split('\n').map(v => v.trim()).filter(v => v);
+  values.forEach(value => {
+    blacklistData.push({
+      id: 'bl_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      type, action, value, description: desc,
+      hits: 0,
+      created: new Date().toISOString()
+    });
+  });
+  localStorage.setItem('p1-blacklist', JSON.stringify(blacklistData));
+  document.getElementById('bl-value').value = '';
+  document.getElementById('bl-desc').value = '';
+  closeBlacklistForm();
+  renderBlacklist();
+  toast(values.length + ' rule(s) added to blacklist', 'success');
+}
+
+function renderBlacklist() {
+  const typeFilter = document.getElementById('bl-type-filter').value;
+  const search = document.getElementById('bl-search').value.toLowerCase();
+  const filtered = blacklistData.filter(b => {
+    if (typeFilter && b.type !== typeFilter) return false;
+    if (search && !b.value.toLowerCase().includes(search) && !(b.description||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  const tbody = document.getElementById('bl-table-body');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">X</div><div class="empty-text">No block rules configured</div></div></td></tr>';
+    return;
+  }
+  const actionLabels = { block_kill: 'BLOCK & KILL', block: 'BLOCK', alert: 'ALERT ONLY' };
+  const actionColors = { block_kill: 'var(--danger)', block: 'var(--warning)', alert: 'var(--accent2)' };
+  tbody.innerHTML = filtered.map(b => `<tr>
+    <td><span class="tag tag-mitre">${b.type.toUpperCase()}</span></td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--white);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${sanitize(b.value)}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${actionColors[b.action]||'var(--muted)'};">${actionLabels[b.action]||b.action}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${b.hits||0}</td>
+    <td style="font-size:11px;color:var(--muted);">${b.description || '--'}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtDateTime(b.created)}</td>
+    <td><button class="panel-btn danger" onclick="removeBlacklist('${b.id}')" style="font-size:9px;padding:3px 8px;">REMOVE</button></td>
+  </tr>`).join('');
+}
+
+function removeBlacklist(id) {
+  blacklistData = blacklistData.filter(b => b.id !== id);
+  localStorage.setItem('p1-blacklist', JSON.stringify(blacklistData));
+  renderBlacklist();
+  toast('Block rule removed', 'info');
+}
+
+// ============================================================
+// POLICIES
+// ============================================================
+function renderPolicies() {
+  const el = document.getElementById('policies-list');
+  el.innerHTML = policiesData.map(pol => {
+    const settings = pol.settings || {};
+    const toggles = Object.entries(settings).map(([key, val]) => {
+      const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(17,34,64,0.3);">
+        <span style="font-size:12px;color:var(--text);">${label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${val ? 'var(--accent)' : 'var(--muted)'};">${val ? 'ENABLED' : 'DISABLED'}</span>
+      </div>`;
+    }).join('');
+
+    return `<div style="padding:20px;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:2px;">${pol.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">${pol.description}</div>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 10px;border:1px solid rgba(0,255,209,0.3);color:var(--accent);">${(pol.mode||'protect').toUpperCase()}</span>
+      </div>
+      <div style="max-width:400px;">${toggles}</div>
+      <div style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">Applied to: ${(pol.groups||[]).join(', ') || 'No groups'} | Created: ${fmtDateTime(pol.created)}</div>
+    </div>`;
+  }).join('');
+}
+
+function openPolicyForm() {
+  toast('Policy editor coming soon', 'info');
+}
+
+// ============================================================
+// THREAT HUNTING
+// ============================================================
+function setHuntPreset(type) {
+  const presets = {
+    powershell: 'rule.groups:sysmon AND data.win.eventdata.image:*powershell*',
+    mimikatz: 'rule.description:*mimikatz* OR rule.description:*credential* OR rule.mitre.id:T1003',
+    lateral: 'rule.mitre.tactic:*lateral* OR rule.mitre.id:T1021',
+    persistence: 'rule.mitre.tactic:*persistence* OR rule.mitre.id:T1053 OR rule.mitre.id:T1547',
+    exfil: 'rule.mitre.tactic:*exfiltration* OR rule.description:*exfil*'
+  };
+  document.getElementById('hunt-query').value = presets[type] || '';
+}
+
+async function runHuntQuery() {
+  const queryStr = document.getElementById('hunt-query').value.trim();
+  if (!queryStr) { toast('Enter a query', 'error'); return; }
+  const el = document.getElementById('hunt-results');
+  el.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Hunting across all telemetry...</div>';
+
+  try {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 50,
+      sort: [{ timestamp: { order: 'desc' } }],
+      query: { query_string: { query: queryStr } }
+    });
+    const hits = data?.hits?.hits?.map(h => h._source) || [];
+    const total = data?.hits?.total?.value || 0;
+
+    if (hits.length === 0) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">?</div><div class="empty-text">No results found for this query</div></div>';
+      return;
+    }
+
+    el.innerHTML = `<div style="padding:8px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);border-bottom:1px solid var(--border);">${total} total matches — showing first ${hits.length}</div>` +
+      hits.map(h => {
+        const lvl = h.rule?.level || 0;
+        const color = lvl >= 12 ? 'var(--danger)' : lvl >= 7 ? 'var(--warning)' : lvl >= 4 ? 'var(--accent2)' : 'var(--muted)';
+        const mitre = (h.rule?.mitre?.id || []).map(m => `<span class="tag tag-mitre">${m}</span>`).join('');
+        return `<div style="padding:10px 16px;border-bottom:1px solid rgba(17,34,64,0.5);display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${color};width:24px;flex-shrink:0;">${lvl}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12px;color:var(--white);margin-bottom:2px;">${h.rule?.description || 'Event'}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">
+              ${h.agent?.name || '?'} | ${fmtDateTime(h.timestamp)} | Rule ${h.rule?.id || '--'} ${mitre}
+            </div>
+            ${h.data?.win?.eventdata?.commandLine ? `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:500px;">${sanitize(h.data.win.eventdata.commandLine)}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+  } catch(e) {
+    el.innerHTML = `<div style="padding:16px;color:var(--danger);font-size:12px;font-family:'JetBrains Mono',monospace;">Query error: ${e.message}</div>`;
+  }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function populateCompanyFilters(clients) {
+  const options = '<option value="">All Companies</option>' + clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+  ['inc-company-filter', 'ep-company-filter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = options;
+  });
+}
+
+function toggleSelectAll(prefix) {
+  const all = document.getElementById(prefix + '-select-all');
+  document.querySelectorAll('.' + prefix + '-chk').forEach(c => c.checked = all.checked);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+async function refreshAll() {
+  if (currentView === 'incidents') await loadIncidents();
+  else if (currentView === 'endpoints') await loadEndpoints();
+  else {
+    await Promise.all([loadIncidents(), loadEndpoints()]);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await Promise.all([loadIncidents(), loadEndpoints()]);
+  setInterval(() => { if (currentView === 'incidents') loadIncidents(); }, 60000);
+  setInterval(() => { if (currentView === 'endpoints') loadEndpoints(); }, 30000);
+});
+</script>
+</body>
+</html>
