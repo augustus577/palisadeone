@@ -274,6 +274,43 @@ body{background:var(--black);color:var(--text);font-family:'Outfit',sans-serif;f
 .portal-bg{position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 50%,rgba(0,255,209,0.025) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 85% 30%,rgba(0,132,255,0.03) 0%,transparent 50%);pointer-events:none;z-index:0}
 .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,209,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,209,0.012) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%)}
 
+/* CLIENT BOARD */
+.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+.client-card{background:var(--surface);border:1px solid var(--border);padding:20px;transition:border-color .2s;cursor:none}
+.client-card:hover{border-color:var(--accent)}
+.cc-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.cc-avatar{width:36px;height:36px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--black);flex-shrink:0}
+.cc-name{font-size:14px;color:var(--white);font-weight:500}
+.cc-industry{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px}
+.cc-stats{display:flex;gap:16px;margin-bottom:12px}
+.cc-stat{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
+.cc-stat span{color:var(--text)}
+.cc-fw{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;border:1px solid;letter-spacing:1px;margin-right:4px}
+.cc-score-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+.cc-score-bar{flex:1;height:3px;background:var(--border)}
+.cc-score-fill{height:100%}
+.cc-score-val{font-family:'JetBrains Mono',monospace;font-size:10px}
+.add-client-card{background:var(--surface);border:2px dashed var(--border);padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:none;transition:all .2s;min-height:160px}
+.add-client-card:hover{border-color:var(--accent);background:rgba(0,255,209,0.03)}
+.add-client-icon{font-size:28px;color:var(--muted);line-height:1}
+.add-client-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px}
+
+/* ONBOARDING */
+.onboard-form{max-width:700px;margin:0 auto}
+.onboard-section{margin-bottom:28px}
+.onboard-section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.onboard-row{display:flex;gap:16px;margin-bottom:14px}
+.onboard-field{flex:1}
+.onboard-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px}
+.onboard-input{width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.onboard-input:focus{border-color:var(--accent)}
+.onboard-input::placeholder{color:var(--muted)}
+select.onboard-input{cursor:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234A6080'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+.onboard-chips{display:flex;flex-wrap:wrap;gap:8px}
+.onboard-chip{font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 14px;border:1px solid var(--border);color:var(--muted);cursor:none;transition:all .15s;letter-spacing:1px}
+.onboard-chip:hover{border-color:var(--border2);color:var(--text)}
+.onboard-chip.selected{border-color:var(--accent);color:var(--accent);background:rgba(0,255,209,0.05)}
+
 /* LIGHT MODE */
 html[data-theme="light"] {
   --black: #EEF2F7; --deep: #E3EAF2; --surface: #FFFFFF; --surface2: #F5F8FC;
@@ -398,8 +435,16 @@ textarea.scan-input{height:80px;resize:vertical}
       </div>
     </div>
     <div class="sidebar-section">
+      <div class="sidebar-label">CLIENTS</div>
+      <div class="nav-item active" onclick="showView('clients')" id="nav-clients">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.5-5 6-5s6 2 6 5"/></svg>
+        <span class="ni-label">Client Board</span>
+        <span class="ni-badge green" id="clientCountBadge">0</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
       <div class="sidebar-label">ASSESSMENT</div>
-      <div class="nav-item active" onclick="showView('setup')" id="nav-setup">
+      <div class="nav-item" onclick="showView('setup')" id="nav-setup">
         <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>
         <span class="ni-label">Setup</span>
       </div>
@@ -444,24 +489,286 @@ textarea.scan-input{height:80px;resize:vertical}
   <!-- MAIN -->
   <div class="main">
 
-    <!-- SETUP VIEW -->
-    <div class="view active" id="view-setup">
-      <div class="welcome-hero">
-        <div class="wh-tag">PALISADE ONE GRC PLATFORM</div>
-        <div class="wh-title">CYBER RISK<br><span>ASSESSMENT</span></div>
-        <div class="wh-sub">Select your compliance frameworks, complete the assessment, and get a full risk dashboard with auto-generated remediation tasks and policy templates.</div>
+    <!-- CLIENT BOARD VIEW -->
+    <div class="view active" id="view-clients">
+      <div class="page-header">
+        <div class="page-eyebrow">GRC PLATFORM</div>
+        <div class="page-title" style="font-size:28px">Client Board</div>
+        <div class="page-sub">Manage your clients and their cyber assessments. Click a client to view their assessment or add a new client to begin onboarding.</div>
       </div>
-      <div class="steps" style="max-width:600px;margin:0 auto 32px">
-        <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">SELECT FRAMEWORKS</div></div>
+      <div class="client-grid" id="clientGrid">
+        <div class="add-client-card" onclick="showView('onboarding')">
+          <div class="add-client-icon">+</div>
+          <div class="add-client-label">NEW CLIENT</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ONBOARDING VIEW -->
+    <div class="view" id="view-onboarding">
+      <div class="page-header">
+        <div class="page-eyebrow">CLIENT ONBOARDING</div>
+        <div class="page-title" style="font-size:28px">New Client Intake</div>
+        <div class="page-sub">Complete the intake form to build a client profile. This helps us tailor the assessment and recommendations to your organization.</div>
+      </div>
+      <div class="onboard-form">
+        <div class="onboard-section">
+          <div class="onboard-section-title">COMPANY INFORMATION</div>
+          <div class="onboard-row">
+            <div class="onboard-field">
+              <div class="onboard-label">COMPANY NAME *</div>
+              <input class="onboard-input" id="obCompany" placeholder="e.g., Acme Corp" />
+            </div>
+            <div class="onboard-field">
+              <div class="onboard-label">PRIMARY CONTACT NAME</div>
+              <input class="onboard-input" id="obContact" placeholder="e.g., John Smith" />
+            </div>
+          </div>
+          <div class="onboard-row">
+            <div class="onboard-field">
+              <div class="onboard-label">CONTACT EMAIL</div>
+              <input class="onboard-input" id="obEmail" placeholder="e.g., john@acme.com" type="email" />
+            </div>
+            <div class="onboard-field">
+              <div class="onboard-label">PHONE</div>
+              <input class="onboard-input" id="obPhone" placeholder="e.g., (555) 123-4567" />
+            </div>
+          </div>
+          <div class="onboard-row">
+            <div class="onboard-field">
+              <div class="onboard-label">INDUSTRY *</div>
+              <select class="onboard-input" id="obIndustry">
+                <option value="">Select industry...</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="finance">Financial Services / Banking</option>
+                <option value="legal">Legal</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="retail">Retail / E-Commerce</option>
+                <option value="technology">Technology / SaaS</option>
+                <option value="government">Government / Public Sector</option>
+                <option value="defense">Defense / DoD Contractor</option>
+                <option value="education">Education</option>
+                <option value="nonprofit">Non-Profit</option>
+                <option value="construction">Construction / Real Estate</option>
+                <option value="professional">Professional Services</option>
+                <option value="energy">Energy / Utilities</option>
+                <option value="insurance">Insurance</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="onboard-field">
+              <div class="onboard-label">WEBSITE</div>
+              <input class="onboard-input" id="obWebsite" placeholder="e.g., www.acme.com" />
+            </div>
+          </div>
+        </div>
+
+        <div class="onboard-section">
+          <div class="onboard-section-title">ENVIRONMENT</div>
+          <div class="onboard-row">
+            <div class="onboard-field">
+              <div class="onboard-label">TOTAL EMPLOYEES *</div>
+              <select class="onboard-input" id="obEmployees">
+                <option value="">Select range...</option>
+                <option value="1-10">1 - 10</option>
+                <option value="11-25">11 - 25</option>
+                <option value="26-50">26 - 50</option>
+                <option value="51-100">51 - 100</option>
+                <option value="101-250">101 - 250</option>
+                <option value="251-500">251 - 500</option>
+                <option value="500+">500+</option>
+              </select>
+            </div>
+            <div class="onboard-field">
+              <div class="onboard-label">TOTAL ENDPOINTS (DESKTOPS + LAPTOPS + SERVERS) *</div>
+              <input class="onboard-input" id="obEndpoints" placeholder="e.g., 45" type="number" />
+            </div>
+          </div>
+          <div class="onboard-row">
+            <div class="onboard-field">
+              <div class="onboard-label">MOBILE DEVICES (PHONES/TABLETS)</div>
+              <input class="onboard-input" id="obMobile" placeholder="e.g., 30" type="number" />
+            </div>
+            <div class="onboard-field">
+              <div class="onboard-label">SERVERS (ON-PREM + CLOUD VMs)</div>
+              <input class="onboard-input" id="obServers" placeholder="e.g., 5" type="number" />
+            </div>
+          </div>
+          <div class="onboard-row">
+            <div class="onboard-field">
+              <div class="onboard-label">PHYSICAL LOCATIONS / OFFICES</div>
+              <input class="onboard-input" id="obLocations" placeholder="e.g., 3" type="number" />
+            </div>
+            <div class="onboard-field">
+              <div class="onboard-label">REMOTE WORKERS</div>
+              <select class="onboard-input" id="obRemote">
+                <option value="">Select...</option>
+                <option value="none">None - all on-site</option>
+                <option value="some">Some remote / hybrid</option>
+                <option value="mostly">Mostly remote</option>
+                <option value="all">Fully remote</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="onboard-section">
+          <div class="onboard-section-title">INFRASTRUCTURE</div>
+          <div class="onboard-row">
+            <div class="onboard-field" style="flex:1">
+              <div class="onboard-label">ENVIRONMENT TYPE *</div>
+              <div class="onboard-chips" id="obEnvType">
+                <div class="onboard-chip" onclick="toggleChip(this,'env')">ON-PREMISES</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'env')">CLOUD (AWS/AZURE/GCP)</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'env')">HYBRID</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'env')">MOSTLY SAAS</div>
+              </div>
+            </div>
+          </div>
+          <div class="onboard-row">
+            <div class="onboard-field">
+              <div class="onboard-label">EMAIL PLATFORM</div>
+              <select class="onboard-input" id="obEmailPlatform">
+                <option value="">Select...</option>
+                <option value="m365">Microsoft 365</option>
+                <option value="google">Google Workspace</option>
+                <option value="exchange">On-Prem Exchange</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="onboard-field">
+              <div class="onboard-label">IDENTITY PROVIDER</div>
+              <select class="onboard-input" id="obIdP">
+                <option value="">Select...</option>
+                <option value="azuread">Azure AD / Entra ID</option>
+                <option value="onpremad">On-Prem Active Directory</option>
+                <option value="okta">Okta</option>
+                <option value="google">Google Identity</option>
+                <option value="none">None / Local accounts</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="onboard-row">
+            <div class="onboard-field">
+              <div class="onboard-label">CURRENT ANTIVIRUS / EDR</div>
+              <select class="onboard-input" id="obEDR">
+                <option value="">Select...</option>
+                <option value="none">None</option>
+                <option value="defender">Microsoft Defender</option>
+                <option value="crowdstrike">CrowdStrike</option>
+                <option value="sentinelone">SentinelOne</option>
+                <option value="sophos">Sophos</option>
+                <option value="bitdefender">Bitdefender</option>
+                <option value="wazuh">Wazuh</option>
+                <option value="other">Other / Basic AV</option>
+              </select>
+            </div>
+            <div class="onboard-field">
+              <div class="onboard-label">BACKUP SOLUTION</div>
+              <select class="onboard-input" id="obBackup">
+                <option value="">Select...</option>
+                <option value="none">None</option>
+                <option value="veeam">Veeam</option>
+                <option value="datto">Datto / Kaseya</option>
+                <option value="acronis">Acronis</option>
+                <option value="azure">Azure Backup</option>
+                <option value="aws">AWS Backup</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="onboard-section">
+          <div class="onboard-section-title">DATA & COMPLIANCE</div>
+          <div class="onboard-row">
+            <div class="onboard-field" style="flex:1">
+              <div class="onboard-label">SENSITIVE DATA TYPES HANDLED *</div>
+              <div class="onboard-chips" id="obDataTypes">
+                <div class="onboard-chip" onclick="toggleChip(this,'data')">PHI (HEALTH DATA)</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'data')">PCI (PAYMENT CARDS)</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'data')">PII (PERSONAL DATA)</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'data')">CUI (CONTROLLED UNCLASSIFIED)</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'data')">FINANCIAL DATA</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'data')">INTELLECTUAL PROPERTY</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'data')">NONE / GENERAL BUSINESS</div>
+              </div>
+            </div>
+          </div>
+          <div class="onboard-row">
+            <div class="onboard-field">
+              <div class="onboard-label">EXISTING COMPLIANCE REQUIREMENTS</div>
+              <div class="onboard-chips" id="obCompliance">
+                <div class="onboard-chip" onclick="toggleChip(this,'comp')">HIPAA</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'comp')">PCI-DSS</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'comp')">SOC 2</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'comp')">CMMC</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'comp')">ISO 27001</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'comp')">NIST</div>
+                <div class="onboard-chip" onclick="toggleChip(this,'comp')">NONE YET</div>
+              </div>
+            </div>
+          </div>
+          <div class="onboard-row">
+            <div class="onboard-field">
+              <div class="onboard-label">HAS YOUR ORGANIZATION HAD A SECURITY INCIDENT IN THE PAST 2 YEARS?</div>
+              <select class="onboard-input" id="obIncident">
+                <option value="">Select...</option>
+                <option value="no">No</option>
+                <option value="yes-minor">Yes - minor incident</option>
+                <option value="yes-major">Yes - major breach or ransomware</option>
+                <option value="unsure">Unsure</option>
+              </select>
+            </div>
+            <div class="onboard-field">
+              <div class="onboard-label">CYBER INSURANCE?</div>
+              <select class="onboard-input" id="obInsurance">
+                <option value="">Select...</option>
+                <option value="yes">Yes - active policy</option>
+                <option value="shopping">Shopping for one</option>
+                <option value="no">No</option>
+                <option value="unsure">Unsure</option>
+              </select>
+            </div>
+          </div>
+          <div class="onboard-row">
+            <div class="onboard-field" style="flex:1">
+              <div class="onboard-label">ADDITIONAL NOTES</div>
+              <textarea class="onboard-input" id="obNotes" placeholder="Any other details about the client's environment, concerns, or priorities..." style="height:60px;resize:vertical;font-family:'Outfit',sans-serif"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:10px;border-top:1px solid var(--border)">
+          <button class="btn btn-secondary" onclick="showView('clients')">CANCEL</button>
+          <button class="btn btn-primary" onclick="completeOnboarding()">SAVE & CONTINUE TO ASSESSMENT →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETUP VIEW -->
+    <div class="view" id="view-setup">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;padding:14px 18px;background:var(--surface);border:1px solid var(--border)" id="clientBanner">
+        <div style="width:32px;height:32px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--black);flex-shrink:0" id="setupClientAvatar">?</div>
+        <div>
+          <div style="font-size:14px;color:var(--white);font-weight:500" id="setupClientName">Client Name</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px" id="setupClientMeta">Industry &bull; Endpoints</div>
+        </div>
+      </div>
+      <div class="steps" style="max-width:700px;margin:0 auto 32px">
+        <div class="step done" id="step0"><div class="step-num">&#10003;</div><div class="step-label">ONBOARDING</div></div>
+        <div class="step-line"></div>
+        <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">SELECT FRAMEWORK</div></div>
         <div class="step-line"></div>
         <div class="step" id="step2"><div class="step-num">2</div><div class="step-label">QUESTIONNAIRE</div></div>
         <div class="step-line"></div>
         <div class="step" id="step3"><div class="step-num">3</div><div class="step-label">RESULTS</div></div>
       </div>
       <div style="max-width:900px;margin:0 auto">
-        <div class="page-eyebrow">STEP 1 — SELECT YOUR FRAMEWORKS</div>
-        <div class="page-title" style="font-size:28px;margin-bottom:6px">Which frameworks apply to your organization?</div>
-        <div class="page-sub" style="margin-bottom:24px">Select all that apply. Your assessment will be scored and mapped against each selected framework.</div>
+        <div class="page-eyebrow">STEP 1 — CHOOSE YOUR FRAMEWORK</div>
+        <div class="page-title" style="font-size:28px;margin-bottom:6px">Which framework are you assessing against?</div>
+        <div class="page-sub" style="margin-bottom:24px">Select one framework. Each assessment is tailored specifically to that framework's requirements and controls.</div>
         <div class="setup-grid" id="frameworkGrid"></div>
         <div id="selectedSummary" style="background:var(--surface);border:1px solid var(--border);padding:14px 18px;margin-bottom:16px;display:none">
           <div style="display:flex;align-items:center;gap:12px">
@@ -471,6 +778,7 @@ textarea.scan-input{height:80px;resize:vertical}
           </div>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button class="btn btn-secondary" onclick="showView('onboarding')">← BACK</button>
           <button class="btn btn-primary" onclick="startQuestionnaire()">BEGIN ASSESSMENT →</button>
         </div>
       </div>
@@ -673,8 +981,20 @@ let state = {
   tasks: [],
   publishedPolicies: [],
   assessmentHistory: [],
-  taskStates: {}
+  taskStates: {},
+  clients: [],
+  currentClient: null
 };
+
+// Load saved clients from localStorage
+try {
+  const saved = localStorage.getItem('p1-grc-clients');
+  if(saved) state.clients = JSON.parse(saved);
+} catch(e) {}
+
+function saveClients() {
+  localStorage.setItem('p1-grc-clients', JSON.stringify(state.clients));
+}
 
 // FRAMEWORKS
 const frameworks = [
@@ -1624,13 +1944,18 @@ function renderFrameworkGrid() {
     </div>`).join('');
 }
 
+// SINGLE-SELECT framework
 function toggleFramework(id, el) {
-  if(state.selectedFrameworks.includes(id)) {
-    state.selectedFrameworks = state.selectedFrameworks.filter(f=>f!==id);
-    el.classList.remove('selected');
-    el.querySelector('.sc-check').innerHTML = '';
+  // Deselect all first
+  document.querySelectorAll('.setup-card').forEach(card => {
+    card.classList.remove('selected');
+    card.querySelector('.sc-check').innerHTML = '';
+  });
+  // If clicking the already-selected one, deselect it
+  if(state.selectedFrameworks.length === 1 && state.selectedFrameworks[0] === id) {
+    state.selectedFrameworks = [];
   } else {
-    state.selectedFrameworks.push(id);
+    state.selectedFrameworks = [id];
     el.classList.add('selected');
     el.querySelector('.sc-check').innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="#03050A" stroke-width="2" fill="none"/></svg>';
   }
@@ -1648,14 +1973,172 @@ function updateSelectedSummary() {
     return;
   }
   wrap.style.display = 'block';
-  list.innerHTML = state.selectedFrameworks.map(f =>
-    `<span style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border:1px solid ${fwColors[f]||'var(--accent)'}40;color:${fwColors[f]||'var(--accent)'};letter-spacing:1px">${fwNames[f]||f}</span>`
-  ).join('');
-  // Count unique questions across selected frameworks
+  const f = state.selectedFrameworks[0];
+  const fd = frameworkDescriptions[f];
+  list.innerHTML = `<span style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border:1px solid ${fwColors[f]||'var(--accent)'}40;color:${fwColors[f]||'var(--accent)'};letter-spacing:1px">${fwNames[f]||f}</span>`;
   const filtered = getFilteredSections();
   const total = filtered.reduce((a,s)=>a+s.questions.length,0);
   const secCount = filtered.length;
   qCount.textContent = total + ' questions \u00B7 ' + secCount + ' sections';
+}
+
+// ONBOARDING CHIP TOGGLE
+function toggleChip(el, group) {
+  el.classList.toggle('selected');
+}
+
+function getSelectedChips(containerId) {
+  return Array.from(document.getElementById(containerId).querySelectorAll('.onboard-chip.selected')).map(c=>c.textContent.trim());
+}
+
+// COMPLETE ONBOARDING
+function completeOnboarding() {
+  const company = document.getElementById('obCompany').value.trim();
+  const industry = document.getElementById('obIndustry').value;
+  if(!company) { alert('Please enter the company name.'); return; }
+  if(!industry) { alert('Please select an industry.'); return; }
+
+  const client = {
+    id: 'client_' + Date.now(),
+    company: company,
+    contact: document.getElementById('obContact').value.trim(),
+    email: document.getElementById('obEmail').value.trim(),
+    phone: document.getElementById('obPhone').value.trim(),
+    industry: industry,
+    website: document.getElementById('obWebsite').value.trim(),
+    employees: document.getElementById('obEmployees').value,
+    endpoints: document.getElementById('obEndpoints').value,
+    mobile: document.getElementById('obMobile').value,
+    servers: document.getElementById('obServers').value,
+    locations: document.getElementById('obLocations').value,
+    remote: document.getElementById('obRemote').value,
+    envType: getSelectedChips('obEnvType'),
+    emailPlatform: document.getElementById('obEmailPlatform').value,
+    idp: document.getElementById('obIdP').value,
+    edr: document.getElementById('obEDR').value,
+    backup: document.getElementById('obBackup').value,
+    dataTypes: getSelectedChips('obDataTypes'),
+    compliance: getSelectedChips('obCompliance'),
+    incident: document.getElementById('obIncident').value,
+    insurance: document.getElementById('obInsurance').value,
+    notes: document.getElementById('obNotes').value.trim(),
+    createdAt: new Date().toISOString(),
+    framework: null,
+    score: null
+  };
+
+  state.clients.push(client);
+  state.currentClient = client;
+  saveClients();
+
+  // Update client name in topbar
+  document.getElementById('clientName').textContent = client.company;
+
+  // Update setup view banner
+  const industryNames = {healthcare:'Healthcare',finance:'Financial Services',legal:'Legal',manufacturing:'Manufacturing',retail:'Retail',technology:'Technology',government:'Government',defense:'Defense/DoD',education:'Education',nonprofit:'Non-Profit',construction:'Construction',professional:'Professional Services',energy:'Energy',insurance:'Insurance',other:'Other'};
+  document.getElementById('setupClientAvatar').textContent = client.company.substring(0,2).toUpperCase();
+  document.getElementById('setupClientName').textContent = client.company;
+  document.getElementById('setupClientMeta').innerHTML = (industryNames[client.industry]||client.industry) + ' &bull; ' + (client.endpoints||'?') + ' endpoints &bull; ' + (client.employees||'?') + ' employees';
+
+  // Reset assessment state for new client
+  state.selectedFrameworks = [];
+  state.answers = {};
+  state.scores = null;
+  state.tasks = [];
+  state.taskStates = {};
+  state.filteredSections = null;
+
+  renderClientBoard();
+  renderFrameworkGrid();
+  showView('setup');
+}
+
+// CLIENT BOARD
+function renderClientBoard() {
+  const grid = document.getElementById('clientGrid');
+  const fwColors = {nist800:'#00C896',nistcsf:'#00FFD1',soc2:'#0084FF',hipaa:'#7B61FF',pci:'#F5A623',cmmc:'#FF3B5C',iso:'#C8D8F0'};
+  const fwNames = {nist800:'NIST 800-53',nistcsf:'NIST CSF',soc2:'SOC 2',hipaa:'HIPAA',pci:'PCI-DSS',cmmc:'CMMC',iso:'ISO 27001'};
+  const industryNames = {healthcare:'Healthcare',finance:'Financial Services',legal:'Legal',manufacturing:'Manufacturing',retail:'Retail',technology:'Technology',government:'Government',defense:'Defense/DoD',education:'Education',nonprofit:'Non-Profit',construction:'Construction',professional:'Professional Services',energy:'Energy',insurance:'Insurance',other:'Other'};
+
+  grid.innerHTML = state.clients.map(c => {
+    const risk = c.score !== null ? getRisk(c.score) : null;
+    return `<div class="client-card" onclick="loadClient('${c.id}')">
+      <div class="cc-top">
+        <div class="cc-avatar">${c.company.substring(0,2).toUpperCase()}</div>
+        <div>
+          <div class="cc-name">${c.company}</div>
+          <div class="cc-industry">${industryNames[c.industry]||c.industry}</div>
+        </div>
+      </div>
+      <div class="cc-stats">
+        <div class="cc-stat">ENDPOINTS: <span>${c.endpoints||'—'}</span></div>
+        <div class="cc-stat">EMPLOYEES: <span>${c.employees||'—'}</span></div>
+      </div>
+      ${c.framework ? `<div class="cc-fw" style="color:${fwColors[c.framework]||'var(--accent)'};border-color:${(fwColors[c.framework]||'var(--accent)')}40">${fwNames[c.framework]||c.framework}</div>` : '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--muted)">NO ASSESSMENT YET</div>'}
+      ${risk ? `<div class="cc-score-row">
+        <div class="cc-score-bar"><div class="cc-score-fill" style="width:${c.score}%;background:${risk.c}"></div></div>
+        <div class="cc-score-val" style="color:${risk.c}">${c.score}%</div>
+      </div>` : ''}
+    </div>`;
+  }).join('') + `
+    <div class="add-client-card" onclick="startNewClient()">
+      <div class="add-client-icon">+</div>
+      <div class="add-client-label">NEW CLIENT</div>
+    </div>`;
+
+  document.getElementById('clientCountBadge').textContent = state.clients.length;
+}
+
+function startNewClient() {
+  // Clear onboarding form
+  ['obCompany','obContact','obEmail','obPhone','obWebsite','obEndpoints','obMobile','obServers','obLocations','obNotes'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  ['obIndustry','obEmployees','obRemote','obEmailPlatform','obIdP','obEDR','obBackup','obIncident','obInsurance'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.selectedIndex = 0;
+  });
+  document.querySelectorAll('.onboard-chip').forEach(c=>c.classList.remove('selected'));
+  showView('onboarding');
+}
+
+function loadClient(clientId) {
+  const client = state.clients.find(c=>c.id===clientId);
+  if(!client) return;
+  state.currentClient = client;
+
+  // Update topbar
+  document.getElementById('clientName').textContent = client.company;
+
+  // If client has a completed assessment, load their data
+  const industryNames = {healthcare:'Healthcare',finance:'Financial Services',legal:'Legal',manufacturing:'Manufacturing',retail:'Retail',technology:'Technology',government:'Government',defense:'Defense/DoD',education:'Education',nonprofit:'Non-Profit',construction:'Construction',professional:'Professional Services',energy:'Energy',insurance:'Insurance',other:'Other'};
+  document.getElementById('setupClientAvatar').textContent = client.company.substring(0,2).toUpperCase();
+  document.getElementById('setupClientName').textContent = client.company;
+  document.getElementById('setupClientMeta').innerHTML = (industryNames[client.industry]||client.industry) + ' &bull; ' + (client.endpoints||'?') + ' endpoints &bull; ' + (client.employees||'?') + ' employees';
+
+  if(client.framework && client.score !== null) {
+    // Client has completed assessment — go to dashboard
+    state.selectedFrameworks = [client.framework];
+    if(client.answers) state.answers = client.answers;
+    if(client.taskStates) state.taskStates = client.taskStates;
+    state.filteredSections = getFilteredSections();
+    state.scores = calcScores();
+    state.tasks = generateTasks();
+    renderDashboard();
+    renderTasks();
+    renderPolicies();
+    showView('dashboard-view');
+  } else {
+    // Client needs assessment — go to framework selection
+    state.selectedFrameworks = [];
+    state.answers = {};
+    state.scores = null;
+    state.tasks = [];
+    state.taskStates = {};
+    renderFrameworkGrid();
+    showView('setup');
+  }
 }
 
 // FRAMEWORK DESCRIPTIONS for assessment context
@@ -1686,7 +2169,7 @@ function getFilteredSections() {
 // START QUESTIONNAIRE
 function startQuestionnaire() {
   if(state.selectedFrameworks.length === 0) {
-    alert('Please select at least one compliance framework.');
+    alert('Please select a compliance framework.');
     return;
   }
   // Build filtered sections and store them
@@ -1805,13 +2288,25 @@ function selAns(sid,qi,ai,score,el,displayIdx) {
 function completeAssessment() {
   state.scores = calcScores();
   state.tasks = generateTasks();
-  
+
+  // Save to current client
+  if(state.currentClient) {
+    state.currentClient.framework = state.selectedFrameworks[0];
+    state.currentClient.score = state.scores.overall;
+    state.currentClient.answers = {...state.answers};
+    state.currentClient.taskStates = {...state.taskStates};
+    state.currentClient.assessedAt = new Date().toISOString();
+    saveClients();
+    renderClientBoard();
+  }
+
   // Update history
   state.assessmentHistory.unshift({
     date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
     score: state.scores.overall,
     risk: getRisk(state.scores.overall).lvl,
-    frameworks: state.selectedFrameworks
+    frameworks: state.selectedFrameworks,
+    client: state.currentClient ? state.currentClient.company : 'Unknown'
   });
 
   // Update sidebar
@@ -2383,6 +2878,7 @@ function showView(id) {
 }
 
 // INIT
+renderClientBoard();
 renderFrameworkGrid();
 renderPolicies();
 
