@@ -471,6 +471,23 @@ textarea.scan-input{height:80px;resize:vertical}
 .bb-industry-label{position:absolute;top:12px;font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--muted);transform:translateX(-50%);white-space:nowrap}
 .bb-val{font-family:'JetBrains Mono',monospace;font-size:10px;width:40px;text-align:right;flex-shrink:0}
 
+@media print {
+  body{background:#fff!important;color:#1a1a1a!important;overflow:visible!important}
+  .topbar,.sidebar,.cursor,.cursor-ring,.portal-bg,.grid-bg,.page-header,.btn{display:none!important}
+  .app-body{display:block!important;overflow:visible!important}
+  .main{overflow:visible!important}
+  .view{display:none!important;padding:0!important}
+  #view-report{display:block!important}
+  .report-preview{border:none!important;box-shadow:none!important;max-width:100%!important;padding:20px!important;background:#fff!important}
+  .report-preview *{color:#1a1a1a!important;border-color:#ccc!important}
+  .rp-header{border-bottom-color:#000!important}
+  .rp-logo{color:#000!important}
+  .rp-kpi{border-color:#ccc!important}
+  .rp-kpi-val{color:#000!important}
+  .rp-finding{background:#f5f5f5!important;border-left-width:4px!important}
+  .benchmark-bar{background:#f5f5f5!important}
+}
+
 @media(max-width:900px){
   .sidebar{display:none}
   body{cursor:auto}
@@ -2242,22 +2259,30 @@ function renderClientBoard() {
 
   grid.innerHTML = state.clients.map(c => {
     const risk = c.score !== null ? getRisk(c.score) : null;
+    const assessedDate = c.assessedAt ? new Date(c.assessedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : null;
     return `<div class="client-card" onclick="loadClient('${c.id}')">
       <div class="cc-top">
-        <div class="cc-avatar">${c.company.substring(0,2).toUpperCase()}</div>
-        <div>
+        <div class="cc-avatar" style="${risk ? 'background:'+risk.c : ''}">${c.company.substring(0,2).toUpperCase()}</div>
+        <div style="flex:1">
           <div class="cc-name">${c.company}</div>
           <div class="cc-industry">${industryNames[c.industry]||c.industry}</div>
+        </div>
+        <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+          <div style="width:22px;height:22px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);cursor:none;transition:all .15s" onclick="deleteClient('${c.id}')" onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'" title="Delete client">&#10005;</div>
         </div>
       </div>
       <div class="cc-stats">
         <div class="cc-stat">ENDPOINTS: <span>${c.endpoints||'—'}</span></div>
         <div class="cc-stat">EMPLOYEES: <span>${c.employees||'—'}</span></div>
+        ${assessedDate ? `<div class="cc-stat">ASSESSED: <span>${assessedDate}</span></div>` : ''}
       </div>
-      ${c.framework ? `<div class="cc-fw" style="color:${fwColors[c.framework]||'var(--accent)'};border-color:${(fwColors[c.framework]||'var(--accent)')}40">${fwNames[c.framework]||c.framework}</div>` : '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--muted)">NO ASSESSMENT YET</div>'}
+      ${c.framework ? `<div style="display:flex;align-items:center;gap:8px">
+        <div class="cc-fw" style="color:${fwColors[c.framework]||'var(--accent)'};border-color:${(fwColors[c.framework]||'var(--accent)')}40">${fwNames[c.framework]||c.framework}</div>
+        ${risk ? `<span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:${risk.c};letter-spacing:1px">${risk.lvl}</span>` : ''}
+      </div>` : '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--warn);letter-spacing:1px">&#9888; AWAITING ASSESSMENT</div>'}
       ${risk ? `<div class="cc-score-row">
         <div class="cc-score-bar"><div class="cc-score-fill" style="width:${c.score}%;background:${risk.c}"></div></div>
-        <div class="cc-score-val" style="color:${risk.c}">${c.score}%</div>
+        <div class="cc-score-val" style="color:${risk.c}">${Math.round(c.score)}%</div>
       </div>` : ''}
     </div>`;
   }).join('') + `
@@ -2281,6 +2306,25 @@ function startNewClient() {
   });
   document.querySelectorAll('.onboard-chip').forEach(c=>c.classList.remove('selected'));
   showView('onboarding');
+}
+
+function deleteClient(clientId) {
+  const client = state.clients.find(c=>c.id===clientId);
+  if(!client) return;
+  if(!confirm('Delete "' + client.company + '" and all their assessment data? This cannot be undone.')) return;
+  state.clients = state.clients.filter(c=>c.id!==clientId);
+  if(state.currentClient && state.currentClient.id === clientId) {
+    state.currentClient = null;
+    state.scores = null;
+    state.tasks = [];
+    state.answers = {};
+    state.taskStates = {};
+    state.selectedFrameworks = [];
+    document.getElementById('sidebarScoreWrap').style.display = 'none';
+    document.getElementById('clientName').textContent = 'Demo Client';
+  }
+  saveClients();
+  renderClientBoard();
 }
 
 function loadClient(clientId) {
