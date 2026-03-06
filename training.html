@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Security Training &#8212; Palisade One</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--black:#03050A;--deep:#070C14;--surface:#0B1220;--surface2:#0F1A2E;--border:#112240;--border2:#1A3060;--accent:#00FFD1;--accent2:#0084FF;--danger:#FF3B5C;--warning:#F5A623;--success:#00C896;--purple:#7B61FF;--text:#C8D8F0;--muted:#4A6080;--white:#F0F6FF}
+html[data-theme="light"]{--black:#EEF2F7;--deep:#E3EAF2;--surface:#FFFFFF;--surface2:#F5F8FC;--border:#CBD8E8;--border2:#ADC0D4;--accent:#008F7E;--accent2:#0070CC;--danger:#D42B47;--warning:#C47800;--success:#008F7E;--purple:#5B41DF;--text:#1E2E3D;--muted:#5A7A9A;--white:#0A1828}
+html,body{height:100%;overflow:hidden}
+body{background:var(--black);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;cursor:none;display:flex;flex-direction:column}
+html[data-theme="light"] body{cursor:auto}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+.cursor{width:8px;height:8px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:99999;mix-blend-mode:screen;transition:transform .1s}
+.cursor-ring{width:28px;height:28px;border:1px solid rgba(0,255,209,0.4);border-radius:50%;position:fixed;pointer-events:none;z-index:99998;transition:all .12s ease}
+html[data-theme="light"] .cursor,html[data-theme="light"] .cursor-ring{display:none}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,209,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,209,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+html[data-theme="light"] .grid-bg{background-image:linear-gradient(rgba(0,143,126,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,143,126,0.03) 1px,transparent 1px)}
+.topbar{height:52px;background:rgba(3,5,10,0.97);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:20px;flex-shrink:0;z-index:50;position:relative}
+html[data-theme="light"] .topbar{background:rgba(238,242,247,0.95)}
+.topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:8px}
+.topbar-logo span{color:var(--accent)}
+.topbar-sep{width:1px;height:24px;background:var(--border)}
+.topbar-module{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.topbar-back{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-decoration:none;cursor:none;transition:color .15s}
+.topbar-back:hover{color:var(--text)}
+html[data-theme="light"] .topbar-back{cursor:pointer}
+.theme-toggle-btn{background:transparent;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:none;font-size:13px;transition:all .2s}
+.theme-toggle-btn:hover{border-color:var(--accent);color:var(--accent)}
+html[data-theme="light"] .theme-toggle-btn{cursor:pointer}
+.app-body{flex:1;display:flex;overflow:hidden;position:relative;z-index:1}
+.sidebar{width:220px;background:rgba(7,12,20,0.98);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+html[data-theme="light"] .sidebar{background:var(--deep)}
+.sidebar-section{padding:16px 0 8px}
+.sidebar-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:3px;padding:0 16px;margin-bottom:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:none;transition:all .15s;border-left:2px solid transparent;text-decoration:none;color:var(--text);font-size:12px}
+html[data-theme="light"] .nav-item{cursor:pointer}
+.nav-item:hover{background:var(--surface)}
+.nav-item.active{background:rgba(0,255,209,0.06);border-left-color:var(--accent);color:var(--white)}
+.nav-item .ni{width:16px;text-align:center;flex-shrink:0;opacity:0.6;font-size:13px}
+.nav-item.active .ni{opacity:1}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.view{display:none;flex:1;padding:32px;animation:fadeIn .2s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ph{margin-bottom:28px}
+.ph-e{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:8px}
+.ph-t{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--white);letter-spacing:2px;margin-bottom:6px}
+.ph-s{font-size:13px;color:var(--muted);line-height:1.6}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.sc{background:var(--surface);border:1px solid var(--border);padding:18px}
+.sc-l{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:10px}
+.sc-v{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;margin-bottom:4px}
+.sc-s{font-size:11px;color:var(--muted)}
+.sc-b{height:3px;background:var(--border);margin-top:10px}
+.sc-bf{height:100%;transition:width 1s ease}
+.tc{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+.pn{background:var(--surface);border:1px solid var(--border);padding:20px;margin-bottom:20px}
+.pn-t{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.btn{padding:10px 24px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;border:none;cursor:none;transition:all .2s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
+html[data-theme="light"] .btn{cursor:pointer}
+.btn-p{background:var(--accent);color:var(--black)}.btn-p:hover{background:var(--white)}
+.btn-s{background:transparent;color:var(--muted);border:1px solid var(--border);clip-path:none}.btn-s:hover{border-color:var(--border2);color:var(--text)}
+.btn-d{background:var(--danger);color:#fff}
+.btn-sm{padding:7px 16px;font-size:11px}
+.badge{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;letter-spacing:1px;display:inline-block}
+.bg{color:var(--success);border:1px solid rgba(0,200,150,0.3)}
+.bb{color:var(--accent2);border:1px solid rgba(0,132,255,0.3)}
+.br{color:var(--danger);border:1px solid rgba(255,59,92,0.3)}
+.by{color:var(--warning);border:1px solid rgba(245,166,35,0.3)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+td{font-size:12px;padding:10px 12px;border-bottom:1px solid rgba(17,34,64,0.5)}
+tr:hover td{background:rgba(0,255,209,0.02)}
+.fg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.fi{background:var(--deep);border:1px solid var(--border);padding:14px;text-align:center}
+.fi-v{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;margin-bottom:4px}
+.fi-l{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1px}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.cc{background:var(--surface);border:1px solid var(--border);padding:20px;transition:border-color .2s;cursor:none}
+html[data-theme="light"] .cc{cursor:pointer}
+.cc:hover{border-color:var(--border2)}
+.cc-i{font-size:28px;margin-bottom:10px}
+.cc-t{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px;margin-bottom:4px}
+.cc-d{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.cc-m{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cc-mi{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px}
+.fb{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.fbtn{font-family:'JetBrains Mono',monospace;font-size:9px;padding:5px 12px;border:1px solid var(--border);color:var(--muted);cursor:none;transition:all .15s;letter-spacing:1px;background:transparent}
+html[data-theme="light"] .fbtn{cursor:pointer}
+.fbtn:hover{border-color:var(--border2);color:var(--text)}
+.fbtn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,209,0.05)}
+.mo{display:none;position:fixed;inset:0;background:rgba(3,5,10,0.92);z-index:1000;backdrop-filter:blur(4px)}
+html[data-theme="light"] .mo{background:rgba(200,216,232,0.85)}
+.mo.open{display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.md{background:var(--deep);border:1px solid var(--border);max-width:900px;width:100%;padding:32px;position:relative}
+html[data-theme="light"] .md{background:var(--surface)}
+.md-x{position:absolute;top:16px;right:16px;font-size:18px;color:var(--muted);cursor:none;background:none;border:none}
+html[data-theme="light"] .md-x{cursor:pointer}
+.md-x:hover{color:var(--text)}
+.md-e{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:3px;margin-bottom:10px}
+.md-t{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--white);letter-spacing:2px;margin-bottom:20px}
+.cv{display:none;position:fixed;inset:0;z-index:2000;background:var(--black);flex-direction:column}
+.cv.open{display:flex}
+.cv-h{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:20px;background:var(--deep)}
+.cv-t{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);letter-spacing:1px;flex:1}
+.cv-pb{width:200px}.cv-pbb{height:4px;background:var(--border)}.cv-pbf{height:100%;background:var(--accent);transition:width .3s}
+.cv-x{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);cursor:none;background:none;border:1px solid var(--border);padding:6px 14px;letter-spacing:1px}
+html[data-theme="light"] .cv-x{cursor:pointer}
+.cv-x:hover{color:var(--text);border-color:var(--border2)}
+.cv-b{flex:1;overflow-y:auto;display:flex;align-items:center;justify-content:center;padding:40px}
+.cv-sl{max-width:700px;width:100%;text-align:center}
+.cv-si{font-size:48px;margin-bottom:20px}
+.cv-st{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--white);letter-spacing:2px;margin-bottom:16px}
+.cv-sc{font-size:14px;color:var(--text);line-height:1.8;text-align:left}
+.cv-sc ul{list-style:none;padding:0}
+.cv-sc li{padding:8px 0;border-bottom:1px solid rgba(17,34,64,0.3);display:flex;align-items:flex-start;gap:10px}
+.cv-sc li::before{content:">";color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:bold}
+.cv-hl{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);display:block;margin:10px 0}
+.qo{display:flex;flex-direction:column;gap:8px;margin-top:16px;text-align:left}
+.qopt{padding:12px 16px;border:1px solid var(--border);background:var(--surface);cursor:none;transition:all .15s;font-size:13px;color:var(--text)}
+html[data-theme="light"] .qopt{cursor:pointer}
+.qopt:hover{border-color:var(--border2)}
+.qopt.correct{border-color:var(--success);background:rgba(0,200,150,0.1);color:var(--success)}
+.qopt.wrong{border-color:var(--danger);background:rgba(255,59,92,0.1);color:var(--danger)}
+.qopt.disabled{pointer-events:none;opacity:0.6}
+.qexp{margin-top:12px;padding:12px;background:var(--surface);border:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.6;display:none}
+.qexp.show{display:block}
+.cv-f{padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--deep)}
+.cv-cnt{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px}
+.cert-pv{background:var(--surface);border:2px solid var(--accent);padding:40px;max-width:500px;margin:0 auto 20px;text-align:center}
+.cert-lg{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:var(--accent);margin-bottom:6px}
+.cert-tl{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);margin-bottom:4px}
+.cert-nm{font-size:14px;color:var(--text);margin-bottom:4px}
+.cert-dt{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.fg2{margin-bottom:16px}.fl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;display:block}
+.fin,.fsl{width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none}
+.fin:focus,.fsl:focus{border-color:var(--accent)}
+.lb3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px}
+.lbc{background:var(--surface);border:1px solid var(--border);padding:20px;text-align:center}
+.lbc.gold{border-color:rgba(255,215,0,0.4)}.lbc.silver{border-color:rgba(192,192,192,0.4)}.lbc.bronze{border-color:rgba(205,127,50,0.4)}
+.lbr{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1}
+.lbn{font-size:13px;color:var(--white);margin-top:6px}
+.lbd{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px}
+.lbs{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);margin-top:6px}
+.ai{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(17,34,64,0.3)}.ai:last-child{border-bottom:none}
+.ai-i{width:28px;height:28px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.ai-t{font-size:12px;color:var(--text);line-height:1.5}.ai-tm{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.tpc{background:var(--surface);border:1px solid var(--border);padding:16px;cursor:none;transition:all .2s}
+html[data-theme="light"] .tpc{cursor:pointer}
+.tpc:hover{border-color:var(--accent)}.tpc.selected{border-color:var(--accent);background:rgba(0,255,209,0.04)}
+.tpb{font-size:20px;margin-bottom:8px}.tpn{font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px}.tps{font-size:11px;color:var(--muted);margin-bottom:8px}
+.ep{background:var(--surface);border:1px solid var(--border);padding:24px;margin-top:16px}
+.ep-f{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:4px}
+.ep-s{font-size:14px;color:var(--white);font-weight:500;margin-bottom:16px}
+.ep-b{font-size:13px;color:var(--text);line-height:1.8}
+.ep-btn{display:inline-block;background:var(--accent2);color:#fff;padding:10px 24px;font-size:13px;margin-top:12px}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s ease}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--success);color:var(--black)}.toast.error{background:var(--danger);color:#fff}.toast.info{background:var(--accent2);color:#fff}
+.rb{height:8px;background:var(--border);overflow:hidden}.rbf{height:100%;transition:width .6s}
+.pb{height:4px;background:var(--border)}.pbf{height:100%;transition:width .6s}
+@media(max-width:900px){.sidebar{width:60px}.sidebar-label,.nav-item span{display:none}.nav-item{justify-content:center;padding:12px}.sg{grid-template-columns:1fr 1fr}.tc{grid-template-columns:1fr}.fg{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="topbar">
+  <a class="topbar-logo" href="index.html">PALISADE <span>ONE</span></a>
+  <div class="topbar-sep"></div>
+  <div class="topbar-module">SECURITY TRAINING</div>
+  <div class="topbar-right">
+    <button class="theme-toggle-btn" onclick="toggleTheme()"><span id="theme-icon">&#9788;</span></button>
+    <a href="dashboard.html" class="topbar-back">&larr; BACK TO DASHBOARD</a>
+  </div>
+</div>
+<div class="app-body">
+<div class="sidebar">
+  <div class="sidebar-section"><div class="sidebar-label">OVERVIEW</div>
+    <a class="nav-item active" onclick="showView('dashboard')"><span class="ni">&#9635;</span><span>Dashboard</span></a></div>
+  <div class="sidebar-section"><div class="sidebar-label">PHISHING</div>
+    <a class="nav-item" onclick="showView('campaigns')"><span class="ni">&#9993;</span><span>Campaigns</span></a>
+    <a class="nav-item" onclick="showView('templates')"><span class="ni">&#9776;</span><span>Templates</span></a>
+    <a class="nav-item" onclick="showView('results')"><span class="ni">&#9783;</span><span>Results</span></a></div>
+  <div class="sidebar-section"><div class="sidebar-label">TRAINING</div>
+    <a class="nav-item" onclick="showView('courses')"><span class="ni">&#9733;</span><span>Course Library</span></a>
+    <a class="nav-item" onclick="showView('paths')"><span class="ni">&#9654;</span><span>Learning Paths</span></a>
+    <a class="nav-item" onclick="showView('assignments')"><span class="ni">&#9744;</span><span>Assignments</span></a></div>
+  <div class="sidebar-section"><div class="sidebar-label">ANALYTICS</div>
+    <a class="nav-item" onclick="showView('risk')"><span class="ni">&#9888;</span><span>User Risk Scores</span></a>
+    <a class="nav-item" onclick="showView('leaderboard')"><span class="ni">&#9813;</span><span>Leaderboard</span></a>
+    <a class="nav-item" onclick="showView('reports')"><span class="ni">&#9636;</span><span>Reports</span></a></div>
+  <div class="sidebar-section"><div class="sidebar-label">SETTINGS</div>
+    <a class="nav-item" onclick="showView('users')"><span class="ni">&#9823;</span><span>Users &amp; Groups</span></a>
+    <a class="nav-item" onclick="showView('certificates')"><span class="ni">&#9900;</span><span>Certificates</span></a></div>
+</div>
+<div class="main">
+<div class="view active" id="v-dashboard"><div class="ph"><div class="ph-e">OVERVIEW</div><div class="ph-t">TRAINING DASHBOARD</div><div class="ph-s">Security awareness training and phishing simulation overview</div></div>
+<div class="sg"><div class="sc"><div class="sc-l">SECURITY SCORE</div><div class="sc-v" style="color:var(--accent)" id="ds-score">--</div><div class="sc-s">out of 100</div><div class="sc-b"><div class="sc-bf" id="ds-score-bar" style="width:0;background:var(--accent)"></div></div></div>
+<div class="sc"><div class="sc-l">PHISH CLICK RATE</div><div class="sc-v" style="color:var(--warning)" id="ds-click">--</div><div class="sc-s">Industry avg: 17.8%</div><div class="sc-b"><div class="sc-bf" id="ds-click-bar" style="width:0;background:var(--warning)"></div></div></div>
+<div class="sc"><div class="sc-l">COURSES COMPLETED</div><div class="sc-v" style="color:var(--accent2)" id="ds-courses">--</div><div class="sc-s" id="ds-courses-sub">of 0 assigned</div></div>
+<div class="sc"><div class="sc-l">ACTIVE CAMPAIGNS</div><div class="sc-v" style="color:var(--accent)" id="ds-camps">--</div><div class="sc-s" id="ds-camps-sub">0 completed</div></div></div>
+<div class="tc"><div class="pn"><div class="pn-t">PHISHING FUNNEL</div><div class="fg" id="funnel"></div></div>
+<div class="pn"><div class="pn-t">TRAINING COMPLETION</div><div id="train-comp"></div></div></div>
+<div class="tc"><div class="pn"><div class="pn-t">RECENT ACTIVITY</div><div id="activity"></div></div>
+<div class="pn"><div class="pn-t">RISK DISTRIBUTION</div><div id="risk-dist"></div></div></div></div>
+<div class="view" id="v-campaigns"><div class="ph"><div class="ph-e">PHISHING</div><div class="ph-t">CAMPAIGNS</div><div class="ph-s">Manage phishing simulation campaigns</div></div>
+<div style="margin-bottom:20px"><button class="btn btn-p btn-sm" onclick="openCampaignBuilder()">+ NEW CAMPAIGN</button></div>
+<div id="camp-list" class="cg"></div></div>
+<div class="view" id="v-templates"><div class="ph"><div class="ph-e">PHISHING</div><div class="ph-t">EMAIL TEMPLATES</div><div class="ph-s">Phishing email templates for simulation campaigns</div></div>
+<div class="fb" id="tpl-filt"></div><div id="tpl-grid" class="tg"></div></div>
+<div class="view" id="v-results"><div class="ph"><div class="ph-e">PHISHING</div><div class="ph-t">CAMPAIGN RESULTS</div><div class="ph-s">Detailed phishing campaign analytics and user behavior</div></div><div id="res-content"></div></div>
+<div class="view" id="v-courses"><div class="ph"><div class="ph-e">TRAINING</div><div class="ph-t">COURSE LIBRARY</div><div class="ph-s">Security awareness training courses with interactive content</div></div>
+<div class="fb" id="crs-filt"></div><div id="crs-grid" class="cg"></div></div>
+<div class="view" id="v-paths"><div class="ph"><div class="ph-e">TRAINING</div><div class="ph-t">LEARNING PATHS</div><div class="ph-s">Structured learning journeys for security awareness</div></div><div id="paths-list" class="cg"></div></div>
+<div class="view" id="v-assignments"><div class="ph"><div class="ph-e">TRAINING</div><div class="ph-t">ASSIGNMENTS</div><div class="ph-s">Track and manage training assignments</div></div>
+<div style="margin-bottom:20px"><button class="btn btn-p btn-sm" onclick="assignTraining()">ASSIGN TRAINING</button></div>
+<div class="pn"><div class="tw"><table><thead><tr><th>USER</th><th>COURSE/PATH</th><th>DUE DATE</th><th>STATUS</th><th>PROGRESS</th></tr></thead><tbody id="asgn-tb"></tbody></table></div></div>
+<div class="pn" style="margin-top:20px"><div class="pn-t">AUTO-ASSIGN RULES</div>
+<div style="font-size:12px;color:var(--text);padding:10px 0;border-bottom:1px solid var(--border)">When user <span style="color:var(--accent)">fails phishing test</span> &#8594; Auto-assign <span style="color:var(--accent2)">Phishing Awareness 101</span></div>
+<div style="font-size:12px;color:var(--text);padding:10px 0;border-bottom:1px solid var(--border)">When user <span style="color:var(--accent)">joins organization</span> &#8594; Auto-assign <span style="color:var(--accent2)">New Employee Onboarding</span> path</div>
+<div style="font-size:12px;color:var(--text);padding:10px 0">When user <span style="color:var(--accent)">risk score &gt; 70</span> &#8594; Auto-assign <span style="color:var(--accent2)">Advanced Security Awareness</span> path</div></div></div>
+<div class="view" id="v-risk"><div class="ph"><div class="ph-e">ANALYTICS</div><div class="ph-t">USER RISK SCORES</div><div class="ph-s">Individual risk assessment based on phishing and training performance</div></div>
+<div class="pn"><div class="tw"><table><thead><tr><th>USER</th><th>EMAIL</th><th>DEPARTMENT</th><th>RISK SCORE</th><th>PHISH FAILS</th><th>TRAINING %</th><th>LAST ACTIVE</th></tr></thead><tbody id="risk-tb"></tbody></table></div></div></div>
+<div class="view" id="v-leaderboard"><div class="ph"><div class="ph-e">ANALYTICS</div><div class="ph-t">LEADERBOARD</div><div class="ph-s">Top performers in security awareness training</div></div>
+<div class="fb" style="margin-bottom:20px"><button class="fbtn active" onclick="renderLeaderboard('all')">ALL TIME</button><button class="fbtn" onclick="renderLeaderboard('monthly')">THIS MONTH</button></div>
+<div id="lb-top" class="lb3"></div>
+<div class="pn"><div class="tw"><table><thead><tr><th>RANK</th><th>USER</th><th>DEPARTMENT</th><th>SCORE</th><th>COURSES</th><th>BADGE</th></tr></thead><tbody id="lb-tb"></tbody></table></div></div></div>
+<div class="view" id="v-reports"><div class="ph"><div class="ph-e">ANALYTICS</div><div class="ph-t">REPORTS</div><div class="ph-s">Executive summaries and trend analysis</div></div>
+<div class="sg" id="rpt-stats"></div>
+<div class="tc"><div class="pn"><div class="pn-t">TRAINING COMPLETION TREND</div><div id="rpt-trend"></div></div>
+<div class="pn"><div class="pn-t">PHISH CLICK RATE TREND</div><div id="rpt-phish"></div></div></div>
+<div class="pn"><div class="pn-t">DEPARTMENT COMPARISON</div><div id="dept-cmp"></div></div>
+<div style="margin-top:20px;display:flex;gap:10px"><button class="btn btn-s btn-sm" onclick="toast('PDF export coming soon','info')">EXPORT PDF</button><button class="btn btn-s btn-sm" onclick="toast('CSV export coming soon','info')">EXPORT CSV</button></div></div>
+<div class="view" id="v-users"><div class="ph"><div class="ph-e">SETTINGS</div><div class="ph-t">USERS & GROUPS</div><div class="ph-s">Manage training participants and departments</div></div>
+<div style="margin-bottom:20px;display:flex;gap:10px"><button class="btn btn-p btn-sm" onclick="addUser()">+ ADD USER</button><button class="btn btn-s btn-sm" onclick="toast('CSV import coming soon','info')">IMPORT USERS</button></div>
+<div class="pn"><div class="tw"><table><thead><tr><th>NAME</th><th>EMAIL</th><th>DEPARTMENT</th><th>COURSES DONE</th><th>RISK SCORE</th><th>STATUS</th></tr></thead><tbody id="usr-tb"></tbody></table></div></div></div>
+<div class="view" id="v-certificates"><div class="ph"><div class="ph-e">SETTINGS</div><div class="ph-t">CERTIFICATES</div><div class="ph-s">Training completion certificates</div></div>
+<div class="pn"><div class="tw"><table><thead><tr><th>COURSE</th><th>USER</th><th>DATE EARNED</th><th>ACTIONS</th></tr></thead><tbody id="cert-tb"></tbody></table></div></div></div>
+</div></div>
+
+<div class="mo" id="camp-modal"><div class="md" style="max-width:700px">
+<button class="md-x" onclick="closeCampaignBuilder()">&times;</button>
+<div class="md-e">NEW CAMPAIGN</div><div class="md-t">CAMPAIGN BUILDER</div>
+<div class="fg2"><label class="fl">CAMPAIGN NAME</label><input class="fin" id="cb-name" placeholder="Q1 Phishing Test"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div class="fg2"><label class="fl">START DATE</label><input class="fin" id="cb-start" type="date"></div>
+<div class="fg2"><label class="fl">END DATE</label><input class="fin" id="cb-end" type="date"></div></div>
+<div class="fg2"><label class="fl">SELECT TEMPLATE</label><div id="cb-tpl" class="tg" style="max-height:200px;overflow-y:auto"></div></div>
+<div class="fg2"><label class="fl">TARGET USERS</label><select class="fsl" id="cb-target"><option value="all">All Users</option><option value="failed">Failed Previous Test</option><option value="untested">Untested Users</option><option value="high-risk">High Risk (Score &gt; 50)</option></select></div>
+<div class="fg2"><label class="fl">SEND FREQUENCY</label><select class="fsl" id="cb-freq"><option value="all">All At Once</option><option value="staggered">Staggered Over 3 Days</option><option value="weekly">Staggered Over 1 Week</option></select></div>
+<div class="fg2" style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="cb-auto" checked><label for="cb-auto" style="font-size:12px;color:var(--text)">Auto-assign training on failure</label></div>
+<div style="display:flex;gap:10px;margin-top:20px"><button class="btn btn-s btn-sm" onclick="saveCampaign('draft')">SAVE DRAFT</button><button class="btn btn-p btn-sm" onclick="saveCampaign('active')">LAUNCH CAMPAIGN</button></div>
+</div></div>
+
+<div class="mo" id="tpl-modal"><div class="md" style="max-width:600px">
+<button class="md-x" onclick="closeTemplatePreview()">&times;</button>
+<div class="md-e">TEMPLATE PREVIEW</div><div class="md-t" id="tpl-pv-t"></div>
+<div id="tpl-pv-c"></div>
+</div></div>
+
+<div class="cv" id="course-viewer">
+<div class="cv-h"><div class="cv-t" id="cv-t"></div><div class="cv-pb"><div class="cv-pbb"><div class="cv-pbf" id="cv-pbf"></div></div></div><button class="cv-x" onclick="closeCourseViewer()">CLOSE &times;</button></div>
+<div class="cv-b"><div class="cv-sl" id="cv-sl"></div></div>
+<div class="cv-f"><button class="btn btn-s btn-sm" id="cv-prev" onclick="prevSlide()">PREVIOUS</button><div class="cv-cnt" id="cv-cnt"></div><button class="btn btn-p btn-sm" id="cv-next" onclick="nextSlide()">NEXT</button></div>
+</div>
+<script>
+
+const TEMPLATES=[
+{id:1,cat:'Corporate',brand:'\ud83d\udce7',name:'HR Payroll Update',subject:'Action Required: Update Your Direct Deposit',diff:'Medium',from:'hr-payroll@company-portal.com',body:'<p>Dear Employee,</p><p>Our payroll system has been updated. To ensure uninterrupted direct deposit, please verify your banking information by clicking the link below within 24 hours.</p>',cta:'Verify Banking Info'},
+{id:2,cat:'Tech',brand:'\ud83d\udcbb',name:'Microsoft 365 Password',subject:'Your Microsoft 365 password expires today',diff:'Easy',from:'security@microsoft365-alert.com',body:'<p>Your Microsoft 365 password will expire in 2 hours. To avoid losing access to your email and files, please update your password immediately.</p>',cta:'Update Password Now'},
+{id:3,cat:'Tech',brand:'\ud83d\udd12',name:'Google Security Alert',subject:'Critical security alert for your Google Account',diff:'Medium',from:'no-reply@accounts-google-security.com',body:'<p>Someone just used your password to try to sign in to your Google Account. Google blocked them, but you should check what happened.</p>',cta:'Check Activity'},
+{id:4,cat:'Financial',brand:'\ud83d\udcc4',name:'DocuSign Document',subject:'Please review and sign: Q4 Agreement',diff:'Easy',from:'dse@docusign-notifications.com',body:'<p>You have a new document to review and sign. Please click below to complete the signing process before the deadline.</p>',cta:'Review Document'},
+{id:5,cat:'Corporate',brand:'\ud83d\udcbc',name:'IT Helpdesk Ticket',subject:'IT Support: Your ticket #4521 requires action',diff:'Hard',from:'support@it-helpdesk-portal.com',body:'<p>Your recent IT support ticket requires additional information. Please log in to the helpdesk portal to provide the requested details.</p>',cta:'View Ticket'},
+{id:6,cat:'Tech',brand:'\u2601',name:'Dropbox Share',subject:'John shared "Q4 Budget.xlsx" with you',diff:'Easy',from:'no-reply@dropbox-sharing.com',body:'<p>John Smith shared a file with you on Dropbox. Click below to view and download the shared file.</p>',cta:'View File'},
+{id:7,cat:'Social Media',brand:'\ud83d\udd17',name:'LinkedIn Connection',subject:'You have 5 new connection requests',diff:'Easy',from:'notifications@linkedin-mail.com',body:'<p>You have pending connection requests from industry professionals. Review and accept them to grow your network.</p>',cta:'View Connections'},
+{id:8,cat:'Financial',brand:'\ud83c\udfe6',name:'Bank Alert',subject:'Unusual activity detected on your account',diff:'Medium',from:'alerts@secure-banking-notify.com',body:'<p>We detected unusual activity on your account ending in *4829. For your security, please verify recent transactions immediately.</p>',cta:'Verify Transactions'},
+{id:9,cat:'Tech',brand:'\ud83d\udcf9',name:'Zoom Invite',subject:'You have been invited to a Zoom meeting',diff:'Easy',from:'no-reply@zoom-meetings.com',body:'<p>You have been invited to join a Zoom meeting: "Q1 Planning Session" starting in 15 minutes. Click to join.</p>',cta:'Join Meeting'},
+{id:10,cat:'Corporate',brand:'\ud83d\udea8',name:'CEO Urgent Request',subject:'Urgent: Need your help with something',diff:'Hard',from:'ceo@company-executive.com',body:'<p>Hey, I need you to handle something urgently and confidentially. Are you available right now? Please respond ASAP.</p>',cta:'Reply Now'},
+{id:11,cat:'Shipping',brand:'\ud83d\udce6',name:'UPS Delivery',subject:'Your UPS package is waiting for delivery',diff:'Easy',from:'tracking@ups-delivery-notice.com',body:'<p>Your package could not be delivered. Please confirm your delivery address and schedule a redelivery.</p>',cta:'Schedule Redelivery'},
+{id:12,cat:'Tech',brand:'\ud83c\udf4e',name:'Apple Receipt',subject:'Receipt for your recent Apple purchase',diff:'Medium',from:'receipt@apple-billing.com',body:'<p>Thank you for your purchase of $499.99 from the App Store. If you did not make this purchase, click below to report it.</p>',cta:'Report Unauthorized'},
+{id:13,cat:'Tech',brand:'\ud83d\udcac',name:'Slack Notification',subject:'New messages in #general you may have missed',diff:'Easy',from:'notifications@slack-team.com',body:'<p>You have 12 unread messages in channels you follow. Click below to catch up on what you missed.</p>',cta:'Open Slack'},
+{id:14,cat:'Government',brand:'\ud83c\udfdb',name:'IRS Tax Refund',subject:'Your tax refund of $3,247.00 is pending',diff:'Hard',from:'refunds@irs-tax-portal.com',body:'<p>Your federal tax refund has been approved. To receive your refund via direct deposit, please verify your identity and banking information.</p>',cta:'Claim Refund'},
+{id:15,cat:'Corporate',brand:'\ud83d\udcde',name:'Voicemail Notification',subject:'You have a new voicemail from +1(555)234-5678',diff:'Medium',from:'voicemail@phone-system.com',body:'<p>You received a new voicemail message (duration: 0:47). Click below to listen to the recording.</p>',cta:'Play Voicemail'},
+{id:16,cat:'Financial',brand:'\ud83d\udccb',name:'Vendor Invoice',subject:'Invoice #INV-2024-0892 - Payment Due',diff:'Hard',from:'accounting@vendor-billing.com',body:'<p>Please find attached Invoice #INV-2024-0892 for $12,450.00. Payment is due within 5 business days to avoid late fees.</p>',cta:'View Invoice'},
+{id:17,cat:'Tech',brand:'\ud83d\udd10',name:'MFA Reset',subject:'Multi-Factor Authentication: Verification Required',diff:'Hard',from:'security@mfa-verify.com',body:'<p>Your multi-factor authentication settings need to be reverified due to a security policy update. Please complete verification within 24 hours.</p>',cta:'Verify MFA'},
+{id:18,cat:'Tech',brand:'\ud83c\udfac',name:'Netflix Renewal',subject:'Your Netflix subscription payment failed',diff:'Easy',from:'info@netflix-billing.com',body:'<p>We were unable to process your payment for Netflix Premium. Please update your payment method to continue enjoying Netflix.</p>',cta:'Update Payment'},
+{id:19,cat:'Shipping',brand:'\ud83d\ude9a',name:'FedEx Package',subject:'FedEx: Package delivery exception',diff:'Medium',from:'tracking@fedex-delivery.com',body:'<p>There is a delivery exception for your FedEx package. Additional information is needed to complete delivery.</p>',cta:'Resolve Exception'},
+{id:20,cat:'Financial',brand:'\ud83d\udcb3',name:'PayPal Suspicious',subject:'PayPal: Suspicious login attempt detected',diff:'Medium',from:'service@paypal-security.com',body:'<p>We noticed a login to your PayPal account from a new device in Russia. If this was not you, please secure your account immediately.</p>',cta:'Secure Account'},
+{id:21,cat:'Social Media',brand:'\ud83d\udcf7',name:'Instagram Verify',subject:'Verify your Instagram account',diff:'Easy',from:'security@instagram-verify.com',body:'<p>Your Instagram account needs to be verified to continue using all features. Complete verification to keep your account active.</p>',cta:'Verify Account'},
+{id:22,cat:'Social Media',brand:'\ud83d\udc26',name:'Twitter/X Security',subject:'Confirm your identity on X',diff:'Medium',from:'verify@x-security.com',body:'<p>We need to confirm your identity. Unusual login activity was detected on your X account. Please verify your identity.</p>',cta:'Confirm Identity'},
+{id:23,cat:'Shipping',brand:'\ud83d\uded2',name:'Walmart Pickup',subject:'Your Walmart order is ready for pickup',diff:'Easy',from:'orders@walmart-online.com',body:'<p>Great news! Your order #WM-384729 is ready for pickup. Click below to check in and get your pickup details.</p>',cta:'Check In Now'},
+{id:24,cat:'Financial',brand:'\ud83d\udcb0',name:'QuickBooks Invoice',subject:'QuickBooks: New invoice requires your approval',diff:'Hard',from:'notifications@quickbooks-online.com',body:'<p>A new invoice for $8,750.00 has been submitted and requires your approval. Please review and approve before end of day.</p>',cta:'Approve Invoice'},
+{id:25,cat:'Internal',brand:'\ud83d\udcc1',name:'Shared Drive Access',subject:'You have been granted access to shared files',diff:'Medium',from:'drive@company-cloud.com',body:'<p>You have been granted access to the "Confidential - M&A Documents" folder. Click below to access the shared files.</p>',cta:'Access Files'}
+];
+
+const COURSES=[
+{id:1,icon:'\ud83c\udfa3',title:'Phishing Awareness 101',desc:'Learn to identify and avoid phishing attacks',cat:'phishing',dur:'15 min',slides:[
+{t:'What is Phishing?',content:'<span class="cv-hl">90% of data breaches start with a phishing email</span><ul><li>Phishing costs businesses $4.76 billion annually worldwide</li><li>Attackers impersonate trusted entities to steal credentials and data</li><li>Phishing emails have become increasingly sophisticated and targeted</li><li>Anyone can be a target - from interns to executives</li></ul>'},
+{t:'Red Flags in Emails',content:'<ul><li><strong>Urgency & threats</strong> - "Act now or your account will be locked"</li><li><strong>Suspicious sender</strong> - Look-alike domains (micros0ft.com)</li><li><strong>Generic greeting</strong> - "Dear Customer" instead of your name</li><li><strong>Spelling errors</strong> - Poor grammar and typos</li><li><strong>Mismatched URLs</strong> - Hover to see the real destination</li><li><strong>Unexpected attachments</strong> - Especially .exe, .zip, .js files</li></ul>'},
+{t:'Types of Phishing',content:'<ul><li><strong>Spear Phishing</strong> - Targeted at specific individuals</li><li><strong>Whaling</strong> - Targets executives and senior leadership</li><li><strong>Smishing</strong> - Phishing via SMS text messages</li><li><strong>Vishing</strong> - Voice phishing via phone calls</li><li><strong>Clone Phishing</strong> - Duplicates legitimate email with malicious links</li><li><strong>BEC</strong> - Impersonates business partners</li></ul>'},
+{t:'What To Do',content:'<ul><li><strong>STOP</strong> - Do not click links or open attachments</li><li><strong>LOOK</strong> - Check sender, URLs, and content carefully</li><li><strong>REPORT</strong> - Forward suspicious emails to security team</li><li><strong>DELETE</strong> - Remove the email from your inbox</li></ul><p style="margin-top:16px;color:var(--accent)">When in doubt, contact the supposed sender through a known, separate channel.</p>'}],
+quiz:[{q:'Which is the BEST indicator an email might be phishing?',opts:['It has a company logo','The sender email domain is misspelled','It was sent during business hours','It contains a link'],ans:1,exp:'Misspelled or look-alike domains are one of the strongest indicators of phishing.'},
+{q:'What should you do if you receive a suspicious email?',opts:['Click the link to investigate','Forward it to your security team and delete it','Reply asking if it is legitimate','Ignore it'],ans:1,exp:'Always report suspicious emails to your security team then delete the email.'},
+{q:'What type of phishing specifically targets executives?',opts:['Spear phishing','Smishing','Whaling','Vishing'],ans:2,exp:'Whaling specifically targets high-level executives with sophisticated, personalized attacks.'}]},
+{id:2,icon:'\ud83d\udd10',title:'Password Security & MFA',desc:'Create strong passwords and enable multi-factor authentication',cat:'passwords',dur:'12 min',slides:[
+{t:'Why Passwords Matter',content:'<span class="cv-hl">81% of data breaches involve weak or stolen passwords</span><ul><li>The average person has 100+ online accounts</li><li>Credential stuffing attacks test billions of stolen combinations</li><li>A weak password can be cracked in seconds</li></ul>'},
+{t:'Creating Strong Passwords',content:'<ul><li><strong>Length over complexity</strong> - 16+ characters is ideal</li><li><strong>Use passphrases</strong> - "correct-horse-battery-staple" beats "P@ssw0rd!"</li><li><strong>Password managers</strong> - Generate and store unique passwords</li><li><strong>Never reuse</strong> - Each account gets a unique password</li></ul>'},
+{t:'Multi-Factor Authentication',content:'<span class="cv-hl">MFA blocks 99.9% of automated attacks</span><ul><li><strong>Something you know</strong> - Password or PIN</li><li><strong>Something you have</strong> - Phone, hardware key, authenticator app</li><li><strong>Something you are</strong> - Fingerprint, face recognition</li><li>Prefer authenticator apps over SMS</li></ul>'},
+{t:"Password Don'ts",content:'<ul><li>Never share passwords with anyone including IT staff</li><li>Never reuse passwords across accounts</li><li>Never write passwords on sticky notes</li><li>Never send passwords via email or chat</li><li>Never use personal info in passwords</li></ul>'}],
+quiz:[{q:'What is the MOST important factor for password strength?',opts:['Special characters','Uppercase letters','Password length','Changing frequently'],ans:2,exp:'Length is the most important factor. Longer passwords are exponentially harder to crack.'},
+{q:'What percentage of automated attacks does MFA block?',opts:['50%','75%','90%','99.9%'],ans:3,exp:'Microsoft research shows MFA blocks 99.9% of automated account compromise attacks.'},
+{q:'Which MFA method is most secure?',opts:['SMS text codes','Email codes','Authenticator app','Security questions'],ans:2,exp:'Authenticator apps are more secure than SMS (vulnerable to SIM swapping) and email codes.'}]},
+{id:3,icon:'\ud83c\udfad',title:'Social Engineering Defense',desc:'Recognize and defend against social engineering attacks',cat:'social',dur:'18 min',slides:[
+{t:'What is Social Engineering?',content:'<ul><li>The art of manipulating people into giving up confidential information</li><li>Exploits human psychology rather than technical vulnerabilities</li><li>Preys on trust, fear, urgency, and helpfulness</li><li>Most common attack vector used by cybercriminals</li></ul>'},
+{t:'Common Tactics',content:'<ul><li><strong>Pretexting</strong> - Creating a fabricated scenario</li><li><strong>Baiting</strong> - Offering something enticing</li><li><strong>Tailgating</strong> - Following through a secure door</li><li><strong>Quid Pro Quo</strong> - Service in exchange for information</li><li><strong>Impersonation</strong> - Posing as IT, delivery, or executive</li></ul>'},
+{t:'Real-World Examples',content:'<ul><li><strong>Twitter 2020</strong> - Employees socially engineered, celebrity accounts taken over</li><li><strong>RSA 2011</strong> - Excel phishing led to SecurID compromise</li><li><strong>Target 2013</strong> - HVAC vendor credentials stolen, 40M cards exposed</li><li><strong>Ubiquiti 2015</strong> - BEC attack, $46.7M loss</li></ul>'},
+{t:'How to Defend',content:'<ul><li><strong>Verify identity</strong> through official channels</li><li><strong>Question urgency</strong> - attackers create false time pressure</li><li><strong>Protect information</strong> - never share sensitive data unless verified</li><li><strong>Report</strong> suspicious contacts immediately</li></ul>'}],
+quiz:[{q:'What is pretexting?',opts:['Installing malware','Creating a fake scenario to trick someone','Breaking into a building','Guessing passwords'],ans:1,exp:'Pretexting involves creating a fabricated scenario to manipulate victims.'},
+{q:'In Target 2013, how did attackers gain access?',opts:['SQL injection','Zero-day exploit','Stolen vendor credentials','Brute force'],ans:2,exp:'Attackers stole HVAC vendor credentials demonstrating third-party risk.'}]},
+{id:4,icon:'\ud83d\udcca',title:'Data Protection & Classification',desc:'Data classification levels and safe handling',cat:'data',dur:'14 min',slides:[
+{t:'Data Classification Levels',content:'<ul><li><strong>Public</strong> - Marketing materials, press releases</li><li><strong>Internal</strong> - Company policies, org charts</li><li><strong>Confidential</strong> - Financial records, customer data</li><li><strong>Restricted</strong> - SSNs, medical records, credentials</li></ul>'},
+{t:'Safe Data Handling',content:'<ul><li>Encrypt sensitive data at rest and in transit</li><li>Use approved file sharing platforms only</li><li>Apply least privilege access</li><li>Never email restricted data without encryption</li></ul>'},
+{t:'Clean Desk Policy',content:'<ul><li>Lock your computer when away (Win+L)</li><li>Do not leave sensitive documents on your desk</li><li>Shred physical documents with sensitive data</li><li>Use privacy screens in public spaces</li></ul>'},
+{t:'Data Breach Response',content:'<ul><li>Report suspected exposure immediately</li><li>Do not investigate on your own</li><li>Document what you observed</li><li>Preserve any evidence</li></ul>'}],
+quiz:[{q:'Which classification level applies to SSNs?',opts:['Public','Internal','Confidential','Restricted'],ans:3,exp:'SSNs are Restricted - highest classification requiring strongest controls.'},
+{q:'What should you do before leaving your desk?',opts:['Nothing','Lock your computer','Leave for IT','Turn off monitor only'],ans:1,exp:'Always lock your computer (Win+L) when stepping away.'}]},
+{id:5,icon:'\ud83d\udccb',title:'Compliance & Regulatory Basics',desc:'Key compliance frameworks and your role',cat:'compliance',dur:'16 min',slides:[
+{t:'Major Frameworks',content:'<ul><li><strong>HIPAA</strong> - Healthcare data protection</li><li><strong>PCI-DSS</strong> - Payment card security</li><li><strong>NIST CSF</strong> - Cybersecurity framework</li><li><strong>SOC 2</strong> - Service organization controls</li><li><strong>CMMC</strong> - DoD contractor maturity</li></ul>'},
+{t:'Your Role',content:'<ul><li>Follow data handling procedures</li><li>Complete required training on time</li><li>Report security incidents promptly</li><li>Understand which regulations apply to your work</li></ul>'},
+{t:'Consequences of Non-Compliance',content:'<ul><li><strong>Financial</strong> - HIPAA fines up to $1.9M per violation</li><li><strong>Legal</strong> - Lawsuits from affected individuals</li><li><strong>Reputation</strong> - Loss of customer trust</li><li><strong>Operational</strong> - Required remediation</li></ul>'}],
+quiz:[{q:'Which framework protects healthcare data?',opts:['PCI-DSS','SOC 2','HIPAA','CMMC'],ans:2,exp:'HIPAA protects Protected Health Information (PHI).'},
+{q:'Max HIPAA fine per violation category?',opts:['$50,000','$500,000','$1.9 million','$10 million'],ans:2,exp:'HIPAA fines can reach $1.9 million per violation category per year.'}]},
+{id:6,icon:'\ud83c\udfe0',title:'Secure Remote Work',desc:'Best practices for remote work security',cat:'remote',dur:'10 min',slides:[
+{t:'Home Network Security',content:'<ul><li>Change router default password</li><li>Enable WPA3/WPA2 encryption</li><li>Keep router firmware updated</li><li>Use separate network for work if possible</li></ul>'},
+{t:'VPN & Secure Connections',content:'<ul><li>Always use company VPN for work</li><li>Never use public WiFi without VPN</li><li>Verify VPN connection before accessing sensitive resources</li><li>Report connection issues to IT</li></ul>'},
+{t:'Physical Security at Home',content:'<ul><li>Use private workspace away from smart speakers</li><li>Lock screen during video calls when sharing</li><li>Secure documents at home same as office</li><li>Be cautious of shoulder surfing in public</li></ul>'}],
+quiz:[{q:'What should you always use on public WiFi?',opts:['Incognito mode','A VPN','Firewall only','Bluetooth'],ans:1,exp:'A VPN encrypts traffic, protecting data on untrusted WiFi.'}]},
+{id:7,icon:'\ud83d\udc80',title:'Ransomware Prevention',desc:'Understanding and preventing ransomware',cat:'phishing',dur:'12 min',slides:[
+{t:'What is Ransomware?',content:'<span class="cv-hl">Average ransomware payment: $1.54 million</span><ul><li>Malware that encrypts files and demands payment</li><li>Can spread across networks in minutes</li><li>Paying does not guarantee recovery</li></ul>'},
+{t:'How It Spreads',content:'<ul><li><strong>Phishing emails</strong> - Most common method</li><li><strong>Drive-by downloads</strong> - Compromised websites</li><li><strong>RDP exploits</strong> - Exposed remote desktop</li><li><strong>USB devices</strong> - Infected removable media</li><li><strong>Unpatched software</strong></li></ul>'},
+{t:'Prevention',content:'<ul><li>Keep software updated</li><li>Back up data (3-2-1 rule)</li><li>Never enable macros in unexpected documents</li><li>Use EDR tools</li></ul>'},
+{t:'If You Suspect Ransomware',content:'<ul><li><strong>Disconnect</strong> - Unplug network immediately</li><li><strong>Do NOT restart</strong> - Keys may be in memory</li><li><strong>Report</strong> - Contact security team</li><li><strong>Do NOT pay</strong> - Funds criminal operations</li></ul>'}],
+quiz:[{q:'Most common ransomware delivery method?',opts:['USB drives','Phishing emails','Physical break-in','Social media'],ans:1,exp:'Phishing emails remain the primary ransomware delivery method.'},
+{q:'First action if you suspect ransomware?',opts:['Restart computer','Pay ransom','Disconnect from network','Delete files'],ans:2,exp:'Disconnect immediately to prevent spread. Do NOT restart.'}]},
+{id:8,icon:'\ud83d\udd75',title:'Insider Threat Awareness',desc:'Recognizing and preventing insider threats',cat:'social',dur:'11 min',slides:[
+{t:'Types of Insider Threats',content:'<ul><li><strong>Malicious</strong> - Deliberately steal or sabotage</li><li><strong>Negligent</strong> - Accidentally cause incidents</li><li><strong>Compromised</strong> - Accounts taken over externally</li><li>60% of data breaches involve insiders</li></ul>'},
+{t:'Warning Signs',content:'<ul><li>Accessing data outside normal duties</li><li>Working unusual hours without explanation</li><li>Dissatisfaction while handling sensitive data</li><li>Attempting to bypass security controls</li><li>Unusual data transfers or downloads</li></ul>'},
+{t:'What You Can Do',content:'<ul><li>Follow least privilege principle</li><li>Report suspicious behavior</li><li>Never share access credentials</li><li>Be aware of social engineering from coworkers</li></ul>'}],
+quiz:[{q:'What % of breaches involve insiders?',opts:['20%','40%','60%','80%'],ans:2,exp:'About 60% of data breaches involve insider threats.'}]},
+{id:9,icon:'\ud83d\udce7',title:'Email Security Best Practices',desc:'Securing email communications',cat:'phishing',dur:'10 min',slides:[
+{t:'Email Authentication',content:'<ul><li><strong>SPF</strong> - Validates sending servers</li><li><strong>DKIM</strong> - Adds digital signatures</li><li><strong>DMARC</strong> - Combines SPF and DKIM with reporting</li><li>These prevent email spoofing</li></ul>'},
+{t:'Attachment Safety',content:'<ul><li>Never open attachments from unknown senders</li><li>Beware: .exe, .js, .vbs, .scr, .bat</li><li>Preview before downloading</li><li>Scan with antivirus before opening</li></ul>'},
+{t:'Email Encryption',content:'<ul><li>Use encryption for sensitive communications</li><li>Verify recipient addresses before sending</li><li>Use BCC for mass communications</li><li>Consider secure messaging for highly sensitive content</li></ul>'}],
+quiz:[{q:'What does DMARC combine?',opts:['Firewall and antivirus','SPF and DKIM','Encryption and signatures','VPN and proxy'],ans:1,exp:'DMARC combines SPF and DKIM for comprehensive email authentication.'},
+{q:'Which file type is generally safer from email?',opts:['.exe','.pdf (with caution)','.vbs','.scr'],ans:1,exp:'PDFs are generally safer but should still be opened with caution.'}]},
+{id:10,icon:'\ud83d\udcf1',title:'Mobile Device Security',desc:'Protecting mobile devices and data',cat:'data',dur:'8 min',slides:[
+{t:'Mobile Threats',content:'<ul><li>Mobile malware increased 500% in recent years</li><li>Malicious apps steal data, track location, record calls</li><li>Public charging = juice jacking risk</li><li>Lost devices expose sensitive data</li></ul>'},
+{t:'App Permissions',content:'<ul><li>Install from official stores only</li><li>Review permissions - does a flashlight need contacts?</li><li>Keep apps and OS updated</li><li>Remove unused apps</li></ul>'},
+{t:'BYOD Policies',content:'<ul><li>Enroll in MDM if required</li><li>Enable remote wipe</li><li>Separate work and personal profiles</li><li>Report lost devices immediately</li></ul>'}],
+quiz:[{q:'What is juice jacking?',opts:['A type of phishing','Compromised public charging stations','Social media attack','Battery malware'],ans:1,exp:'Juice jacking uses compromised USB charging stations to steal data.'}]},
+{id:11,icon:'\ud83d\udea8',title:'Incident Response Basics',desc:'How to respond to security incidents',cat:'compliance',dur:'14 min',slides:[
+{t:'IR Lifecycle',content:'<ul><li><strong>1. Preparation</strong> - Plans, tools, training</li><li><strong>2. Identification</strong> - Detect and confirm</li><li><strong>3. Containment</strong> - Limit damage</li><li><strong>4. Eradication</strong> - Remove threat</li><li><strong>5. Recovery</strong> - Restore operations</li><li><strong>6. Lessons Learned</strong> - Improve</li></ul>'},
+{t:'Identification & Reporting',content:'<ul><li>Know what constitutes an incident</li><li>Report immediately - do not self-investigate</li><li>Document: who, what, when, where</li><li>Preserve evidence</li></ul>'},
+{t:'Containment',content:'<ul><li>Disconnect affected systems</li><li>Do not power off (preserve evidence)</li><li>Change compromised credentials</li><li>Follow IR playbook</li></ul>'},
+{t:'Recovery & Lessons',content:'<ul><li>Restore from known-good backups</li><li>Verify integrity before reconnecting</li><li>Conduct post-incident review</li><li>Update procedures</li></ul>'}],
+quiz:[{q:'First phase of incident response?',opts:['Identification','Containment','Preparation','Recovery'],ans:2,exp:'Preparation is first - plans and training before incidents occur.'},
+{q:'When to report a suspected incident?',opts:['After investigating','Immediately','After discussing with coworkers','End of day'],ans:1,exp:'Report immediately - early detection reduces impact.'}]},
+{id:12,icon:'\ud83c\udf10',title:'Safe Web Browsing',desc:'Staying safe while browsing',cat:'data',dur:'9 min',slides:[
+{t:'HTTPS & Safe Browsing',content:'<ul><li>Verify HTTPS before entering credentials</li><li>Be cautious of HTTP-only sites</li><li>Check SSL certificates</li><li>Heed browser security warnings</li></ul>'},
+{t:'Downloads & Extensions',content:'<ul><li>Download from trusted sources only</li><li>Limit browser extensions</li><li>Review extension permissions</li><li>Keep browser updated</li></ul>'},
+{t:'Watering Hole Attacks',content:'<ul><li><strong>Watering hole</strong> - Compromise sites your org frequents</li><li><strong>Drive-by downloads</strong> - Malware from just visiting</li><li>Use web filtering and ad blockers</li><li>Keep browser and plugins patched</li></ul>'}],
+quiz:[{q:'What is a watering hole attack?',opts:['Flooding a network','Compromising websites frequented by targets','DNS poisoning','Email bombing'],ans:1,exp:'Watering hole attacks compromise frequently visited websites to infect visitors.'}]}
+];
+
+const PATHS=[
+{id:1,name:'New Employee Onboarding',desc:'Essential security training for new team members',courses:[1,2,4,6],dur:'51 min'},
+{id:2,name:'Phishing Defense Mastery',desc:'Become an expert at identifying and reporting phishing',courses:[1,7,9],dur:'37 min'},
+{id:3,name:'Compliance Fundamentals',desc:'Understand key regulatory requirements',courses:[5,11,4],dur:'44 min'},
+{id:4,name:'Advanced Security Awareness',desc:'Comprehensive security training for all employees',courses:[1,2,3,8,12],dur:'63 min'}
+];
+
+function defaultData(){
+return {
+users:[
+{id:1,name:'Sarah Chen',email:'schen@company.com',dept:'Security',risk:12,phishFails:0,training:92,score:950,courses:[1,2,3,5],lastActive:'2026-03-05'},
+{id:2,name:'Mike Torres',email:'mtorres@company.com',dept:'Finance',risk:35,phishFails:2,training:75,score:780,courses:[1,2],lastActive:'2026-03-04'},
+{id:3,name:'Jessica Park',email:'jpark@company.com',dept:'HR',risk:22,phishFails:1,training:85,score:870,courses:[1,4,5],lastActive:'2026-03-06'},
+{id:4,name:'David Kim',email:'dkim@company.com',dept:'Engineering',risk:18,phishFails:0,training:88,score:910,courses:[1,2,3],lastActive:'2026-03-05'},
+{id:5,name:'Rachel Adams',email:'radams@company.com',dept:'Marketing',risk:58,phishFails:4,training:45,score:520,courses:[1],lastActive:'2026-03-01'},
+{id:6,name:'Tom Bradley',email:'tbradley@company.com',dept:'Operations',risk:42,phishFails:3,training:60,score:650,courses:[1,2],lastActive:'2026-03-03'},
+{id:7,name:'Lisa Wong',email:'lwong@company.com',dept:'Sales',risk:68,phishFails:5,training:30,score:380,courses:[],lastActive:'2026-02-28'},
+{id:8,name:'James Mitchell',email:'jmitchell@company.com',dept:'Executive',risk:28,phishFails:1,training:70,score:810,courses:[1,5],lastActive:'2026-03-04'}
+],
+campaigns:[
+{id:1,name:'Q4 2025 Phishing Test',template:2,status:'completed',start:'2025-10-15',end:'2025-10-30',sent:8,opened:6,clicked:3,submitted:1,reported:4,noAction:2},
+{id:2,name:'Holiday Season Awareness',template:11,status:'completed',start:'2025-12-01',end:'2025-12-15',sent:8,opened:7,clicked:4,submitted:2,reported:3,noAction:1},
+{id:3,name:'Q1 2026 BEC Simulation',template:10,status:'active',start:'2026-03-01',end:'2026-03-15',sent:8,opened:5,clicked:2,submitted:0,reported:5,noAction:1}
+],
+assignments:[
+{userId:5,course:'Phishing Awareness 101',due:'2026-03-15',status:'In Progress',progress:40},
+{userId:7,course:'Phishing Awareness 101',due:'2026-03-10',status:'Overdue',progress:10},
+{userId:6,course:'Password Security & MFA',due:'2026-03-20',status:'Pending',progress:0},
+{userId:2,course:'Social Engineering Defense',due:'2026-03-25',status:'In Progress',progress:60},
+{userId:8,course:'Compliance & Regulatory Basics',due:'2026-03-18',status:'Pending',progress:0},
+{userId:1,course:'Phishing Awareness 101',due:'2026-02-28',status:'Completed',progress:100},
+{userId:3,course:'Data Protection & Classification',due:'2026-03-01',status:'Completed',progress:100},
+{userId:4,course:'Ransomware Prevention',due:'2026-03-05',status:'Completed',progress:100}
+],
+certificates:[
+{user:'Sarah Chen',course:'Phishing Awareness 101',date:'2026-02-28'},
+{user:'Sarah Chen',course:'Password Security & MFA',date:'2026-01-15'},
+{user:'Jessica Park',course:'Data Protection & Classification',date:'2026-03-01'},
+{user:'David Kim',course:'Social Engineering Defense',date:'2026-02-20'},
+{user:'David Kim',course:'Phishing Awareness 101',date:'2026-01-10'},
+{user:'Jessica Park',course:'Compliance & Regulatory Basics',date:'2026-02-14'}
+],
+courseProgress:{}
+};}
+
+function getD(){let d=localStorage.getItem('p1-training-data');if(d){try{return JSON.parse(d)}catch(e){}}let nd=defaultData();saveD(nd);return nd;}
+function saveD(d){localStorage.setItem('p1-training-data',JSON.stringify(d));}
+
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('p1-theme',t);const i=document.getElementById('theme-icon');if(i)i.innerHTML=t==='light'?'&#9789;':'&#9788;';}
+function toggleTheme(){applyTheme((document.documentElement.getAttribute('data-theme')||'dark')==='dark'?'light':'dark');}
+(function(){const s=localStorage.getItem('p1-theme');if(s)applyTheme(s);})();
+
+(function(){const c=document.getElementById('cursor'),r=document.getElementById('cursorRing');if(!c||!r)return;document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-14+'px';r.style.top=e.clientY-14+'px';});})();
+
+function toast(msg,type){type=type||'success';const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);},3000);}
+
+function showView(name){
+document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+const v=document.getElementById('v-'+name);if(v)v.classList.add('active');
+const items=document.querySelectorAll('.nav-item');
+const map={dashboard:0,campaigns:1,templates:2,results:3,courses:4,paths:5,assignments:6,risk:7,leaderboard:8,reports:9,users:10,certificates:11};
+if(map[name]!==undefined&&items[map[name]])items[map[name]].classList.add('active');
+const init={dashboard:initDashboard,campaigns:renderCampaigns,templates:renderTemplates,results:renderResults,courses:function(){renderCourses('all')},paths:renderPaths,assignments:renderAssignments,risk:renderRisk,leaderboard:function(){renderLeaderboard('all')},reports:renderReports,users:renderUsers,certificates:renderCertificates};
+if(init[name])init[name]();
+}
+
+function initDashboard(){
+const d=getD();
+const totalCoursesDone=d.users.reduce((s,u)=>s+u.courses.length,0);
+const activeCamps=d.campaigns.filter(c=>c.status==='active').length;
+const completedCamps=d.campaigns.filter(c=>c.status==='completed').length;
+const totalSent=d.campaigns.reduce((s,c)=>s+c.sent,0);
+const totalClicked=d.campaigns.reduce((s,c)=>s+c.clicked,0);
+const clickRate=totalSent?Math.round(totalClicked/totalSent*100):0;
+const avgTraining=Math.round(d.users.reduce((s,u)=>s+u.training,0)/d.users.length);
+document.getElementById('ds-score').textContent=avgTraining;
+document.getElementById('ds-score-bar').style.width=avgTraining+'%';
+document.getElementById('ds-click').textContent=clickRate+'%';
+document.getElementById('ds-click-bar').style.width=clickRate+'%';
+document.getElementById('ds-courses').textContent=totalCoursesDone;
+document.getElementById('ds-courses-sub').textContent='of '+d.assignments.length+' assigned';
+document.getElementById('ds-camps').textContent=activeCamps;
+document.getElementById('ds-camps-sub').textContent=completedCamps+' completed';
+const totalOpened=d.campaigns.reduce((s,c)=>s+c.opened,0);
+const totalSubmitted=d.campaigns.reduce((s,c)=>s+c.submitted,0);
+const totalReported=d.campaigns.reduce((s,c)=>s+c.reported,0);
+const totalNoAction=d.campaigns.reduce((s,c)=>s+c.noAction,0);
+document.getElementById('funnel').innerHTML=[['Emails Sent',totalSent,'var(--accent2)'],['Opened',totalOpened,'var(--accent)'],['Clicked Link',totalClicked,'var(--warning)'],['Submitted Data',totalSubmitted,'var(--danger)'],['Reported Phish',totalReported,'var(--success)'],['No Action',totalNoAction,'var(--muted)']].map(function(x){return '<div class="fi"><div class="fi-v" style="color:'+x[2]+'">'+x[1]+'</div><div class="fi-l">'+x[0]+'</div></div>';}).join('');
+var cats=[['Security Awareness',avgTraining],['Phishing Defense',72],['Password Security',65],['Compliance',58],['Data Protection',80]];
+document.getElementById('train-comp').innerHTML='<div style="margin-bottom:16px"><span style="font-family:Bebas Neue;font-size:28px;color:var(--accent)">'+avgTraining+'%</span><span style="font-size:11px;color:var(--muted);margin-left:8px">OVERALL</span></div>'+cats.map(function(c){return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:11px;color:var(--text)">'+c[0]+'</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--muted)">'+c[1]+'%</span></div><div class="pb"><div class="pbf" style="width:'+c[1]+'%;background:var(--accent)"></div></div></div>';}).join('');
+document.getElementById('activity').innerHTML=[{i:'\u2705',t:'Sarah Chen completed Phishing Awareness 101',tm:'2 hours ago'},{i:'\u26A0\uFE0F',t:'Rachel Adams clicked phishing link in Q1 campaign',tm:'5 hours ago'},{i:'\ud83d\udce7',t:'Q1 2026 BEC Simulation campaign launched',tm:'1 day ago'},{i:'\ud83c\udfc6',t:'David Kim earned Social Engineering certificate',tm:'2 days ago'},{i:'\ud83d\udea8',t:'Tom Bradley reported suspicious email correctly',tm:'3 days ago'}].map(function(a){return '<div class="ai"><div class="ai-i">'+a.i+'</div><div><div class="ai-t">'+a.t+'</div><div class="ai-tm">'+a.tm+'</div></div></div>';}).join('');
+var low=d.users.filter(u=>u.risk<=25).length,med=d.users.filter(u=>u.risk>25&&u.risk<=50).length,high=d.users.filter(u=>u.risk>50).length,total=d.users.length;
+document.getElementById('risk-dist').innerHTML=[['Low Risk (0-25)',low,'var(--success)'],['Medium Risk (26-50)',med,'var(--warning)'],['High Risk (51-100)',high,'var(--danger)']].map(function(x){return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:var(--text)">'+x[0]+'</span><span style="font-family:JetBrains Mono;font-size:10px;color:var(--muted)">'+x[1]+' users ('+Math.round(x[1]/total*100)+'%)</span></div><div class="rb"><div class="rbf" style="width:'+x[1]/total*100+'%;background:'+x[2]+'"></div></div></div>';}).join('');
+}
+
+var selectedCbTemplate=null;
+function renderCampaigns(){var d=getD();document.getElementById('camp-list').innerHTML=d.campaigns.map(function(c){var tpl=TEMPLATES.find(function(t){return t.id===c.template;});var sc={draft:'var(--muted)',active:'var(--accent)',completed:'var(--success)',scheduled:'var(--accent2)'};var cr=c.sent?Math.round(c.clicked/c.sent*100):0;var rr=c.sent?Math.round(c.reported/c.sent*100):0;return '<div class="cc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px"><div><div class="cc-t">'+c.name+'</div><div style="font-size:11px;color:var(--muted)">'+(tpl?tpl.name:'Unknown')+'</div></div><span class="badge" style="color:'+sc[c.status]+';border:1px solid '+sc[c.status]+'">'+c.status.toUpperCase()+'</span></div><div style="font-family:JetBrains Mono;font-size:9px;color:var(--muted);margin-bottom:12px">'+c.start+' to '+c.end+'</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;font-family:JetBrains Mono;font-size:9px;text-align:center"><div><div style="font-family:Bebas Neue;font-size:20px;color:var(--accent2)">'+c.sent+'</div>SENT</div><div><div style="font-family:Bebas Neue;font-size:20px;color:var(--warning)">'+c.clicked+'</div>CLICKED</div><div><div style="font-family:Bebas Neue;font-size:20px;color:var(--success)">'+c.reported+'</div>REPORTED</div></div><div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:10px">Click Rate</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--warning)">'+cr+'%</span></div><div class="pb"><div class="pbf" style="width:'+cr+'%;background:var(--warning)"></div></div></div><div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:10px">Report Rate</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--success)">'+rr+'%</span></div><div class="pb"><div class="pbf" style="width:'+rr+'%;background:var(--success)"></div></div></div><div style="display:flex;gap:8px"><button class="btn btn-s btn-sm" onclick="showView(\'results\')">VIEW RESULTS</button>'+(c.status==='draft'?'<button class="btn btn-p btn-sm" onclick="launchCampaign('+c.id+')">LAUNCH</button>':'')+'<button class="btn btn-sm" style="background:transparent;color:var(--danger);border:1px solid var(--danger)" onclick="deleteCampaign('+c.id+')">DELETE</button></div></div>';}).join('');}
+function openCampaignBuilder(){selectedCbTemplate=null;document.getElementById('cb-name').value='';document.getElementById('camp-modal').classList.add('open');document.getElementById('cb-tpl').innerHTML=TEMPLATES.slice(0,12).map(function(t){return '<div class="tpc" onclick="selectCbTemplate('+t.id+',this)"><div class="tpb">'+t.brand+'</div><div class="tpn">'+t.name+'</div><div style="font-size:9px;color:var(--muted)">'+t.diff+'</div></div>';}).join('');}
+function selectCbTemplate(id,el){selectedCbTemplate=id;document.querySelectorAll('#cb-tpl .tpc').forEach(function(e){e.classList.remove('selected');});el.classList.add('selected');}
+function closeCampaignBuilder(){document.getElementById('camp-modal').classList.remove('open');}
+function saveCampaign(status){var name=document.getElementById('cb-name').value.trim();if(!name){toast('Please enter a campaign name','error');return;}if(!selectedCbTemplate){toast('Please select a template','error');return;}var d=getD();var newId=d.campaigns.length?Math.max.apply(null,d.campaigns.map(function(c){return c.id;}))+1:1;d.campaigns.push({id:newId,name:name,template:selectedCbTemplate,status:status,start:document.getElementById('cb-start').value||'2026-03-06',end:document.getElementById('cb-end').value||'2026-03-20',sent:0,opened:0,clicked:0,submitted:0,reported:0,noAction:0});saveD(d);closeCampaignBuilder();renderCampaigns();toast(status==='active'?'Campaign launched!':'Campaign saved as draft','success');}
+function launchCampaign(id){var d=getD();var c=d.campaigns.find(function(x){return x.id===id;});if(c){c.status='active';c.sent=d.users.length;saveD(d);renderCampaigns();toast('Campaign launched!','success');}}
+function deleteCampaign(id){var d=getD();d.campaigns=d.campaigns.filter(function(c){return c.id!==id;});saveD(d);renderCampaigns();toast('Campaign deleted','info');}
+
+var TPL_CATS=['All','Corporate','Financial','Tech','Social Media','Shipping','Government','Internal'];
+function renderTemplates(){document.getElementById('tpl-filt').innerHTML=TPL_CATS.map(function(c,i){return '<button class="fbtn'+(i===0?' active':'')+'" onclick="filterTemplates(\''+c+'\',this)">'+c.toUpperCase()+'</button>';}).join('');filterTemplates('All');}
+function filterTemplates(cat,btn){if(btn){document.querySelectorAll('#tpl-filt .fbtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');}var tpls=cat==='All'?TEMPLATES:TEMPLATES.filter(function(t){return t.cat===cat;});document.getElementById('tpl-grid').innerHTML=tpls.map(function(t){var dc={Easy:'var(--success)',Medium:'var(--warning)',Hard:'var(--danger)'}[t.diff];return '<div class="tpc" onclick="previewTemplate('+t.id+')"><div class="tpb">'+t.brand+'</div><div class="tpn">'+t.name+'</div><div class="tps">'+t.subject+'</div><div style="display:flex;gap:6px"><span class="badge" style="color:'+dc+';border:1px solid '+dc+'">'+t.diff.toUpperCase()+'</span><span class="badge" style="color:var(--muted);border:1px solid var(--border)">'+t.cat.toUpperCase()+'</span></div></div>';}).join('');}
+function previewTemplate(id){var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;document.getElementById('tpl-pv-t').textContent=t.name;var dc={Easy:'var(--success)',Medium:'var(--warning)',Hard:'var(--danger)'}[t.diff];document.getElementById('tpl-pv-c').innerHTML='<div style="display:flex;gap:8px;margin-bottom:16px"><span class="badge" style="color:'+dc+';border:1px solid '+dc+'">'+t.diff.toUpperCase()+'</span><span class="badge" style="color:var(--muted);border:1px solid var(--border)">'+t.cat.toUpperCase()+'</span></div><div class="ep"><div class="ep-f">From: '+t.from+'</div><div class="ep-s">'+t.subject+'</div><div class="ep-b">'+t.body+'<div class="ep-btn">'+t.cta+'</div></div></div><div style="margin-top:16px"><button class="btn btn-p btn-sm" onclick="closeTemplatePreview();openCampaignBuilder()">USE IN CAMPAIGN</button></div>';document.getElementById('tpl-modal').classList.add('open');}
+function closeTemplatePreview(){document.getElementById('tpl-modal').classList.remove('open');}
+
+function renderResults(){var d=getD();var completed=d.campaigns.filter(function(c){return c.status==='completed'||c.status==='active';});if(!completed.length){document.getElementById('res-content').innerHTML='<div style="text-align:center;padding:60px;color:var(--muted)">No campaign results yet</div>';return;}var h='';completed.forEach(function(c){var tpl=TEMPLATES.find(function(t){return t.id===c.template;});h+='<div class="pn" style="margin-bottom:20px"><div class="pn-t">'+c.name+' <span class="badge '+(c.status==='active'?'bb':'bg')+'">'+c.status.toUpperCase()+'</span></div><div style="font-size:11px;color:var(--muted);margin-bottom:16px">Template: '+(tpl?tpl.name:'Unknown')+' | '+c.start+' to '+c.end+'</div><div style="display:flex;gap:4px;align-items:end;margin-bottom:20px;height:120px">';var steps=[['Sent',c.sent,'var(--accent2)'],['Opened',c.opened,'var(--accent)'],['Clicked',c.clicked,'var(--warning)'],['Submitted',c.submitted,'var(--danger)'],['Reported',c.reported,'var(--success)']];var mx=Math.max.apply(null,steps.map(function(s){return s[1];}));if(mx<1)mx=1;steps.forEach(function(s){var pct=Math.max(s[1]/mx*100,5);h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-family:Bebas Neue;font-size:16px;color:'+s[2]+'">'+s[1]+'</div><div style="width:80%;background:'+s[2]+';height:'+pct+'%;min-height:4px;opacity:0.8"></div><div style="font-family:JetBrains Mono;font-size:8px;color:var(--muted);margin-top:4px">'+s[0]+'</div></div>';});h+='</div></div>';});h+='<div class="pn"><div class="pn-t">PER-USER RESULTS</div><div class="tw"><table><thead><tr><th>USER</th><th>OPENED</th><th>CLICKED</th><th>SUBMITTED</th><th>REPORTED</th></tr></thead><tbody>';d.users.forEach(function(u){var cl=u.phishFails>0;var rp=u.risk<30;h+='<tr><td style="color:var(--white)">'+u.name+'</td><td>'+(Math.random()>0.3?'<span style="color:var(--warning)">Yes</span>':'<span style="color:var(--muted)">No</span>')+'</td><td>'+(cl?'<span style="color:var(--danger)">Yes</span>':'<span style="color:var(--success)">No</span>')+'</td><td><span style="color:var(--muted)">No</span></td><td>'+(rp?'<span style="color:var(--success)">Yes</span>':'<span style="color:var(--muted)">No</span>')+'</td></tr>';});h+='</tbody></table></div></div>';document.getElementById('res-content').innerHTML=h;}
+
+var CRS_CATS=['All','Phishing','Passwords','Social Engineering','Compliance','Data Security','Remote Work'];
+var catMap={phishing:'Phishing',passwords:'Passwords',social:'Social Engineering',compliance:'Compliance',data:'Data Security',remote:'Remote Work'};
+function renderCourses(filter){document.getElementById('crs-filt').innerHTML=CRS_CATS.map(function(c,i){return '<button class="fbtn'+((filter==='all'&&i===0)||(c===filter)?' active':'')+'" onclick="renderCourses(\''+c+'\')">'+c.toUpperCase()+'</button>';}).join('');var filtered=filter==='All'||filter==='all'?COURSES:COURSES.filter(function(c){return catMap[c.cat]===filter;});var d=getD();document.getElementById('crs-grid').innerHTML=filtered.map(function(c){var pr=d.courseProgress&&d.courseProgress[c.id]?d.courseProgress[c.id]:0;var dn=d.users.some(function(u){return u.courses.includes(c.id);});return '<div class="cc" onclick="openCourse('+c.id+')"><div class="cc-i">'+c.icon+'</div><div class="cc-t">'+c.title+'</div><div class="cc-d">'+c.desc+'</div><div class="cc-m"><span class="badge bb">'+catMap[c.cat].toUpperCase()+'</span><span class="cc-mi">'+c.dur+'</span></div>'+(pr>0||dn?'<div style="margin-top:10px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:10px">Progress</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--accent)">'+(dn?100:pr)+'%</span></div><div class="pb"><div class="pbf" style="width:'+(dn?100:pr)+'%;background:var(--accent)"></div></div></div>':'')+'</div>';}).join('');}
+
+var currentCourse=null,currentSlideIdx=0,quizAnswered={};
+function openCourse(id){currentCourse=COURSES.find(function(c){return c.id===id;});if(!currentCourse)return;currentSlideIdx=0;quizAnswered={};document.getElementById('cv-t').textContent=currentCourse.title;document.getElementById('course-viewer').classList.add('open');renderSlide();}
+function closeCourseViewer(){document.getElementById('course-viewer').classList.remove('open');currentCourse=null;}
+function renderSlide(){if(!currentCourse)return;var total=currentCourse.slides.length+currentCourse.quiz.length+1;var pct=Math.round((currentSlideIdx+1)/total*100);document.getElementById('cv-pbf').style.width=pct+'%';document.getElementById('cv-cnt').textContent=(currentSlideIdx+1)+' / '+total;document.getElementById('cv-prev').style.visibility=currentSlideIdx>0?'visible':'hidden';var sl=document.getElementById('cv-sl');if(currentSlideIdx<currentCourse.slides.length){var s=currentCourse.slides[currentSlideIdx];sl.innerHTML='<div class="cv-si">'+currentCourse.icon+'</div><div class="cv-st">'+s.t+'</div><div class="cv-sc">'+s.content+'</div>';document.getElementById('cv-next').textContent='NEXT';}else if(currentSlideIdx<currentCourse.slides.length+currentCourse.quiz.length){var qi=currentSlideIdx-currentCourse.slides.length;var q=currentCourse.quiz[qi];var ans=quizAnswered[qi]!==undefined;sl.innerHTML='<div class="cv-si">&#10068;</div><div class="cv-st">QUIZ - QUESTION '+(qi+1)+'</div><div class="cv-sc"><p style="font-size:15px;color:var(--white);margin-bottom:16px;text-align:center">'+q.q+'</p><div class="qo">'+q.opts.map(function(o,i){var cls='qopt';if(ans){cls+=' disabled';if(i===q.ans)cls+=' correct';else if(i===quizAnswered[qi]&&i!==q.ans)cls+=' wrong';}return '<div class="'+cls+'" onclick="answerQuiz('+qi+','+i+')">'+o+'</div>';}).join('')+'</div><div class="qexp'+(ans?' show':'')+'">'+q.exp+'</div></div>';document.getElementById('cv-next').textContent=ans?'NEXT':'ANSWER TO CONTINUE';}else{sl.innerHTML='<div style="font-size:64px;margin-bottom:20px">&#127942;</div><div class="cv-st" style="color:var(--accent)">COURSE COMPLETE!</div><p style="color:var(--muted);margin-bottom:24px">Congratulations! You have completed '+currentCourse.title+'.</p><div class="cert-pv"><div class="cert-lg">PALISADE ONE</div><div class="cert-tl">CERTIFICATE OF COMPLETION</div><div class="cert-nm">'+currentCourse.title+'</div><div class="cert-dt">'+new Date().toLocaleDateString()+'</div></div><button class="btn btn-p" onclick="completeCourse()">CLAIM CERTIFICATE</button>';document.getElementById('cv-next').textContent='DONE';}}
+function answerQuiz(qi,ai){if(quizAnswered[qi]!==undefined)return;quizAnswered[qi]=ai;renderSlide();var q=currentCourse.quiz[qi];if(ai===q.ans)toast('Correct!','success');else toast('Incorrect - see explanation below','error');}
+function nextSlide(){if(!currentCourse)return;var total=currentCourse.slides.length+currentCourse.quiz.length+1;if(currentSlideIdx>=currentCourse.slides.length&&currentSlideIdx<currentCourse.slides.length+currentCourse.quiz.length){var qi=currentSlideIdx-currentCourse.slides.length;if(quizAnswered[qi]===undefined){toast('Please answer the question first','error');return;}}if(currentSlideIdx>=total-1){closeCourseViewer();return;}currentSlideIdx++;renderSlide();}
+function prevSlide(){if(currentSlideIdx>0){currentSlideIdx--;renderSlide();}}
+function completeCourse(){if(!currentCourse)return;var d=getD();if(!d.courseProgress)d.courseProgress={};d.courseProgress[currentCourse.id]=100;if(!d.certificates)d.certificates=[];d.certificates.push({user:'You',course:currentCourse.title,date:new Date().toISOString().split('T')[0]});saveD(d);closeCourseViewer();toast('Certificate earned!','success');}
+
+function renderPaths(){var d=getD();document.getElementById('paths-list').innerHTML=PATHS.map(function(p){var done=p.courses.filter(function(cid){return d.users[0].courses.includes(cid);}).length;var pct=Math.round(done/p.courses.length*100);return '<div class="cc"><div class="cc-t">'+p.name+'</div><div class="cc-d">'+p.desc+'</div><div class="cc-m" style="margin-bottom:12px"><span class="cc-mi">'+p.courses.length+' COURSES</span><span class="cc-mi">'+p.dur+'</span></div><div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:10px">Progress</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--accent)">'+pct+'%</span></div><div class="pb"><div class="pbf" style="width:'+pct+'%;background:var(--accent)"></div></div></div><div>'+p.courses.map(function(cid){var c=COURSES.find(function(x){return x.id===cid;});var isDone=d.users[0].courses.includes(cid);return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:'+(isDone?'var(--success)':'var(--muted)')+'">'+(isDone?'&#10003;':'&#9675;')+'</span><span style="font-size:12px;color:'+(isDone?'var(--text)':'var(--muted)')+'">'+(c?c.title:'Unknown')+'</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--muted);margin-left:auto">'+(c?c.dur:'')+'</span></div>';}).join('')+'</div></div>';}).join('');}
+
+function renderAssignments(){var d=getD();document.getElementById('asgn-tb').innerHTML=d.assignments.map(function(a){var u=d.users.find(function(x){return x.id===a.userId;});var sc={Pending:'var(--muted)','In Progress':'var(--accent2)',Completed:'var(--success)',Overdue:'var(--danger)'};return '<tr><td style="color:var(--white)">'+(u?u.name:'Unknown')+'</td><td>'+a.course+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+a.due+'</td><td><span class="badge" style="color:'+sc[a.status]+';border:1px solid '+sc[a.status]+'">'+a.status.toUpperCase()+'</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="pb" style="width:80px"><div class="pbf" style="width:'+a.progress+'%;background:'+(a.progress===100?'var(--success)':'var(--accent)')+'"></div></div><span style="font-family:JetBrains Mono;font-size:9px;color:var(--muted)">'+a.progress+'%</span></div></td></tr>';}).join('');}
+function assignTraining(){var d=getD();var uid=d.users[Math.floor(Math.random()*d.users.length)].id;var course=COURSES[Math.floor(Math.random()*COURSES.length)];var due=new Date();due.setDate(due.getDate()+14);d.assignments.push({userId:uid,course:course.title,due:due.toISOString().split('T')[0],status:'Pending',progress:0});saveD(d);renderAssignments();toast('Training assigned!','success');}
+
+function renderRisk(){var d=getD();document.getElementById('risk-tb').innerHTML=d.users.sort(function(a,b){return b.risk-a.risk;}).map(function(u){var color=u.risk<=25?'var(--success)':u.risk<=50?'var(--warning)':'var(--danger)';return '<tr><td style="color:var(--white)">'+u.name+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+u.email+'</td><td>'+u.dept+'</td><td><div style="display:flex;align-items:center;gap:8px"><div class="rb" style="width:60px"><div class="rbf" style="width:'+u.risk+'%;background:'+color+'"></div></div><span style="font-family:JetBrains Mono;font-size:10px;color:'+color+'">'+u.risk+'</span></div></td><td style="color:'+(u.phishFails>2?'var(--danger)':'var(--text)')+'">'+u.phishFails+'</td><td><span style="font-family:JetBrains Mono;font-size:10px;color:var(--accent)">'+u.training+'%</span></td><td style="font-family:JetBrains Mono;font-size:10px;color:var(--muted)">'+u.lastActive+'</td></tr>';}).join('');}
+
+function renderLeaderboard(period){document.querySelectorAll('#v-leaderboard .fbtn').forEach(function(b){b.classList.remove('active');});if(event&&event.target)event.target.classList.add('active');var d=getD();var sorted=d.users.slice().sort(function(a,b){return b.score-a.score;});var medals=['gold','silver','bronze'];var rc=['#FFD700','#C0C0C0','#CD7F32'];document.getElementById('lb-top').innerHTML=sorted.slice(0,3).map(function(u,i){return '<div class="lbc '+medals[i]+'"><div class="lbr" style="color:'+rc[i]+'">#'+(i+1)+'</div><div class="lbn">'+u.name+'</div><div class="lbd">'+u.dept+'</div><div class="lbs">'+(period==='monthly'?Math.round(u.score*0.3):u.score)+'</div></div>';}).join('');var badges=[['CHAMPION','var(--warning)'],['STAR','var(--success)'],['RISING','var(--accent2)']];document.getElementById('lb-tb').innerHTML=sorted.map(function(u,i){var score=period==='monthly'?Math.round(u.score*0.3):u.score;var badge=i<1?badges[0]:i<3?badges[1]:i<5?badges[2]:null;return '<tr><td style="font-family:Bebas Neue;font-size:18px;color:'+(i<3?rc[i]:'var(--muted)')+'">#'+(i+1)+'</td><td style="color:var(--white)">'+u.name+'</td><td>'+u.dept+'</td><td style="font-family:Bebas Neue;font-size:16px;color:var(--accent)">'+score+'</td><td>'+u.courses.length+'</td><td>'+(badge?'<span class="badge" style="color:'+badge[1]+';border:1px solid '+badge[1]+'">'+badge[0]+'</span>':'')+'</td></tr>';}).join('');}
+
+function renderReports(){var d=getD();var avgT=Math.round(d.users.reduce(function(s,u){return s+u.training;},0)/d.users.length);var ts=d.campaigns.reduce(function(s,c){return s+c.sent;},0);var tc=d.campaigns.reduce(function(s,c){return s+c.clicked;},0);var cr=ts?Math.round(tc/ts*100):0;var ar=Math.round(d.users.reduce(function(s,u){return s+u.risk;},0)/d.users.length);document.getElementById('rpt-stats').innerHTML=[['TRAINING COMPLETION',avgT+'%','var(--accent)'],['PHISH CLICK RATE',cr+'%','var(--warning)'],['AVG RISK SCORE',ar,'var(--danger)'],['TOTAL CERTIFICATES',d.certificates.length,'var(--accent2)']].map(function(x){return '<div class="sc"><div class="sc-l">'+x[0]+'</div><div class="sc-v" style="color:'+x[2]+'">'+x[1]+'</div></div>';}).join('');var months=['Oct','Nov','Dec','Jan','Feb','Mar'];var tv=[55,62,68,72,78,avgT];var pv=[28,22,25,18,15,cr];document.getElementById('rpt-trend').innerHTML=months.map(function(m,i){return '<div style="display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-family:JetBrains Mono;font-size:10px;color:var(--muted);width:30px">'+m+'</span><div class="pb" style="flex:1"><div class="pbf" style="width:'+tv[i]+'%;background:var(--accent)"></div></div><span style="font-family:JetBrains Mono;font-size:10px;color:var(--accent)">'+tv[i]+'%</span></div>';}).join('');document.getElementById('rpt-phish').innerHTML=months.map(function(m,i){return '<div style="display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-family:JetBrains Mono;font-size:10px;color:var(--muted);width:30px">'+m+'</span><div class="pb" style="flex:1"><div class="pbf" style="width:'+pv[i]+'%;background:var(--warning)"></div></div><span style="font-family:JetBrains Mono;font-size:10px;color:var(--warning)">'+pv[i]+'%</span></div>';}).join('');var depts=[];d.users.forEach(function(u){if(depts.indexOf(u.dept)===-1)depts.push(u.dept);});document.getElementById('dept-cmp').innerHTML='<div class="tw"><table><thead><tr><th>DEPARTMENT</th><th>AVG TRAINING</th><th>AVG RISK</th><th>PHISH FAILS</th></tr></thead><tbody>'+depts.map(function(dept){var du=d.users.filter(function(u){return u.dept===dept;});var at=Math.round(du.reduce(function(s,u){return s+u.training;},0)/du.length);var ar2=Math.round(du.reduce(function(s,u){return s+u.risk;},0)/du.length);var pf=du.reduce(function(s,u){return s+u.phishFails;},0);return '<tr><td style="color:var(--white)">'+dept+'</td><td><div style="display:flex;align-items:center;gap:8px"><div class="pb" style="width:60px"><div class="pbf" style="width:'+at+'%;background:var(--accent)"></div></div><span style="font-family:JetBrains Mono;font-size:10px">'+at+'%</span></div></td><td><span style="color:'+(ar2<=25?'var(--success)':ar2<=50?'var(--warning)':'var(--danger)')+'">'+ar2+'</span></td><td>'+pf+'</td></tr>';}).join('')+'</tbody></table></div>';}
+
+function renderUsers(){var d=getD();document.getElementById('usr-tb').innerHTML=d.users.map(function(u){return '<tr><td style="color:var(--white)">'+u.name+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+u.email+'</td><td>'+u.dept+'</td><td>'+u.courses.length+'</td><td><span style="color:'+(u.risk<=25?'var(--success)':u.risk<=50?'var(--warning)':'var(--danger)')+'">'+u.risk+'</span></td><td><span class="badge bg">ACTIVE</span></td></tr>';}).join('');}
+function addUser(){var d=getD();var names=['Alex Johnson','Maria Garcia','Chris Lee','Priya Patel','Jordan Smith'];var depts=['Security','Finance','HR','Engineering','Marketing','Operations','Sales'];var name=names[Math.floor(Math.random()*names.length)];var dept=depts[Math.floor(Math.random()*depts.length)];var email=name.toLowerCase().replace(' ','.')+'@company.com';var newId=d.users.length?Math.max.apply(null,d.users.map(function(u){return u.id;}))+1:1;d.users.push({id:newId,name:name,email:email,dept:dept,risk:Math.floor(Math.random()*50),phishFails:0,training:0,score:0,courses:[],lastActive:new Date().toISOString().split('T')[0]});saveD(d);renderUsers();toast('User added!','success');}
+
+function renderCertificates(){var d=getD();document.getElementById('cert-tb').innerHTML=d.certificates.map(function(c){return '<tr><td style="color:var(--white)">'+c.course+'</td><td>'+c.user+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+c.date+'</td><td><button class="btn btn-s btn-sm" onclick="toast(\'Download coming soon\',\'info\')">DOWNLOAD</button></td></tr>';}).join('');}
+
+document.addEventListener('DOMContentLoaded',function(){initDashboard();});
+
+</script>
+</body>
+</html>
