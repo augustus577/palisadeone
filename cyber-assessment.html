@@ -463,6 +463,13 @@ textarea.scan-input{height:80px;resize:vertical}
         <div class="page-title" style="font-size:28px;margin-bottom:6px">Which frameworks apply to your organization?</div>
         <div class="page-sub" style="margin-bottom:24px">Select all that apply. Your assessment will be scored and mapped against each selected framework.</div>
         <div class="setup-grid" id="frameworkGrid"></div>
+        <div id="selectedSummary" style="background:var(--surface);border:1px solid var(--border);padding:14px 18px;margin-bottom:16px;display:none">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px">SELECTED</div>
+            <div id="selectedFwList" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+            <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--white)" id="selectedQCount">0 questions</div>
+          </div>
+        </div>
         <div style="display:flex;justify-content:flex-end;gap:10px">
           <button class="btn btn-primary" onclick="startQuestionnaire()">BEGIN ASSESSMENT →</button>
         </div>
@@ -1588,6 +1595,17 @@ const taskTemplates = {
   ]
 };
 
+// COUNT QUESTIONS PER FRAMEWORK
+function countFrameworkQuestions(fwId) {
+  let count = 0;
+  sections.forEach(sec => {
+    sec.questions.forEach(q => {
+      if(q.fw.includes(fwId)) count++;
+    });
+  });
+  return count;
+}
+
 // RENDER FRAMEWORK SELECTION
 function renderFrameworkGrid() {
   const grid = document.getElementById('frameworkGrid');
@@ -1601,6 +1619,7 @@ function renderFrameworkGrid() {
         </div>
       </div>
       <div class="sc-desc">${fw.desc}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:${fw.color};letter-spacing:1px;margin:8px 0 6px">${countFrameworkQuestions(fw.id)} QUESTIONS \u00B7 ${fw.families.length} CONTROL FAMILIES</div>
       <div class="sc-families">${fw.families.slice(0,8).map(f=>`<span class="sc-fam">${f}</span>`).join('')}${fw.families.length>8?`<span class="sc-fam">+${fw.families.length-8}</span>`:''}</div>
     </div>`).join('');
 }
@@ -1615,12 +1634,65 @@ function toggleFramework(id, el) {
     el.classList.add('selected');
     el.querySelector('.sc-check').innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="#03050A" stroke-width="2" fill="none"/></svg>';
   }
+  updateSelectedSummary();
+}
+
+function updateSelectedSummary() {
+  const wrap = document.getElementById('selectedSummary');
+  const list = document.getElementById('selectedFwList');
+  const qCount = document.getElementById('selectedQCount');
+  const fwColors = {nist800:'#00C896',nistcsf:'#00FFD1',soc2:'#0084FF',hipaa:'#7B61FF',pci:'#F5A623',cmmc:'#FF3B5C',iso:'#C8D8F0'};
+  const fwNames = {nist800:'NIST 800-53',nistcsf:'NIST CSF',soc2:'SOC 2',hipaa:'HIPAA',pci:'PCI-DSS',cmmc:'CMMC',iso:'ISO 27001'};
+  if(state.selectedFrameworks.length === 0) {
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'block';
+  list.innerHTML = state.selectedFrameworks.map(f =>
+    `<span style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border:1px solid ${fwColors[f]||'var(--accent)'}40;color:${fwColors[f]||'var(--accent)'};letter-spacing:1px">${fwNames[f]||f}</span>`
+  ).join('');
+  // Count unique questions across selected frameworks
+  const filtered = getFilteredSections();
+  const total = filtered.reduce((a,s)=>a+s.questions.length,0);
+  const secCount = filtered.length;
+  qCount.textContent = total + ' questions \u00B7 ' + secCount + ' sections';
+}
+
+// FRAMEWORK DESCRIPTIONS for assessment context
+const frameworkDescriptions = {
+  nist800: {name:'NIST 800-53 Rev 5',tagline:'Federal Security & Privacy Controls',desc:'Comprehensive assessment against NIST Special Publication 800-53 Revision 5 security and privacy controls. This is the gold standard for security control coverage used by federal agencies and contractors.'},
+  nistcsf: {name:'NIST Cybersecurity Framework v2.0',tagline:'Identify, Protect, Detect, Respond, Recover',desc:'Assessment against the NIST Cybersecurity Framework core functions. Widely adopted across industries as a risk-based approach to managing cybersecurity.'},
+  soc2: {name:'SOC 2 Type II',tagline:'Trust Service Criteria',desc:'Assessment against AICPA Trust Service Criteria covering security, availability, processing integrity, confidentiality, and privacy. Required for SaaS and service organizations.'},
+  hipaa: {name:'HIPAA Security Rule',tagline:'Protected Health Information Safeguards',desc:'Assessment against HIPAA Administrative, Physical, and Technical safeguards for protecting electronic Protected Health Information (ePHI). Required for covered entities and business associates.'},
+  pci: {name:'PCI-DSS v4.0',tagline:'Payment Card Data Security',desc:'Assessment against PCI Data Security Standard v4.0 requirements for organizations that store, process, or transmit cardholder data.'},
+  cmmc: {name:'CMMC Level 2',tagline:'DoD Cybersecurity Maturity',desc:'Assessment against Cybersecurity Maturity Model Certification Level 2 practices aligned to NIST SP 800-171. Required for Department of Defense contractors handling CUI.'},
+  iso: {name:'ISO 27001:2022',tagline:'Information Security Management System',desc:'Assessment against ISO/IEC 27001:2022 Annex A controls for establishing, implementing, and maintaining an Information Security Management System (ISMS).'}
+};
+
+// GET FILTERED SECTIONS — only sections and questions relevant to selected frameworks
+function getFilteredSections() {
+  const sel = state.selectedFrameworks;
+  if(sel.length === 0) return [];
+  const filtered = [];
+  sections.forEach(sec => {
+    const fQuestions = sec.questions.filter(q => q.fw.some(f => sel.includes(f)));
+    if(fQuestions.length > 0) {
+      filtered.push({...sec, questions: fQuestions, _origQuestions: sec.questions});
+    }
+  });
+  return filtered;
 }
 
 // START QUESTIONNAIRE
 function startQuestionnaire() {
   if(state.selectedFrameworks.length === 0) {
     alert('Please select at least one compliance framework.');
+    return;
+  }
+  // Build filtered sections and store them
+  state.filteredSections = getFilteredSections();
+  if(state.filteredSections.length === 0) {
+    alert('No questions found for selected frameworks.');
     return;
   }
   document.getElementById('step1').classList.remove('active');
@@ -1633,63 +1705,100 @@ function startQuestionnaire() {
   document.getElementById('nav-questionnaire').querySelector('.ni-badge').style.display = 'inline';
 }
 
-// RENDER QUESTIONNAIRE
+// RENDER QUESTIONNAIRE — framework-filtered
 function renderQuestionnaire(idx) {
+  const fsecs = state.filteredSections || getFilteredSections();
+  if(idx < 0) idx = 0;
+  if(idx >= fsecs.length) idx = fsecs.length - 1;
   state.currentSection = idx;
-  const sec = sections[idx];
-  const totalQ = sections.reduce((a,s)=>a+s.questions.length,0);
-  const doneQ = sections.slice(0,idx).reduce((a,s)=>a+s.questions.length,0);
-  const totalAns = Object.keys(state.answers).filter(k=>!k.includes('_ai')).length;
+  const sec = fsecs[idx];
+  const totalQ = fsecs.reduce((a,s)=>a+s.questions.length,0);
+  const doneQ = fsecs.slice(0,idx).reduce((a,s)=>a+s.questions.length,0);
+  // Count answers that belong to filtered questions only
+  let totalAns = 0;
+  fsecs.forEach(s => {
+    s.questions.forEach((q,qi) => {
+      // Use original index in the full section for answer keys
+      const origIdx = sections.find(os=>os.id===s.id).questions.indexOf(q);
+      if(state.answers[s.id+'_'+origIdx] !== undefined) totalAns++;
+    });
+  });
   const pct = Math.round((totalAns/totalQ)*100);
 
-  document.getElementById('qProgTitle').textContent = sec.id + ' — ' + sec.name;
-  document.getElementById('qProgSub').textContent = 'Section ' + (idx+1) + ' of ' + sections.length;
+  // Framework context banner
+  const fwNames = state.selectedFrameworks.map(f => {
+    const fd = frameworkDescriptions[f];
+    return fd ? fd.name : f;
+  });
+  const fwColors = {nist800:'#00C896',nistcsf:'#00FFD1',soc2:'#0084FF',hipaa:'#7B61FF',pci:'#F5A623',cmmc:'#FF3B5C',iso:'#C8D8F0'};
+  const primaryFw = state.selectedFrameworks[0];
+  const primaryColor = fwColors[primaryFw] || 'var(--accent)';
+
+  document.getElementById('qProgTitle').textContent = sec.id + ' \u2014 ' + sec.name;
+  document.getElementById('qProgSub').textContent = 'Section ' + (idx+1) + ' of ' + fsecs.length + ' \u00B7 ' + sec.questions.length + ' questions';
   document.getElementById('qProgFill').style.width = pct + '%';
   document.getElementById('qProgPct').textContent = pct + '% Complete';
   document.getElementById('nav-questionnaire').querySelector('.ni-badge').textContent = pct + '%';
 
-  // Section nav
+  // Section nav — only filtered sections
   const snav = document.getElementById('qSectionNav');
-  snav.innerHTML = sections.map((s,i) => {
-    const isDone = s.questions.every((_,qi)=>state.answers[s.id+'_'+qi]!==undefined);
+  snav.innerHTML = fsecs.map((s,i) => {
+    const origSec = sections.find(os=>os.id===s.id);
+    const isDone = s.questions.every(q => {
+      const origIdx = origSec.questions.indexOf(q);
+      return state.answers[s.id+'_'+origIdx] !== undefined;
+    });
     return `<div class="qsn-btn ${i===idx?'active':''} ${isDone?'done':''}" onclick="renderQuestionnaire(${i})">${s.id}</div>`;
   }).join('');
 
-  // Questions
+  // Questions — use original index for answer keys
+  const origSec = sections.find(os=>os.id===sec.id);
   const content = document.getElementById('qContent');
-  content.innerHTML = sec.questions.map((q,qi) => `
-    <div class="q-block ${state.answers[sec.id+'_'+qi]!==undefined?'answered':''}" id="qb_${qi}">
+  content.innerHTML = `
+    <div style="background:rgba(${primaryFw==='nist800'?'0,200,150':primaryFw==='hipaa'?'123,97,255':primaryFw==='pci'?'245,166,35':primaryFw==='cmmc'?'255,59,92':primaryFw==='soc2'?'0,132,255':primaryFw==='iso'?'200,216,240':'0,255,209'},0.04);border:1px solid ${primaryColor}25;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:${primaryColor};letter-spacing:2px;flex-shrink:0">ASSESSING</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${state.selectedFrameworks.map(f=>`<span style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border:1px solid ${fwColors[f]||'var(--accent)'}40;color:${fwColors[f]||'var(--accent)'};letter-spacing:1px">${frameworkDescriptions[f]?.name||f}</span>`).join('')}</div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${totalQ} QUESTIONS</div>
+    </div>` +
+    sec.questions.map((q,qi) => {
+    const origIdx = origSec.questions.indexOf(q);
+    return `
+    <div class="q-block ${state.answers[sec.id+'_'+origIdx]!==undefined?'answered':''}" id="qb_${qi}">
       <div class="q-meta">
         <div class="q-ctrl">${q.ctrl}</div>
         <div class="q-num">Q${doneQ+qi+1}/${totalQ}</div>
       </div>
       <div class="q-text">${q.text}</div>
-      <div class="q-tags">${q.fw.map(f=>`<span class="qt ${f}">${f==='nist800'?'NIST 800-53':f==='nistcsf'?'NIST CSF':f==='iso'?'ISO 27001':f.toUpperCase()}</span>`).join('')}</div>
+      <div class="q-tags">${q.fw.filter(f=>state.selectedFrameworks.includes(f)).map(f=>`<span class="qt ${f}">${f==='nist800'?'NIST 800-53':f==='nistcsf'?'NIST CSF':f==='iso'?'ISO 27001':f.toUpperCase()}</span>`).join('')}</div>
       <div class="q-opts">${q.ans.map((a,ai)=>`
-        <div class="q-opt ${state.answers[sec.id+'_'+qi+'_ai']===ai?'sel':''}" onclick="selAns('${sec.id}',${qi},${ai},${a.s},this)">
+        <div class="q-opt ${state.answers[sec.id+'_'+origIdx+'_ai']===ai?'sel':''}" onclick="selAns('${sec.id}',${origIdx},${ai},${a.s},this,${qi})">
           <div class="qo-radio"></div>
           <div class="qo-label">${a.l}</div>
         </div>`).join('')}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
-  // Nav
+  // Nav buttons — use filtered section indices
   const nav = document.getElementById('qNav');
+  const isFirst = idx === 0;
+  const isLast = idx === fsecs.length - 1;
   nav.innerHTML = `
-    ${idx>0?`<button class="btn btn-secondary btn-sm" onclick="renderQuestionnaire(${idx-1})">← BACK</button>`:''}
+    ${!isFirst?`<button class="btn btn-secondary btn-sm" onclick="renderQuestionnaire(${idx-1})">\u2190 BACK</button>`:''}
     <div style="flex:1"></div>
-    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);cursor:none" onclick="renderQuestionnaire(${Math.min(idx+1,sections.length-1)})">SKIP SECTION</span>
-    ${idx<sections.length-1
-      ?`<button class="btn btn-primary btn-sm" onclick="renderQuestionnaire(${idx+1})">NEXT →</button>`
-      :`<button class="btn btn-primary btn-sm" onclick="completeAssessment()">COMPLETE ASSESSMENT →</button>`}`;
+    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);cursor:none" onclick="renderQuestionnaire(${Math.min(idx+1,fsecs.length-1)})">SKIP SECTION</span>
+    ${!isLast
+      ?`<button class="btn btn-primary btn-sm" onclick="renderQuestionnaire(${idx+1})">NEXT \u2192</button>`
+      :`<button class="btn btn-primary btn-sm" onclick="completeAssessment()">COMPLETE ASSESSMENT \u2192</button>`}`;
 }
 
-function selAns(sid,qi,ai,score,el) {
+function selAns(sid,qi,ai,score,el,displayIdx) {
   el.closest('.q-opts').querySelectorAll('.q-opt').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
   state.answers[sid+'_'+qi] = score;
   state.answers[sid+'_'+qi+'_ai'] = ai;
-  document.getElementById('qb_'+qi).classList.add('answered');
+  const blockId = displayIdx !== undefined ? displayIdx : qi;
+  document.getElementById('qb_'+blockId).classList.add('answered');
 }
 
 // COMPLETE ASSESSMENT
@@ -1728,35 +1837,47 @@ function completeAssessment() {
   showView('dashboard-view');
 }
 
-// CALC SCORES
+// CALC SCORES — framework-filtered scoring
 function calcScores() {
+  const sel = state.selectedFrameworks;
   let tot=0,mx=0;
   const secs={};
+  // Score only questions relevant to selected frameworks
   sections.forEach(sec=>{
     let ss=0,sm=0;
     sec.questions.forEach((q,qi)=>{
+      // Only count questions that match at least one selected framework
+      if(!q.fw.some(f=>sel.includes(f))) return;
       const m=Math.max(...q.ans.map(a=>a.s));
       const u=state.answers[sec.id+'_'+qi]!==undefined?state.answers[sec.id+'_'+qi]:0;
       ss+=u;sm+=m;tot+=u;mx+=m;
     });
-    secs[sec.id]={s:ss,m:sm,p:sm>0?Math.round((ss/sm)*100):0,name:sec.name};
+    if(sm>0) secs[sec.id]={s:ss,m:sm,p:Math.round((ss/sm)*100),name:sec.name};
   });
-  const fwMap={
-    'nist800':{c:'#00C896',n:'NIST 800-53',ids:['AC','AU','CM','IA','IR','RA','SC','SI','CA','SA','CP','PM']},
-    'nistcsf':{c:'#00FFD1',n:'NIST CSF',ids:['AC','AU','IR','RA','SC','SI','CP','CM']},
-    'soc2':{c:'#0084FF',n:'SOC 2',ids:['AC','AU','CA','CM','CP','IA','IR','PM','SA','SC','SI']},
-    'hipaa':{c:'#7B61FF',n:'HIPAA',ids:['AC','AU','CP','IA','IR','MP','PE','PT','SA','SC','SI']},
-    'pci':{c:'#F5A623',n:'PCI-DSS',ids:['AC','AU','CM','IA','IR','MA','MP','PE','RA','SC','SI','SA']},
-    'cmmc':{c:'#FF3B5C',n:'CMMC',ids:['AC','AT','AU','CA','CM','IA','IR','MA','MP','PE','RA','SA','SC','SI','SR','PS']},
-    'iso':{c:'#C8D8F0',n:'ISO 27001',ids:['AC','AT','AU','CM','CP','IA','IR','MP','PE','PL','RA','SA','SC','SI','PT']}
+  // Per-framework scoring: only questions tagged for that specific framework
+  const fwMeta={
+    'nist800':{c:'#00C896',n:'NIST 800-53'},
+    'nistcsf':{c:'#00FFD1',n:'NIST CSF'},
+    'soc2':{c:'#0084FF',n:'SOC 2'},
+    'hipaa':{c:'#7B61FF',n:'HIPAA'},
+    'pci':{c:'#F5A623',n:'PCI-DSS'},
+    'cmmc':{c:'#FF3B5C',n:'CMMC'},
+    'iso':{c:'#C8D8F0',n:'ISO 27001'}
   };
   const fws={};
-  state.selectedFrameworks.forEach(fid=>{
-    const fw=fwMap[fid];
-    if(!fw)return;
-    let fs=0,fm=0;
-    fw.ids.forEach(id=>{if(secs[id]){fs+=secs[id].s;fm+=secs[id].m;}});
-    fws[fid]={...fw,p:fm>0?Math.round((fs/fm)*100):0};
+  sel.forEach(fid=>{
+    const meta=fwMeta[fid];
+    if(!meta)return;
+    let fs=0,fm=0,qCount=0;
+    sections.forEach(sec=>{
+      sec.questions.forEach((q,qi)=>{
+        if(!q.fw.includes(fid)) return;
+        const m=Math.max(...q.ans.map(a=>a.s));
+        const u=state.answers[sec.id+'_'+qi]!==undefined?state.answers[sec.id+'_'+qi]:0;
+        fs+=u;fm+=m;qCount++;
+      });
+    });
+    fws[fid]={...meta,p:fm>0?Math.round((fs/fm)*100):0,qCount:qCount};
   });
   return{overall:mx>0?Math.round((tot/mx)*100):0,secs,fws};
 }
@@ -1829,6 +1950,7 @@ function renderDashboard() {
             </div>
             <div class="fw-details">
               <div class="fw-detail-row"><span class="fw-detail-label">SCORE</span><span class="fw-detail-val" style="color:${fw.c}">${fw.p}/100</span></div>
+              <div class="fw-detail-row"><span class="fw-detail-label">QUESTIONS</span><span class="fw-detail-val">${fw.qCount||'—'}</span></div>
               <div class="fw-detail-row"><span class="fw-detail-label">STATUS</span><span class="fw-detail-val" style="color:${fw.p>=70?'var(--success)':fw.p>=50?'var(--warn)':'var(--danger)'}">
                 ${fw.p>=70?'ON TRACK':fw.p>=50?'NEEDS WORK':'AT RISK'}</span></div>
             </div>
