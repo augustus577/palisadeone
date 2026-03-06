@@ -878,6 +878,17 @@
             </div>
           </div>
         </div>
+
+        <!-- GLOBAL BREACH INTEL -->
+        <div class="panel" style="margin-top:24px;">
+          <div class="panel-header">
+            <div class="panel-title">Global Breach Intel <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);margin-left:8px;letter-spacing:1px;">FREE · NO KEY REQUIRED</span></div>
+            <div class="panel-action" onclick="loadGlobalBreaches()">↺ REFRESH</div>
+          </div>
+          <div id="dw-global-breach-list">
+            <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading breach database...</div>
+          </div>
+        </div>
       </div>
 
       <!-- COMPLIANCE VIEW -->
@@ -1952,6 +1963,52 @@ async function initDarkWeb() {
   await loadDWEmails();
   updateDWStats();
   populateDWClientSelect();
+  loadGlobalBreaches();
+}
+
+async function loadGlobalBreaches() {
+  const el = document.getElementById('dw-global-breach-list');
+  el.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading breach database...</div>';
+  try {
+    const res = await fetch('https://haveibeenpwned.com/api/v3/breaches', {
+      headers: { 'user-agent': 'PalisadeOne-Dashboard' }
+    });
+    const breaches = await res.json();
+    // Sort by breach date descending, take top 40
+    breaches.sort((a, b) => new Date(b.BreachDate) - new Date(a.BreachDate));
+    const top = breaches.slice(0, 40);
+    const totalAccounts = breaches.reduce((s, b) => s + (b.PwnCount || 0), 0);
+    el.innerHTML = `
+      <div style="padding:10px 20px;background:var(--deep);border-bottom:1px solid var(--border);display:flex;gap:24px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">
+        <span>TOTAL BREACHES IN DB: <strong style="color:var(--text)">${breaches.length.toLocaleString()}</strong></span>
+        <span>TOTAL ACCOUNTS EXPOSED: <strong style="color:var(--danger)">${(totalAccounts/1e9).toFixed(1)}B+</strong></span>
+      </div>
+      <div class="dw-breach-row header"><div>Breach</div><div>Date</div><div>Accounts</div><div>Severity</div></div>` +
+      top.map(b => {
+        const sensitive = (b.DataClasses || []).some(d => SENSITIVE_TYPES.includes(d));
+        const sev = sensitive
+          ? `<span style="color:var(--danger);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;">HIGH</span>`
+          : `<span style="color:var(--warning);font-family:'JetBrains Mono',monospace;font-size:11px;">MED</span>`;
+        const tags = (b.DataClasses || []).slice(0, 3).map(d =>
+          `<span class="dw-data-tag ${SENSITIVE_TYPES.includes(d) ? 'sensitive' : ''}">${d}</span>`).join('');
+        const count = b.PwnCount >= 1e9 ? (b.PwnCount/1e9).toFixed(1)+'B'
+                    : b.PwnCount >= 1e6 ? (b.PwnCount/1e6).toFixed(1)+'M'
+                    : b.PwnCount >= 1e3 ? (b.PwnCount/1e3).toFixed(0)+'K'
+                    : b.PwnCount;
+        return `<div class="dw-breach-row">
+          <div>
+            <div class="dw-breach-name">${b.Title || b.Name}</div>
+            <div class="dw-breach-domain">${b.Domain || ''}</div>
+            <div class="dw-data-tags">${tags}</div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${(b.BreachDate||'').slice(0,7)}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);font-weight:500">${count}</div>
+          <div>${sev}</div>
+        </div>`;
+      }).join('');
+  } catch(e) {
+    el.innerHTML = `<div style="padding:24px;text-align:center;font-size:12px;color:var(--danger);font-family:'JetBrains Mono',monospace;">// Failed to load breach database: ${e.message}</div>`;
+  }
 }
 
 async function loadDWEmails() {
