@@ -274,6 +274,83 @@ body{background:var(--black);color:var(--text);font-family:'Outfit',sans-serif;f
 .portal-bg{position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 50%,rgba(0,255,209,0.025) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 85% 30%,rgba(0,132,255,0.03) 0%,transparent 50%);pointer-events:none;z-index:0}
 .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,209,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,209,0.012) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%)}
 
+/* LIGHT MODE */
+html[data-theme="light"] {
+  --black: #EEF2F7; --deep: #E3EAF2; --surface: #FFFFFF; --surface2: #F5F8FC;
+  --border: #CBD8E8; --border2: #ADC0D4;
+  --accent: #008F7E; --accent2: #0070CC;
+  --danger: #D42B47; --warn: #C47800;
+  --success: #008F7E; --purple: #5B41DF;
+  --text: #1E2E3D; --muted: #5A7A9A; --white: #0A1828;
+}
+html[data-theme="light"] body { cursor: auto; }
+html[data-theme="light"] .cursor, html[data-theme="light"] .cursor-ring { display: none; }
+html[data-theme="light"] .portal-bg {
+  background: radial-gradient(ellipse 70% 50% at 15% 50%,rgba(0,143,126,0.04) 0%,transparent 60%),
+  radial-gradient(ellipse 50% 40% at 85% 30%,rgba(0,112,204,0.04) 0%,transparent 50%);
+}
+html[data-theme="light"] .grid-bg {
+  background-image: linear-gradient(rgba(0,143,126,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,143,126,0.03) 1px,transparent 1px);
+}
+html[data-theme="light"] .topbar { background: rgba(238,242,247,0.95); }
+html[data-theme="light"] .sidebar { background: var(--deep); }
+html[data-theme="light"] .modal-overlay { background: rgba(200,216,232,0.85); }
+html[data-theme="light"] .modal { background: var(--surface); }
+.theme-toggle-btn{background:transparent;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:none;font-size:13px;transition:all .2s}
+.theme-toggle-btn:hover{border-color:var(--accent);color:var(--accent)}
+html[data-theme="light"] .theme-toggle-btn{cursor:pointer}
+
+/* VULNERABILITY SCANNING */
+.scan-config{background:var(--surface);border:1px solid var(--border);padding:24px;margin-bottom:20px}
+.scan-config-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px;margin-bottom:16px}
+.scan-form-row{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.scan-field{flex:1;min-width:200px}
+.scan-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px}
+.scan-input{width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color .15s}
+.scan-input:focus{border-color:var(--accent)}
+.scan-input::placeholder{color:var(--muted)}
+textarea.scan-input{height:80px;resize:vertical}
+.scan-type-grid{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.scan-type-card{background:var(--deep);border:1px solid var(--border);padding:14px 18px;cursor:none;transition:all .15s;flex:1;min-width:160px}
+.scan-type-card:hover{border-color:var(--border2)}
+.scan-type-card.selected{border-color:var(--accent);background:rgba(0,255,209,0.04)}
+.stc-name{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--white);letter-spacing:1px;margin-bottom:2px}
+.stc-desc{font-size:10px;color:var(--muted);line-height:1.4}
+.scan-type-card.selected .stc-name{color:var(--accent)}
+.scan-results-wrap{background:var(--surface);border:1px solid var(--border);padding:20px;margin-bottom:16px}
+.sr-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.sr-status{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 10px;letter-spacing:1px}
+.sr-status.running{color:var(--accent);border:1px solid rgba(0,255,209,0.3);animation:pulse 1.5s infinite}
+.sr-status.complete{color:var(--success);border:1px solid rgba(0,200,150,0.3)}
+.sr-status.error{color:var(--danger);border:1px solid rgba(255,59,92,0.3)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.sr-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:1px}
+.sr-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto}
+.sr-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.sr-stat{text-align:center;padding:12px;border:1px solid var(--border)}
+.sr-stat-val{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1}
+.sr-stat-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1px;margin-top:4px}
+.vuln-table{width:100%;border-collapse:collapse}
+.vuln-table th{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
+.vuln-table td{font-size:11px;padding:10px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--text)}
+.vuln-table tr:hover{background:rgba(0,255,209,0.02)}
+.vuln-sev{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;letter-spacing:1px;display:inline-block}
+.vuln-sev.crit{color:#FF3B5C;border:1px solid rgba(255,59,92,0.3)}
+.vuln-sev.high{color:#F5A623;border:1px solid rgba(245,166,35,0.3)}
+.vuln-sev.med{color:#00FFD1;border:1px solid rgba(0,255,209,0.3)}
+.vuln-sev.low{color:#4A6080;border:1px solid var(--border)}
+.vuln-sev.info{color:#0084FF;border:1px solid rgba(0,132,255,0.3)}
+.scan-history-row{display:flex;align-items:center;gap:14px;padding:12px;background:var(--surface);border:1px solid var(--border);margin-bottom:8px;transition:border-color .15s;cursor:none}
+.scan-history-row:hover{border-color:var(--border2)}
+.shr-type{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:1px;width:80px}
+.shr-target{font-size:11px;color:var(--text);flex:1}
+.shr-date{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
+.shr-findings{display:flex;gap:6px}
+.shr-badge{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 6px;letter-spacing:1px}
+.scan-progress{height:4px;background:var(--border);margin:12px 0}
+.scan-progress-fill{height:100%;background:linear-gradient(to right,var(--accent),var(--accent2));transition:width .5s ease;animation:scanPulse 2s infinite}
+@keyframes scanPulse{0%,100%{opacity:1}50%{opacity:0.7}}
+
 @media(max-width:900px){
   .sidebar{display:none}
   body{cursor:auto}
@@ -302,6 +379,7 @@ body{background:var(--black);color:var(--text);font-family:'Outfit',sans-serif;f
   <div class="topbar-module">GRC / CYBER ASSESSMENT</div>
   <div class="topbar-right">
     <div class="topbar-client">CLIENT: <span id="clientName">Demo Client</span></div>
+    <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span id="theme-icon">☀</span></button>
     <a href="dashboard.html" class="topbar-back">← BACK TO DASHBOARD</a>
   </div>
 </div>
@@ -345,6 +423,13 @@ body{background:var(--black);color:var(--text);font-family:'Outfit',sans-serif;f
       <div class="nav-item" onclick="showView('policies')" id="nav-policies">
         <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 2h8l2 2v10H2V4l2-2z"/><path d="M5 7h6M5 10h4"/></svg>
         <span class="ni-label">Policies & Procedures</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">SCANNING</div>
+      <div class="nav-item" onclick="showView('vulnscan')" id="nav-vulnscan">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/><path d="M5 7h4M7 5v4"/></svg>
+        <span class="ni-label">Vulnerability Scans</span>
       </div>
     </div>
     <div class="sidebar-section">
@@ -448,6 +533,73 @@ body{background:var(--black);color:var(--text);font-family:'Outfit',sans-serif;f
       <div id="policiesContent"></div>
     </div>
 
+    <!-- VULNERABILITY SCAN VIEW -->
+    <div class="view" id="view-vulnscan">
+      <div class="page-header">
+        <div class="page-eyebrow">VULNERABILITY MANAGEMENT</div>
+        <div class="page-title" style="font-size:28px">Vulnerability Scanner</div>
+        <div class="page-sub">Run internal and external vulnerability scans against your infrastructure. Enter target IPs or ranges to identify security weaknesses.</div>
+      </div>
+      <div class="scan-config" id="scanConfig">
+        <div class="scan-config-title">NEW SCAN</div>
+        <div class="scan-form-row">
+          <div class="scan-field">
+            <div class="scan-label">SCAN NAME</div>
+            <input class="scan-input" id="scanName" placeholder="e.g., Q1 2026 External Scan" />
+          </div>
+          <div class="scan-field">
+            <div class="scan-label">SCAN PROFILE</div>
+            <select class="scan-input" id="scanProfile" style="cursor:none">
+              <option value="full">Full Scan (All Ports + Vulns)</option>
+              <option value="quick">Quick Scan (Top 1000 Ports)</option>
+              <option value="web">Web Application Scan</option>
+              <option value="compliance">Compliance Scan (CIS/STIG)</option>
+            </select>
+          </div>
+        </div>
+        <div class="scan-label">SCAN TYPE</div>
+        <div class="scan-type-grid">
+          <div class="scan-type-card selected" onclick="selectScanType('external',this)" id="scanTypeExt">
+            <div class="stc-name">EXTERNAL SCAN</div>
+            <div class="stc-desc">Scan public-facing IPs/domains from outside your network perimeter</div>
+          </div>
+          <div class="scan-type-card" onclick="selectScanType('internal',this)" id="scanTypeInt">
+            <div class="stc-name">INTERNAL SCAN</div>
+            <div class="stc-desc">Scan internal network IPs from inside your network (requires agent)</div>
+          </div>
+          <div class="scan-type-card" onclick="selectScanType('webapp',this)" id="scanTypeWeb">
+            <div class="stc-name">WEB APP SCAN</div>
+            <div class="stc-desc">OWASP-based scan of web applications for SQLi, XSS, CSRF, and more</div>
+          </div>
+        </div>
+        <div class="scan-form-row">
+          <div class="scan-field" style="flex:2">
+            <div class="scan-label">TARGET IPs / RANGES / DOMAINS (one per line)</div>
+            <textarea class="scan-input" id="scanTargets" placeholder="192.168.1.0/24&#10;10.0.0.1&#10;example.com&#10;203.0.113.50-203.0.113.60"></textarea>
+          </div>
+          <div class="scan-field">
+            <div class="scan-label">EXCLUSIONS (optional)</div>
+            <textarea class="scan-input" id="scanExclusions" placeholder="IPs to exclude from scan"></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn btn-primary" onclick="startVulnScan()">LAUNCH SCAN</button>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)" id="scanNote">Scans run securely from Palisade One infrastructure</span>
+        </div>
+      </div>
+      <div id="scanResultsArea"></div>
+      <div id="scanHistoryArea">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px;margin-bottom:14px">SCAN HISTORY</div>
+        <div id="scanHistoryList">
+          <div class="empty-state" style="padding:30px">
+            <div class="es-icon" style="font-size:32px">&#9906;</div>
+            <div class="es-title">No Scans Yet</div>
+            <div class="es-desc">Configure and launch your first vulnerability scan above.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- HISTORY VIEW -->
     <div class="view" id="view-history">
       <div class="page-header">
@@ -487,6 +639,24 @@ let mx=0,my=0,rx=0,ry=0;
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx-4+'px';cur.style.top=my-4+'px';});
 (function a(){rx+=(mx-rx-14)*0.12;ry+=(my-ry-14)*0.12;rng.style.left=rx+'px';rng.style.top=ry+'px';requestAnimationFrame(a);})();
 
+// THEME
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('p1-theme', theme);
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = theme === 'light' ? '☽' : '☀';
+}
+function toggleTheme() {
+  applyTheme((document.documentElement.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark');
+}
+// Apply saved theme on load
+(function(){
+  const saved = localStorage.getItem('p1-theme');
+  if(saved) applyTheme(saved);
+  const icon = document.getElementById('theme-icon');
+  if(icon) icon.textContent = (saved || 'dark') === 'light' ? '☽' : '☀';
+})();
+
 // STATE
 let state = {
   selectedFrameworks: [],
@@ -510,115 +680,236 @@ const frameworks = [
   {id:'iso',name:'ISO 27001',badge:'2022',color:'#C8D8F0',desc:'International standard for information security management systems. Globally recognized certification.',families:['AC','AT','AU','CM','CP','IA','IR','MP','PE','PL','RA','SA','SC','SI','PT']}
 ];
 
-// QUESTIONS - 20 control families
+// QUESTIONS - 20 control families, 200+ questions
 const sections = [
   {id:'AC',name:'Access Control',desc:'Who can access your systems and data.',questions:[
-    {ctrl:'AC-2',text:'Do you have a formal account management process (creation, modification, removal)?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — documented lifecycle management',s:10},{l:'Partial — some account types managed',s:5},{l:'No formal process',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'AC-3',text:'Is access to systems enforced via role-based access control (RBAC)?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — RBAC on all systems',s:10},{l:'Partial — RBAC on some systems',s:5},{l:'No — broad access granted',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'AC-6',text:'Do you enforce least privilege — users only access what they need?',fw:['nist800','soc2','pci','hipaa','cmmc'],ans:[{l:'Yes — enforced for all roles',s:10},{l:'Partial — inconsistently enforced',s:5},{l:'No — users have broad access',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'AC-7',text:'Do systems lock out users after failed login attempts?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — lockout on all systems',s:10},{l:'Partial — some systems',s:5},{l:'No lockout policy',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'AC-17',text:'Do you enforce VPN or Zero Trust for all remote access?',fw:['nist800','soc2','cmmc','hipaa'],ans:[{l:'Yes — enforced for all remote users',s:10},{l:'Available but not required',s:6},{l:'No remote access controls',s:0},{l:'No remote access needed',s:8}]}
+    {ctrl:'AC-1',text:'Do you have a formal, documented Access Control policy that is reviewed and updated at least annually?',fw:['nist800','soc2','hipaa','cmmc','iso'],ans:[{l:'Yes — documented, reviewed annually, approved by management',s:10},{l:'Policy exists but not reviewed regularly',s:5},{l:'No formal policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-2',text:'Do you have a formal account management process covering creation, modification, disabling, and removal of accounts?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — full lifecycle management with automated provisioning',s:10},{l:'Partial — manual process for some account types',s:5},{l:'No formal process',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-2(3)',text:'Are inactive accounts automatically disabled after a defined period (e.g., 90 days)?',fw:['nist800','cmmc','pci','soc2'],ans:[{l:'Yes — auto-disabled after 90 days or less',s:10},{l:'Manually reviewed periodically',s:5},{l:'No inactive account management',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-2(4)',text:'Are account creation, modification, and deletion events automatically logged and alerted?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — automated logging and alerting',s:10},{l:'Logged but not alerted on',s:6},{l:'No logging of account changes',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-3',text:'Is access to all systems enforced via role-based access control (RBAC) with documented role definitions?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — RBAC with documented roles on all systems',s:10},{l:'RBAC on some critical systems only',s:5},{l:'No RBAC — broad access granted',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-4',text:'Do you control information flow between security domains (e.g., DMZ to internal, dev to prod)?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — enforced via firewall rules and network segmentation',s:10},{l:'Partial — some segmentation exists',s:5},{l:'No information flow controls',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-5',text:'Do you enforce separation of duties so no single person controls critical processes end-to-end?',fw:['nist800','soc2','pci','hipaa'],ans:[{l:'Yes — documented and enforced for all critical functions',s:10},{l:'Partial — some functions separated',s:5},{l:'No separation of duties',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-6',text:'Do you enforce least privilege — users only access what they need for their job function?',fw:['nist800','soc2','pci','hipaa','cmmc'],ans:[{l:'Yes — enforced and audited for all roles',s:10},{l:'Partially enforced but not audited',s:5},{l:'No — users have broad access',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-6(5)',text:'Are privileged accounts (admin, root) restricted to dedicated individuals with separate privileged credentials?',fw:['nist800','pci','cmmc','soc2'],ans:[{l:'Yes — separate admin accounts, no shared admin credentials',s:10},{l:'Some shared admin accounts exist',s:5},{l:'No privileged account controls',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-7',text:'Do systems lock out users after a defined number of failed login attempts (e.g., 5 or fewer)?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — lockout enforced on all systems after 5 or fewer attempts',s:10},{l:'Lockout on some systems',s:5},{l:'No lockout policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-8',text:'Do systems display an approved login banner/warning before granting access?',fw:['nist800','cmmc'],ans:[{l:'Yes — legal notice displayed on all systems',s:10},{l:'On some systems',s:5},{l:'No banners',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'AC-11',text:'Do endpoints and workstations auto-lock after a period of inactivity (15 min or less)?',fw:['nist800','pci','cmmc','hipaa'],ans:[{l:'Yes — enforced via GPO/MDM at 15 min or less',s:10},{l:'Set but not enforced centrally',s:5},{l:'No auto-lock',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AC-17',text:'Do you enforce VPN or Zero Trust Network Access (ZTNA) for all remote access connections?',fw:['nist800','soc2','cmmc','hipaa'],ans:[{l:'Yes — enforced for all remote users with MFA',s:10},{l:'VPN available but not mandatory',s:6},{l:'No remote access controls',s:0},{l:'No remote access needed',s:8}]},
+    {ctrl:'AC-18',text:'Are wireless networks secured with WPA3/WPA2-Enterprise and segmented from production networks?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — WPA2-Enterprise or WPA3 with segmentation',s:10},{l:'WPA2-PSK with no segmentation',s:4},{l:'Open or WEP wireless',s:0},{l:'No wireless',s:8}]},
+    {ctrl:'AC-19',text:'Are mobile devices (phones, tablets) managed via MDM with encryption, remote wipe, and passcode enforcement?',fw:['nist800','cmmc','hipaa','soc2'],ans:[{l:'Yes — MDM enforced on all mobile devices',s:10},{l:'MDM on company devices only, BYOD unmanaged',s:5},{l:'No mobile device management',s:0},{l:'No mobile access to company data',s:8}]},
+    {ctrl:'AC-20',text:'Do you control and monitor access from external systems (partner connections, vendor access)?',fw:['nist800','pci','cmmc','soc2'],ans:[{l:'Yes — documented, monitored, and time-limited',s:10},{l:'Some external access exists with limited oversight',s:5},{l:'No controls on external access',s:0},{l:'No external access',s:8}]},
+    {ctrl:'AC-22',text:'Do you control what company information is posted on publicly accessible systems/websites?',fw:['nist800','cmmc'],ans:[{l:'Yes — approval process for all public content',s:10},{l:'Informal review process',s:5},{l:'No controls',s:0},{l:'Not applicable',s:7}]}
   ]},
   {id:'AT',name:'Awareness & Training',desc:'Security training and phishing awareness.',questions:[
-    {ctrl:'AT-2',text:'Do all employees receive mandatory annual security awareness training?',fw:['nist800','soc2','hipaa','pci','cmmc'],ans:[{l:'Yes — mandatory with completion tracking',s:10},{l:'Occasional, not tracked',s:5},{l:'No training',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'AT-3',text:'Do security-sensitive roles receive role-specific training?',fw:['nist800','cmmc','hipaa'],ans:[{l:'Yes — role-based training for all IT/privileged staff',s:10},{l:'Partial',s:5},{l:'No',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'AT-2(2)',text:'Do you run phishing simulation exercises?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — regular campaigns',s:10},{l:'Occasional',s:5},{l:'No',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'AT-1',text:'Do you have a formal security awareness and training policy that defines requirements for all personnel?',fw:['nist800','soc2','hipaa','cmmc','iso'],ans:[{l:'Yes — documented policy with defined requirements',s:10},{l:'Informal training expectations',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AT-2',text:'Do all employees complete mandatory security awareness training upon hire and at least annually?',fw:['nist800','soc2','hipaa','pci','cmmc','iso'],ans:[{l:'Yes — mandatory with completion tracking and testing',s:10},{l:'Annual training without testing',s:6},{l:'Occasional, not tracked',s:3},{l:'No training',s:0}]},
+    {ctrl:'AT-2(2)',text:'Do you conduct regular phishing simulation exercises and track click rates?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — monthly/quarterly campaigns with metrics',s:10},{l:'Occasional simulations',s:5},{l:'No phishing simulations',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AT-2(3)',text:'Does training include social engineering awareness (pretexting, vishing, smishing, tailgating)?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — covers multiple social engineering vectors',s:10},{l:'Basic email phishing only',s:5},{l:'No social engineering training',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AT-3',text:'Do personnel in security-sensitive roles (IT admins, developers, SOC staff) receive specialized role-based training?',fw:['nist800','cmmc','hipaa','pci'],ans:[{l:'Yes — role-specific technical training annually',s:10},{l:'Some ad-hoc training',s:5},{l:'No specialized training',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AT-4',text:'Do you maintain training records including dates, content, and completion status for all employees?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — centralized training records with audit trail',s:10},{l:'Partial records',s:5},{l:'No records maintained',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AT-2(5)',text:'Is training updated to address current threats (e.g., AI-generated phishing, QR code attacks, deepfakes)?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — training updated at least annually with current threats',s:10},{l:'Same training content for 2+ years',s:4},{l:'No updates to training',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AT-6',text:'Do new employees receive security onboarding training before being granted system access?',fw:['nist800','soc2','cmmc','hipaa'],ans:[{l:'Yes — training required before access provisioning',s:10},{l:'Training within first 30 days but access granted immediately',s:5},{l:'No onboarding security training',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'AU',name:'Audit & Accountability',desc:'Logging and monitoring of security events.',questions:[
-    {ctrl:'AU-2',text:'Do you log logins, access changes, and admin actions on critical systems?',fw:['nist800','soc2','pci','hipaa','cmmc'],ans:[{l:'Yes — comprehensive logging on all critical systems',s:10},{l:'Partial',s:5},{l:'Minimal logging',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'AU-6',text:'Are logs reviewed for suspicious activity via SIEM or manual review?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — SIEM with automated alerting',s:10},{l:'Manual periodic review',s:5},{l:'Collected but not reviewed',s:2},{l:'No review',s:0}]},
-    {ctrl:'AU-9',text:'Are audit logs protected from unauthorized modification?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — tamper-proof or write-once storage',s:10},{l:'Partial',s:5},{l:'No protection',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'AU-11',text:'How long are audit logs retained?',fw:['nist800','soc2','pci','hipaa'],ans:[{l:'1+ years',s:10},{l:'90 days to 1 year',s:7},{l:'Less than 90 days',s:3},{l:'No retention policy',s:0}]}
+    {ctrl:'AU-1',text:'Do you have a formal audit and accountability policy defining logging requirements?',fw:['nist800','soc2','hipaa','cmmc','iso'],ans:[{l:'Yes — documented, reviewed annually',s:10},{l:'Informal logging practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AU-2',text:'Do you log all security-relevant events: logins, failed logins, privilege escalation, access changes, and admin actions?',fw:['nist800','soc2','pci','hipaa','cmmc'],ans:[{l:'Yes — comprehensive logging on all critical systems',s:10},{l:'Some event types logged on some systems',s:5},{l:'Minimal or no logging',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AU-3',text:'Do audit logs contain sufficient detail (timestamp, source, user, event type, outcome)?',fw:['nist800','pci','cmmc','soc2'],ans:[{l:'Yes — all required fields captured',s:10},{l:'Partial — missing some fields',s:5},{l:'Minimal detail',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AU-4',text:'Do you allocate sufficient log storage capacity to avoid log loss from disk full conditions?',fw:['nist800','cmmc'],ans:[{l:'Yes — monitored with alerts on capacity thresholds',s:10},{l:'Adequate but not monitored',s:6},{l:'Storage issues have caused log loss',s:2},{l:'Unsure',s:2}]},
+    {ctrl:'AU-5',text:'Does your system alert on audit logging failures (e.g., log service stopped, disk full)?',fw:['nist800','cmmc','pci'],ans:[{l:'Yes — automated alerts on any logging failure',s:10},{l:'Some alerting exists',s:5},{l:'No failure alerting',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AU-6',text:'Are logs reviewed for suspicious activity via SIEM with automated correlation and alerting?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — SIEM with real-time correlation and alerting',s:10},{l:'SIEM deployed but limited rules',s:6},{l:'Manual periodic review only',s:3},{l:'No review process',s:0}]},
+    {ctrl:'AU-6(1)',text:'Is log review and analysis integrated with your incident response process?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — SIEM alerts feed directly into IR workflow',s:10},{l:'Manual escalation process',s:5},{l:'No integration',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AU-8',text:'Are all system clocks synchronized via NTP to an authoritative time source?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — NTP configured on all systems',s:10},{l:'Most systems synced',s:6},{l:'No time synchronization',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AU-9',text:'Are audit logs protected from unauthorized modification or deletion (immutable/WORM storage)?',fw:['nist800','pci','cmmc','soc2'],ans:[{l:'Yes — tamper-proof or write-once storage',s:10},{l:'Restricted access but not immutable',s:5},{l:'No protection on logs',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'AU-11',text:'How long are audit logs retained? Do you meet regulatory retention requirements?',fw:['nist800','soc2','pci','hipaa'],ans:[{l:'1+ years — meets all regulatory requirements',s:10},{l:'90 days to 1 year',s:7},{l:'Less than 90 days',s:3},{l:'No retention policy',s:0}]},
+    {ctrl:'AU-12',text:'Is audit logging enabled on all systems — servers, endpoints, network devices, cloud services, and applications?',fw:['nist800','pci','cmmc','soc2'],ans:[{l:'Yes — all system types covered',s:10},{l:'Servers and some endpoints',s:5},{l:'Only some systems',s:2},{l:'Unsure',s:2}]}
   ]},
   {id:'CA',name:'Assessment & Authorization',desc:'Security assessments and continuous monitoring.',questions:[
-    {ctrl:'CA-2',text:'Do you conduct annual security control assessments or audits?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — formal annual assessments',s:10},{l:'Informal/ad-hoc',s:5},{l:'No assessments',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'CA-7',text:'Do you have continuous monitoring of your security posture?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — automated with defined metrics',s:10},{l:'Periodic only',s:5},{l:'No monitoring',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'CA-8',text:'Do you conduct penetration testing?',fw:['nist800','pci','soc2','cmmc'],ans:[{l:'Yes — annual pentest by qualified third party',s:10},{l:'Occasional or internal only',s:5},{l:'No pentesting',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'CA-1',text:'Do you have a formal security assessment and authorization policy?',fw:['nist800','soc2','cmmc','iso'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CA-2',text:'Do you conduct comprehensive security control assessments at least annually?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — formal annual assessment by independent assessor',s:10},{l:'Internal self-assessment only',s:6},{l:'Ad-hoc assessments',s:3},{l:'No assessments',s:0}]},
+    {ctrl:'CA-3',text:'Do you formally authorize and document all interconnections between your systems and external systems?',fw:['nist800','cmmc'],ans:[{l:'Yes — all interconnections documented with ISAs/MOUs',s:10},{l:'Some documented',s:5},{l:'No documentation of interconnections',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'CA-5',text:'Do you maintain a Plan of Action & Milestones (POA&M) for tracking remediation of security findings?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — actively maintained POA&M with due dates and owners',s:10},{l:'Tracking exists but not formal',s:5},{l:'No remediation tracking',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CA-6',text:'Do systems require formal authorization (ATO) from a designated authority before going to production?',fw:['nist800','cmmc'],ans:[{l:'Yes — formal ATO process required',s:10},{l:'Informal approval process',s:5},{l:'No authorization process',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'CA-7',text:'Do you have continuous monitoring with defined security metrics, dashboards, and automated alerting?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — automated dashboards with defined KPIs',s:10},{l:'Some monitoring but not comprehensive',s:5},{l:'No continuous monitoring',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CA-8',text:'Do you conduct penetration testing (internal and external) at least annually by a qualified third party?',fw:['nist800','pci','soc2','cmmc'],ans:[{l:'Yes — annual internal + external pentest by qualified firm',s:10},{l:'External only or internal only',s:6},{l:'Occasional or unqualified testing',s:3},{l:'No penetration testing',s:0}]},
+    {ctrl:'CA-9',text:'Do you monitor and control all internal system connections, not just external ones?',fw:['nist800','cmmc'],ans:[{l:'Yes — internal connections documented and monitored',s:10},{l:'Partial monitoring',s:5},{l:'No internal connection monitoring',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'CM',name:'Configuration Management',desc:'Baseline configurations and change control.',questions:[
-    {ctrl:'CM-2',text:'Do you maintain documented baseline security configurations?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — maintained and enforced',s:10},{l:'Partial',s:5},{l:'No baselines',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'CM-3',text:'Do you have a formal change management process?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — documented with approval workflow',s:10},{l:'Informal process',s:5},{l:'No change management',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'CM-6',text:'Are security configurations enforced via GPO, MDM, or CIS Benchmarks?',fw:['nist800','pci','cmmc','iso'],ans:[{l:'Yes — enforced via automated tools',s:10},{l:'Partial — some manual config',s:5},{l:'Default settings only',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'CM-8',text:'Do you maintain a complete inventory of hardware and software assets?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — complete up-to-date inventory',s:10},{l:'Partial',s:5},{l:'No inventory',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'CM-1',text:'Do you have a formal configuration management policy defining baseline, change control, and deviation procedures?',fw:['nist800','soc2','pci','cmmc','iso'],ans:[{l:'Yes — comprehensive policy reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-2',text:'Do you maintain documented baseline security configurations for all system types (servers, workstations, network devices)?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — baselines documented, enforced, and audited',s:10},{l:'Baselines exist for some system types',s:5},{l:'No documented baselines',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-2(1)',text:'Are system baselines reviewed and updated at least annually or when significant changes occur?',fw:['nist800','cmmc'],ans:[{l:'Yes — reviewed annually and after major changes',s:10},{l:'Reviewed occasionally',s:5},{l:'Never updated',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-3',text:'Do you have a formal change management process with documented requests, approvals, testing, and rollback plans?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — formal CAB process with documentation',s:10},{l:'Informal process for major changes only',s:5},{l:'No change management',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-4',text:'Do you analyze changes for security impact before implementation?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — security impact analysis required for all changes',s:10},{l:'For major changes only',s:6},{l:'No security analysis',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-5',text:'Are configuration changes restricted to authorized personnel only with access controls on config management tools?',fw:['nist800','cmmc','pci'],ans:[{l:'Yes — access-controlled and logged',s:10},{l:'Partially controlled',s:5},{l:'Anyone with admin access can make changes',s:2},{l:'Unsure',s:2}]},
+    {ctrl:'CM-6',text:'Are security configurations enforced via GPO, MDM, CIS Benchmarks, or STIG compliance tools?',fw:['nist800','pci','cmmc','iso'],ans:[{l:'Yes — automated enforcement via GPO/MDM/STIG',s:10},{l:'Partial — some manual configuration',s:5},{l:'Default vendor settings used',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-7',text:'Do you disable unnecessary services, ports, and protocols on all systems (system hardening)?',fw:['nist800','pci','cmmc','soc2'],ans:[{l:'Yes — hardened per documented standard',s:10},{l:'Partially hardened',s:5},{l:'Default services running',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-8',text:'Do you maintain a complete, automated inventory of all hardware and software assets with owners assigned?',fw:['nist800','soc2','pci','cmmc','iso'],ans:[{l:'Yes — automated discovery with complete inventory and owners',s:10},{l:'Partial manual inventory',s:5},{l:'No asset inventory',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-10',text:'Do you enforce software license compliance and restrict installation of unauthorized software?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — application whitelisting or software restriction policies',s:10},{l:'License tracking but no install restrictions',s:5},{l:'No software controls',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CM-11',text:'Is user-installed software controlled via application whitelisting or admin approval?',fw:['nist800','cmmc','pci'],ans:[{l:'Yes — users cannot install software without approval',s:10},{l:'Some restrictions on endpoints',s:5},{l:'Users can install anything',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'CP',name:'Contingency Planning',desc:'Business continuity, disaster recovery, and backups.',questions:[
-    {ctrl:'CP-2',text:'Do you have a documented and tested BCP/DRP?',fw:['nist800','soc2','hipaa','iso'],ans:[{l:'Yes — documented, tested, and current',s:10},{l:'Exists but untested',s:6},{l:'No BCP/DRP',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'CP-9',text:'Do you have automated backups with offsite/cloud copies?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — automated with offsite/cloud copy',s:10},{l:'Backups exist but not offsite',s:5},{l:'No regular backups',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'CP-10',text:'Have you tested backup restoration in the last 12 months?',fw:['nist800','soc2','hipaa'],ans:[{l:'Yes — tested within 12 months',s:10},{l:'Not tested in over a year',s:4},{l:'Never tested',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'CP-1',text:'Do you have a formal contingency planning policy covering BCP, DR, and backup requirements?',fw:['nist800','soc2','hipaa','iso','cmmc'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CP-2',text:'Do you have a documented and management-approved Business Continuity Plan (BCP)?',fw:['nist800','soc2','hipaa','iso'],ans:[{l:'Yes — documented, approved, and distributed to key personnel',s:10},{l:'Exists but outdated or unapproved',s:5},{l:'No BCP',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CP-2(1)',text:'Does your BCP define Recovery Time Objectives (RTO) and Recovery Point Objectives (RPO) for all critical systems?',fw:['nist800','soc2','iso'],ans:[{l:'Yes — RTOs and RPOs defined and validated',s:10},{l:'Defined but not validated',s:6},{l:'Not defined',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CP-3',text:'Do personnel with contingency roles receive training on their BCP/DR responsibilities?',fw:['nist800','soc2','iso'],ans:[{l:'Yes — trained annually with documented results',s:10},{l:'Some training provided',s:5},{l:'No BCP/DR training',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CP-4',text:'Do you test your BCP/DR plan at least annually via tabletop exercise or full failover test?',fw:['nist800','soc2','hipaa','iso'],ans:[{l:'Yes — annual test with documented results and lessons learned',s:10},{l:'Tested more than a year ago',s:4},{l:'Never tested',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CP-6',text:'Do you have an alternate storage site that is geographically separated from the primary site?',fw:['nist800','soc2','iso'],ans:[{l:'Yes — geographically separated with equivalent protections',s:10},{l:'Cloud backup in same region',s:5},{l:'No alternate storage',s:0},{l:'Cloud-only — provider handles this',s:7}]},
+    {ctrl:'CP-7',text:'Do you have an alternate processing site that can be activated within your defined RTO?',fw:['nist800','soc2','iso'],ans:[{l:'Yes — alternate site with tested failover',s:10},{l:'Alternate site exists but untested',s:5},{l:'No alternate processing site',s:0},{l:'Cloud/SaaS — provider handles this',s:7}]},
+    {ctrl:'CP-9',text:'Are all critical data and systems backed up automatically with encrypted offsite/cloud copies?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — automated, encrypted, offsite backups with monitoring',s:10},{l:'Backups exist but not encrypted or not offsite',s:5},{l:'Inconsistent or no backups',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CP-9(1)',text:'Are backup integrity checks performed regularly to verify data can be restored?',fw:['nist800','soc2','hipaa'],ans:[{l:'Yes — automated integrity checks on all backups',s:10},{l:'Occasional manual checks',s:5},{l:'No integrity verification',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'CP-10',text:'Have you successfully tested full system restoration from backup in the last 12 months?',fw:['nist800','soc2','hipaa'],ans:[{l:'Yes — full restoration tested and documented',s:10},{l:'Partial restoration test',s:5},{l:'Never tested restoration',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'IA',name:'Identification & Authentication',desc:'MFA, password policies, and identity management.',questions:[
-    {ctrl:'IA-2',text:'Is MFA enforced for all users on all systems?',fw:['nist800','soc2','pci','cmmc','hipaa'],ans:[{l:'Yes — MFA required for all users',s:10},{l:'MFA for privileged/remote only',s:6},{l:'No MFA',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'IA-5',text:'Do you enforce a strong password policy (12+ chars, complexity, no reuse)?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — technically enforced',s:10},{l:'Policy exists but not enforced',s:5},{l:'No password policy',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'IA-8',text:'Do you manage service accounts and API keys with a formal inventory?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — inventoried and reviewed regularly',s:10},{l:'Partial',s:5},{l:'No management',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'IA-1',text:'Do you have a formal identification and authentication policy for all system access?',fw:['nist800','soc2','hipaa','cmmc','iso'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IA-2',text:'Is multi-factor authentication (MFA) enforced for ALL users accessing ALL systems (including cloud apps)?',fw:['nist800','soc2','pci','cmmc','hipaa'],ans:[{l:'Yes — MFA required for all users on all systems',s:10},{l:'MFA for privileged and remote access only',s:6},{l:'MFA for some apps only',s:3},{l:'No MFA deployed',s:0}]},
+    {ctrl:'IA-2(1)',text:'Is MFA enforced for all privileged account access (admin consoles, root, domain admin)?',fw:['nist800','pci','cmmc','soc2'],ans:[{l:'Yes — MFA required for all privileged access',s:10},{l:'Most privileged accounts covered',s:6},{l:'No MFA on privileged accounts',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IA-2(8)',text:'Are you using phishing-resistant MFA methods (FIDO2/WebAuthn, hardware keys) vs SMS/email codes?',fw:['nist800','cmmc','pci'],ans:[{l:'Yes — FIDO2/hardware tokens deployed',s:10},{l:'Authenticator app (TOTP)',s:7},{l:'SMS or email codes',s:4},{l:'No MFA',s:0}]},
+    {ctrl:'IA-4',text:'Do you manage identifiers (usernames) with unique IDs per person, no shared accounts, and timely deactivation?',fw:['nist800','pci','cmmc','soc2'],ans:[{l:'Yes — unique IDs, no shared accounts, proper lifecycle',s:10},{l:'Mostly unique but some shared accounts',s:5},{l:'Shared accounts common',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IA-5',text:'Do you enforce a strong password policy (14+ chars, complexity, no reuse of last 12+) via technical controls?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — technically enforced (GPO/IdP) with 14+ chars',s:10},{l:'12+ chars enforced',s:7},{l:'Policy exists but not technically enforced',s:4},{l:'No password policy',s:0}]},
+    {ctrl:'IA-5(1)',text:'Do you check passwords against known breached password lists (e.g., Have I Been Pwned, Azure AD Password Protection)?',fw:['nist800','cmmc','pci'],ans:[{l:'Yes — breached password detection enabled',s:10},{l:'Periodic manual checks',s:5},{l:'No breached password checking',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IA-5(2)',text:'Do you use certificate-based authentication (PKI) for system-to-system or network authentication?',fw:['nist800','cmmc'],ans:[{l:'Yes — PKI/certificates for system auth',s:10},{l:'Partial implementation',s:5},{l:'No certificate-based auth',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'IA-6',text:'Is authenticator feedback obscured (e.g., passwords masked, no indication of which field was incorrect)?',fw:['nist800','cmmc','pci'],ans:[{l:'Yes — on all systems',s:10},{l:'Most systems',s:6},{l:'Some systems show verbose errors',s:3},{l:'Unsure',s:2}]},
+    {ctrl:'IA-8',text:'Do you maintain a formal inventory of all service accounts, API keys, and automated credentials with regular rotation?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — inventoried, rotated regularly, and monitored',s:10},{l:'Inventory exists but rotation inconsistent',s:5},{l:'No service account management',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IA-12',text:'Do you verify identity before issuing credentials (e.g., government ID check for new employees)?',fw:['nist800','cmmc','hipaa'],ans:[{l:'Yes — identity proofing required before account creation',s:10},{l:'HR verifies but no formal process',s:6},{l:'No identity proofing',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'IR',name:'Incident Response',desc:'Detection, containment, and recovery from incidents.',questions:[
-    {ctrl:'IR-8',text:'Do you have a documented and tested Incident Response Plan?',fw:['nist800','soc2','hipaa','cmmc','pci'],ans:[{l:'Yes — documented, approved, and tested',s:10},{l:'Exists but untested',s:6},{l:'No IRP',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'IR-3',text:'Have you conducted a tabletop IR exercise in the past 12 months?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — formal tabletop or simulation',s:10},{l:'More than a year ago',s:4},{l:'Never',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'IR-4',text:'Do you have defined incident containment and eradication procedures?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — documented procedures',s:10},{l:'Informal process',s:5},{l:'No defined process',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'IR-6',text:'Do you have a breach notification process meeting regulatory requirements?',fw:['hipaa','pci','soc2'],ans:[{l:'Yes — documented with defined timelines',s:10},{l:'Aware but no formal process',s:5},{l:'No process',s:0},{l:'Not applicable',s:8}]}
+    {ctrl:'IR-1',text:'Do you have a formal incident response policy defining roles, responsibilities, and reporting requirements?',fw:['nist800','soc2','hipaa','cmmc','pci','iso'],ans:[{l:'Yes — documented, approved, reviewed annually',s:10},{l:'Informal process exists',s:5},{l:'No IR policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IR-2',text:'Do all employees know how to report a security incident and who to contact?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — reporting process in training, contact info posted',s:10},{l:'Most employees aware',s:5},{l:'No formal reporting process',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IR-3',text:'Have you conducted a tabletop incident response exercise in the past 12 months?',fw:['nist800','soc2','cmmc','pci'],ans:[{l:'Yes — within 12 months with documented results',s:10},{l:'More than 12 months ago',s:4},{l:'Never conducted',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IR-4',text:'Do you have defined procedures for incident containment, eradication, and recovery?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — documented playbooks for common incident types',s:10},{l:'General procedures exist',s:6},{l:'Informal ad-hoc response',s:3},{l:'No defined procedures',s:0}]},
+    {ctrl:'IR-4(1)',text:'Do you use automated tools (SOAR/EDR) to assist with incident handling and containment?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — SOAR or automated EDR response playbooks',s:10},{l:'EDR with some automation',s:6},{l:'All manual incident handling',s:2},{l:'No tools',s:0}]},
+    {ctrl:'IR-5',text:'Do you track and categorize all security incidents with severity levels and metrics?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — incident tracking system with severity classification',s:10},{l:'Some incidents tracked informally',s:5},{l:'No incident tracking',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IR-6',text:'Do you have a breach notification process meeting all applicable regulatory requirements (HIPAA 60-day, PCI 24-hour, state laws)?',fw:['hipaa','pci','soc2','nist800'],ans:[{l:'Yes — documented process with defined timelines per regulation',s:10},{l:'Aware of requirements but no formal process',s:5},{l:'No notification process',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'IR-7',text:'Do you have 24/7 incident response capability or a retainer with an IR firm?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — 24/7 internal SOC or IR retainer',s:10},{l:'Business hours only coverage',s:5},{l:'No IR capability',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'IR-8',text:'Is your Incident Response Plan reviewed and updated at least annually and after significant incidents?',fw:['nist800','soc2','hipaa','cmmc','pci'],ans:[{l:'Yes — reviewed annually and after incidents',s:10},{l:'Updated occasionally',s:5},{l:'Never updated since creation',s:2},{l:'No IRP exists',s:0}]},
+    {ctrl:'IR-4(4)',text:'Do you conduct formal post-incident reviews (lessons learned) and update procedures accordingly?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — formal post-incident review within 2 weeks',s:10},{l:'Informal discussion only',s:5},{l:'No post-incident review',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'MA',name:'Maintenance',desc:'System maintenance controls and authorized personnel.',questions:[
-    {ctrl:'MA-2',text:'Do you have a scheduled maintenance program with documentation?',fw:['nist800','cmmc'],ans:[{l:'Yes — scheduled with records',s:10},{l:'Informal as-needed',s:5},{l:'No program',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'MA-4',text:'Is remote maintenance authorized and fully logged?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — requires auth and is logged',s:10},{l:'Partial controls',s:5},{l:'No controls',s:0},{l:'Not applicable',s:8}]},
-    {ctrl:'MA-5',text:'Is maintenance performed only by vetted, authorized personnel?',fw:['nist800','hipaa','cmmc'],ans:[{l:'Yes — vetted and access controlled',s:10},{l:'Partial',s:5},{l:'No controls',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'MA-1',text:'Do you have a formal system maintenance policy?',fw:['nist800','cmmc'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MA-2',text:'Do you have a scheduled, documented maintenance program for all critical systems?',fw:['nist800','cmmc'],ans:[{l:'Yes — scheduled with maintenance records',s:10},{l:'Informal as-needed maintenance',s:5},{l:'No program',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MA-3',text:'Are maintenance tools controlled, monitored, and inspected before use on production systems?',fw:['nist800','cmmc'],ans:[{l:'Yes — approved tools list, inspected before use',s:10},{l:'Some controls',s:5},{l:'No controls',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'MA-4',text:'Is all remote maintenance authorized, logged, and terminated when complete?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — authorized, encrypted, logged, and terminated after use',s:10},{l:'Partially controlled',s:5},{l:'No controls on remote maintenance',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'MA-5',text:'Is maintenance performed only by vetted, authorized personnel with documented authorization?',fw:['nist800','hipaa','cmmc'],ans:[{l:'Yes — vetted personnel with documented authorization',s:10},{l:'Partially controlled',s:5},{l:'No authorization controls',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MA-6',text:'Do you have timely maintenance support (SLAs) for critical systems to ensure availability?',fw:['nist800','cmmc'],ans:[{l:'Yes — SLAs with vendors for critical systems',s:10},{l:'Some vendor support agreements',s:5},{l:'No maintenance SLAs',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'MP',name:'Media Protection',desc:'Portable media controls and secure disposal.',questions:[
-    {ctrl:'MP-3',text:'Is use of USB drives and portable media controlled?',fw:['nist800','hipaa','cmmc','pci'],ans:[{l:'Yes — controlled and logged',s:10},{l:'Partially restricted',s:5},{l:'No controls',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'MP-6',text:'Do you formally sanitize/destroy media before disposal?',fw:['nist800','hipaa','pci','cmmc'],ans:[{l:'Yes — wiping or physical destruction with docs',s:10},{l:'Informal process',s:5},{l:'No sanitization',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'MP-4',text:'Is sensitive data on portable media encrypted?',fw:['nist800','hipaa','pci','cmmc'],ans:[{l:'Yes — all sensitive data encrypted',s:10},{l:'Partial',s:5},{l:'No encryption',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'MP-1',text:'Do you have a formal media protection policy covering handling, storage, transport, and disposal?',fw:['nist800','hipaa','cmmc','pci','iso'],ans:[{l:'Yes — documented policy reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MP-2',text:'Is access to digital and physical media containing sensitive data restricted to authorized personnel?',fw:['nist800','hipaa','cmmc','pci'],ans:[{l:'Yes — access controlled and logged',s:10},{l:'Some access controls',s:5},{l:'No access restrictions',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MP-3',text:'Is use of USB drives and removable media blocked or controlled via endpoint policy (DLP/GPO)?',fw:['nist800','hipaa','cmmc','pci'],ans:[{l:'Yes — blocked or controlled via DLP/endpoint policy',s:10},{l:'Partially restricted',s:5},{l:'No controls — anyone can use USB',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MP-4',text:'Is all sensitive data on portable media encrypted (AES-256 or equivalent)?',fw:['nist800','hipaa','pci','cmmc'],ans:[{l:'Yes — mandatory encryption on all portable media',s:10},{l:'Encryption available but not required',s:5},{l:'No media encryption',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MP-5',text:'Is media containing sensitive data protected during transport (courier, locked container, encryption)?',fw:['nist800','hipaa','pci','cmmc'],ans:[{l:'Yes — encrypted and tracked during transport',s:10},{l:'Some protections',s:5},{l:'No transport controls',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'MP-6',text:'Do you securely sanitize or destroy media before disposal using NIST 800-88 compliant methods?',fw:['nist800','hipaa','pci','cmmc'],ans:[{l:'Yes — NIST 800-88 compliant with certificates of destruction',s:10},{l:'Informal disposal process',s:4},{l:'No secure disposal',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'MP-7',text:'Do you restrict the types of media allowed on organizational systems (e.g., no personal USB drives)?',fw:['nist800','cmmc','pci'],ans:[{l:'Yes — only approved media types allowed',s:10},{l:'Guidelines exist but not enforced',s:5},{l:'No restrictions',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'PE',name:'Physical & Environmental',desc:'Physical access controls for facilities.',questions:[
-    {ctrl:'PE-3',text:'Is physical access to server rooms controlled (keycard/biometric)?',fw:['nist800','soc2','hipaa','pci'],ans:[{l:'Yes — keycard/biometric with visitor logs',s:10},{l:'Basic lock and key',s:5},{l:'No physical controls',s:0},{l:'Cloud-only — not applicable',s:8}]},
-    {ctrl:'PE-6',text:'Is physical access monitored with CCTV or security staff?',fw:['nist800','pci','soc2'],ans:[{l:'Yes — CCTV and/or security',s:10},{l:'Partial monitoring',s:5},{l:'No monitoring',s:0},{l:'Not applicable',s:8}]},
-    {ctrl:'PE-14',text:'Are environmental controls (temp, fire suppression) active?',fw:['nist800','soc2'],ans:[{l:'Yes — monitoring and controls active',s:10},{l:'Basic only',s:5},{l:'None',s:0},{l:'Not applicable',s:8}]}
+    {ctrl:'PE-1',text:'Do you have a formal physical and environmental protection policy?',fw:['nist800','soc2','hipaa','pci','iso'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PE-2',text:'Do you maintain and review physical access authorization lists for controlled areas?',fw:['nist800','pci','soc2'],ans:[{l:'Yes — maintained and reviewed quarterly',s:10},{l:'Lists exist but rarely reviewed',s:5},{l:'No authorization lists',s:0},{l:'Cloud-only',s:7}]},
+    {ctrl:'PE-3',text:'Is physical access to server rooms and sensitive areas controlled via keycard, biometric, or badge system?',fw:['nist800','soc2','hipaa','pci'],ans:[{l:'Yes — electronic access control with audit trail',s:10},{l:'Basic lock and key',s:4},{l:'No physical access controls',s:0},{l:'Cloud-only — not applicable',s:8}]},
+    {ctrl:'PE-3(1)',text:'Are visitor access logs maintained and do visitors require escorts in controlled areas?',fw:['nist800','pci','soc2','hipaa'],ans:[{l:'Yes — visitor logs, badges, and escorts required',s:10},{l:'Visitor logs but no escorts',s:5},{l:'No visitor controls',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'PE-6',text:'Is physical access to facilities monitored with CCTV, security staff, or alarm systems?',fw:['nist800','pci','soc2'],ans:[{l:'Yes — CCTV with recording and/or security staff 24/7',s:10},{l:'Partial monitoring during business hours',s:5},{l:'No monitoring',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'PE-8',text:'Are physical access logs (badge swipes, visitor logs) retained for the required period?',fw:['nist800','pci','soc2'],ans:[{l:'Yes — retained for 90+ days',s:10},{l:'Short retention',s:5},{l:'No retention',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'PE-13',text:'Is fire protection (detection, suppression) installed in facilities with IT equipment?',fw:['nist800','soc2','pci'],ans:[{l:'Yes — detection and suppression (FM-200 or equivalent)',s:10},{l:'Detection only (smoke alarms)',s:5},{l:'No fire protection',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'PE-14',text:'Are environmental controls (temperature, humidity monitoring) active for server rooms/data centers?',fw:['nist800','soc2'],ans:[{l:'Yes — monitored with automated alerts on thresholds',s:10},{l:'Basic HVAC without monitoring',s:5},{l:'No environmental controls',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'PE-15',text:'Are facilities protected from water damage (raised floors, water sensors, sump pumps)?',fw:['nist800','soc2'],ans:[{l:'Yes — water detection and prevention measures',s:10},{l:'Basic protections',s:5},{l:'No water protections',s:0},{l:'Not applicable',s:8}]}
   ]},
   {id:'PL',name:'Planning',desc:'Security plans and acceptable use policies.',questions:[
-    {ctrl:'PL-2',text:'Do you maintain a System Security Plan for critical systems?',fw:['nist800','cmmc','hipaa'],ans:[{l:'Yes — current SSP maintained',s:10},{l:'Partial documentation',s:5},{l:'No SSP',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'PL-4',text:'Do all users sign an Acceptable Use Policy?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — signed by all users',s:10},{l:'Policy exists but not signed',s:5},{l:'No AUP',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'PL-8',text:'Do you have a documented Information Security Architecture?',fw:['nist800','soc2'],ans:[{l:'Yes — documented',s:10},{l:'Informal only',s:4},{l:'None',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'PL-1',text:'Do you have a formal security planning policy?',fw:['nist800','cmmc','iso'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PL-2',text:'Do you maintain a System Security Plan (SSP) for each major system documenting security controls in place?',fw:['nist800','cmmc','hipaa'],ans:[{l:'Yes — current SSPs for all major systems',s:10},{l:'Partial documentation',s:5},{l:'No SSPs',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PL-4',text:'Have all users signed an Acceptable Use Policy (AUP) covering IT systems, internet, email, and BYOD?',fw:['nist800','cmmc','soc2','iso'],ans:[{l:'Yes — signed by all users, renewed annually',s:10},{l:'AUP exists but not signed by all',s:5},{l:'No AUP',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PL-4(1)',text:'Does your AUP include explicit restrictions on social media use from corporate systems?',fw:['nist800','cmmc'],ans:[{l:'Yes — social media guidelines included',s:10},{l:'General internet use policy only',s:5},{l:'No restrictions',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'PL-8',text:'Do you have a documented Information Security Architecture diagram and strategy?',fw:['nist800','soc2','iso'],ans:[{l:'Yes — documented architecture with security zones',s:10},{l:'Informal network diagrams',s:5},{l:'No security architecture',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PL-10',text:'Do you have baseline security requirements that apply to all systems before deployment?',fw:['nist800','cmmc'],ans:[{l:'Yes — minimum security baseline enforced for all new systems',s:10},{l:'Informal standards',s:5},{l:'No baselines',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PL-11',text:'Is cybersecurity integrated into your overall enterprise architecture and business planning?',fw:['nist800','iso','soc2'],ans:[{l:'Yes — security is a core part of business planning',s:10},{l:'Considered for major initiatives only',s:5},{l:'Security is an afterthought',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'PS',name:'Personnel Security',desc:'Background checks and termination procedures.',questions:[
-    {ctrl:'PS-3',text:'Do you conduct background checks on all employees?',fw:['nist800','soc2','cmmc','hipaa'],ans:[{l:'Yes — required for all employees',s:10},{l:'Some roles only',s:5},{l:'No checks',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'PS-4',text:'Is access revoked same day as employee termination?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — same day revocation',s:10},{l:'Within a week',s:6},{l:'No formal process',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'PS-7',text:'Do contractor/vendor agreements include security requirements?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — requirements in all contracts',s:10},{l:'Informal only',s:5},{l:'None',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'PS-1',text:'Do you have a formal personnel security policy covering screening, access, and termination?',fw:['nist800','soc2','cmmc','hipaa','iso'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PS-2',text:'Are security-sensitive positions formally designated with additional screening requirements?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — positions categorized with appropriate screening',s:10},{l:'Some positions designated',s:5},{l:'No position categorization',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PS-3',text:'Do you conduct background checks (criminal, credit, reference) on all employees before granting access?',fw:['nist800','soc2','cmmc','hipaa'],ans:[{l:'Yes — required for all employees before access',s:10},{l:'Checks for some roles only',s:5},{l:'No background checks',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PS-4',text:'Is all system access revoked same-day upon employee termination with a documented checklist?',fw:['nist800','soc2','hipaa','cmmc','pci'],ans:[{l:'Yes — same-day revocation with IT offboarding checklist',s:10},{l:'Within a few days',s:5},{l:'No formal process — often delayed',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PS-4(2)',text:'Are company devices (laptops, phones, badges, keys) recovered upon employee termination?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — tracked and recovered same day',s:10},{l:'Usually recovered within a week',s:5},{l:'Inconsistent recovery',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PS-5',text:'Are access rights reviewed and adjusted when employees transfer between roles/departments?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — access reviewed and adjusted on role change',s:10},{l:'Sometimes reviewed',s:5},{l:'Access accumulates across roles',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PS-6',text:'Do all employees and contractors sign NDAs and security agreements before accessing systems?',fw:['nist800','soc2','cmmc','hipaa'],ans:[{l:'Yes — NDAs required for all personnel',s:10},{l:'For some personnel only',s:5},{l:'No NDAs required',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PS-7',text:'Do all third-party/vendor contracts include security requirements, breach notification clauses, and right-to-audit?',fw:['nist800','soc2','pci','cmmc','hipaa'],ans:[{l:'Yes — comprehensive security terms in all contracts',s:10},{l:'In some contracts only',s:5},{l:'No security terms in contracts',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PS-8',text:'Do you enforce sanctions (disciplinary action) for personnel who violate security policies?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — documented sanctions process enforced',s:10},{l:'Informal consequences',s:5},{l:'No sanctions process',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'RA',name:'Risk Assessment',desc:'Risk identification and vulnerability management.',questions:[
-    {ctrl:'RA-3',text:'Do you conduct formal annual risk assessments?',fw:['nist800','soc2','hipaa','pci','cmmc'],ans:[{l:'Yes — formal with documented results',s:10},{l:'Informal reviews',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'RA-5',text:'Do you run automated vulnerability scans at least monthly?',fw:['nist800','pci','soc2','cmmc'],ans:[{l:'Yes — monthly or more frequent',s:10},{l:'Quarterly or less',s:6},{l:'No scanning',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'RA-7',text:'Do you have SLAs for remediating vulnerabilities by severity?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — SLAs for critical/high/medium/low',s:10},{l:'Remediate when time permits',s:4},{l:'No process',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'RA-1',text:'Do you have a formal risk assessment policy defining methodology, frequency, and scope?',fw:['nist800','soc2','hipaa','cmmc','iso'],ans:[{l:'Yes — documented risk management framework',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'RA-2',text:'Do you categorize systems and data by sensitivity/criticality level (e.g., FIPS 199)?',fw:['nist800','cmmc','hipaa'],ans:[{l:'Yes — formal data classification and system categorization',s:10},{l:'Informal classification',s:5},{l:'No categorization',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'RA-3',text:'Do you conduct comprehensive risk assessments at least annually covering threats, vulnerabilities, and impact?',fw:['nist800','soc2','hipaa','pci','cmmc','iso'],ans:[{l:'Yes — formal annual risk assessment with documented results',s:10},{l:'Informal risk reviews',s:5},{l:'No risk assessments',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'RA-3(1)',text:'Do your risk assessments include supply chain and third-party risks?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — supply chain risks formally assessed',s:10},{l:'Considered informally',s:5},{l:'Not included',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'RA-5',text:'Do you run automated vulnerability scans (internal and external) at least monthly on all systems?',fw:['nist800','pci','soc2','cmmc'],ans:[{l:'Yes — monthly or more frequent automated scans',s:10},{l:'Quarterly scans',s:6},{l:'Annual or less',s:3},{l:'No vulnerability scanning',s:0}]},
+    {ctrl:'RA-5(2)',text:'Are vulnerability scan results reviewed within 48 hours and critical findings escalated immediately?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — reviewed within 48 hours with escalation procedures',s:10},{l:'Reviewed within a week',s:6},{l:'Reviewed monthly or less',s:3},{l:'Results not reviewed',s:0}]},
+    {ctrl:'RA-5(5)',text:'Do you have access to perform authenticated (credentialed) vulnerability scans for deeper coverage?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — credentialed scans on all system types',s:10},{l:'Credentialed scans on some systems',s:5},{l:'Unauthenticated scans only',s:3},{l:'No scanning',s:0}]},
+    {ctrl:'RA-7',text:'Do you have defined SLAs for vulnerability remediation by severity (e.g., critical=24h, high=7d, medium=30d)?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — enforced SLAs with tracking and escalation',s:10},{l:'SLAs defined but not enforced',s:5},{l:'Remediate when possible',s:2},{l:'No remediation process',s:0}]},
+    {ctrl:'RA-9',text:'Do you analyze the broader attack surface (external-facing assets, shadow IT, cloud exposure)?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — regular attack surface analysis with external scanning',s:10},{l:'Periodic review',s:5},{l:'No attack surface management',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'RA-10',text:'Do you conduct threat hunting activities proactively looking for indicators of compromise?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — regular proactive threat hunting',s:10},{l:'Occasional investigation-driven hunting',s:5},{l:'Reactive only — wait for alerts',s:2},{l:'No threat hunting',s:0}]}
   ]},
   {id:'SA',name:'System Acquisition',desc:'Security in procurement and SDLC.',questions:[
-    {ctrl:'SA-4',text:'Do procurement contracts include security requirements?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — documented in procurement',s:10},{l:'Informal discussions only',s:5},{l:'No requirements',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'SA-11',text:'Do you require security testing for internally developed apps?',fw:['nist800','pci','soc2','cmmc'],ans:[{l:'Yes — formal SDLC security testing',s:10},{l:'Some testing',s:5},{l:'None',s:0},{l:'Not applicable',s:8}]},
-    {ctrl:'SA-9',text:'Do you review SOC 2/ISO certs for critical vendors?',fw:['nist800','soc2','hipaa','pci'],ans:[{l:'Yes — reviewed for all critical vendors',s:10},{l:'Some vendors reviewed',s:5},{l:'No reviews',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'SA-1',text:'Do you have a formal system acquisition and development policy including security requirements?',fw:['nist800','soc2','cmmc','iso'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SA-2',text:'Are resources (budget, personnel) allocated specifically for information security in project planning?',fw:['nist800','soc2','iso'],ans:[{l:'Yes — dedicated security budget and staffing',s:10},{l:'Some security resources allocated',s:5},{l:'No dedicated security resources',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SA-3',text:'Does your software development lifecycle (SDLC) integrate security at every phase (design, build, test, deploy)?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — security integrated throughout SDLC',s:10},{l:'Security testing at end only',s:5},{l:'No security in SDLC',s:0},{l:'No internal development',s:8}]},
+    {ctrl:'SA-4',text:'Do procurement contracts include specific security requirements and controls?',fw:['nist800','soc2','cmmc'],ans:[{l:'Yes — security requirements in all IT procurement',s:10},{l:'In some contracts',s:5},{l:'No security requirements',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SA-8',text:'Do you apply security engineering principles (defense in depth, least privilege, fail-safe) in system design?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — security principles documented and applied',s:10},{l:'Informally considered',s:5},{l:'Not applied',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'SA-9',text:'Do you review SOC 2 reports, ISO certifications, or security questionnaires for all critical vendors?',fw:['nist800','soc2','hipaa','pci'],ans:[{l:'Yes — reviewed annually for all critical vendors',s:10},{l:'Some vendors reviewed',s:5},{l:'No vendor security reviews',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SA-10',text:'Do developers use secure coding standards (OWASP) and do you perform code reviews for security?',fw:['nist800','pci','soc2','cmmc'],ans:[{l:'Yes — OWASP standards with mandatory code review',s:10},{l:'Some code review practices',s:5},{l:'No secure coding standards',s:0},{l:'No internal development',s:8}]},
+    {ctrl:'SA-11',text:'Do you perform security testing (SAST, DAST, SCA) on applications before production deployment?',fw:['nist800','pci','soc2','cmmc'],ans:[{l:'Yes — SAST + DAST + SCA in CI/CD pipeline',s:10},{l:'Some security testing',s:5},{l:'No security testing',s:0},{l:'No internal development',s:8}]},
+    {ctrl:'SA-22',text:'Do you track unsupported (end-of-life) software and hardware with a plan to replace or mitigate?',fw:['nist800','cmmc','pci'],ans:[{l:'Yes — EOL tracking with migration plans',s:10},{l:'Aware of some EOL items',s:5},{l:'No EOL tracking',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'SC',name:'System & Comms Protection',desc:'Network security, encryption, and boundary protection.',questions:[
-    {ctrl:'SC-7',text:'Do you have a NGFW with network segmentation?',fw:['nist800','pci','cmmc','iso'],ans:[{l:'Yes — NGFW with DMZ/segmentation',s:10},{l:'Basic firewall only',s:5},{l:'No boundary protection',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'SC-8',text:'Is data encrypted in transit (TLS) and at rest?',fw:['nist800','hipaa','pci','cmmc','soc2'],ans:[{l:'Yes — both at rest and in transit',s:10},{l:'In transit only',s:6},{l:'No encryption',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'SC-5',text:'Do you have DDoS protection for internet-facing systems?',fw:['nist800','pci'],ans:[{l:'Yes — CDN or provider DDoS protection',s:10},{l:'Partial',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'SC-12',text:'Do you have formal cryptographic key management?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — formal key management policy',s:10},{l:'Informal',s:4},{l:'None',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'SC-1',text:'Do you have a formal system and communications protection policy?',fw:['nist800','soc2','cmmc','iso'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SC-5',text:'Do you have DDoS protection for all internet-facing systems (CDN, WAF, provider-level)?',fw:['nist800','pci','soc2'],ans:[{l:'Yes — CDN/WAF with DDoS mitigation',s:10},{l:'Basic provider-level protection',s:5},{l:'No DDoS protection',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SC-7',text:'Do you have a next-generation firewall (NGFW) with IPS/IDS and network segmentation (DMZ, internal zones)?',fw:['nist800','pci','cmmc','iso'],ans:[{l:'Yes — NGFW with IPS, DMZ, and internal segmentation',s:10},{l:'Basic firewall with some segmentation',s:5},{l:'Minimal boundary protection',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SC-7(5)',text:'Is your default network policy deny-all with explicit allow rules only for required traffic?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — deny-all default with documented allow rules',s:10},{l:'Mostly restrictive with some broad rules',s:5},{l:'Default allow with some blocks',s:2},{l:'Unsure',s:2}]},
+    {ctrl:'SC-8',text:'Is ALL data encrypted in transit using TLS 1.2 or higher (no SSL, no TLS 1.0/1.1)?',fw:['nist800','hipaa','pci','cmmc','soc2'],ans:[{l:'Yes — TLS 1.2+ enforced everywhere',s:10},{l:'Mostly TLS 1.2+ with some exceptions',s:6},{l:'Mixed encryption standards',s:3},{l:'No encryption in transit',s:0}]},
+    {ctrl:'SC-8(1)',text:'Do you use end-to-end encryption for email containing sensitive data (S/MIME, PGP, or encrypted portal)?',fw:['nist800','hipaa','cmmc'],ans:[{l:'Yes — encrypted email for all sensitive communications',s:10},{l:'Available but not required',s:5},{l:'No email encryption',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'SC-12',text:'Do you have formal cryptographic key management procedures (generation, distribution, storage, rotation, destruction)?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — formal KMS with documented procedures',s:10},{l:'Informal key management',s:4},{l:'No key management process',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SC-13',text:'Do you use FIPS 140-2/3 validated cryptographic modules for sensitive data?',fw:['nist800','cmmc','hipaa'],ans:[{l:'Yes — FIPS-validated modules used',s:10},{l:'Industry-standard crypto (AES-256, RSA-2048+)',s:7},{l:'Unsure of crypto standards',s:3},{l:'No encryption',s:0}]},
+    {ctrl:'SC-17',text:'Do you manage PKI certificates with automated renewal and monitoring for expiration?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — automated certificate lifecycle management',s:10},{l:'Manual tracking with reminders',s:5},{l:'No certificate management',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SC-23',text:'Do web applications protect session authenticity (secure cookies, CSRF tokens, session timeouts)?',fw:['nist800','pci','soc2'],ans:[{l:'Yes — all session protection mechanisms implemented',s:10},{l:'Partial implementation',s:5},{l:'No session protections',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'SC-28',text:'Is sensitive data encrypted at rest on all storage (full disk encryption, database encryption, cloud encryption)?',fw:['nist800','hipaa','pci','cmmc','soc2'],ans:[{l:'Yes — FDE on all endpoints, encrypted databases and cloud storage',s:10},{l:'Partial — some systems encrypted',s:5},{l:'No encryption at rest',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SC-39',text:'Do systems enforce process isolation to prevent one process from accessing another process\'s memory?',fw:['nist800','cmmc'],ans:[{l:'Yes — OS-level process isolation enforced',s:10},{l:'Default OS settings',s:6},{l:'No process isolation controls',s:2},{l:'Unsure',s:2}]}
   ]},
   {id:'SI',name:'System & Info Integrity',desc:'Patching, malware protection, and integrity monitoring.',questions:[
-    {ctrl:'SI-2',text:'Do you apply critical patches within 30 days via automated patching?',fw:['nist800','soc2','pci','cmmc','hipaa'],ans:[{l:'Yes — automated patching within 30 days',s:10},{l:'Manual, often delayed',s:5},{l:'No patch management',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'SI-3',text:'Do all endpoints have EDR with real-time threat detection?',fw:['nist800','pci','cmmc','hipaa'],ans:[{l:'Yes — EDR on all endpoints',s:10},{l:'Basic AV only',s:5},{l:'No protection',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'SI-4',text:'Do you monitor for attacks and indicators of compromise?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — SIEM/IDS with alerting',s:10},{l:'Basic monitoring',s:5},{l:'No monitoring',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'SI-10',text:'Do applications validate input to prevent injection attacks?',fw:['nist800','pci','soc2'],ans:[{l:'Yes — enforced and tested',s:10},{l:'Partial',s:5},{l:'None',s:0},{l:'Not applicable',s:8}]}
+    {ctrl:'SI-1',text:'Do you have a formal system and information integrity policy?',fw:['nist800','soc2','cmmc','iso'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SI-2',text:'Do you apply critical security patches within 14 days and have automated patch management across all systems?',fw:['nist800','soc2','pci','cmmc','hipaa'],ans:[{l:'Yes — automated patching, critical within 14 days',s:10},{l:'Patching within 30 days',s:7},{l:'Manual, often delayed beyond 30 days',s:3},{l:'No patch management',s:0}]},
+    {ctrl:'SI-2(2)',text:'Do you track patch compliance rates and report on systems missing critical patches?',fw:['nist800','cmmc','pci'],ans:[{l:'Yes — automated compliance tracking and reporting',s:10},{l:'Manual tracking',s:5},{l:'No compliance tracking',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SI-3',text:'Do all endpoints (workstations, servers, mobile) have EDR/XDR with real-time threat detection and response?',fw:['nist800','pci','cmmc','hipaa','soc2'],ans:[{l:'Yes — EDR/XDR on all endpoints with 24/7 monitoring',s:10},{l:'EDR on most endpoints',s:6},{l:'Basic antivirus only',s:3},{l:'No endpoint protection',s:0}]},
+    {ctrl:'SI-3(1)',text:'Is endpoint protection centrally managed with automatic signature/behavioral updates?',fw:['nist800','cmmc','pci'],ans:[{l:'Yes — centrally managed with auto-updates',s:10},{l:'Centrally deployed but inconsistent updates',s:5},{l:'Locally managed on each machine',s:2},{l:'Unsure',s:2}]},
+    {ctrl:'SI-4',text:'Do you have network-based intrusion detection/prevention (IDS/IPS) monitoring all network segments?',fw:['nist800','soc2','pci','cmmc'],ans:[{l:'Yes — IDS/IPS on all segments with alerting',s:10},{l:'IDS/IPS on perimeter only',s:5},{l:'No network monitoring',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SI-4(4)',text:'Do you monitor for inbound AND outbound malicious traffic (C2 beaconing, data exfiltration)?',fw:['nist800','cmmc','soc2','pci'],ans:[{l:'Yes — both inbound and outbound monitoring',s:10},{l:'Inbound only',s:5},{l:'No traffic monitoring',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SI-5',text:'Do you receive and act on security advisories from vendors and threat intelligence sources (CISA, US-CERT)?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — subscribed to advisories with defined response process',s:10},{l:'Receive advisories but no formal process',s:5},{l:'No advisory monitoring',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SI-7',text:'Do you use file integrity monitoring (FIM) on critical system files and configurations?',fw:['nist800','pci','cmmc'],ans:[{l:'Yes — FIM deployed on all critical systems',s:10},{l:'FIM on some systems',s:5},{l:'No file integrity monitoring',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SI-10',text:'Do web applications validate and sanitize all user input to prevent injection attacks (SQLi, XSS)?',fw:['nist800','pci','soc2'],ans:[{l:'Yes — input validation enforced and tested via DAST',s:10},{l:'Partial input validation',s:5},{l:'No input validation',s:0},{l:'No web applications',s:8}]},
+    {ctrl:'SI-16',text:'Are memory protection mechanisms enabled (DEP, ASLR, stack canaries) on all systems?',fw:['nist800','cmmc'],ans:[{l:'Yes — enabled on all systems',s:10},{l:'Default OS settings',s:6},{l:'Disabled for compatibility',s:2},{l:'Unsure',s:2}]}
   ]},
   {id:'SR',name:'Supply Chain Risk',desc:'Vendor and supply chain security management.',questions:[
-    {ctrl:'SR-3',text:'Do you have a formal supply chain risk management program?',fw:['nist800','cmmc'],ans:[{l:'Yes — documented program',s:10},{l:'Informal tracking',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'SR-6',text:'Do you formally assess critical suppliers?',fw:['nist800','soc2','cmmc','pci'],ans:[{l:'Yes — formal assessments with docs',s:10},{l:'Review certs only',s:6},{l:'No assessments',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'SR-11',text:'Do you verify software/hardware integrity from suppliers?',fw:['nist800','cmmc'],ans:[{l:'Yes — checksums/signatures verified',s:10},{l:'Partial',s:5},{l:'None',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'SR-1',text:'Do you have a formal supply chain risk management policy?',fw:['nist800','cmmc','iso'],ans:[{l:'Yes — documented and reviewed annually',s:10},{l:'Informal practices',s:5},{l:'No policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SR-2',text:'Do you maintain a list of critical suppliers and assess their security posture?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — critical supplier list with regular assessments',s:10},{l:'Some suppliers tracked',s:5},{l:'No supplier tracking',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SR-3',text:'Do you include security requirements and breach notification clauses in supplier agreements?',fw:['nist800','cmmc','soc2','pci'],ans:[{l:'Yes — in all supplier agreements',s:10},{l:'In some agreements',s:5},{l:'No security requirements',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SR-5',text:'Do you have a process to identify and mitigate counterfeit or tampered components?',fw:['nist800','cmmc'],ans:[{l:'Yes — formal process for component verification',s:10},{l:'Informal inspection',s:5},{l:'No process',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'SR-6',text:'Do you conduct formal security assessments (questionnaires, audits) of critical suppliers at least annually?',fw:['nist800','soc2','cmmc','pci'],ans:[{l:'Yes — annual assessments with documented results',s:10},{l:'Review certifications only (SOC 2, ISO)',s:6},{l:'No supplier assessments',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SR-8',text:'Do you have notification agreements with suppliers for supply chain compromise or breach events?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — contractual notification requirements',s:10},{l:'Informal notification expectations',s:5},{l:'No notification agreements',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'SR-11',text:'Do you verify software and hardware integrity from suppliers (checksums, signatures, SBOMs)?',fw:['nist800','cmmc'],ans:[{l:'Yes — integrity verification including SBOM review',s:10},{l:'Checksums verified sometimes',s:5},{l:'No integrity verification',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'PM',name:'Program Management',desc:'Security program governance and risk strategy.',questions:[
-    {ctrl:'PM-1',text:'Do you have a formal security program with executive sponsorship?',fw:['nist800','soc2','hipaa','cmmc'],ans:[{l:'Yes — formal with C-level ownership',s:10},{l:'Managed informally by IT',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'PM-9',text:'Is a risk register maintained and reviewed by leadership?',fw:['nist800','soc2'],ans:[{l:'Yes — maintained and reviewed regularly',s:10},{l:'Informal risk discussions',s:5},{l:'No risk register',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'PM-14',text:'Do you report security KPIs/KRIs to leadership regularly?',fw:['nist800','soc2'],ans:[{l:'Yes — defined metrics reported regularly',s:10},{l:'Some informal metrics',s:5},{l:'No metrics',s:0},{l:'Unsure',s:2}]}
+    {ctrl:'PM-1',text:'Do you have a formal information security program with executive sponsorship and defined budget?',fw:['nist800','soc2','hipaa','cmmc','iso'],ans:[{l:'Yes — formal program with C-level ownership and budget',s:10},{l:'Managed informally by IT team',s:5},{l:'No security program',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PM-2',text:'Do you have a designated CISO, vCISO, or security officer responsible for the security program?',fw:['nist800','soc2','hipaa','iso'],ans:[{l:'Yes — dedicated CISO/vCISO with authority',s:10},{l:'IT manager handles security as secondary role',s:5},{l:'No designated security leader',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PM-3',text:'Is there a dedicated information security budget separate from general IT spending?',fw:['nist800','soc2','iso'],ans:[{l:'Yes — dedicated security budget reviewed annually',s:10},{l:'Security spending within IT budget',s:5},{l:'No security budget',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PM-5',text:'Do you maintain an inventory of all systems containing sensitive data with documented data flows?',fw:['nist800','hipaa','soc2'],ans:[{l:'Yes — complete system and data flow inventory',s:10},{l:'Partial inventory',s:5},{l:'No inventory',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PM-6',text:'Do you use security performance metrics and KPIs reported to management (e.g., MTTD, MTTR, patch compliance)?',fw:['nist800','soc2','iso'],ans:[{l:'Yes — defined KPIs reported monthly/quarterly',s:10},{l:'Some informal metrics',s:5},{l:'No metrics tracked',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PM-9',text:'Is a risk register maintained, reviewed by leadership, and updated at least quarterly?',fw:['nist800','soc2','iso'],ans:[{l:'Yes — formal risk register reviewed quarterly',s:10},{l:'Risk register exists but rarely reviewed',s:5},{l:'No risk register',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PM-10',text:'Do you have a formal security authorization process for new systems before they go live?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — formal authorization required before production',s:10},{l:'Informal review process',s:5},{l:'No authorization process',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PM-14',text:'Do you perform insider threat assessments and have controls for detecting malicious insiders?',fw:['nist800','cmmc','soc2'],ans:[{l:'Yes — insider threat program with monitoring',s:10},{l:'Basic access monitoring only',s:5},{l:'No insider threat controls',s:0},{l:'Unsure',s:2}]}
   ]},
   {id:'PT',name:'PII & Privacy',desc:'Personal data processing and privacy controls.',questions:[
-    {ctrl:'PT-1',text:'Do you have a documented Privacy Policy?',fw:['nist800','hipaa','iso','soc2'],ans:[{l:'Yes — comprehensive, publicly available',s:10},{l:'Basic notice only',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'PT-2',text:'Do you obtain formal consent before collecting personal data?',fw:['nist800','hipaa','iso'],ans:[{l:'Yes — formal consent with documentation',s:10},{l:'Implied consent only',s:4},{l:'No process',s:0},{l:'Not applicable',s:8}]},
-    {ctrl:'PT-6',text:'Do you maintain a data inventory of all personal data you hold?',fw:['nist800','hipaa','iso','soc2'],ans:[{l:'Yes — complete inventory maintained',s:10},{l:'Partial',s:5},{l:'None',s:0},{l:'Unsure',s:2}]},
-    {ctrl:'PT-8',text:'Do you have a process for data subject access requests (DSAR)?',fw:['nist800','hipaa','iso'],ans:[{l:'Yes — formal DSAR process',s:10},{l:'Handle informally',s:4},{l:'No process',s:0},{l:'Not applicable',s:8}]}
+    {ctrl:'PT-1',text:'Do you have a comprehensive, publicly available Privacy Policy covering data collection, use, sharing, and retention?',fw:['nist800','hipaa','iso','soc2'],ans:[{l:'Yes — comprehensive policy, publicly available, reviewed annually',s:10},{l:'Basic privacy notice',s:5},{l:'No privacy policy',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PT-2',text:'Do you obtain explicit, documented consent before collecting or processing personal data?',fw:['nist800','hipaa','iso'],ans:[{l:'Yes — explicit consent with documentation',s:10},{l:'Implied consent or bundled with ToS',s:4},{l:'No consent process',s:0},{l:'Not applicable',s:8}]},
+    {ctrl:'PT-3',text:'Do you limit personal data collection to only what is necessary for the stated purpose (data minimization)?',fw:['nist800','hipaa','iso'],ans:[{l:'Yes — data minimization enforced',s:10},{l:'Mostly minimal collection',s:6},{l:'Collect more than needed',s:2},{l:'Unsure',s:2}]},
+    {ctrl:'PT-4',text:'Do you have controls to prevent unauthorized disclosure of personal data?',fw:['nist800','hipaa','soc2','pci'],ans:[{l:'Yes — DLP, encryption, and access controls on all PII',s:10},{l:'Some controls',s:5},{l:'No specific PII protections',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PT-5',text:'Do you provide individuals with access to their personal data and the ability to correct inaccuracies?',fw:['nist800','hipaa','iso'],ans:[{l:'Yes — formal process for data access and correction',s:10},{l:'Informal on-request basis',s:5},{l:'No process',s:0},{l:'Not applicable',s:7}]},
+    {ctrl:'PT-6',text:'Do you maintain a comprehensive data inventory/map of all personal data including location, owners, and retention?',fw:['nist800','hipaa','iso','soc2'],ans:[{l:'Yes — complete data inventory with regular updates',s:10},{l:'Partial inventory',s:5},{l:'No data inventory',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PT-7',text:'Do you have defined data retention and disposal schedules for personal data?',fw:['nist800','hipaa','iso','soc2'],ans:[{l:'Yes — retention schedules defined and enforced with secure disposal',s:10},{l:'Retention guidelines exist but not enforced',s:5},{l:'No retention schedule',s:0},{l:'Unsure',s:2}]},
+    {ctrl:'PT-8',text:'Do you have a formal process for handling Data Subject Access Requests (DSARs) within regulatory timelines?',fw:['nist800','hipaa','iso'],ans:[{l:'Yes — formal DSAR process meeting timelines',s:10},{l:'Handle informally on request',s:4},{l:'No DSAR process',s:0},{l:'Not applicable',s:8}]}
   ]}
 ];
 
@@ -861,7 +1152,299 @@ You have the right to:
 
 <h3>6. CONTACT</h3>
 For privacy requests: privacy@[COMPANY DOMAIN]
-Response time: 30 days`}
+Response time: 30 days`},
+  {id:'vendor',title:'Third-Party Vendor Management Policy',status:'draft',desc:'Defines requirements for assessing, onboarding, and monitoring third-party vendors and service providers.',frameworks:['nist800','soc2','hipaa','pci','cmmc'],controls:['SA-9','SR-6','PS-7'],
+   content:`THIRD-PARTY VENDOR MANAGEMENT POLICY
+
+<h3>1. PURPOSE</h3>
+This policy establishes requirements for assessing and managing the security risks of third-party vendors who access, process, or store [COMPANY NAME] data.
+
+<h3>2. VENDOR CLASSIFICATION</h3>
+CRITICAL: Vendors with access to sensitive data or critical systems
+• Requires full security assessment, SOC 2/ISO review, annual reassessment
+STANDARD: Vendors with limited system access
+• Requires security questionnaire, contractual security requirements
+LOW RISK: No data access or system connectivity
+• Standard procurement process
+
+<h3>3. ONBOARDING REQUIREMENTS</h3>
+• Complete vendor security questionnaire
+• Review SOC 2 Type II or ISO 27001 certification (critical vendors)
+• Execute Data Processing Agreement (DPA) if handling personal data
+• Include security requirements, breach notification, and right-to-audit in contract
+• Assign vendor owner within the organization
+
+<h3>4. ONGOING MONITORING</h3>
+• Annual reassessment for critical vendors
+• Monitor vendor security posture via continuous monitoring tools
+• Review vendor SOC 2 reports annually
+• Track vendor-related incidents
+
+<h3>5. OFFBOARDING</h3>
+• Revoke all system access within 24 hours
+• Confirm data return or destruction
+• Document offboarding completion
+
+Version: 1.0 | Classification: Internal | Review Date: Annual`},
+  {id:'email',title:'Email & Communications Security Policy',status:'draft',desc:'Governs secure use of email, messaging, and communications systems including anti-phishing controls.',frameworks:['nist800','soc2','hipaa','cmmc'],controls:['SC-8','AT-2','SI-3'],
+   content:`EMAIL & COMMUNICATIONS SECURITY POLICY
+
+<h3>1. PURPOSE</h3>
+This policy establishes requirements for the secure use of email and electronic communications at [COMPANY NAME].
+
+<h3>2. EMAIL SECURITY CONTROLS</h3>
+• DMARC, DKIM, and SPF records configured on all company domains
+• Advanced threat protection (ATP) enabled on email gateway
+• External email banner warnings displayed on all inbound external messages
+• Attachment sandboxing for executable and macro-enabled files
+• URL rewriting and click-time protection enabled
+
+<h3>3. ACCEPTABLE USE</h3>
+• Company email for business purposes only
+• Do not send sensitive data (PHI, PCI, PII) via unencrypted email
+• Do not open unexpected attachments or click suspicious links
+• Report all suspicious emails to security team immediately
+• Do not auto-forward company email to personal accounts
+
+<h3>4. ENCRYPTION REQUIREMENTS</h3>
+• TLS 1.2+ enforced for all email in transit
+• Sensitive data must use encrypted email (S/MIME, encrypted portal, or DLP-enforced encryption)
+• Do not send passwords, API keys, or credentials via email
+
+<h3>5. RETENTION</h3>
+• Business email retained for [DEFINE] years per retention schedule
+• Litigation hold capability maintained for legal matters
+
+Version: 1.0 | Classification: Internal | Review Date: Annual`},
+  {id:'byod',title:'BYOD & Mobile Device Policy',status:'draft',desc:'Establishes security requirements for personal devices accessing company data and systems.',frameworks:['nist800','cmmc','hipaa','soc2'],controls:['AC-19','AC-20','MP-4'],
+   content:`BRING YOUR OWN DEVICE (BYOD) & MOBILE DEVICE POLICY
+
+<h3>1. PURPOSE</h3>
+This policy defines the security requirements for personal and mobile devices used to access [COMPANY NAME] data and systems.
+
+<h3>2. ENROLLMENT REQUIREMENTS</h3>
+• All BYOD devices must be enrolled in Mobile Device Management (MDM) before accessing company data
+• Devices must meet minimum security requirements:
+  - OS version within last 2 major releases
+  - Device encryption enabled
+  - Screen lock with 6+ character PIN or biometric
+  - No jailbroken or rooted devices
+
+<h3>3. DATA PROTECTION</h3>
+• Company data stored in managed containers/apps only
+• No company data on unmanaged cloud storage (personal Dropbox, Google Drive)
+• Remote wipe capability required for all enrolled devices
+• Company data wiped from device upon employee departure
+
+<h3>4. NETWORK ACCESS</h3>
+• BYOD devices on separate network segment (guest/BYOD VLAN)
+• VPN or Zero Trust required for accessing internal resources
+• No direct access to production systems from personal devices
+
+<h3>5. LOST/STOLEN DEVICE</h3>
+• Report lost or stolen devices to IT within 1 hour
+• Remote wipe will be initiated immediately
+• Employee responsible for personal data backup
+
+Version: 1.0 | Classification: Internal | Review Date: Annual`},
+  {id:'crypto',title:'Cryptographic Standards Policy',status:'draft',desc:'Defines approved encryption algorithms, key management procedures, and cryptographic requirements.',frameworks:['nist800','pci','cmmc','hipaa'],controls:['SC-8','SC-12','SC-13','SC-28'],
+   content:`CRYPTOGRAPHIC STANDARDS POLICY
+
+<h3>1. PURPOSE</h3>
+This policy defines the approved cryptographic algorithms, key lengths, and key management procedures for [COMPANY NAME].
+
+<h3>2. APPROVED ALGORITHMS</h3>
+SYMMETRIC ENCRYPTION:
+• AES-256 (preferred), AES-128 (acceptable)
+• ChaCha20-Poly1305 (acceptable for TLS)
+
+ASYMMETRIC ENCRYPTION:
+• RSA 2048-bit minimum (4096-bit preferred)
+• ECDSA P-256 or P-384
+• Ed25519 for signing
+
+HASHING:
+• SHA-256, SHA-384, SHA-512
+• PROHIBITED: MD5, SHA-1
+
+<h3>3. TLS REQUIREMENTS</h3>
+• TLS 1.2 minimum, TLS 1.3 preferred
+• PROHIBITED: SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1
+• Disable weak cipher suites: RC4, DES, 3DES, NULL ciphers
+
+<h3>4. KEY MANAGEMENT</h3>
+• Keys generated using cryptographically secure random number generators
+• Private keys stored in hardware security modules (HSM) or encrypted key vaults
+• Key rotation: Annual for data encryption keys, upon compromise for any key
+• Key destruction: Secure overwrite using approved methods
+• Split knowledge / dual control for master keys
+
+<h3>5. CERTIFICATE MANAGEMENT</h3>
+• Automated certificate lifecycle management
+• 90-day maximum certificate validity for public TLS certificates
+• Certificate pinning for critical applications
+• Monitor for certificate expiration with 30-day advance warning
+
+Version: 1.0 | Classification: Internal | Review Date: Annual`},
+  {id:'patch',title:'Patch Management Policy',status:'draft',desc:'Defines the process for testing, approving, and deploying security patches across all systems.',frameworks:['nist800','pci','cmmc','soc2','hipaa'],controls:['SI-2','CM-3','RA-5'],
+   content:`PATCH MANAGEMENT POLICY
+
+<h3>1. PURPOSE</h3>
+This policy establishes the process for managing security patches and updates across all [COMPANY NAME] systems.
+
+<h3>2. PATCH CLASSIFICATION & SLAs</h3>
+EMERGENCY (CVSS 9.0-10.0 or actively exploited):
+• Deploy within 24-48 hours
+• Emergency change process authorized
+
+CRITICAL (CVSS 7.0-8.9):
+• Deploy within 7 days
+
+HIGH (CVSS 4.0-6.9):
+• Deploy within 30 days
+
+STANDARD (CVSS 0.1-3.9):
+• Deploy within 90 days or next maintenance window
+
+<h3>3. PROCESS</h3>
+1. Monitor vendor advisories and vulnerability feeds daily
+2. Assess applicability and risk for each patch
+3. Test patches in non-production environment
+4. Obtain change management approval (standard process or emergency)
+5. Deploy to production with rollback plan
+6. Verify successful deployment and document results
+
+<h3>4. SCOPE</h3>
+• All operating systems (Windows, Linux, macOS)
+• All applications and middleware
+• Firmware on network devices, firewalls, and IoT
+• Third-party software and libraries
+
+<h3>5. EXCEPTIONS</h3>
+• Systems that cannot be patched require documented compensating controls
+• Exception approval from security manager required
+• Exceptions reviewed monthly
+
+Version: 1.0 | Classification: Internal | Review Date: Annual`},
+  {id:'logging',title:'Logging & Monitoring Policy',status:'draft',desc:'Defines requirements for security event logging, log management, and continuous monitoring.',frameworks:['nist800','soc2','pci','cmmc','hipaa'],controls:['AU-2','AU-6','AU-9','AU-11','SI-4'],
+   content:`LOGGING & MONITORING POLICY
+
+<h3>1. PURPOSE</h3>
+This policy defines the requirements for security event logging, log management, and continuous monitoring at [COMPANY NAME].
+
+<h3>2. EVENTS TO LOG</h3>
+All systems must log the following events:
+• Successful and failed authentication attempts
+• Account creation, modification, deletion, and privilege changes
+• Access to sensitive data (PHI, PCI, PII)
+• Administrative actions and configuration changes
+• System startup, shutdown, and errors
+• Security tool alerts (EDR, IDS/IPS, firewall)
+• File access on critical shares
+
+<h3>3. LOG FORMAT REQUIREMENTS</h3>
+Each log entry must contain:
+• Timestamp (NTP-synchronized, ISO 8601 format)
+• Source system hostname/IP
+• User identity
+• Event type and description
+• Success or failure indication
+• Source and destination addresses (where applicable)
+
+<h3>4. LOG PROTECTION</h3>
+• Logs forwarded to centralized SIEM in real-time
+• Log storage on write-once or immutable storage
+• Access to logs restricted to authorized security personnel
+• Log integrity validated via checksums
+
+<h3>5. RETENTION</h3>
+• Minimum 1 year online storage
+• Minimum 3 years archived storage (HIPAA, PCI)
+• Retention meets all regulatory requirements
+
+<h3>6. MONITORING & ALERTING</h3>
+• SIEM correlation rules for known attack patterns
+• 24/7 alert monitoring capability
+• Alert triage within 15 minutes for critical alerts
+• Monthly log review for compliance verification
+
+Version: 1.0 | Classification: Internal | Review Date: Annual`},
+  {id:'remote',title:'Remote Work & Telecommuting Policy',status:'draft',desc:'Establishes security requirements for employees working remotely.',frameworks:['nist800','soc2','cmmc','hipaa'],controls:['AC-17','AC-18','AC-19','AC-20'],
+   content:`REMOTE WORK & TELECOMMUTING POLICY
+
+<h3>1. PURPOSE</h3>
+This policy defines security requirements for [COMPANY NAME] employees working remotely.
+
+<h3>2. CONNECTIVITY REQUIREMENTS</h3>
+• VPN or Zero Trust Network Access (ZTNA) required for all remote access
+• MFA required on all VPN/ZTNA connections
+• Split tunneling prohibited — all traffic must route through corporate security controls
+• Home Wi-Fi must use WPA2 or WPA3 encryption
+
+<h3>3. DEVICE REQUIREMENTS</h3>
+• Company-issued laptops preferred; BYOD must meet BYOD policy requirements
+• Full disk encryption required (BitLocker, FileVault)
+• Endpoint Detection and Response (EDR) must be installed and active
+• Automatic screen lock after 5 minutes of inactivity
+• Local admin rights prohibited on remote devices
+
+<h3>4. PHYSICAL SECURITY</h3>
+• Work in a private area — no sensitive data visible to others
+• Lock device when stepping away
+• Do not use public Wi-Fi for work without VPN
+• Secure printed documents — shred when no longer needed
+
+<h3>5. DATA HANDLING</h3>
+• No company data stored on personal devices or cloud storage
+• Use only approved collaboration tools (Teams, Slack, etc.)
+• Screen sharing — verify attendees before displaying sensitive data
+
+<h3>6. REPORTING</h3>
+• Report security incidents immediately regardless of location
+• Report lost or stolen devices within 1 hour
+
+Version: 1.0 | Classification: Internal | Review Date: Annual`},
+  {id:'changemgmt',title:'Change Management Policy',status:'draft',desc:'Defines the formal process for requesting, approving, testing, and implementing changes to IT systems.',frameworks:['nist800','soc2','pci','cmmc','iso'],controls:['CM-3','CM-4','CM-5'],
+   content:`CHANGE MANAGEMENT POLICY
+
+<h3>1. PURPOSE</h3>
+This policy establishes a formal process for managing changes to [COMPANY NAME] IT systems to minimize risk and ensure stability.
+
+<h3>2. CHANGE CLASSIFICATION</h3>
+STANDARD: Pre-approved, low-risk, routine changes (e.g., user account creation)
+• No CAB approval required, follow documented procedure
+
+NORMAL: Changes requiring review and approval
+• Submit change request 5+ business days in advance
+• CAB review and approval required
+
+EMERGENCY: Critical changes required to resolve incidents or prevent imminent threats
+• Expedited approval by change manager
+• Retroactive CAB review within 48 hours
+
+<h3>3. CHANGE REQUEST REQUIREMENTS</h3>
+Every change request must include:
+• Description and business justification
+• Risk assessment and security impact analysis
+• Test plan and results
+• Rollback plan
+• Implementation schedule
+• Affected systems and stakeholders
+
+<h3>4. APPROVAL WORKFLOW</h3>
+1. Requester submits change request
+2. Technical review by system owner
+3. Security impact analysis by security team
+4. CAB review and approval (Normal changes)
+5. Scheduled implementation
+6. Post-implementation verification
+7. Change closure and documentation
+
+<h3>5. CHANGE FREEZE</h3>
+• No changes during designated freeze periods (holidays, quarter-end)
+• Emergency changes only during freeze with CIO/CISO approval
+
+Version: 1.0 | Classification: Internal | Review Date: Annual`}
 ];
 
 // TASK TEMPLATES (generated from gap analysis)
@@ -869,78 +1452,139 @@ const taskTemplates = {
   'AC': [
     {title:'Implement Role-Based Access Control (RBAC)',desc:'Configure RBAC across all critical systems. Define roles, assign permissions, and document the access matrix.',sev:'critical',ctrl:'AC-3',fw:'nist800'},
     {title:'Enforce Account Lifecycle Management',desc:'Document and implement formal process for creating, modifying, and revoking user accounts. Integrate with HR offboarding.',sev:'critical',ctrl:'AC-2',fw:'nist800'},
-    {title:'Deploy Privileged Access Workstations',desc:'Separate privileged admin accounts from standard user accounts. Deploy dedicated PAWs for admin tasks.',sev:'high',ctrl:'AC-6',fw:'cmmc'}
+    {title:'Deploy Privileged Access Management (PAM)',desc:'Separate privileged admin accounts from standard user accounts. Implement PAM solution with session recording.',sev:'high',ctrl:'AC-6',fw:'cmmc'},
+    {title:'Implement Auto-Lock on All Workstations',desc:'Configure GPO/MDM to enforce screen lock after 15 minutes of inactivity on all endpoints.',sev:'medium',ctrl:'AC-11',fw:'pci'},
+    {title:'Deploy Mobile Device Management (MDM)',desc:'Enroll all mobile devices in MDM with encryption, remote wipe, and passcode enforcement.',sev:'high',ctrl:'AC-19',fw:'hipaa'},
+    {title:'Implement Wireless Network Segmentation',desc:'Separate guest, corporate, and IoT wireless networks. Enforce WPA2-Enterprise or WPA3.',sev:'high',ctrl:'AC-18',fw:'pci'},
+    {title:'Disable Inactive Accounts Automatically',desc:'Configure identity provider to auto-disable accounts after 90 days of inactivity.',sev:'medium',ctrl:'AC-2(3)',fw:'cmmc'},
+    {title:'Enforce Separation of Duties',desc:'Document and enforce separation of duties for critical business processes (financial, admin, security).',sev:'high',ctrl:'AC-5',fw:'soc2'}
   ],
   'AT': [
-    {title:'Launch Annual Security Awareness Training',desc:'Deploy mandatory security awareness training for all employees. Track completion rates and document results.',sev:'high',ctrl:'AT-2',fw:'soc2'},
-    {title:'Implement Phishing Simulation Program',desc:'Subscribe to a phishing simulation platform (KnowBe4, Proofpoint) and run quarterly simulations.',sev:'high',ctrl:'AT-2(2)',fw:'nist800'}
+    {title:'Launch Annual Security Awareness Training',desc:'Deploy mandatory security awareness training for all employees with completion tracking and testing.',sev:'high',ctrl:'AT-2',fw:'soc2'},
+    {title:'Implement Phishing Simulation Program',desc:'Subscribe to phishing simulation platform (KnowBe4, Proofpoint) and run monthly campaigns.',sev:'high',ctrl:'AT-2(2)',fw:'nist800'},
+    {title:'Develop Role-Based Security Training',desc:'Create specialized security training for IT admins, developers, and privileged users.',sev:'medium',ctrl:'AT-3',fw:'cmmc'},
+    {title:'Build Security Onboarding Program',desc:'Require security training completion before granting system access to new hires.',sev:'medium',ctrl:'AT-6',fw:'soc2'},
+    {title:'Update Training for Current Threats',desc:'Revise training content to cover AI phishing, QR code attacks, and social engineering tactics.',sev:'medium',ctrl:'AT-2(5)',fw:'nist800'}
   ],
   'AU': [
-    {title:'Deploy SIEM Solution',desc:'Deploy a Security Information and Event Management system to centralize log collection and automated alerting.',sev:'critical',ctrl:'AU-6',fw:'nist800'},
-    {title:'Define Log Retention Policy',desc:'Implement 1-year minimum log retention. Configure tamper-proof log storage.',sev:'high',ctrl:'AU-11',fw:'pci'}
+    {title:'Deploy SIEM Solution',desc:'Deploy a SIEM (Wazuh, Splunk, or similar) to centralize log collection with real-time correlation and alerting.',sev:'critical',ctrl:'AU-6',fw:'nist800'},
+    {title:'Define Log Retention Policy',desc:'Implement 1-year minimum online log retention with 3-year archive. Configure tamper-proof storage.',sev:'high',ctrl:'AU-11',fw:'pci'},
+    {title:'Enable Comprehensive Logging',desc:'Enable audit logging on all systems: servers, endpoints, network devices, cloud services, and applications.',sev:'critical',ctrl:'AU-2',fw:'cmmc'},
+    {title:'Configure NTP Time Synchronization',desc:'Configure NTP on all systems to synchronize with authoritative time source for log correlation.',sev:'medium',ctrl:'AU-8',fw:'pci'},
+    {title:'Implement Log Integrity Monitoring',desc:'Deploy immutable/WORM log storage and integrity verification to prevent log tampering.',sev:'high',ctrl:'AU-9',fw:'soc2'},
+    {title:'Set Up Audit Failure Alerting',desc:'Configure alerts for logging service failures, disk capacity issues, and log forwarding interruptions.',sev:'medium',ctrl:'AU-5',fw:'cmmc'}
   ],
   'CA': [
-    {title:'Schedule Annual Penetration Test',desc:'Engage a qualified third-party penetration testing firm for annual external and internal pentest.',sev:'high',ctrl:'CA-8',fw:'pci'},
-    {title:'Implement Continuous Security Monitoring',desc:'Define security metrics and implement automated monitoring dashboards reviewed weekly.',sev:'medium',ctrl:'CA-7',fw:'nist800'}
+    {title:'Schedule Annual Penetration Test',desc:'Engage qualified third-party firm for annual internal + external penetration test. Track remediation.',sev:'high',ctrl:'CA-8',fw:'pci'},
+    {title:'Implement Continuous Security Monitoring',desc:'Deploy automated security dashboards with defined KPIs (MTTD, MTTR, patch compliance) reviewed weekly.',sev:'medium',ctrl:'CA-7',fw:'nist800'},
+    {title:'Create POA&M Tracking System',desc:'Implement Plan of Action & Milestones for tracking all security findings with owners and due dates.',sev:'high',ctrl:'CA-5',fw:'cmmc'},
+    {title:'Conduct Annual Security Assessment',desc:'Perform comprehensive security control assessment by independent assessor. Document findings.',sev:'high',ctrl:'CA-2',fw:'soc2'}
   ],
   'CM': [
-    {title:'Document Security Baselines',desc:'Define and document baseline security configurations for all system types using CIS Benchmarks.',sev:'high',ctrl:'CM-2',fw:'nist800'},
-    {title:'Deploy Asset Inventory System',desc:'Implement automated asset discovery and maintain complete hardware/software inventory.',sev:'high',ctrl:'CM-8',fw:'soc2'},
-    {title:'Implement Change Management Process',desc:'Document and enforce a formal change management workflow with approval, testing, and rollback procedures.',sev:'medium',ctrl:'CM-3',fw:'soc2'}
+    {title:'Document Security Baselines (CIS Benchmarks)',desc:'Define and document baseline security configurations for all system types using CIS Benchmarks or STIGs.',sev:'high',ctrl:'CM-2',fw:'nist800'},
+    {title:'Deploy Automated Asset Discovery',desc:'Implement automated asset discovery to maintain complete hardware/software inventory with assigned owners.',sev:'high',ctrl:'CM-8',fw:'soc2'},
+    {title:'Implement Formal Change Management',desc:'Document and enforce change management process with CAB approval, testing, rollback plans.',sev:'medium',ctrl:'CM-3',fw:'soc2'},
+    {title:'Harden All Systems',desc:'Disable unnecessary services, ports, and protocols on all systems per hardening standards.',sev:'high',ctrl:'CM-7',fw:'pci'},
+    {title:'Implement Application Whitelisting',desc:'Deploy software restriction policies preventing unauthorized software installation on endpoints.',sev:'high',ctrl:'CM-11',fw:'cmmc'},
+    {title:'Enforce Configuration via GPO/MDM',desc:'Implement automated configuration enforcement via Group Policy, MDM, or configuration management tools.',sev:'high',ctrl:'CM-6',fw:'pci'}
   ],
   'CP': [
-    {title:'Document Business Continuity Plan',desc:'Create and document a formal BCP/DRP including RTOs, RPOs, and recovery procedures.',sev:'critical',ctrl:'CP-2',fw:'soc2'},
-    {title:'Test Backup Restoration',desc:'Schedule and complete a full backup restoration test. Document results.',sev:'high',ctrl:'CP-10',fw:'nist800'},
-    {title:'Implement Offsite Backup Storage',desc:'Configure automated backups to geographically separate cloud storage.',sev:'high',ctrl:'CP-9',fw:'hipaa'}
+    {title:'Document Business Continuity Plan',desc:'Create formal BCP/DRP including RTOs, RPOs, recovery procedures, and communication plans.',sev:'critical',ctrl:'CP-2',fw:'soc2'},
+    {title:'Test Full Backup Restoration',desc:'Schedule and complete a full system restoration test from backup. Document results and gaps.',sev:'high',ctrl:'CP-10',fw:'nist800'},
+    {title:'Implement Encrypted Offsite Backups',desc:'Configure automated encrypted backups to geographically separated cloud or offsite storage.',sev:'high',ctrl:'CP-9',fw:'hipaa'},
+    {title:'Conduct Annual DR Test',desc:'Execute annual disaster recovery test (tabletop or full failover). Document lessons learned.',sev:'high',ctrl:'CP-4',fw:'iso'},
+    {title:'Define RTOs and RPOs',desc:'Define and validate Recovery Time Objectives and Recovery Point Objectives for all critical systems.',sev:'high',ctrl:'CP-2(1)',fw:'soc2'},
+    {title:'Train BCP/DR Personnel',desc:'Provide annual training to all personnel with disaster recovery responsibilities.',sev:'medium',ctrl:'CP-3',fw:'iso'}
   ],
   'IA': [
-    {title:'Enforce MFA Across All Systems',desc:'Enable and enforce MFA for all user accounts. Prioritize email, VPN, and admin consoles.',sev:'critical',ctrl:'IA-2',fw:'pci'},
-    {title:'Implement Password Manager',desc:'Deploy enterprise password manager and enforce strong password policy technically.',sev:'high',ctrl:'IA-5',fw:'nist800'}
+    {title:'Enforce MFA on All Systems',desc:'Enable and enforce MFA for all user accounts on all systems including cloud apps, VPN, and email.',sev:'critical',ctrl:'IA-2',fw:'pci'},
+    {title:'Deploy Phishing-Resistant MFA',desc:'Upgrade to FIDO2/WebAuthn hardware keys or authenticator apps. Eliminate SMS-based MFA.',sev:'high',ctrl:'IA-2(8)',fw:'cmmc'},
+    {title:'Implement Strong Password Policy',desc:'Enforce 14+ character passwords with complexity via technical controls. Enable breached password detection.',sev:'high',ctrl:'IA-5',fw:'nist800'},
+    {title:'Inventory All Service Accounts & API Keys',desc:'Catalog all service accounts and API keys. Implement rotation schedule and monitoring.',sev:'high',ctrl:'IA-8',fw:'soc2'},
+    {title:'Eliminate Shared Accounts',desc:'Audit and eliminate all shared/generic accounts. Assign unique identifiers to all users.',sev:'high',ctrl:'IA-4',fw:'pci'},
+    {title:'Deploy Enterprise Password Manager',desc:'Roll out enterprise password manager to all employees for secure credential storage.',sev:'medium',ctrl:'IA-5',fw:'soc2'}
   ],
   'IR': [
-    {title:'Draft Incident Response Plan',desc:'Document IRP including roles, contact list, classification levels, containment, and notification procedures.',sev:'critical',ctrl:'IR-8',fw:'nist800'},
-    {title:'Conduct Tabletop Exercise',desc:'Schedule and conduct a tabletop IR exercise with key stakeholders. Document lessons learned.',sev:'high',ctrl:'IR-3',fw:'soc2'}
+    {title:'Create Incident Response Plan',desc:'Document comprehensive IRP including roles, classification, playbooks, notification procedures, and contacts.',sev:'critical',ctrl:'IR-8',fw:'nist800'},
+    {title:'Conduct Tabletop IR Exercise',desc:'Schedule and conduct tabletop IR exercise with key stakeholders. Document lessons learned.',sev:'high',ctrl:'IR-3',fw:'soc2'},
+    {title:'Establish 24/7 IR Capability',desc:'Implement 24/7 monitoring via SOC team or managed security provider. Establish IR retainer.',sev:'critical',ctrl:'IR-7',fw:'pci'},
+    {title:'Build Incident Playbooks',desc:'Create specific playbooks for ransomware, data breach, phishing, insider threat, and DDoS scenarios.',sev:'high',ctrl:'IR-4',fw:'cmmc'},
+    {title:'Define Breach Notification Process',desc:'Document breach notification procedures meeting HIPAA (60-day), PCI (24-hour), and state law requirements.',sev:'critical',ctrl:'IR-6',fw:'hipaa'},
+    {title:'Implement Incident Tracking System',desc:'Deploy incident tracking with severity classification, metrics, and management reporting.',sev:'medium',ctrl:'IR-5',fw:'soc2'}
   ],
   'MP': [
-    {title:'Implement USB/Media Control Policy',desc:'Deploy endpoint controls to block or restrict unauthorized USB devices. Document exceptions.',sev:'high',ctrl:'MP-3',fw:'cmmc'},
-    {title:'Create Media Disposal Procedure',desc:'Document and implement secure media disposal procedures aligned to NIST 800-88.',sev:'medium',ctrl:'MP-6',fw:'hipaa'}
+    {title:'Block Unauthorized USB/Removable Media',desc:'Deploy endpoint DLP/GPO to block or control unauthorized USB and removable media devices.',sev:'high',ctrl:'MP-3',fw:'cmmc'},
+    {title:'Implement NIST 800-88 Media Disposal',desc:'Establish secure media disposal procedures with certificates of destruction for all retired media.',sev:'medium',ctrl:'MP-6',fw:'hipaa'},
+    {title:'Enforce Media Encryption',desc:'Require AES-256 encryption on all portable media containing sensitive data.',sev:'high',ctrl:'MP-4',fw:'pci'},
+    {title:'Create Media Transport Procedures',desc:'Document secure media transport procedures with encryption and chain-of-custody tracking.',sev:'medium',ctrl:'MP-5',fw:'hipaa'}
   ],
   'RA': [
-    {title:'Conduct Formal Risk Assessment',desc:'Perform and document a comprehensive risk assessment. Present findings to leadership.',sev:'critical',ctrl:'RA-3',fw:'nist800'},
-    {title:'Deploy Vulnerability Scanner',desc:'Implement automated vulnerability scanning (Tenable, Qualys, or similar) running monthly.',sev:'critical',ctrl:'RA-5',fw:'pci'},
-    {title:'Define Vulnerability Remediation SLAs',desc:'Document SLAs for patch/remediation by severity level and enforce tracking.',sev:'high',ctrl:'RA-7',fw:'nist800'}
+    {title:'Conduct Annual Risk Assessment',desc:'Perform comprehensive risk assessment covering threats, vulnerabilities, and business impact. Present to leadership.',sev:'critical',ctrl:'RA-3',fw:'nist800'},
+    {title:'Deploy Vulnerability Scanner',desc:'Implement automated vulnerability scanning (Tenable, Qualys, or Nessus) running monthly on all systems.',sev:'critical',ctrl:'RA-5',fw:'pci'},
+    {title:'Define Vulnerability Remediation SLAs',desc:'Document and enforce SLAs: Critical=24h, High=7d, Medium=30d, Low=90d. Track compliance.',sev:'high',ctrl:'RA-7',fw:'nist800'},
+    {title:'Implement Attack Surface Management',desc:'Deploy external attack surface monitoring to identify shadow IT, exposed services, and cloud misconfigurations.',sev:'high',ctrl:'RA-9',fw:'soc2'},
+    {title:'Enable Credentialed Vulnerability Scans',desc:'Configure authenticated scanning across all system types for comprehensive vulnerability coverage.',sev:'medium',ctrl:'RA-5(5)',fw:'cmmc'},
+    {title:'Start Proactive Threat Hunting',desc:'Establish threat hunting program to proactively search for indicators of compromise.',sev:'medium',ctrl:'RA-10',fw:'soc2'}
   ],
   'SC': [
-    {title:'Implement Network Segmentation',desc:'Segment network into security zones (guest, corporate, servers, DMZ). Update firewall rules.',sev:'critical',ctrl:'SC-7',fw:'pci'},
-    {title:'Enforce Encryption at Rest and In Transit',desc:'Enable full disk encryption and ensure all data in transit uses TLS 1.2+.',sev:'high',ctrl:'SC-8',fw:'hipaa'}
+    {title:'Implement Network Segmentation',desc:'Segment network into security zones (guest, corporate, servers, DMZ, IoT). Document firewall rules.',sev:'critical',ctrl:'SC-7',fw:'pci'},
+    {title:'Enforce TLS 1.2+ Everywhere',desc:'Disable TLS 1.0/1.1 and SSL. Enforce TLS 1.2+ on all services with strong cipher suites.',sev:'high',ctrl:'SC-8',fw:'hipaa'},
+    {title:'Deploy Full Disk Encryption',desc:'Enable BitLocker/FileVault on all endpoints and database encryption on all servers.',sev:'high',ctrl:'SC-28',fw:'cmmc'},
+    {title:'Implement Key Management Procedures',desc:'Document cryptographic key lifecycle: generation, storage (HSM/vault), rotation, and destruction.',sev:'high',ctrl:'SC-12',fw:'pci'},
+    {title:'Deploy DDoS Protection',desc:'Implement CDN/WAF with DDoS mitigation for all internet-facing services.',sev:'high',ctrl:'SC-5',fw:'pci'},
+    {title:'Implement Default-Deny Firewall Policy',desc:'Convert firewall to deny-all default with documented explicit allow rules for required traffic only.',sev:'critical',ctrl:'SC-7(5)',fw:'cmmc'},
+    {title:'Deploy Certificate Management',desc:'Implement automated certificate lifecycle management with expiration monitoring and alerts.',sev:'medium',ctrl:'SC-17',fw:'soc2'}
   ],
   'SI': [
-    {title:'Deploy EDR Solution',desc:'Install EDR (Wazuh, CrowdStrike, or similar) on all endpoints for real-time threat detection.',sev:'critical',ctrl:'SI-3',fw:'nist800'},
-    {title:'Implement Automated Patch Management',desc:'Deploy automated patching solution ensuring critical patches deployed within 30 days.',sev:'high',ctrl:'SI-2',fw:'pci'}
+    {title:'Deploy EDR/XDR on All Endpoints',desc:'Install EDR (Wazuh, CrowdStrike, SentinelOne) on all endpoints with 24/7 monitoring.',sev:'critical',ctrl:'SI-3',fw:'nist800'},
+    {title:'Implement Automated Patch Management',desc:'Deploy automated patching (WSUS, Intune, Automox) for OS, apps, and firmware. Critical patches within 14 days.',sev:'high',ctrl:'SI-2',fw:'pci'},
+    {title:'Deploy File Integrity Monitoring',desc:'Implement FIM on all critical system files, configurations, and registries.',sev:'high',ctrl:'SI-7',fw:'pci'},
+    {title:'Deploy Network IDS/IPS',desc:'Implement intrusion detection/prevention on all network segments with alerting.',sev:'high',ctrl:'SI-4',fw:'cmmc'},
+    {title:'Subscribe to Threat Intelligence Feeds',desc:'Subscribe to security advisories (CISA, US-CERT, vendor feeds) with defined response procedures.',sev:'medium',ctrl:'SI-5',fw:'soc2'},
+    {title:'Track Patch Compliance',desc:'Implement patch compliance dashboard tracking missing patches across all systems.',sev:'medium',ctrl:'SI-2(2)',fw:'cmmc'},
+    {title:'Monitor Outbound Traffic for C2',desc:'Configure monitoring for outbound C2 beaconing and data exfiltration indicators.',sev:'high',ctrl:'SI-4(4)',fw:'soc2'}
   ],
   'PM': [
-    {title:'Establish Security Program Charter',desc:'Document formal security program with executive sponsorship, budget, and defined objectives.',sev:'high',ctrl:'PM-1',fw:'soc2'},
-    {title:'Create Security Risk Register',desc:'Build and maintain a risk register reviewed monthly by leadership.',sev:'medium',ctrl:'PM-9',fw:'nist800'}
+    {title:'Establish Security Program Charter',desc:'Document formal security program with executive sponsorship, dedicated budget, CISO/vCISO, and objectives.',sev:'high',ctrl:'PM-1',fw:'soc2'},
+    {title:'Appoint CISO or vCISO',desc:'Designate a CISO or vCISO with authority and accountability for the security program.',sev:'high',ctrl:'PM-2',fw:'iso'},
+    {title:'Create Security Risk Register',desc:'Build and maintain a risk register reviewed quarterly by leadership with risk ratings and owners.',sev:'medium',ctrl:'PM-9',fw:'nist800'},
+    {title:'Define Security KPIs/KRIs',desc:'Establish security metrics (MTTD, MTTR, patch compliance, training completion) reported to leadership.',sev:'medium',ctrl:'PM-6',fw:'soc2'},
+    {title:'Implement Insider Threat Program',desc:'Establish insider threat monitoring with behavioral analytics and access pattern analysis.',sev:'medium',ctrl:'PM-14',fw:'cmmc'}
   ],
   'PS': [
-    {title:'Implement Background Check Process',desc:'Establish background check requirements for all new hires and contractors.',sev:'high',ctrl:'PS-3',fw:'cmmc'},
-    {title:'Define Employee Termination Checklist',desc:'Create and enforce same-day access revocation checklist for employee offboarding.',sev:'critical',ctrl:'PS-4',fw:'soc2'}
+    {title:'Implement Background Check Process',desc:'Establish background check requirements for all new hires and contractors before system access.',sev:'high',ctrl:'PS-3',fw:'cmmc'},
+    {title:'Create IT Offboarding Checklist',desc:'Build and enforce same-day access revocation checklist covering all systems, devices, and badges.',sev:'critical',ctrl:'PS-4',fw:'soc2'},
+    {title:'Implement Role Transfer Access Review',desc:'Create process to review and adjust access rights when employees change roles/departments.',sev:'high',ctrl:'PS-5',fw:'hipaa'},
+    {title:'Require NDAs for All Personnel',desc:'Ensure all employees and contractors sign NDAs and security agreements before system access.',sev:'medium',ctrl:'PS-6',fw:'soc2'},
+    {title:'Add Security Terms to Vendor Contracts',desc:'Include security requirements, breach notification, and right-to-audit in all third-party contracts.',sev:'high',ctrl:'PS-7',fw:'pci'}
   ],
   'PT': [
-    {title:'Publish Privacy Policy',desc:'Draft and publish a comprehensive privacy policy on your website covering data collection, use, and rights.',sev:'high',ctrl:'PT-1',fw:'hipaa'},
-    {title:'Build Data Inventory',desc:'Catalog all personal data held by the organization including source, storage location, and retention period.',sev:'high',ctrl:'PT-6',fw:'iso'}
+    {title:'Publish Comprehensive Privacy Policy',desc:'Draft and publish privacy policy covering data collection, use, sharing, rights, and contact information.',sev:'high',ctrl:'PT-1',fw:'hipaa'},
+    {title:'Build Personal Data Inventory',desc:'Catalog all personal data: types, sources, storage locations, owners, retention periods, and data flows.',sev:'high',ctrl:'PT-6',fw:'iso'},
+    {title:'Implement DSAR Process',desc:'Create formal process for handling Data Subject Access Requests within regulatory timelines.',sev:'medium',ctrl:'PT-8',fw:'hipaa'},
+    {title:'Define Data Retention Schedule',desc:'Document retention and disposal schedules for all personal data types with secure destruction procedures.',sev:'medium',ctrl:'PT-7',fw:'iso'}
   ],
   'SR': [
-    {title:'Implement Vendor Risk Assessment Process',desc:'Create vendor security questionnaire and assessment process for all critical third-party vendors.',sev:'high',ctrl:'SR-6',fw:'soc2'}
+    {title:'Implement Vendor Risk Assessment Process',desc:'Create vendor security questionnaire and formal assessment process for all critical third-party vendors.',sev:'high',ctrl:'SR-6',fw:'soc2'},
+    {title:'Build Critical Supplier Inventory',desc:'Maintain list of critical suppliers with security posture tracking and breach notification agreements.',sev:'high',ctrl:'SR-2',fw:'cmmc'},
+    {title:'Require SBOMs from Software Suppliers',desc:'Request Software Bill of Materials from vendors and verify software integrity via checksums/signatures.',sev:'medium',ctrl:'SR-11',fw:'nist800'}
   ],
   'PL': [
-    {title:'Create and Distribute Acceptable Use Policy',desc:'Draft AUP covering system use, BYOD, and prohibited activities. Require all employees to sign.',sev:'medium',ctrl:'PL-4',fw:'cmmc'}
+    {title:'Create and Distribute Acceptable Use Policy',desc:'Draft AUP covering system use, BYOD, internet, social media, and prohibited activities. Require all signatures.',sev:'medium',ctrl:'PL-4',fw:'cmmc'},
+    {title:'Document System Security Plans',desc:'Create System Security Plans for all major systems documenting controls, architecture, and data flows.',sev:'high',ctrl:'PL-2',fw:'cmmc'},
+    {title:'Create Security Architecture Documentation',desc:'Document information security architecture with network diagrams, security zones, and data flows.',sev:'medium',ctrl:'PL-8',fw:'soc2'}
   ],
   'MA': [
-    {title:'Document Maintenance Procedures',desc:'Create formal maintenance schedule and logging procedures for all critical systems.',sev:'low',ctrl:'MA-2',fw:'nist800'}
+    {title:'Document Maintenance Procedures',desc:'Create formal maintenance schedule and logging procedures for all critical systems.',sev:'low',ctrl:'MA-2',fw:'nist800'},
+    {title:'Secure Remote Maintenance Access',desc:'Implement authorization, encryption, logging, and session termination for all remote maintenance.',sev:'medium',ctrl:'MA-4',fw:'cmmc'},
+    {title:'Establish Maintenance SLAs',desc:'Ensure vendor SLAs exist for timely maintenance support on all critical systems.',sev:'low',ctrl:'MA-6',fw:'nist800'}
   ],
   'PE': [
-    {title:'Implement Physical Access Controls',desc:'Install keycard or badge access system for server rooms with visitor logging.',sev:'high',ctrl:'PE-3',fw:'pci'}
+    {title:'Implement Electronic Access Controls',desc:'Install keycard/badge/biometric access for server rooms and sensitive areas with audit trail.',sev:'high',ctrl:'PE-3',fw:'pci'},
+    {title:'Deploy CCTV Monitoring',desc:'Install CCTV with recording at facility entry points and server room areas.',sev:'high',ctrl:'PE-6',fw:'soc2'},
+    {title:'Implement Visitor Management',desc:'Create visitor logging, badge, and escort procedures for all controlled areas.',sev:'medium',ctrl:'PE-3(1)',fw:'pci'},
+    {title:'Install Environmental Monitoring',desc:'Deploy temperature, humidity, and water detection sensors in server rooms with automated alerts.',sev:'medium',ctrl:'PE-14',fw:'soc2'},
+    {title:'Install Fire Suppression',desc:'Deploy fire detection and clean-agent suppression (FM-200) in facilities with IT equipment.',sev:'high',ctrl:'PE-13',fw:'pci'}
   ]
 };
 
@@ -1385,6 +2029,227 @@ function publishPolicy(id) {
 document.getElementById('policyModal').addEventListener('click',function(e){
   if(e.target===this) closeModal();
 });
+
+// VULNERABILITY SCANNING
+let scanState = {
+  type: 'external',
+  scans: [],
+  currentScan: null
+};
+
+function selectScanType(type, el) {
+  scanState.type = type;
+  document.querySelectorAll('.scan-type-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function startVulnScan() {
+  const name = document.getElementById('scanName').value || 'Untitled Scan';
+  const targets = document.getElementById('scanTargets').value.trim();
+  const profile = document.getElementById('scanProfile').value;
+  const exclusions = document.getElementById('scanExclusions').value.trim();
+
+  if(!targets) { alert('Please enter at least one target IP, range, or domain.'); return; }
+
+  const scan = {
+    id: 'scan_' + Date.now(),
+    name: name,
+    type: scanState.type,
+    profile: profile,
+    targets: targets.split('\n').filter(t=>t.trim()),
+    exclusions: exclusions ? exclusions.split('\n').filter(t=>t.trim()) : [],
+    startTime: new Date(),
+    status: 'running',
+    progress: 0,
+    findings: []
+  };
+
+  scanState.currentScan = scan;
+  scanState.scans.unshift(scan);
+  renderScanProgress(scan);
+  simulateScan(scan);
+}
+
+function simulateScan(scan) {
+  const profileNames = {full:'Full Vulnerability Scan',quick:'Quick Scan',web:'Web Application Scan',compliance:'Compliance Scan'};
+  const typeNames = {external:'EXTERNAL',internal:'INTERNAL',webapp:'WEB APP'};
+  let progress = 0;
+  const interval = setInterval(()=>{
+    progress += Math.random() * 8 + 2;
+    if(progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      scan.status = 'complete';
+      scan.progress = 100;
+      scan.endTime = new Date();
+      scan.findings = generateScanFindings(scan);
+      renderScanResults(scan);
+      renderScanHistory();
+    } else {
+      scan.progress = Math.round(progress);
+      updateScanProgress(scan);
+    }
+  }, 400);
+}
+
+function generateScanFindings(scan) {
+  const vulnDB = [
+    {name:'Apache HTTP Server CVE-2024-38476 - SSRF via mod_rewrite',sev:'crit',cvss:9.8,port:443,service:'HTTPS',solution:'Update Apache to 2.4.62+'},
+    {name:'OpenSSH CVE-2024-6387 - Remote Code Execution (regreSSHion)',sev:'crit',cvss:9.1,port:22,service:'SSH',solution:'Update OpenSSH to 9.8p1+'},
+    {name:'SMBv1 Enabled - EternalBlue Vulnerability (MS17-010)',sev:'crit',cvss:9.8,port:445,service:'SMB',solution:'Disable SMBv1, apply MS17-010 patch'},
+    {name:'TLS 1.0/1.1 Enabled - Protocol Downgrade Risk',sev:'high',cvss:7.5,port:443,service:'HTTPS',solution:'Disable TLS 1.0 and 1.1, enforce TLS 1.2+'},
+    {name:'SSL Certificate Expiring Within 30 Days',sev:'high',cvss:7.0,port:443,service:'HTTPS',solution:'Renew SSL certificate before expiration'},
+    {name:'WordPress Version Outdated (< 6.5)',sev:'high',cvss:7.8,port:80,service:'HTTP',solution:'Update WordPress to latest version'},
+    {name:'RDP Exposed to Internet Without NLA',sev:'high',cvss:8.1,port:3389,service:'RDP',solution:'Enable NLA, restrict RDP to VPN only'},
+    {name:'MySQL Default Root Password',sev:'crit',cvss:9.0,port:3306,service:'MySQL',solution:'Change default credentials immediately'},
+    {name:'DNS Zone Transfer Allowed (AXFR)',sev:'med',cvss:5.3,port:53,service:'DNS',solution:'Restrict zone transfers to authorized IPs'},
+    {name:'HTTP Security Headers Missing (CSP, HSTS, X-Frame)',sev:'med',cvss:5.0,port:443,service:'HTTPS',solution:'Add Content-Security-Policy, HSTS, X-Frame-Options headers'},
+    {name:'SNMP Public Community String',sev:'high',cvss:7.5,port:161,service:'SNMP',solution:'Change community string, restrict SNMP access'},
+    {name:'FTP Anonymous Login Allowed',sev:'high',cvss:7.5,port:21,service:'FTP',solution:'Disable anonymous FTP access'},
+    {name:'PHP Version End-of-Life (< 8.1)',sev:'med',cvss:6.5,port:80,service:'HTTP',solution:'Upgrade PHP to supported version (8.2+)'},
+    {name:'ICMP Timestamp Response Enabled',sev:'low',cvss:2.1,port:0,service:'ICMP',solution:'Disable ICMP timestamp responses'},
+    {name:'SSH Weak Key Exchange Algorithms',sev:'med',cvss:5.9,port:22,service:'SSH',solution:'Disable diffie-hellman-group1-sha1 and weak KEX'},
+    {name:'Server Version Disclosure in HTTP Headers',sev:'low',cvss:2.0,port:80,service:'HTTP',solution:'Remove Server header version information'},
+    {name:'jQuery Version < 3.5.0 - XSS Vulnerability',sev:'med',cvss:6.1,port:443,service:'HTTPS',solution:'Update jQuery to 3.7+'},
+    {name:'Cross-Site Request Forgery (CSRF) - Missing Token',sev:'med',cvss:6.5,port:443,service:'HTTPS',solution:'Implement CSRF tokens on all forms'},
+    {name:'Directory Listing Enabled',sev:'med',cvss:5.3,port:80,service:'HTTP',solution:'Disable directory listing in web server config'},
+    {name:'X-Powered-By Header Information Leak',sev:'info',cvss:0,port:80,service:'HTTP',solution:'Remove X-Powered-By header'},
+    {name:'SSL/TLS Weak Cipher Suites Supported',sev:'med',cvss:5.9,port:443,service:'HTTPS',solution:'Disable weak cipher suites (RC4, DES, 3DES)'},
+    {name:'Windows SMB Signing Not Required',sev:'med',cvss:5.9,port:445,service:'SMB',solution:'Enable SMB signing requirement via GPO'},
+    {name:'LDAP Cleartext Authentication Allowed',sev:'high',cvss:7.5,port:389,service:'LDAP',solution:'Enforce LDAPS (port 636) and disable cleartext LDAP'},
+    {name:'NTP Mode 6 Queries Enabled',sev:'low',cvss:3.1,port:123,service:'NTP',solution:'Disable NTP mode 6 queries'}
+  ];
+
+  const count = scan.profile === 'full' ? Math.floor(Math.random()*8)+8 :
+                scan.profile === 'quick' ? Math.floor(Math.random()*5)+4 :
+                scan.profile === 'web' ? Math.floor(Math.random()*6)+5 :
+                Math.floor(Math.random()*7)+6;
+
+  const shuffled = vulnDB.sort(()=>Math.random()-0.5);
+  const selected = shuffled.slice(0, Math.min(count, shuffled.length));
+
+  return selected.map((v,i) => ({
+    ...v,
+    id: 'f'+i,
+    host: scan.targets[Math.floor(Math.random()*scan.targets.length)]
+  }));
+}
+
+function renderScanProgress(scan) {
+  const area = document.getElementById('scanResultsArea');
+  area.innerHTML = `
+    <div class="scan-results-wrap">
+      <div class="sr-header">
+        <div class="sr-status running" id="scanStatus">SCANNING...</div>
+        <div class="sr-title">${scan.name}</div>
+        <div class="sr-meta">${scan.type.toUpperCase()} | ${scan.targets.length} target(s)</div>
+      </div>
+      <div class="scan-progress"><div class="scan-progress-fill" id="scanProgBar" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">Scanning ${scan.targets.join(', ')}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent)" id="scanPct">0%</span>
+      </div>
+    </div>`;
+}
+
+function updateScanProgress(scan) {
+  const bar = document.getElementById('scanProgBar');
+  const pct = document.getElementById('scanPct');
+  if(bar) bar.style.width = scan.progress + '%';
+  if(pct) pct.textContent = scan.progress + '%';
+}
+
+function renderScanResults(scan) {
+  const area = document.getElementById('scanResultsArea');
+  const f = scan.findings;
+  const crits = f.filter(v=>v.sev==='crit').length;
+  const highs = f.filter(v=>v.sev==='high').length;
+  const meds = f.filter(v=>v.sev==='med').length;
+  const lows = f.filter(v=>v.sev==='low').length;
+  const infos = f.filter(v=>v.sev==='info').length;
+  const elapsed = scan.endTime ? Math.round((scan.endTime - scan.startTime)/1000) : 0;
+
+  area.innerHTML = `
+    <div class="scan-results-wrap">
+      <div class="sr-header">
+        <div class="sr-status complete">COMPLETE</div>
+        <div class="sr-title">${scan.name}</div>
+        <div class="sr-meta">${scan.type.toUpperCase()} | ${elapsed}s | ${f.length} findings</div>
+      </div>
+      <div class="sr-summary">
+        <div class="sr-stat"><div class="sr-stat-val" style="color:#FF3B5C">${crits}</div><div class="sr-stat-label">CRITICAL</div></div>
+        <div class="sr-stat"><div class="sr-stat-val" style="color:#F5A623">${highs}</div><div class="sr-stat-label">HIGH</div></div>
+        <div class="sr-stat"><div class="sr-stat-val" style="color:#00FFD1">${meds}</div><div class="sr-stat-label">MEDIUM</div></div>
+        <div class="sr-stat"><div class="sr-stat-val" style="color:#4A6080">${lows}</div><div class="sr-stat-label">LOW</div></div>
+        <div class="sr-stat"><div class="sr-stat-val" style="color:#0084FF">${infos}</div><div class="sr-stat-label">INFO</div></div>
+      </div>
+      <table class="vuln-table">
+        <thead><tr><th>SEVERITY</th><th>VULNERABILITY</th><th>HOST</th><th>PORT</th><th>CVSS</th><th>SOLUTION</th></tr></thead>
+        <tbody>
+          ${f.sort((a,b)=>{const o={crit:0,high:1,med:2,low:3,info:4};return o[a.sev]-o[b.sev]}).map(v=>`
+            <tr>
+              <td><span class="vuln-sev ${v.sev}">${v.sev==='crit'?'CRITICAL':v.sev==='high'?'HIGH':v.sev==='med'?'MEDIUM':v.sev==='low'?'LOW':'INFO'}</span></td>
+              <td style="color:var(--white);font-weight:400">${v.name}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:10px">${v.host}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:10px">${v.port||'—'}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${v.cvss>=9?'#FF3B5C':v.cvss>=7?'#F5A623':v.cvss>=4?'#00FFD1':'#4A6080'}">${v.cvss.toFixed(1)}</td>
+              <td style="font-size:10px;color:var(--muted)">${v.solution}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+      <div style="display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+        <button class="btn btn-primary btn-sm" onclick="exportScanReport('${scan.id}')">EXPORT PDF REPORT</button>
+        <button class="btn btn-secondary btn-sm" onclick="createTasksFromScan('${scan.id}')">CREATE REMEDIATION TASKS</button>
+      </div>
+    </div>`;
+}
+
+function renderScanHistory() {
+  const list = document.getElementById('scanHistoryList');
+  if(scanState.scans.length === 0) return;
+  list.innerHTML = scanState.scans.map(s => {
+    const crits = s.findings ? s.findings.filter(v=>v.sev==='crit').length : 0;
+    const highs = s.findings ? s.findings.filter(v=>v.sev==='high').length : 0;
+    const total = s.findings ? s.findings.length : 0;
+    return `<div class="scan-history-row" onclick="${s.status==='complete'?`renderScanResults(scanState.scans.find(x=>x.id==='${s.id}'))`:''}">
+      <div class="shr-type">${s.type.toUpperCase()}</div>
+      <div class="shr-target">${s.name} — ${s.targets.join(', ')}</div>
+      <div class="shr-findings">
+        ${crits?`<span class="shr-badge" style="color:#FF3B5C;border:1px solid rgba(255,59,92,0.3)">${crits} CRIT</span>`:''}
+        ${highs?`<span class="shr-badge" style="color:#F5A623;border:1px solid rgba(245,166,35,0.3)">${highs} HIGH</span>`:''}
+        <span class="shr-badge" style="color:var(--muted);border:1px solid var(--border)">${total} TOTAL</span>
+      </div>
+      <div class="shr-date">${s.startTime.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+    </div>`;
+  }).join('');
+}
+
+function exportScanReport(scanId) {
+  alert('PDF report export will generate a comprehensive vulnerability assessment report. This feature connects to the Palisade One reporting engine.');
+}
+
+function createTasksFromScan(scanId) {
+  const scan = scanState.scans.find(s=>s.id===scanId);
+  if(!scan || !scan.findings) return;
+  const critHighFindings = scan.findings.filter(f=>f.sev==='crit'||f.sev==='high');
+  let added = 0;
+  critHighFindings.forEach(f => {
+    state.tasks.push({
+      id: 't_scan_'+(Date.now()+added),
+      title: 'Remediate: ' + f.name.split(' - ')[0],
+      desc: f.solution + ' (Found on ' + f.host + ':' + f.port + ', CVSS ' + f.cvss.toFixed(1) + ')',
+      sev: f.sev === 'crit' ? 'critical' : 'high',
+      ctrl: 'RA-5',
+      fw: 'nist800',
+      family: 'RA',
+      dueDate: getDueDate(f.sev === 'crit' ? 'critical' : 'high')
+    });
+    added++;
+  });
+  document.getElementById('taskBadge').textContent = state.tasks.filter(t=>!state.taskStates[t.id]).length;
+  renderTasks();
+  alert(added + ' remediation tasks created from scan findings.');
+}
 
 // NAV
 function showView(id) {
