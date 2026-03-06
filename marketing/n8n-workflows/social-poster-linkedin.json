@@ -1,0 +1,99 @@
+{
+  "name": "PalisadeOne — Post to LinkedIn",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "post-content",
+              "name": "postContent",
+              "value": "We just launched Palisade One.\n\nEnterprise-grade cybersecurity for small and mid-sized businesses — AI-powered EDR, 24/7 SOC monitoring, real-time SIEM — all fully managed.\n\nStarting at $399/month. No contracts.\n\nFree cyber risk assessment: palisadeone.com/cyber-assessment.html\n\n#cybersecurity #MSSP #SMBsecurity",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-content",
+      "name": "Set Post Content",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linkedin.com/v2/ugcPosts",
+        "authentication": "oAuth2",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Restli-Protocol-Version",
+              "value": "2.0.0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ author: 'urn:li:organization:YOUR_ORG_ID', lifecycleState: 'PUBLISHED', specificContent: { 'com.linkedin.ugc.ShareContent': { shareCommentary: { text: $json.postContent }, shareMediaCategory: 'NONE' } }, visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' } }) }}"
+      },
+      "id": "post-linkedin",
+      "name": "Post to LinkedIn",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "LinkedIn OAuth2 — SET THIS UP"
+        }
+      },
+      "notes": "IMPORTANT: Replace YOUR_ORG_ID with your LinkedIn Company Page ID. Find it in the URL when you visit your company page admin: linkedin.com/company/XXXXX/admin/"
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Post Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Post Content": {
+      "main": [
+        [
+          {
+            "node": "Post to LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "Social Media"
+    }
+  ]
+}

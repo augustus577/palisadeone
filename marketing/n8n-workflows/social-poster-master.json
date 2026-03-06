@@ -1,0 +1,346 @@
+{
+  "name": "PalisadeOne — Master Social Media Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 8:30 AM Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// PALISADE ONE — SOCIAL MEDIA CONTENT QUEUE\n// ============================================================\n// Edit this array to add/change scheduled posts.\n// The workflow picks the next unposted item each time it runs.\n// After posting, it marks the item as posted via static data.\n//\n// Fields:\n//   id        — unique identifier\n//   date      — target date (YYYY-MM-DD), for reference\n//   platforms — array: 'x', 'linkedin', 'facebook', 'instagram'\n//   content   — the post text\n//   hashtags  — appended to content on platforms that use them\n// ============================================================\n\nconst contentQueue = [\n  {\n    id: 'launch-1',\n    date: '2026-03-06',\n    platforms: ['x', 'linkedin', 'facebook'],\n    content: `We just launched Palisade One.\\n\\nEnterprise-grade cybersecurity for small and mid-sized businesses. AI-powered EDR, 24/7 SOC monitoring, real-time SIEM — all fully managed.\\n\\nStarting at $399/month. No contracts. Live in days.\\n\\nFree cyber risk assessment: palisadeone.com/cyber-assessment.html`,\n    hashtags: '#cybersecurity #MSSP #SMBsecurity #PalisadeOne'\n  },\n  {\n    id: 'fear-1',\n    date: '2026-03-07',\n    platforms: ['x', 'linkedin', 'facebook'],\n    content: `43% of cyberattacks target small businesses.\\nOnly 14% are prepared to defend themselves.\\nAverage breach cost: $4.88 million.\\n\\nIf you don't have EDR on every endpoint and 24/7 monitoring, you're running on hope.\\n\\nFind out where you stand (free): palisadeone.com/cyber-assessment.html`,\n    hashtags: '#cybersecurity #databreach #ransomware #SMBsecurity'\n  },\n  {\n    id: 'how-it-works-1',\n    date: '2026-03-08',\n    platforms: ['x', 'linkedin', 'facebook'],\n    content: `How Palisade One works:\\n\\n1. Lightweight agent on every device\\n2. AI analyzes every process in real time\\n3. Threat detected in under 1 second\\n4. Auto-contained — endpoint isolated, files quarantined\\n5. SOC validates and responds\\n6. You get a plain-English report\\n\\nNo hardware. No team to hire. Just protection.\\n\\npalisadeone.com/platform.html`,\n    hashtags: '#cybersecurity #EDR #SIEM #managedservices #PalisadeOne'\n  },\n  {\n    id: 'compliance-1',\n    date: '2026-03-09',\n    platforms: ['x', 'linkedin', 'facebook'],\n    content: `If your business handles patient data, credit cards, or government contracts — you have compliance obligations.\\n\\nHIPAA. PCI-DSS. NIST. CMMC. SOC 2.\\n\\nNon-compliance = fines + lost contracts + lawsuits.\\n\\nCheck your compliance score in 10 minutes (free): palisadeone.com/cyber-assessment.html`,\n    hashtags: '#compliance #HIPAA #PCI #NIST #CMMC #cybersecurity'\n  },\n  {\n    id: 'value-1',\n    date: '2026-03-10',\n    platforms: ['x', 'linkedin', 'facebook'],\n    content: `Building your own security operations center:\\n- SIEM: $2,000-10,000/mo\\n- EDR licenses: $5-15/endpoint/mo\\n- SOC analyst: $85K-120K/yr\\n- Compliance consultant: $200-400/hr\\n\\nTotal: $150K+ per year.\\n\\nPalisade One: $399/month.\\n\\nSame protection. Better math.\\n\\npalisadeone.com/contact.html`,\n    hashtags: '#cybersecurity #MSSP #PalisadeOne #SMBsecurity'\n  },\n  {\n    id: 'weekend-1',\n    date: '2026-03-11',\n    platforms: ['x'],\n    content: `Weekend reminder: hackers don't take weekends off.\\n\\nOur SOC runs 24/7/365. AI never sleeps.\\n\\nIf your current security strategy is Windows Defender and good vibes... we should talk.\\n\\npalisadeone.com`,\n    hashtags: '#cybersecurity #weekendsecurity #PalisadeOne'\n  },\n  {\n    id: 'ransomware-story-1',\n    date: '2026-03-12',\n    platforms: ['x', 'linkedin', 'facebook'],\n    content: `It's Sunday night. You get a call — your company got ransomwared.\\n\\nAll files encrypted. Client data exposed. Backups encrypted too.\\nRansom demand: $250,000.\\nBusiness halted for weeks.\\n\\nThis happens to 1,400+ businesses per day.\\n\\nOr... you have Palisade One. The attack was detected in 0.8 seconds. Endpoint isolated. Files quarantined. You never even knew it happened.\\n\\nThat's the difference.\\n\\npalisadeone.com/cyber-assessment.html`,\n    hashtags: '#cybersecurity #ransomware #SMBsecurity #PalisadeOne'\n  }\n];\n\n// Get posted IDs from static data\nconst staticData = $getWorkflowStaticData('global');\nconst postedIds = staticData.postedIds || [];\n\n// Find next unposted item\nconst nextPost = contentQueue.find(item => !postedIds.includes(item.id));\n\nif (!nextPost) {\n  // All posts have been sent — reset queue\n  staticData.postedIds = [];\n  return [{ json: { error: 'All posts sent. Queue reset. Add new content or it will cycle.' } }];\n}\n\n// Mark as posted\npostedIds.push(nextPost.id);\nstaticData.postedIds = postedIds;\n\n// Build output for each platform\nconst fullContent = nextPost.content + '\\n\\n' + nextPost.hashtags;\n\nreturn [{\n  json: {\n    id: nextPost.id,\n    content: fullContent,\n    contentNoHashtags: nextPost.content,\n    hashtags: nextPost.hashtags,\n    platforms: nextPost.platforms,\n    postToX: nextPost.platforms.includes('x'),\n    postToLinkedIn: nextPost.platforms.includes('linkedin'),\n    postToFacebook: nextPost.platforms.includes('facebook'),\n    postToInstagram: nextPost.platforms.includes('instagram')\n  }\n}];"
+      },
+      "id": "content-queue",
+      "name": "Content Queue",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-x",
+              "leftValue": "={{ $json.postToX }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-x",
+      "name": "Post to X?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [750, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-linkedin",
+              "leftValue": "={{ $json.postToLinkedIn }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-linkedin",
+      "name": "Post to LinkedIn?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [750, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-facebook",
+              "leftValue": "={{ $json.postToFacebook }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-facebook",
+      "name": "Post to Facebook?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [750, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twitter.com/2/tweets",
+        "authentication": "oAuth1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.content.substring(0, 280) }) }}"
+      },
+      "id": "tweet",
+      "name": "Tweet",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 200],
+      "credentials": {
+        "oAuth1Api": {
+          "id": "",
+          "name": "Twitter OAuth1 — SET THIS UP"
+        }
+      },
+      "notes": "Truncates to 280 chars for Twitter. Set up OAuth1 credentials with your Twitter API keys."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linkedin.com/v2/ugcPosts",
+        "authentication": "oAuth2",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Restli-Protocol-Version",
+              "value": "2.0.0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ author: 'urn:li:organization:YOUR_ORG_ID', lifecycleState: 'PUBLISHED', specificContent: { 'com.linkedin.ugc.ShareContent': { shareCommentary: { text: $json.content }, shareMediaCategory: 'NONE' } }, visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' } }) }}"
+      },
+      "id": "linkedin-post",
+      "name": "LinkedIn Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 400],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "LinkedIn OAuth2 — SET THIS UP"
+        }
+      },
+      "notes": "Replace YOUR_ORG_ID with your LinkedIn Company Page ID."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v19.0/YOUR_PAGE_ID/feed",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $json.content, access_token: 'YOUR_PAGE_ACCESS_TOKEN' }) }}"
+      },
+      "id": "facebook-post",
+      "name": "Facebook Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 600],
+      "notes": "Replace YOUR_PAGE_ID and YOUR_PAGE_ACCESS_TOKEN."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "summary",
+              "name": "summary",
+              "value": "={{ 'Posted: ' + $json.id + ' | Platforms: ' + $json.platforms.join(', ') }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "log-result",
+      "name": "Log Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1250, 400]
+    }
+  ],
+  "connections": {
+    "Daily 8:30 AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Content Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Content Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Queue": {
+      "main": [
+        [
+          {
+            "node": "Post to X?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post to LinkedIn?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post to Facebook?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to X?": {
+      "main": [
+        [
+          {
+            "node": "Tweet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Post to LinkedIn?": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Post to Facebook?": {
+      "main": [
+        [
+          {
+            "node": "Facebook Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Tweet": {
+      "main": [
+        [
+          {
+            "node": "Log Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Post": {
+      "main": [
+        [
+          {
+            "node": "Log Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Post": {
+      "main": [
+        [
+          {
+            "node": "Log Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "Social Media"
+    }
+  ]
+}

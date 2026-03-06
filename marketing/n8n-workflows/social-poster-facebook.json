@@ -1,0 +1,79 @@
+{
+  "name": "PalisadeOne — Post to Facebook",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "post-content",
+              "name": "postContent",
+              "value": "Palisade One is live! Enterprise cybersecurity for small businesses — AI-powered EDR, 24/7 SOC, real-time SIEM. Starting at $399/month, no contracts.\n\nTake our free cyber risk assessment: palisadeone.com/cyber-assessment.html",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-content",
+      "name": "Set Post Content",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v19.0/YOUR_PAGE_ID/feed",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $json.postContent, access_token: 'YOUR_PAGE_ACCESS_TOKEN' }) }}"
+      },
+      "id": "post-facebook",
+      "name": "Post to Facebook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300],
+      "notes": "Replace YOUR_PAGE_ID and YOUR_PAGE_ACCESS_TOKEN with your Facebook Page values. See SETUP-GUIDE.md for instructions."
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Post Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Post Content": {
+      "main": [
+        [
+          {
+            "node": "Post to Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "Social Media"
+    }
+  ]
+}

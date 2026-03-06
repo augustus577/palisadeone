@@ -1,0 +1,94 @@
+{
+  "name": "PalisadeOne — Post to X (Twitter)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twitter.com/2/tweets",
+        "authentication": "oAuth1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.postContent }) }}"
+      },
+      "id": "post-tweet",
+      "name": "Post to X",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300],
+      "credentials": {
+        "oAuth1Api": {
+          "id": "",
+          "name": "Twitter OAuth1 — SET THIS UP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "post-content",
+              "name": "postContent",
+              "value": "Enterprise cybersecurity for SMBs. AI-powered EDR, 24/7 SOC, SIEM — fully managed, flat rate.\n\nFree cyber risk assessment: palisadeone.com/cyber-assessment.html\n\n#cybersecurity #MSSP #SMBsecurity #PalisadeOne",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-content",
+      "name": "Set Post Content",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Post Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Post Content": {
+      "main": [
+        [
+          {
+            "node": "Post to X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "Social Media"
+    }
+  ]
+}

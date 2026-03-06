@@ -1,0 +1,152 @@
+{
+  "name": "PalisadeOne — Post via Webhook (All Platforms)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "social-post",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "webhookId": "social-post"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate incoming webhook data\nconst body = $input.first().json.body || $input.first().json;\n\nconst content = body.content || body.message || body.text;\nconst platforms = body.platforms || ['x', 'linkedin', 'facebook'];\nconst hashtags = body.hashtags || '';\n\nif (!content) {\n  return [{ json: { error: 'Missing content field in request body' } }];\n}\n\nconst fullContent = hashtags ? content + '\\n\\n' + hashtags : content;\n\nreturn [{\n  json: {\n    content: fullContent,\n    contentShort: fullContent.substring(0, 280),\n    platforms: platforms,\n    postToX: platforms.includes('x'),\n    postToLinkedIn: platforms.includes('linkedin'),\n    postToFacebook: platforms.includes('facebook'),\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "parse-input",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [{ "id": "c1", "leftValue": "={{ $json.postToX }}", "rightValue": true, "operator": { "type": "boolean", "operation": "equals" } }],
+          "combinator": "and"
+        }
+      },
+      "id": "if-x",
+      "name": "X?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [{ "id": "c2", "leftValue": "={{ $json.postToLinkedIn }}", "rightValue": true, "operator": { "type": "boolean", "operation": "equals" } }],
+          "combinator": "and"
+        }
+      },
+      "id": "if-linkedin",
+      "name": "LinkedIn?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [{ "id": "c3", "leftValue": "={{ $json.postToFacebook }}", "rightValue": true, "operator": { "type": "boolean", "operation": "equals" } }],
+          "combinator": "and"
+        }
+      },
+      "id": "if-facebook",
+      "name": "Facebook?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twitter.com/2/tweets",
+        "authentication": "oAuth1",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.contentShort }) }}"
+      },
+      "id": "tweet",
+      "name": "Tweet",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [950, 200],
+      "credentials": { "oAuth1Api": { "id": "", "name": "Twitter OAuth1 — SET THIS UP" } }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linkedin.com/v2/ugcPosts",
+        "authentication": "oAuth2",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "Content-Type", "value": "application/json" }, { "name": "X-Restli-Protocol-Version", "value": "2.0.0" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ author: 'urn:li:organization:YOUR_ORG_ID', lifecycleState: 'PUBLISHED', specificContent: { 'com.linkedin.ugc.ShareContent': { shareCommentary: { text: $json.content }, shareMediaCategory: 'NONE' } }, visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' } }) }}"
+      },
+      "id": "linkedin-post",
+      "name": "LinkedIn Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [950, 400],
+      "credentials": { "oAuth2Api": { "id": "", "name": "LinkedIn OAuth2 — SET THIS UP" } }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v19.0/YOUR_PAGE_ID/feed",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $json.content, access_token: 'YOUR_PAGE_ACCESS_TOKEN' }) }}"
+      },
+      "id": "facebook-post",
+      "name": "Facebook Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [950, 600]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, message: 'Posted to: ' + $json.platforms.join(', '), timestamp: $json.timestamp }) }}"
+      },
+      "id": "respond",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1200, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[ { "node": "Parse Input", "type": "main", "index": 0 } ]]
+    },
+    "Parse Input": {
+      "main": [[
+        { "node": "X?", "type": "main", "index": 0 },
+        { "node": "LinkedIn?", "type": "main", "index": 0 },
+        { "node": "Facebook?", "type": "main", "index": 0 }
+      ]]
+    },
+    "X?": { "main": [[ { "node": "Tweet", "type": "main", "index": 0 } ], []] },
+    "LinkedIn?": { "main": [[ { "node": "LinkedIn Post", "type": "main", "index": 0 } ], []] },
+    "Facebook?": { "main": [[ { "node": "Facebook Post", "type": "main", "index": 0 } ], []] },
+    "Tweet": { "main": [[ { "node": "Respond Success", "type": "main", "index": 0 } ]] },
+    "LinkedIn Post": { "main": [[ { "node": "Respond Success", "type": "main", "index": 0 } ]] },
+    "Facebook Post": { "main": [[ { "node": "Respond Success", "type": "main", "index": 0 } ]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "Social Media" }]
+}

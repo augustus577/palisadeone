@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Free Cyber Risk Assessment — Palisade One</title>
+  <meta name="description" content="Take a free 10-minute cyber risk assessment. See where your business stands on HIPAA, NIST, PCI, CMMC, and SOC 2 compliance. No obligation."/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--black:#03050A;--deep:#070C14;--surface:#0B1220;--accent:#00FFD1;--accent2:#0084FF;--danger:#FF3B5C;--warn:#F5A623;--text:#C8D8F0;--muted:#4A6080;--white:#F0F6FF;--border:#112240}
+    body{background:var(--black);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+    .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,209,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,209,0.02) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+    .glow{position:fixed;top:20%;left:50%;transform:translateX(-50%);width:800px;height:600px;background:radial-gradient(ellipse,rgba(0,255,209,0.04) 0%,transparent 70%);pointer-events:none;z-index:0}
+
+    .page{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 24px}
+
+    /* NAV */
+    .mini-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:60px}
+    .logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--white);text-decoration:none}
+    .logo span{color:var(--accent)}
+    .nav-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+    .nav-link:hover{color:var(--accent)}
+
+    /* HERO */
+    .hero{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-bottom:100px}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,255,209,0.05);border:1px solid rgba(0,255,209,0.2);padding:5px 14px;border-radius:2px;margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px}
+    .badge-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(42px,6vw,72px);line-height:.95;color:var(--white);letter-spacing:2px;margin-bottom:20px}
+    .hero h1 em{font-style:normal;color:var(--accent)}
+    .hero-sub{font-size:16px;line-height:1.7;color:var(--muted);margin-bottom:32px;max-width:460px}
+    .trust-row{display:flex;gap:24px;flex-wrap:wrap}
+    .trust-item{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px}
+    .trust-item .check{color:var(--accent);font-size:14px}
+
+    /* FORM */
+    .form-card{background:var(--surface);border:1px solid var(--border);padding:40px 32px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px))}
+    .form-title{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--white);letter-spacing:2px;margin-bottom:6px}
+    .form-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+    .form-group{margin-bottom:18px}
+    .form-group label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px}
+    .form-group input,.form-group select{width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:11px 14px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+    .form-group input:focus,.form-group select:focus{border-color:var(--accent)}
+    .form-group select{cursor:pointer}
+    .form-group select option{background:var(--deep);color:var(--text)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-btn{width:100%;padding:14px;background:var(--accent);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;border:none;cursor:pointer;transition:all .2s;margin-top:8px}
+    .form-btn:hover{background:var(--white);transform:translateY(-1px)}
+    .form-note{text-align:center;font-size:11px;color:var(--muted);margin-top:12px}
+
+    /* STATS BAR */
+    .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:100px}
+    .stat{background:var(--deep);padding:32px 24px;text-align:center}
+    .stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent);letter-spacing:2px}
+    .stat-label{font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:4px}
+
+    /* WHAT YOU GET */
+    .section-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:10px}
+    .section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,4vw,48px);color:var(--white);letter-spacing:2px;margin-bottom:48px}
+    .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:100px}
+    .feature{background:var(--deep);padding:36px 28px;transition:background .3s}
+    .feature:hover{background:var(--surface)}
+    .feature-icon{font-size:24px;margin-bottom:14px}
+    .feature-title{font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px}
+    .feature-desc{font-size:13px;color:var(--muted);line-height:1.7}
+
+    /* CTA */
+    .cta-section{text-align:center;padding:80px 0;margin-bottom:60px}
+    .cta-section h2{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--white);letter-spacing:2px;margin-bottom:16px}
+    .cta-section p{font-size:16px;color:var(--muted);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto}
+    .cta-btn{display:inline-block;padding:16px 48px;background:var(--accent);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;text-decoration:none;transition:all .2s}
+    .cta-btn:hover{background:var(--white);transform:translateY(-2px)}
+
+    /* FOOTER */
+    .footer{border-top:1px solid var(--border);padding:24px 0;text-align:center;font-size:12px;color:var(--muted)}
+    .footer a{color:var(--accent);text-decoration:none}
+
+    /* SUCCESS STATE */
+    .success-msg{display:none;text-align:center;padding:60px 20px}
+    .success-msg.show{display:block}
+    .success-msg h2{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent);margin-bottom:12px}
+    .success-msg p{font-size:15px;color:var(--text);margin-bottom:24px}
+
+    @media(max-width:768px){
+      .hero{grid-template-columns:1fr;gap:40px}
+      .stats-bar{grid-template-columns:repeat(2,1fr)}
+      .features-grid{grid-template-columns:1fr}
+      .form-row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="glow"></div>
+
+  <div class="page">
+    <nav class="mini-nav">
+      <a href="index.html" class="logo">PALISADE<span>ONE</span></a>
+      <div style="display:flex;gap:24px;align-items:center">
+        <a href="pricing.html" class="nav-link">Pricing</a>
+        <a href="platform.html" class="nav-link">Platform</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </div>
+    </nav>
+
+    <!-- HERO + FORM -->
+    <section class="hero">
+      <div>
+        <div class="hero-badge"><div class="badge-dot"></div>FREE — NO OBLIGATION</div>
+        <h1>HOW SECURE IS<br>YOUR <em>BUSINESS?</em></h1>
+        <p class="hero-sub">Take our free cyber risk assessment. In 10 minutes, you'll know exactly where your security gaps are — mapped against HIPAA, NIST, PCI, CMMC, and SOC 2 frameworks.</p>
+        <div class="trust-row">
+          <div class="trust-item"><span class="check">&#10003;</span> 10 MINUTES</div>
+          <div class="trust-item"><span class="check">&#10003;</span> 100% FREE</div>
+          <div class="trust-item"><span class="check">&#10003;</span> NO SALES PITCH</div>
+          <div class="trust-item"><span class="check">&#10003;</span> INSTANT RESULTS</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="form-card" id="lead-form-card">
+          <div class="form-title">START YOUR ASSESSMENT</div>
+          <div class="form-sub">Fill in your details to begin. Results are instant.</div>
+          <form id="lead-form" onsubmit="handleFormSubmit(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>FIRST NAME</label>
+                <input type="text" name="firstName" required placeholder="Augustus"/>
+              </div>
+              <div class="form-group">
+                <label>LAST NAME</label>
+                <input type="text" name="lastName" required placeholder="Camatta"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>WORK EMAIL</label>
+              <input type="email" name="email" required placeholder="you@company.com"/>
+            </div>
+            <div class="form-group">
+              <label>COMPANY NAME</label>
+              <input type="text" name="company" required placeholder="Acme Corp"/>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>PHONE (OPTIONAL)</label>
+                <input type="tel" name="phone" placeholder="(410) 555-1234"/>
+              </div>
+              <div class="form-group">
+                <label>COMPANY SIZE</label>
+                <select name="companySize" required>
+                  <option value="">Select...</option>
+                  <option value="1-10">1-10 employees</option>
+                  <option value="11-50">11-50 employees</option>
+                  <option value="51-200">51-200 employees</option>
+                  <option value="201-500">201-500 employees</option>
+                  <option value="500+">500+ employees</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>INDUSTRY</label>
+              <select name="industry" required>
+                <option value="">Select your industry...</option>
+                <option value="healthcare">Healthcare / Medical / Dental</option>
+                <option value="legal">Law Firm / Legal Services</option>
+                <option value="accounting">Accounting / CPA / Financial Services</option>
+                <option value="government">Government Contractor / Defense</option>
+                <option value="insurance">Insurance</option>
+                <option value="realestate">Real Estate / Title Company</option>
+                <option value="construction">Construction / Trades</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="nonprofit">Nonprofit</option>
+                <option value="retail">Retail / E-commerce</option>
+                <option value="education">Education</option>
+                <option value="technology">Technology / IT Services</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <button type="submit" class="form-btn">START FREE ASSESSMENT &rarr;</button>
+            <div class="form-note">No credit card required. Your data is encrypted and never shared.</div>
+          </form>
+        </div>
+
+        <div class="success-msg" id="success-msg">
+          <h2>REDIRECTING TO YOUR ASSESSMENT...</h2>
+          <p>Taking you to the full cyber risk assessment now.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats-bar">
+      <div class="stat"><div class="stat-num">43%</div><div class="stat-label">Of Attacks Target SMBs</div></div>
+      <div class="stat"><div class="stat-num">$4.88M</div><div class="stat-label">Avg. Breach Cost</div></div>
+      <div class="stat"><div class="stat-num">21 Days</div><div class="stat-label">Avg. Downtime</div></div>
+      <div class="stat"><div class="stat-num">60%</div><div class="stat-label">Of SMBs Close After Breach</div></div>
+    </section>
+
+    <!-- WHAT THE ASSESSMENT COVERS -->
+    <div class="section-label">WHAT YOU'LL LEARN</div>
+    <div class="section-title">YOUR ASSESSMENT COVERS</div>
+    <section class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">&#128737;</div>
+        <div class="feature-title">Security Posture Score</div>
+        <div class="feature-desc">Get an overall score out of 100 showing how secure your business is right now.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#9888;&#65039;</div>
+        <div class="feature-title">Critical Gaps</div>
+        <div class="feature-desc">See exactly which areas are most vulnerable — the ones attackers would exploit first.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#128203;</div>
+        <div class="feature-title">Compliance Mapping</div>
+        <div class="feature-desc">Your results are mapped against HIPAA, NIST, PCI, CMMC, SOC 2, and ISO 27001.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#128200;</div>
+        <div class="feature-title">Risk Dashboard</div>
+        <div class="feature-desc">Visual breakdown of risk across all 20 NIST control families.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#9989;</div>
+        <div class="feature-title">Remediation Tasks</div>
+        <div class="feature-desc">Auto-generated action items prioritized by severity — know exactly what to fix first.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#128196;</div>
+        <div class="feature-title">Policy Templates</div>
+        <div class="feature-desc">8 pre-built security policy templates ready to customize and publish.</div>
+      </div>
+    </section>
+
+    <!-- BOTTOM CTA -->
+    <section class="cta-section">
+      <h2>DON'T WAIT FOR A BREACH<br>TO FIND YOUR GAPS</h2>
+      <p>10 minutes. 100% free. No sales pitch. Just a clear picture of your cybersecurity risk.</p>
+      <a href="#lead-form-card" class="cta-btn">START FREE ASSESSMENT</a>
+    </section>
+
+    <footer class="footer">
+      &copy; 2026 <a href="index.html">Palisade One</a>. Managed Cyber Defense. | <a href="contact.html">Contact</a> | <a href="pricing.html">Pricing</a>
+    </footer>
+  </div>
+
+  <script>
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+
+      // Store lead data in localStorage for the assessment page to use
+      localStorage.setItem('p1-lead', JSON.stringify({
+        ...data,
+        timestamp: new Date().toISOString(),
+        source: 'free-assessment-landing'
+      }));
+
+      // Send to n8n webhook (if configured)
+      // Replace YOUR_WEBHOOK_URL with actual n8n webhook URL
+      const webhookUrl = 'http://soc.palisadeone.com:5678/webhook/new-lead';
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(() => {
+        // Webhook not configured yet — that's fine, lead is in localStorage
+      });
+
+      // Show success and redirect
+      document.getElementById('lead-form-card').style.display = 'none';
+      document.getElementById('success-msg').classList.add('show');
+
+      setTimeout(() => {
+        window.location.href = 'cyber-assessment.html';
+      }, 1500);
+    }
+  </script>
+</body>
+</html>
