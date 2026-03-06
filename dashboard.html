@@ -1269,7 +1269,7 @@ function generateCmdContent(clientName, wazuhGroup) {
     '    $configDir = "$env:AppData\\RustDesk\\config"',
     "    New-Item -ItemType Directory -Force -Path $configDir | Out-Null",
     '    Set-Content -Path "$configDir\\RustDesk.toml" -Value "[options]`ncustom-rendezvous-server = `"178.156.234.30`"`nkey = `"RHmWiAkJfbCr0Nxm8fF1s5nuX5gWePXwP5gHinGRj8w=`"" -Encoding UTF8',
-    '    Set-Content -Path "$configDir\\RustDesk2.toml" -Value "password = `"P1Remote2026!`"" -Encoding UTF8',
+    "    if (Test-Path $rdExe) { Start-Process $rdExe -ArgumentList '--password P1Remote2026!' -Wait -NoNewWindow -ErrorAction SilentlyContinue }",
     '    $rdExe = "$env:ProgramFiles\\RustDesk\\RustDesk.exe"',
     '    if (-not (Test-Path $rdExe)) { $rdExe = "${env:ProgramFiles(x86)}\\RustDesk\\RustDesk.exe" }',
     "    if (Test-Path $rdExe) { Start-Process $rdExe -WindowStyle Hidden -ErrorAction SilentlyContinue }",
