@@ -1088,8 +1088,13 @@ function showView(name) {
   document.getElementById('view-' + name).classList.add('active');
   document.getElementById('page-title').textContent = name.toUpperCase();
   currentView = name;
+  // Clear device auto-refresh when leaving devices view
+  if (deviceRefreshTimer && name !== 'devices') { clearInterval(deviceRefreshTimer); deviceRefreshTimer = null; }
   if (name === 'alerts') loadAlerts();
-  if (name === 'devices') loadDevices();
+  if (name === 'devices') {
+    loadDevices();
+    if (!deviceRefreshTimer) deviceRefreshTimer = setInterval(loadDevices, 30000);
+  }
   if (name === 'compliance') loadCompliance();
   if (name === 'clients') loadClients();
   if (name === 'darkweb') initDarkWeb();
@@ -1493,22 +1498,27 @@ function fmtDateTime(ts) {
   return new Date(ts).toLocaleString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
 }
 
+let deviceRefreshTimer = null;
+
 async function loadDevices() {
   try {
     // Use Wazuh Manager API directly — real status, OS, last keepalive
     const res = await fetch(`${PROXY_URL}/agents?limit=500&sort=-dateAdd`, { headers: { 'Content-Type': 'application/json' } });
     const json = await res.json();
-    const agents = (json?.data?.affected_items || []).filter(a => a.id !== '000');
+    // Exclude manager (000) and agents that never connected
+    const agents = (json?.data?.affected_items || []).filter(a => a.id !== '000' && a.status !== 'never_connected');
 
     // Cache all agents
     agents.forEach(a => agentsData[a.id] = a);
 
-    const active = agents.filter(a => a.status === 'active').length;
     document.getElementById('stat-agents').textContent = agents.length || '--';
     document.getElementById('dum-count').textContent = agents.length || '--';
 
     const renderRow = (a) => {
-      const online = a.status === 'active';
+      // Stale if lastKeepAlive is >5 minutes ago — treat as OFFLINE even if status says active
+      const lastKA = a.lastKeepAlive ? new Date(a.lastKeepAlive) : null;
+      const stale = lastKA ? (Date.now() - lastKA.getTime()) > 5 * 60 * 1000 : false;
+      const online = a.status === 'active' && !stale;
       const os = a.os?.name || a.os?.platform || 'Unknown';
       const id = a.id || '';
       return `<div class="device-row" onclick="openEndpointPanel('${id}')" style="cursor:pointer;">
