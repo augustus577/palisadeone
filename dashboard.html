@@ -1087,7 +1087,7 @@ function showView(name) {
 function updatePreview() {
   const name = document.getElementById('client-name-input').value || '...';
   const safeName = (name).replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-');
-  document.getElementById('install-preview').textContent = `Double-click: PalisadeOne-${safeName}-Setup.cmd  (auto-elevates to Admin)`;
+  document.getElementById('install-preview').textContent = `Double-click: PalisadeOne-${safeName}-Setup.cmd  (UAC auto-elevates — no right-click needed)`;
 }
 
 async function generateInstaller() {
@@ -1113,7 +1113,7 @@ async function generateInstaller() {
   const blob = new Blob([script], {type: 'text/plain'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `PalisadeOne-${safeName}-Setup.ps1`;
+  a.download = `PalisadeOne-${safeName}-Setup.cmd`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1246,21 +1246,24 @@ function generateCmdContent(clientName, wazuhGroup) {
     'Read-Host "Press Enter to close"',
   ].join("\r\n");
 
-  // Self-elevating PowerShell script — right-click → Run with PowerShell
-  return [
-    "# PalisadeOne Security Agent Installer",
-    "# Client: " + clientName,
-    "# Generated: " + generated,
-    "# Right-click this file and select 'Run with PowerShell'",
-    "",
-    "$p1path = if ($PSCommandPath) { $PSCommandPath } else { $MyInvocation.MyCommand.Path }",
-    "if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {",
-    "    Start-Process PowerShell -Verb RunAs -ArgumentList \"-ExecutionPolicy Bypass -File `\"$p1path`\"\"",
-    "    exit",
-    "}",
-    "",
-    ps,
+  // .cmd wrapper — double-click auto-elevates via net session check
+  const cmdHeader = [
+    "@echo off",
+    ":: PalisadeOne Security Agent Installer",
+    ":: Client: " + clientName,
+    ":: Generated: " + generated,
+    ":: Double-click to install (auto-elevates to Admin)",
+    "net session >nul 2>&1",
+    "if %errorlevel% == 0 goto :ADMIN",
+    "echo Requesting administrator privileges...",
+    "powershell -Command \"Start-Process -FilePath '%~f0' -Verb RunAs\"",
+    "exit /b",
+    ":ADMIN",
+    "powershell -ExecutionPolicy Bypass -NoProfile -Command \"$f='%~f0'; $m=':::PS'+'START:::'; $txt=[System.IO.File]::ReadAllText($f); $ps=$txt.Substring($txt.IndexOf($m)+$m.Length); $t=[System.IO.Path]::GetTempFileName()+'.ps1'; [System.IO.File]::WriteAllText($t,$ps); & $t; Remove-Item $t -ErrorAction SilentlyContinue\"",
+    "goto :EOF",
+    ":::PSSTART:::",
   ].join("\r\n");
+  return cmdHeader + "\r\n" + ps;
 }
 
 function generateUninstaller() {
@@ -1330,24 +1333,27 @@ function generateUninstaller() {
     'Read-Host "Press Enter to close"',
   ].join("\r\n");
 
-  const cmd = [
-    "# PalisadeOne Agent Uninstaller",
-    "# Generated: " + generated,
-    "# Right-click this file and select 'Run with PowerShell'",
-    "",
-    "$p1path = if ($PSCommandPath) { $PSCommandPath } else { $MyInvocation.MyCommand.Path }",
-    "if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {",
-    "    Start-Process PowerShell -Verb RunAs -ArgumentList \"-ExecutionPolicy Bypass -File `\"$p1path`\"\"",
-    "    exit",
-    "}",
-    "",
-    ps,
+  const cmdHeader = [
+    "@echo off",
+    ":: PalisadeOne Agent Uninstaller",
+    ":: Generated: " + generated,
+    ":: Double-click to uninstall (auto-elevates to Admin)",
+    "net session >nul 2>&1",
+    "if %errorlevel% == 0 goto :ADMIN",
+    "echo Requesting administrator privileges...",
+    "powershell -Command \"Start-Process -FilePath '%~f0' -Verb RunAs\"",
+    "exit /b",
+    ":ADMIN",
+    "powershell -ExecutionPolicy Bypass -NoProfile -Command \"$f='%~f0'; $m=':::PS'+'START:::'; $txt=[System.IO.File]::ReadAllText($f); $ps=$txt.Substring($txt.IndexOf($m)+$m.Length); $t=[System.IO.Path]::GetTempFileName()+'.ps1'; [System.IO.File]::WriteAllText($t,$ps); & $t; Remove-Item $t -ErrorAction SilentlyContinue\"",
+    "goto :EOF",
+    ":::PSSTART:::",
   ].join("\r\n");
+  const cmd = cmdHeader + "\r\n" + ps;
 
   const blob = new Blob([cmd], {type: 'text/plain'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'PalisadeOne-Uninstaller.ps1';
+  a.download = 'PalisadeOne-Uninstaller.cmd';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
