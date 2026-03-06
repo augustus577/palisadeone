@@ -838,8 +838,8 @@
           <div class="dw-api-notice">
             <div style="font-size:18px;flex-shrink:0;">⚠</div>
             <div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--warning);letter-spacing:1px;margin-bottom:4px;">HIBP API KEY REQUIRED</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Get a free API key at <strong style="color:var(--accent2);">haveibeenpwned.com/API/Key</strong> (~$3.50/mo for email breach checks). Paste it below to enable dark web monitoring.</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:4px;">P1 BREACH DB ACTIVE — HIBP KEY OPTIONAL</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Email scanning uses your <strong style="color:var(--accent);">self-hosted breach database</strong> (959+ breaches indexed, free). Optionally add a HIBP key (~$3.50/mo) to extend coverage with real-time breach data.</div>
             </div>
           </div>
           <div style="padding:16px 20px;display:flex;gap:10px;align-items:center;">
@@ -2065,37 +2065,53 @@ function fmtRelTime(iso) {
 
 async function scanEmail(idx) {
   const item = dwEmailCache[idx];
-  const key = getDWApiKey();
-  if (!key) { showToast('Set your HIBP API key first', 'error'); return; }
   showToast('Scanning ' + item.email + '...', 'info');
   try {
-    const res = await fetch(`${HIBP_BASE}/breachedaccount/${encodeURIComponent(item.email)}?truncateResponse=false`, {
-      headers: { 'hibp-api-key': key, 'user-agent': 'PalisadeOne-Dashboard' }
-    });
-    if (res.status === 404) {
-      item.breaches = [];
-    } else if (res.status === 401) {
-      showToast('Invalid API key — check your HIBP key', 'error'); return;
-    } else if (res.status === 429) {
-      showToast('Rate limited — wait a moment and try again', 'error'); return;
-    } else {
-      item.breaches = await res.json();
+    // Primary: query our own breach database (free, self-hosted)
+    const res = await fetch(`${PROXY_URL}/breach-search?email=${encodeURIComponent(item.email)}`);
+    const data = await res.json();
+    const ownBreaches = data.hits || [];
+
+    // Fallback: HIBP API if key is configured
+    const key = getDWApiKey();
+    let hibpBreaches = [];
+    if (key) {
+      try {
+        const hibpRes = await fetch(`${HIBP_BASE}/breachedaccount/${encodeURIComponent(item.email)}?truncateResponse=false`, {
+          headers: { 'hibp-api-key': key, 'user-agent': 'PalisadeOne-Dashboard' }
+        });
+        if (hibpRes.status === 200) hibpBreaches = await hibpRes.json();
+      } catch(e) { /* HIBP unavailable, use own DB only */ }
     }
+
+    // Merge: normalize own DB hits to HIBP format
+    const ownFormatted = ownBreaches.map(h => ({
+      Name: h.breach_name,
+      Title: h.breach_name,
+      Domain: h.email_domain || '',
+      BreachDate: h.breach_date || '',
+      DataClasses: h.data_classes || [],
+      _source: 'p1db'
+    }));
+
+    // Deduplicate by breach name
+    const seen = new Set(hibpBreaches.map(b => b.Name));
+    const merged = [...hibpBreaches, ...ownFormatted.filter(b => !seen.has(b.Name))];
+    item.breaches = merged;
     item.lastScanned = new Date().toISOString();
     await saveDWEmailToClient(item);
     renderDWEmailList();
     updateDWStats();
     renderBreachList();
-    const n = item.breaches.length;
-    showToast(`${item.email}: ${n === 0 ? 'Clean — no breaches found' : n + ' breach' + (n > 1 ? 'es' : '') + ' found'}`, n > 0 ? 'error' : 'success');
+    const n = merged.length;
+    const src = ownBreaches.length > 0 ? ' (P1 DB)' : key ? ' (HIBP)' : '';
+    showToast(`${item.email}: ${n === 0 ? 'Clean — no breaches found' : n + ' breach' + (n > 1 ? 'es' : '') + ' found'}${src}`, n > 0 ? 'error' : 'success');
   } catch(e) {
     showToast('Scan error: ' + e.message, 'error');
   }
 }
 
 async function scanAllEmails() {
-  const key = getDWApiKey();
-  if (!key) { showToast('Set your HIBP API key first', 'error'); return; }
   const btn = document.getElementById('dw-scan-all-btn');
   btn.textContent = 'SCANNING...';
   btn.disabled = true;
