@@ -1839,11 +1839,8 @@ function openRemoteDesktop() {
   const rdId = getRustDeskId(activeAgentId);
   const rdBox = document.getElementById('ep-rd-id-box');
   if (rdId) {
-    const server = '178.156.234.30';
-    const key = 'RHmWiAkJfbCr0Nxm8fF1s5nuX5gWePXwP5gHinGRj8w=';
-    // Open RustDesk web client configured to our server
-    const webUrl = `https://rustdesk.com/web/#/?id=${encodeURIComponent(rdId)}&server=${encodeURIComponent(server)}&key=${encodeURIComponent(key)}`;
-    window.open(webUrl, '_blank');
+    // Deep link into native RustDesk app — opens and connects directly, no typing needed
+    window.open(`rustdesk://${rdId}`, '_blank');
     document.getElementById('ep-rd-id-value').textContent = rdId;
     rdBox.style.display = 'block';
   } else {
