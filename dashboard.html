@@ -1103,7 +1103,7 @@ function generateInstaller() {
   const blob = new Blob([script], {type: 'text/plain'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `PalisadeOne-${safeName}-Setup.cmd`;
+  a.download = `PalisadeOne-${safeName}-Setup.ps1`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1234,29 +1234,19 @@ function generateCmdContent(clientName, wazuhGroup) {
     'Read-Host "Press Enter to close"',
   ].join("\r\n");
 
-  // Wrap PowerShell in a self-elevating .cmd launcher
+  // Self-elevating PowerShell script — right-click → Run with PowerShell
   return [
-    "@echo off",
-    ":: PalisadeOne Security Agent Installer",
-    ":: Client: " + clientName,
-    ":: Generated: " + generated,
-    "::",
-    ":: Double-click to run. Automatically requests Administrator access.",
+    "# PalisadeOne Security Agent Installer",
+    "# Client: " + clientName,
+    "# Generated: " + generated,
+    "# Right-click this file and select 'Run with PowerShell'",
     "",
-    "net session >nul 2>&1",
-    "if %errorLevel% neq 0 (",
-    "    echo Requesting Administrator privileges...",
-    "    powershell -Command \"Start-Process -FilePath cmd -ArgumentList '/c \\\"%~f0\\\"' -Verb RunAs -Wait\"",
-    "    exit /b",
-    ")",
+    "if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {",
+    "    Start-Process PowerShell -Verb RunAs -ArgumentList \"-ExecutionPolicy Bypass -NonInteractive -File `\"$PSCommandPath`\"\"",
+    "    exit",
+    "}",
     "",
-    "set \"P1SELF=%~f0\"",
-    "powershell.exe -ExecutionPolicy Bypass -NoProfile -Command \"try{$s=[IO.File]::ReadAllText($env:P1SELF);$a='<#'+'PS#>';$z='<#/'+'PS#>';$i=$s.IndexOf($a)+$a.Length;$e=$s.LastIndexOf($z);if($i-gt5-and$e-gt$i){iex($s.Substring($i,$e-$i))}else{Write-Host 'ERROR: Could not parse installer.' -ForegroundColor Red;Read-Host 'Press Enter'}}catch{Write-Host ('FATAL ERROR: '+$_.Exception.Message) -ForegroundColor Red;Read-Host 'Press Enter'}\"",
-    "exit /b 0",
-    "",
-    "<#PS#>",
     ps,
-    "<#/PS#>",
   ].join("\r\n");
 }
 
@@ -1327,34 +1317,23 @@ function generateUninstaller() {
     'Read-Host "Press Enter to close"',
   ].join("\r\n");
 
-  const generated2 = new Date().toISOString();
   const cmd = [
-    "@echo off",
-    ":: PalisadeOne Agent Uninstaller",
-    ":: Generated: " + generated2,
-    "::",
-    ":: Double-click to run. Automatically requests Administrator access.",
+    "# PalisadeOne Agent Uninstaller",
+    "# Generated: " + generated,
+    "# Right-click this file and select 'Run with PowerShell'",
     "",
-    "net session >nul 2>&1",
-    "if %errorLevel% neq 0 (",
-    "    echo Requesting Administrator privileges...",
-    "    powershell -Command \"Start-Process -FilePath cmd -ArgumentList '/c \\\"%~f0\\\"' -Verb RunAs -Wait\"",
-    "    exit /b",
-    ")",
+    "if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {",
+    "    Start-Process PowerShell -Verb RunAs -ArgumentList \"-ExecutionPolicy Bypass -NonInteractive -File `\"$PSCommandPath`\"\"",
+    "    exit",
+    "}",
     "",
-    "set \"P1SELF=%~f0\"",
-    "powershell.exe -ExecutionPolicy Bypass -NoProfile -Command \"try{$s=[IO.File]::ReadAllText($env:P1SELF);$a='<#'+'PS#>';$z='<#/'+'PS#>';$i=$s.IndexOf($a)+$a.Length;$e=$s.LastIndexOf($z);if($i-gt5-and$e-gt$i){iex($s.Substring($i,$e-$i))}else{Write-Host 'ERROR: Could not parse uninstaller.' -ForegroundColor Red;Read-Host 'Press Enter'}}catch{Write-Host ('FATAL ERROR: '+$_.Exception.Message) -ForegroundColor Red;Read-Host 'Press Enter'}\"",
-    "exit /b 0",
-    "",
-    "<#PS#>",
     ps,
-    "<#/PS#>",
   ].join("\r\n");
 
   const blob = new Blob([cmd], {type: 'text/plain'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'PalisadeOne-Uninstaller.cmd';
+  a.download = 'PalisadeOne-Uninstaller.ps1';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
