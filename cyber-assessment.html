@@ -388,12 +388,97 @@ textarea.scan-input{height:80px;resize:vertical}
 .scan-progress-fill{height:100%;background:linear-gradient(to right,var(--accent),var(--accent2));transition:width .5s ease;animation:scanPulse 2s infinite}
 @keyframes scanPulse{0%,100%{opacity:1}50%{opacity:0.7}}
 
+/* RISK REGISTER & HEATMAP */
+.risk-heatmap{display:grid;grid-template-columns:40px repeat(5,1fr);grid-template-rows:repeat(5,1fr) 40px;gap:2px;margin-bottom:28px;aspect-ratio:1.3;max-width:600px}
+.rh-ylabel{writing-mode:vertical-rl;transform:rotate(180deg);font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);display:flex;align-items:center;justify-content:center;letter-spacing:1px}
+.rh-xlabel{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);display:flex;align-items:center;justify-content:center;letter-spacing:1px}
+.rh-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--black);transition:all .2s;cursor:none;position:relative;min-height:50px}
+.rh-cell:hover{transform:scale(1.05);z-index:2;box-shadow:0 0 12px rgba(0,0,0,0.5)}
+.rh-cell .rh-count{font-size:16px;font-weight:700}
+.rh-cell .rh-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--deep);border:1px solid var(--border);padding:8px 12px;font-size:10px;color:var(--text);white-space:nowrap;z-index:10;font-weight:300}
+.rh-cell:hover .rh-tooltip{display:block}
+.rh-legend{display:flex;gap:16px;justify-content:center;margin-bottom:24px}
+.rh-legend-item{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
+.rh-legend-swatch{width:14px;height:14px}
+
+.risk-register-table{width:100%;border-collapse:collapse;margin-bottom:20px}
+.risk-register-table th{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);cursor:none;user-select:none}
+.risk-register-table th:hover{color:var(--accent)}
+.risk-register-table th.sorted{color:var(--accent)}
+.risk-register-table td{font-size:11px;padding:10px 12px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--text)}
+.risk-register-table tr:hover{background:rgba(0,255,209,0.02)}
+.risk-id{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2)}
+.risk-impact,.risk-likelihood{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;letter-spacing:1px}
+.risk-score-pill{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:3px 10px;display:inline-block}
+.risk-owner{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
+.risk-status-badge{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;letter-spacing:1px}
+
+/* EXECUTIVE REPORT */
+.report-preview{background:var(--surface);border:1px solid var(--border);padding:32px;max-width:900px;margin:0 auto}
+.rp-header{text-align:center;padding-bottom:24px;border-bottom:2px solid var(--accent);margin-bottom:24px}
+.rp-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--accent);margin-bottom:4px}
+.rp-title{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--white);letter-spacing:2px}
+.rp-client{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px}
+.rp-section{margin-bottom:28px}
+.rp-section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:1px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.rp-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.rp-kpi{text-align:center;padding:16px;border:1px solid var(--border)}
+.rp-kpi-val{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1}
+.rp-kpi-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1px;margin-top:4px}
+.rp-finding{padding:10px 14px;border-left:3px solid var(--border);margin-bottom:8px;background:var(--deep)}
+.rp-finding-title{font-size:12px;color:var(--white);font-weight:500;margin-bottom:2px}
+.rp-finding-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
+
+/* EVIDENCE TRACKER */
+.evidence-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.evidence-card{background:var(--surface);border:1px solid var(--border);padding:16px;transition:border-color .2s}
+.evidence-card:hover{border-color:var(--border2)}
+.evidence-card.has-evidence{border-left:3px solid var(--success)}
+.evidence-card.missing{border-left:3px solid var(--danger)}
+.ec-control{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2);letter-spacing:1px;margin-bottom:4px}
+.ec-title{font-size:13px;color:var(--white);font-weight:500;margin-bottom:6px}
+.ec-status{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.ec-status-dot{width:6px;height:6px;border-radius:50%}
+.ec-status-text{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px}
+.ec-files{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.ec-file{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text);padding:4px 8px;background:var(--deep);border:1px solid var(--border)}
+.ec-file-icon{color:var(--accent);font-size:11px}
+.ec-upload-btn{font-family:'JetBrains Mono',monospace;font-size:9px;padding:5px 12px;border:1px dashed var(--border);color:var(--muted);cursor:none;transition:all .15s;text-align:center;letter-spacing:1px}
+.ec-upload-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* COMPLIANCE ROADMAP */
+.roadmap-timeline{position:relative;padding-left:40px}
+.roadmap-timeline::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:2px;background:var(--border)}
+.rm-milestone{position:relative;margin-bottom:24px;padding:16px 20px;background:var(--surface);border:1px solid var(--border)}
+.rm-milestone::before{content:'';position:absolute;left:-33px;top:20px;width:12px;height:12px;border:2px solid var(--border);background:var(--deep);border-radius:50%;z-index:1}
+.rm-milestone.done::before{background:var(--success);border-color:var(--success)}
+.rm-milestone.current::before{background:var(--accent);border-color:var(--accent);box-shadow:0 0 8px rgba(0,255,209,0.4)}
+.rm-milestone.upcoming::before{background:var(--deep);border-color:var(--muted)}
+.rm-date{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px}
+.rm-title{font-size:14px;color:var(--white);font-weight:500;margin-bottom:4px}
+.rm-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.rm-tasks{display:flex;gap:6px;flex-wrap:wrap}
+.rm-task-chip{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;border:1px solid var(--border);color:var(--muted)}
+.rm-task-chip.done{border-color:rgba(0,200,150,0.3);color:var(--success);text-decoration:line-through}
+
+/* BENCHMARK */
+.benchmark-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px 16px;background:var(--surface);border:1px solid var(--border)}
+.bb-label{font-size:12px;color:var(--white);width:140px;flex-shrink:0}
+.bb-track{flex:1;height:8px;background:var(--border);position:relative}
+.bb-fill{height:100%;position:absolute;left:0;top:0}
+.bb-marker{position:absolute;top:-4px;width:3px;height:16px;background:var(--white);z-index:2}
+.bb-marker-label{position:absolute;top:-18px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--white);transform:translateX(-50%);white-space:nowrap}
+.bb-industry-label{position:absolute;top:12px;font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--muted);transform:translateX(-50%);white-space:nowrap}
+.bb-val{font-family:'JetBrains Mono',monospace;font-size:10px;width:40px;text-align:right;flex-shrink:0}
+
 @media(max-width:900px){
   .sidebar{display:none}
   body{cursor:auto}
   .cursor,.cursor-ring{display:none}
   .dash-grid{grid-template-columns:1fr 1fr}
   .two-col{grid-template-columns:1fr}
+  .rp-kpi-grid{grid-template-columns:1fr 1fr}
+  .risk-heatmap{max-width:100%}
 }
 </style>
 </head>
@@ -471,6 +556,17 @@ textarea.scan-input{height:80px;resize:vertical}
       </div>
     </div>
     <div class="sidebar-section">
+      <div class="sidebar-label">RISK</div>
+      <div class="nav-item" onclick="showView('riskreg')" id="nav-riskreg">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="1" width="14" height="14" rx="1"/><path d="M4 4h3v3H4zM9 4h3v3H9zM4 9h3v3H4zM9 9h3v3H9z"/></svg>
+        <span class="ni-label">Risk Register</span>
+      </div>
+      <div class="nav-item" onclick="showView('evidence')" id="nav-evidence">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 2h7l3 3v9H3V2z"/><path d="M10 2v3h3"/><path d="M6 8h4M6 10.5h3"/></svg>
+        <span class="ni-label">Evidence Tracker</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
       <div class="sidebar-label">SCANNING</div>
       <div class="nav-item" onclick="showView('vulnscan')" id="nav-vulnscan">
         <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/><path d="M5 7h4M7 5v4"/></svg>
@@ -478,7 +574,15 @@ textarea.scan-input{height:80px;resize:vertical}
       </div>
     </div>
     <div class="sidebar-section">
-      <div class="sidebar-label">HISTORY</div>
+      <div class="sidebar-label">REPORTING</div>
+      <div class="nav-item" onclick="showView('report')" id="nav-report">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 2h12v12H2z"/><path d="M5 10V7M8 10V5M11 10V8"/></svg>
+        <span class="ni-label">Executive Report</span>
+      </div>
+      <div class="nav-item" onclick="showView('roadmap')" id="nav-roadmap">
+        <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 3h4v3H2zM6 8h4v3H6zM10 5h4v3h-4z"/><path d="M4 6v2M8 8v-2M12 8v2"/></svg>
+        <span class="ni-label">Compliance Roadmap</span>
+      </div>
       <div class="nav-item" onclick="showView('history')" id="nav-history">
         <svg class="ni-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 2"/></svg>
         <span class="ni-label">Assessment History</span>
@@ -911,6 +1015,82 @@ textarea.scan-input{height:80px;resize:vertical}
             <div class="es-title">No Scans Yet</div>
             <div class="es-desc">Configure and launch your first vulnerability scan above.</div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RISK REGISTER VIEW -->
+    <div class="view" id="view-riskreg">
+      <div class="page-header">
+        <div class="page-eyebrow">RISK MANAGEMENT</div>
+        <div class="page-title" style="font-size:28px">Risk Register & Heatmap</div>
+        <div class="page-sub">Visual risk matrix showing likelihood vs impact. Auto-generated from your assessment and scan results. Click cells to view associated risks.</div>
+      </div>
+      <div id="riskRegContent">
+        <div class="empty-state">
+          <div class="es-icon">◈</div>
+          <div class="es-title">No Risk Data</div>
+          <div class="es-desc">Complete an assessment to populate the risk register and heatmap.</div>
+          <button class="btn btn-primary btn-sm" onclick="showView('setup')">START ASSESSMENT →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVIDENCE TRACKER VIEW -->
+    <div class="view" id="view-evidence">
+      <div class="page-header">
+        <div class="page-eyebrow">COMPLIANCE EVIDENCE</div>
+        <div class="page-title" style="font-size:28px">Evidence Tracker</div>
+        <div class="page-sub">Track evidence artifacts for each control. Upload documents, screenshots, and links to demonstrate compliance.</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center">
+        <button class="task-filter-btn active" onclick="filterEvidence('all',this)">ALL</button>
+        <button class="task-filter-btn" onclick="filterEvidence('missing',this)">MISSING</button>
+        <button class="task-filter-btn" onclick="filterEvidence('uploaded',this)">UPLOADED</button>
+        <div style="flex:1"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)" id="evidenceStats">0 / 0 controls with evidence</div>
+      </div>
+      <div id="evidenceContent">
+        <div class="empty-state">
+          <div class="es-icon">◈</div>
+          <div class="es-title">No Controls to Track</div>
+          <div class="es-desc">Complete an assessment to see which controls need evidence.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXECUTIVE REPORT VIEW -->
+    <div class="view" id="view-report">
+      <div class="page-header">
+        <div class="page-eyebrow">EXECUTIVE REPORTING</div>
+        <div class="page-title" style="font-size:28px">Executive Summary Report</div>
+        <div class="page-sub">Generate a comprehensive, executive-ready security posture report for stakeholders and board presentations.</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:24px">
+        <button class="btn btn-primary btn-sm" onclick="window.print()">PRINT / SAVE AS PDF</button>
+        <button class="btn btn-secondary btn-sm" onclick="generateReport()">REGENERATE REPORT</button>
+      </div>
+      <div id="reportContent">
+        <div class="empty-state">
+          <div class="es-icon">◈</div>
+          <div class="es-title">No Report Data</div>
+          <div class="es-desc">Complete an assessment to generate the executive report.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPLIANCE ROADMAP VIEW -->
+    <div class="view" id="view-roadmap">
+      <div class="page-header">
+        <div class="page-eyebrow">COMPLIANCE PLANNING</div>
+        <div class="page-title" style="font-size:28px">Compliance Roadmap</div>
+        <div class="page-sub">Your prioritized path to compliance. Milestones are auto-generated based on assessment gaps, task priorities, and framework requirements.</div>
+      </div>
+      <div id="roadmapContent">
+        <div class="empty-state">
+          <div class="es-icon">◈</div>
+          <div class="es-title">No Roadmap Data</div>
+          <div class="es-desc">Complete an assessment to generate your compliance roadmap.</div>
         </div>
       </div>
     </div>
@@ -2128,6 +2308,21 @@ function loadClient(clientId) {
     renderDashboard();
     renderTasks();
     renderPolicies();
+    renderRiskRegister();
+    generateReport();
+    generateRoadmap();
+    renderEvidence('all');
+
+    // Update sidebar
+    const risk = getRisk(state.scores.overall);
+    document.getElementById('sidebarScore').textContent = Math.round(state.scores.overall);
+    document.getElementById('sidebarScore').style.color = risk.c;
+    document.getElementById('sidebarScoreBar').style.width = state.scores.overall+'%';
+    document.getElementById('sidebarRisk').textContent = risk.lvl;
+    document.getElementById('sidebarRisk').style.color = risk.c;
+    document.getElementById('sidebarScoreWrap').style.display = 'block';
+    document.getElementById('taskBadge').textContent = state.tasks.filter(t=>!state.taskStates[t.id]).length;
+
     showView('dashboard-view');
   } else {
     // Client needs assessment — go to framework selection
@@ -2329,6 +2524,10 @@ function completeAssessment() {
   renderTasks();
   renderPolicies();
   renderHistory();
+  renderRiskRegister();
+  generateReport();
+  generateRoadmap();
+  renderEvidence('all');
   showView('dashboard-view');
 }
 
@@ -2913,6 +3112,524 @@ function createTasksFromScan(scanId) {
   document.getElementById('taskBadge').textContent = state.tasks.filter(t=>!state.taskStates[t.id]).length;
   renderTasks();
   alert(added + ' remediation tasks created from scan findings.');
+}
+
+// =============================================
+// RISK REGISTER & HEATMAP
+// =============================================
+
+const riskCategories = [
+  {id:'R-AC',name:'Unauthorized Access',family:'AC',desc:'Risk of unauthorized users gaining access to systems or data'},
+  {id:'R-AT',name:'Insufficient Security Awareness',family:'AT',desc:'Employees lack training to identify and respond to threats'},
+  {id:'R-AU',name:'Inadequate Audit Logging',family:'AU',desc:'Insufficient monitoring and logging of security events'},
+  {id:'R-CA',name:'Unvalidated Security Controls',family:'CA',desc:'Security controls not regularly assessed or validated'},
+  {id:'R-CM',name:'Configuration Drift',family:'CM',desc:'System configurations deviate from secure baselines'},
+  {id:'R-CP',name:'Business Continuity Failure',family:'CP',desc:'Inability to recover from disruptions or disasters'},
+  {id:'R-IA',name:'Identity & Authentication Weakness',family:'IA',desc:'Weak authentication mechanisms allow impersonation'},
+  {id:'R-IR',name:'Incident Response Gaps',family:'IR',desc:'Inability to effectively detect and respond to incidents'},
+  {id:'R-MA',name:'Maintenance Vulnerabilities',family:'MA',desc:'Improper system maintenance creates security gaps'},
+  {id:'R-MP',name:'Media Protection Failure',family:'MP',desc:'Sensitive data on removable media not properly protected'},
+  {id:'R-PE',name:'Physical Security Breach',family:'PE',desc:'Inadequate physical access controls to facilities'},
+  {id:'R-PL',name:'Policy Non-Compliance',family:'PL',desc:'Security policies not enforced or followed'},
+  {id:'R-PM',name:'Program Management Weakness',family:'PM',desc:'Lack of structured security program oversight'},
+  {id:'R-PS',name:'Personnel Security Risk',family:'PS',desc:'Insider threats from inadequate personnel security'},
+  {id:'R-RA',name:'Unidentified Vulnerabilities',family:'RA',desc:'Unknown vulnerabilities due to lack of assessment'},
+  {id:'R-SA',name:'Insecure Acquisitions',family:'SA',desc:'Third-party systems/services introduce risk'},
+  {id:'R-SC',name:'Communication Interception',family:'SC',desc:'Data in transit not properly protected'},
+  {id:'R-SI',name:'System Integrity Compromise',family:'SI',desc:'Malware or unauthorized changes to systems'},
+  {id:'R-SR',name:'Supply Chain Compromise',family:'SR',desc:'Vendors or suppliers introduce vulnerabilities'},
+  {id:'R-PT',name:'Privacy Violations',family:'PT',desc:'Personal data handling violates privacy requirements'}
+];
+
+function buildRiskRegister() {
+  if(!state.scores) return;
+
+  const risks = [];
+  const sectionScores = state.scores.secs || {};
+
+  riskCategories.forEach(cat => {
+    const secScore = sectionScores[cat.family];
+    if(secScore === undefined) return;
+
+    // Calculate likelihood (inverse of score — low score = high likelihood)
+    const likelihood = secScore < 30 ? 5 : secScore < 50 ? 4 : secScore < 65 ? 3 : secScore < 80 ? 2 : 1;
+    // Impact based on control family criticality
+    const criticalFamilies = ['AC','IA','IR','SI','SC','CP'];
+    const highFamilies = ['AU','CM','RA','SA','SR'];
+    const baseImpact = criticalFamilies.includes(cat.family) ? 4 : highFamilies.includes(cat.family) ? 3 : 2;
+    const impact = Math.min(5, Math.max(1, baseImpact + (secScore < 40 ? 1 : 0)));
+
+    const riskScore = likelihood * impact;
+    const severity = riskScore >= 20 ? 'critical' : riskScore >= 12 ? 'high' : riskScore >= 6 ? 'medium' : 'low';
+
+    risks.push({
+      ...cat,
+      likelihood,
+      impact,
+      riskScore,
+      severity,
+      controlScore: Math.round(secScore),
+      status: secScore >= 80 ? 'mitigated' : secScore >= 50 ? 'in-progress' : 'open',
+      owner: 'Palisade One'
+    });
+  });
+
+  return risks.sort((a,b) => b.riskScore - a.riskScore);
+}
+
+function renderRiskRegister() {
+  const el = document.getElementById('riskRegContent');
+  if(!state.scores) {
+    el.innerHTML = '<div class="empty-state"><div class="es-icon">&#9672;</div><div class="es-title">No Risk Data</div><div class="es-desc">Complete an assessment to populate the risk register.</div><button class="btn btn-primary btn-sm" onclick="showView(\'setup\')">START ASSESSMENT →</button></div>';
+    return;
+  }
+
+  const risks = buildRiskRegister();
+  if(!risks || !risks.length) return;
+
+  // Build heatmap grid (5x5: likelihood Y-axis, impact X-axis)
+  const heatmapData = {};
+  risks.forEach(r => {
+    const key = r.likelihood + '_' + r.impact;
+    if(!heatmapData[key]) heatmapData[key] = [];
+    heatmapData[key].push(r);
+  });
+
+  const cellColors = (l, i) => {
+    const s = l * i;
+    if(s >= 20) return 'background:rgba(255,59,92,0.85)';
+    if(s >= 12) return 'background:rgba(245,166,35,0.75)';
+    if(s >= 6) return 'background:rgba(0,255,209,0.5);color:var(--black)';
+    return 'background:rgba(0,132,255,0.35);color:var(--white)';
+  };
+
+  let heatmapHtml = '<div style="display:flex;gap:28px;flex-wrap:wrap;margin-bottom:28px"><div style="flex:1;min-width:400px">';
+  heatmapHtml += '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px;margin-bottom:12px">RISK HEATMAP</div>';
+  heatmapHtml += '<div class="risk-heatmap">';
+
+  // Y-axis labels + cells (likelihood 5 down to 1)
+  const yLabels = ['ALMOST CERTAIN','LIKELY','POSSIBLE','UNLIKELY','RARE'];
+  for(let l = 5; l >= 1; l--) {
+    heatmapHtml += `<div class="rh-ylabel">${yLabels[5-l]}</div>`;
+    for(let i = 1; i <= 5; i++) {
+      const key = l + '_' + i;
+      const count = heatmapData[key] ? heatmapData[key].length : 0;
+      const names = heatmapData[key] ? heatmapData[key].map(r=>r.name).join(', ') : '';
+      heatmapHtml += `<div class="rh-cell" style="${cellColors(l,i)}" onclick="showHeatmapCell(${l},${i})">
+        <span class="rh-count">${count || ''}</span>
+        ${count ? `<div class="rh-tooltip">${names}</div>` : ''}
+      </div>`;
+    }
+  }
+  // X-axis labels
+  heatmapHtml += '<div></div>';
+  ['NEGLIGIBLE','MINOR','MODERATE','MAJOR','CATASTROPHIC'].forEach(x => {
+    heatmapHtml += `<div class="rh-xlabel">${x}</div>`;
+  });
+  heatmapHtml += '</div>';
+
+  // Legend
+  heatmapHtml += '<div class="rh-legend">';
+  heatmapHtml += '<div class="rh-legend-item"><div class="rh-legend-swatch" style="background:rgba(255,59,92,0.85)"></div>CRITICAL (20-25)</div>';
+  heatmapHtml += '<div class="rh-legend-item"><div class="rh-legend-swatch" style="background:rgba(245,166,35,0.75)"></div>HIGH (12-19)</div>';
+  heatmapHtml += '<div class="rh-legend-item"><div class="rh-legend-swatch" style="background:rgba(0,255,209,0.5)"></div>MEDIUM (6-11)</div>';
+  heatmapHtml += '<div class="rh-legend-item"><div class="rh-legend-swatch" style="background:rgba(0,132,255,0.35)"></div>LOW (1-5)</div>';
+  heatmapHtml += '</div></div>';
+
+  // Summary stats
+  const crits = risks.filter(r=>r.severity==='critical').length;
+  const highs = risks.filter(r=>r.severity==='high').length;
+  const meds = risks.filter(r=>r.severity==='medium').length;
+  const lows = risks.filter(r=>r.severity==='low').length;
+
+  heatmapHtml += '<div style="min-width:250px"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px;margin-bottom:12px">RISK SUMMARY</div>';
+  heatmapHtml += `<div class="panel" style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--danger)">Critical Risks</span><span style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--danger)">${crits}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--warn)">High Risks</span><span style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--warn)">${highs}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--accent)">Medium Risks</span><span style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent)">${meds}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0"><span style="font-size:12px;color:var(--accent2)">Low Risks</span><span style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent2)">${lows}</span></div>
+  </div>`;
+
+  // Industry benchmark comparison
+  const avgScore = state.scores.overall;
+  const industryBenchmarks = {healthcare:62,finance:68,legal:55,manufacturing:48,retail:52,technology:71,government:65,defense:73,education:45,nonprofit:41,construction:38,professional:58,energy:56,insurance:64,other:50};
+  const industry = state.currentClient ? state.currentClient.industry : 'other';
+  const benchmark = industryBenchmarks[industry] || 50;
+
+  heatmapHtml += `<div class="panel">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--white);letter-spacing:1px;margin-bottom:10px">INDUSTRY BENCHMARK</div>
+    <div class="benchmark-bar" style="border:none;padding:0;background:transparent">
+      <div class="bb-label" style="width:auto;font-size:11px">Your Score</div>
+      <div class="bb-track">
+        <div class="bb-fill" style="width:${avgScore}%;background:linear-gradient(to right,var(--accent),var(--accent2));opacity:0.4"></div>
+        <div class="bb-marker" style="left:${avgScore}%"><div class="bb-marker-label" style="color:var(--accent)">${Math.round(avgScore)}%</div></div>
+        <div class="bb-marker" style="left:${benchmark}%;background:var(--warn)"><div class="bb-industry-label">Industry Avg: ${benchmark}%</div></div>
+      </div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:${avgScore>=benchmark?'var(--success)':'var(--danger)'};margin-top:12px;letter-spacing:1px">${avgScore>=benchmark?'ABOVE':'BELOW'} INDUSTRY AVERAGE BY ${Math.abs(Math.round(avgScore-benchmark))} POINTS</div>
+  </div>`;
+
+  heatmapHtml += '</div></div>';
+
+  // Risk register table
+  let tableHtml = '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px;margin-bottom:12px">RISK REGISTER</div>';
+  tableHtml += '<table class="risk-register-table"><thead><tr>';
+  tableHtml += '<th>ID</th><th>RISK</th><th>LIKELIHOOD</th><th>IMPACT</th><th>SCORE</th><th>SEVERITY</th><th>CONTROL SCORE</th><th>STATUS</th>';
+  tableHtml += '</tr></thead><tbody>';
+
+  risks.forEach(r => {
+    const sevColor = r.severity==='critical'?'var(--danger)':r.severity==='high'?'var(--warn)':r.severity==='medium'?'var(--accent)':'var(--accent2)';
+    const statusColor = r.status==='open'?'var(--danger)':r.status==='in-progress'?'var(--warn)':'var(--success)';
+    tableHtml += `<tr>
+      <td class="risk-id">${r.id}</td>
+      <td><div style="color:var(--white);font-weight:400">${r.name}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${r.desc}</div></td>
+      <td class="risk-likelihood" style="color:${r.likelihood>=4?'var(--danger)':r.likelihood>=3?'var(--warn)':'var(--muted)'}">${r.likelihood}/5</td>
+      <td class="risk-impact" style="color:${r.impact>=4?'var(--danger)':r.impact>=3?'var(--warn)':'var(--muted)'}">${r.impact}/5</td>
+      <td><span class="risk-score-pill" style="color:${sevColor};border:1px solid ${sevColor}">${r.riskScore}</span></td>
+      <td><span class="vuln-sev ${r.severity==='critical'?'crit':r.severity}">${r.severity.toUpperCase()}</span></td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div style="width:50px;height:3px;background:var(--border)"><div style="height:100%;width:${r.controlScore}%;background:${r.controlScore>=70?'var(--success)':r.controlScore>=40?'var(--warn)':'var(--danger)'}"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:9px">${r.controlScore}%</span></div></td>
+      <td><span class="risk-status-badge" style="color:${statusColor};border:1px solid ${statusColor}">${r.status.toUpperCase()}</span></td>
+    </tr>`;
+  });
+
+  tableHtml += '</tbody></table>';
+
+  el.innerHTML = heatmapHtml + tableHtml;
+}
+
+function showHeatmapCell(l, i) {
+  const risks = buildRiskRegister();
+  const cellRisks = risks.filter(r => r.likelihood === l && r.impact === i);
+  if(!cellRisks.length) return;
+  alert(cellRisks.map(r => r.id + ': ' + r.name + ' (Score: ' + r.riskScore + ')').join('\n'));
+}
+
+// =============================================
+// EVIDENCE TRACKER
+// =============================================
+
+let evidenceState = {};
+try {
+  const saved = localStorage.getItem('p1-grc-evidence');
+  if(saved) evidenceState = JSON.parse(saved);
+} catch(e) {}
+
+function saveEvidence() {
+  localStorage.setItem('p1-grc-evidence', JSON.stringify(evidenceState));
+}
+
+function getEvidenceControls() {
+  if(!state.scores) return [];
+  const filteredSections = getFilteredSections();
+  const controls = [];
+
+  filteredSections.forEach(sec => {
+    const uniqueCtrls = {};
+    sec.questions.forEach(q => {
+      if(!uniqueCtrls[q.ctrl]) {
+        uniqueCtrls[q.ctrl] = { ctrl: q.ctrl, family: sec.id, familyName: sec.name, text: q.text };
+      }
+    });
+    Object.values(uniqueCtrls).forEach(c => controls.push(c));
+  });
+
+  return controls;
+}
+
+function renderEvidence(filter) {
+  const el = document.getElementById('evidenceContent');
+  if(!state.scores) {
+    el.innerHTML = '<div class="empty-state"><div class="es-icon">&#9672;</div><div class="es-title">No Controls to Track</div><div class="es-desc">Complete an assessment first.</div></div>';
+    return;
+  }
+
+  const controls = getEvidenceControls();
+  const clientKey = state.currentClient ? state.currentClient.id : 'default';
+  const clientEvidence = evidenceState[clientKey] || {};
+
+  let filtered = controls;
+  if(filter === 'missing') filtered = controls.filter(c => !clientEvidence[c.ctrl] || !clientEvidence[c.ctrl].length);
+  if(filter === 'uploaded') filtered = controls.filter(c => clientEvidence[c.ctrl] && clientEvidence[c.ctrl].length > 0);
+
+  const withEvidence = controls.filter(c => clientEvidence[c.ctrl] && clientEvidence[c.ctrl].length > 0).length;
+  document.getElementById('evidenceStats').textContent = withEvidence + ' / ' + controls.length + ' controls with evidence';
+
+  if(!filtered.length) {
+    el.innerHTML = '<div class="empty-state"><div class="es-icon">&#10003;</div><div class="es-title">No Controls Match Filter</div></div>';
+    return;
+  }
+
+  el.innerHTML = '<div class="evidence-grid">' + filtered.map(c => {
+    const files = clientEvidence[c.ctrl] || [];
+    const hasEvidence = files.length > 0;
+    return `<div class="evidence-card ${hasEvidence ? 'has-evidence' : 'missing'}">
+      <div class="ec-control">${c.ctrl} — ${c.familyName}</div>
+      <div class="ec-title">${c.text.length > 80 ? c.text.slice(0,80)+'...' : c.text}</div>
+      <div class="ec-status">
+        <div class="ec-status-dot" style="background:${hasEvidence?'var(--success)':'var(--danger)'}"></div>
+        <div class="ec-status-text" style="color:${hasEvidence?'var(--success)':'var(--danger)'}">${hasEvidence?'EVIDENCE UPLOADED':'MISSING EVIDENCE'}</div>
+      </div>
+      ${files.length ? '<div class="ec-files">' + files.map((f,i) => `<div class="ec-file"><span class="ec-file-icon">&#9776;</span>${f.name}<span style="margin-left:auto;color:var(--muted);font-size:8px">${f.date}</span><span style="margin-left:6px;color:var(--danger);cursor:none" onclick="removeEvidence('${c.ctrl}',${i})">&#10005;</span></div>`).join('') + '</div>' : ''}
+      <div class="ec-upload-btn" onclick="addEvidence('${c.ctrl}')">+ ADD EVIDENCE</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function filterEvidence(filter, btn) {
+  document.querySelectorAll('#view-evidence .task-filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderEvidence(filter);
+}
+
+function addEvidence(ctrl) {
+  const name = prompt('Enter evidence description (e.g., "MFA Policy Document", "Screenshot of SSO Config"):');
+  if(!name) return;
+  const clientKey = state.currentClient ? state.currentClient.id : 'default';
+  if(!evidenceState[clientKey]) evidenceState[clientKey] = {};
+  if(!evidenceState[clientKey][ctrl]) evidenceState[clientKey][ctrl] = [];
+  evidenceState[clientKey][ctrl].push({
+    name: name,
+    date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    type: 'manual'
+  });
+  saveEvidence();
+  renderEvidence('all');
+}
+
+function removeEvidence(ctrl, idx) {
+  const clientKey = state.currentClient ? state.currentClient.id : 'default';
+  if(evidenceState[clientKey] && evidenceState[clientKey][ctrl]) {
+    evidenceState[clientKey][ctrl].splice(idx, 1);
+    saveEvidence();
+    renderEvidence('all');
+  }
+}
+
+// =============================================
+// EXECUTIVE REPORT
+// =============================================
+
+function generateReport() {
+  const el = document.getElementById('reportContent');
+  if(!state.scores) {
+    el.innerHTML = '<div class="empty-state"><div class="es-icon">&#9672;</div><div class="es-title">No Assessment Data</div><div class="es-desc">Complete an assessment first.</div></div>';
+    return;
+  }
+
+  const client = state.currentClient || { company: 'Client', industry: 'N/A' };
+  const risks = buildRiskRegister() || [];
+  const overall = Math.round(state.scores.overall);
+  const riskLevel = getRisk(overall);
+  const openTasks = state.tasks.filter(t => !state.taskStates[t.id]).length;
+  const doneTasks = state.tasks.filter(t => state.taskStates[t.id]).length;
+  const critRisks = risks.filter(r => r.severity === 'critical').length;
+  const highRisks = risks.filter(r => r.severity === 'high').length;
+  const fwScores = state.scores.fws || {};
+  const fwName = state.selectedFrameworks.length ? frameworks.find(f=>f.id===state.selectedFrameworks[0])?.name || '' : '';
+
+  // Top 5 critical gaps
+  const secs = state.scores.secs || {};
+  const gaps = Object.entries(secs).map(([id,score]) => {
+    const sec = sections.find(s=>s.id===id);
+    return { id, name: sec ? sec.name : id, score: Math.round(score) };
+  }).sort((a,b) => a.score - b.score).slice(0, 5);
+
+  // Industry benchmark
+  const industryBenchmarks = {healthcare:62,finance:68,legal:55,manufacturing:48,retail:52,technology:71,government:65,defense:73,education:45,nonprofit:41,construction:38,professional:58,energy:56,insurance:64,other:50};
+  const benchmark = industryBenchmarks[client.industry] || 50;
+
+  let html = '<div class="report-preview">';
+  html += `<div class="rp-header">
+    <div class="rp-logo">PALISADE ONE</div>
+    <div class="rp-title">Cybersecurity Assessment Report</div>
+    <div class="rp-client">${client.company.toUpperCase()} | ${fwName} | ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+  </div>`;
+
+  // KPIs
+  html += '<div class="rp-section"><div class="rp-section-title">Assessment Overview</div>';
+  html += `<div class="rp-kpi-grid">
+    <div class="rp-kpi"><div class="rp-kpi-val" style="color:${riskLevel.c}">${overall}%</div><div class="rp-kpi-label">OVERALL SCORE</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-val" style="color:${riskLevel.c}">${riskLevel.lvl}</div><div class="rp-kpi-label">RISK LEVEL</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-val" style="color:var(--danger)">${critRisks + highRisks}</div><div class="rp-kpi-label">HIGH/CRIT RISKS</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-val" style="color:var(--warn)">${openTasks}</div><div class="rp-kpi-label">OPEN TASKS</div></div>
+  </div></div>`;
+
+  // Executive Summary
+  html += '<div class="rp-section"><div class="rp-section-title">Executive Summary</div>';
+  html += `<p style="font-size:13px;color:var(--text);line-height:1.8;margin-bottom:12px">
+    This report presents the findings of a comprehensive cybersecurity assessment conducted for <strong style="color:var(--white)">${client.company}</strong>
+    against the <strong style="color:var(--white)">${fwName}</strong> framework. The organization achieved an overall compliance score of
+    <strong style="color:${riskLevel.c}">${overall}%</strong>, placing it in the <strong style="color:${riskLevel.c}">${riskLevel.lvl}</strong> category.
+    ${overall >= benchmark ?
+      `This score is <strong style="color:var(--success)">${Math.round(overall-benchmark)} points above</strong> the industry average of ${benchmark}%.` :
+      `This score is <strong style="color:var(--danger)">${Math.round(benchmark-overall)} points below</strong> the industry average of ${benchmark}%, indicating significant areas requiring attention.`
+    }
+  </p>
+  <p style="font-size:13px;color:var(--text);line-height:1.8">
+    The assessment identified <strong style="color:var(--danger)">${critRisks} critical</strong> and <strong style="color:var(--warn)">${highRisks} high-severity</strong> risks
+    across ${Object.keys(secs).length} control families. A total of <strong style="color:var(--white)">${state.tasks.length} remediation tasks</strong> have been generated,
+    of which <strong style="color:var(--success)">${doneTasks}</strong> have been completed and <strong style="color:var(--warn)">${openTasks}</strong> remain open.
+  </p></div>`;
+
+  // Benchmark comparison
+  html += '<div class="rp-section"><div class="rp-section-title">Industry Benchmark Comparison</div>';
+  html += `<div class="benchmark-bar"><div class="bb-label">Your Score</div><div class="bb-track">
+    <div class="bb-fill" style="width:${overall}%;background:linear-gradient(to right,var(--accent),var(--accent2));opacity:0.4"></div>
+    <div class="bb-marker" style="left:${overall}%"><div class="bb-marker-label">${overall}%</div></div>
+    <div class="bb-marker" style="left:${benchmark}%;background:var(--warn)"><div class="bb-industry-label">${client.industry || 'Industry'} Avg: ${benchmark}%</div></div>
+  </div><div class="bb-val" style="color:${overall>=benchmark?'var(--success)':'var(--danger)'}">Δ${overall>=benchmark?'+':''}${Math.round(overall-benchmark)}</div></div></div>`;
+
+  // Critical Gaps
+  html += '<div class="rp-section"><div class="rp-section-title">Top Critical Gaps</div>';
+  gaps.forEach(g => {
+    const color = g.score >= 70 ? 'var(--success)' : g.score >= 40 ? 'var(--warn)' : 'var(--danger)';
+    html += `<div class="rp-finding" style="border-left-color:${color}">
+      <div class="rp-finding-title">${g.name}</div>
+      <div class="rp-finding-meta">Control Family: ${g.id} | Score: ${g.score}% | ${g.score<40?'IMMEDIATE ACTION REQUIRED':g.score<70?'IMPROVEMENT NEEDED':'ACCEPTABLE'}</div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // High-priority risks
+  html += '<div class="rp-section"><div class="rp-section-title">Highest Priority Risks</div>';
+  risks.filter(r => r.severity === 'critical' || r.severity === 'high').slice(0, 8).forEach(r => {
+    const color = r.severity === 'critical' ? 'var(--danger)' : 'var(--warn)';
+    html += `<div class="rp-finding" style="border-left-color:${color}">
+      <div class="rp-finding-title">${r.name}</div>
+      <div class="rp-finding-meta">${r.id} | Risk Score: ${r.riskScore}/25 | Likelihood: ${r.likelihood}/5 | Impact: ${r.impact}/5 | Status: ${r.status.toUpperCase()}</div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Recommendations
+  html += '<div class="rp-section"><div class="rp-section-title">Key Recommendations</div>';
+  const recommendations = [];
+  if(secs['AC'] < 60) recommendations.push('Implement multi-factor authentication across all systems and enforce least-privilege access controls.');
+  if(secs['IR'] < 60) recommendations.push('Develop and test a formal incident response plan with defined roles, escalation procedures, and tabletop exercises.');
+  if(secs['AU'] < 60) recommendations.push('Deploy centralized log management (SIEM) with real-time alerting for security events.');
+  if(secs['CM'] < 60) recommendations.push('Establish configuration management baselines and implement automated drift detection.');
+  if(secs['CP'] < 60) recommendations.push('Create and regularly test business continuity and disaster recovery plans.');
+  if(secs['AT'] < 60) recommendations.push('Implement mandatory security awareness training with phishing simulations.');
+  if(secs['RA'] < 60) recommendations.push('Conduct regular vulnerability assessments and penetration testing.');
+  if(secs['SI'] < 60) recommendations.push('Deploy endpoint detection and response (EDR) with automated threat containment.');
+  if(!recommendations.length) recommendations.push('Continue monitoring and maintaining current security controls. Schedule quarterly reassessments.');
+
+  recommendations.forEach(r => {
+    html += `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--accent);font-size:13px">&#9654;</span><span style="font-size:12px;color:var(--text);line-height:1.6">${r}</span></div>`;
+  });
+  html += '</div>';
+
+  // Footer
+  html += `<div style="text-align:center;padding-top:20px;border-top:2px solid var(--accent);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px">
+    CONFIDENTIAL — PREPARED BY PALISADE ONE | ${new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'})}
+  </div>`;
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// =============================================
+// COMPLIANCE ROADMAP
+// =============================================
+
+function generateRoadmap() {
+  const el = document.getElementById('roadmapContent');
+  if(!state.scores || !state.tasks.length) {
+    el.innerHTML = '<div class="empty-state"><div class="es-icon">&#9672;</div><div class="es-title">No Roadmap Data</div><div class="es-desc">Complete an assessment to generate your roadmap.</div></div>';
+    return;
+  }
+
+  const now = new Date();
+  const milestones = [];
+
+  // Phase 1: Critical (Week 1-2)
+  const critTasks = state.tasks.filter(t => t.sev === 'critical');
+  if(critTasks.length) {
+    const d = new Date(now); d.setDate(d.getDate() + 14);
+    milestones.push({
+      date: d,
+      title: 'Phase 1: Critical Remediation',
+      desc: 'Address all critical-severity findings immediately. These represent the highest risk to your organization.',
+      tasks: critTasks,
+      status: critTasks.every(t => state.taskStates[t.id]) ? 'done' : critTasks.some(t => state.taskStates[t.id]) ? 'current' : 'current'
+    });
+  }
+
+  // Phase 2: High Priority (Week 3-6)
+  const highTasks = state.tasks.filter(t => t.sev === 'high');
+  if(highTasks.length) {
+    const d = new Date(now); d.setDate(d.getDate() + 42);
+    milestones.push({
+      date: d,
+      title: 'Phase 2: High-Priority Hardening',
+      desc: 'Resolve high-severity gaps to significantly reduce organizational risk.',
+      tasks: highTasks,
+      status: highTasks.every(t => state.taskStates[t.id]) ? 'done' : 'upcoming'
+    });
+  }
+
+  // Phase 3: Medium (Month 2-3)
+  const medTasks = state.tasks.filter(t => t.sev === 'medium');
+  if(medTasks.length) {
+    const d = new Date(now); d.setDate(d.getDate() + 90);
+    milestones.push({
+      date: d,
+      title: 'Phase 3: Control Enhancement',
+      desc: 'Strengthen medium-priority controls and implement supporting policies.',
+      tasks: medTasks,
+      status: 'upcoming'
+    });
+  }
+
+  // Phase 4: Low + Policies (Month 3-4)
+  const lowTasks = state.tasks.filter(t => t.sev === 'low');
+  milestones.push({
+    date: new Date(now.getTime() + 120 * 86400000),
+    title: 'Phase 4: Policy & Procedure Finalization',
+    desc: 'Publish all required policies, complete low-priority tasks, and establish ongoing governance.',
+    tasks: lowTasks,
+    status: 'upcoming'
+  });
+
+  // Phase 5: Reassessment
+  milestones.push({
+    date: new Date(now.getTime() + 180 * 86400000),
+    title: 'Phase 5: Reassessment & Continuous Monitoring',
+    desc: 'Conduct follow-up assessment to measure improvement. Establish continuous monitoring and quarterly review cadence.',
+    tasks: [],
+    status: 'upcoming'
+  });
+
+  // Progress summary
+  const totalTasks = state.tasks.length;
+  const doneTasks = state.tasks.filter(t => state.taskStates[t.id]).length;
+  const pct = totalTasks ? Math.round(doneTasks / totalTasks * 100) : 0;
+
+  let html = `<div style="display:flex;gap:16px;margin-bottom:28px">
+    <div class="panel" style="flex:1;text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent)">${pct}%</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px">ROADMAP PROGRESS</div></div>
+    <div class="panel" style="flex:1;text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--white)">${doneTasks}/${totalTasks}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px">TASKS COMPLETED</div></div>
+    <div class="panel" style="flex:1;text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--warn)">${milestones.length}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px">MILESTONES</div></div>
+    <div class="panel" style="flex:1;text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent2)">6 mo</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px">EST. TIMELINE</div></div>
+  </div>`;
+
+  html += '<div class="roadmap-timeline">';
+  milestones.forEach(m => {
+    const dateStr = m.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const doneTasks = m.tasks.filter(t => state.taskStates[t.id]).length;
+    const totalM = m.tasks.length;
+
+    html += `<div class="rm-milestone ${m.status}">
+      <div class="rm-date">${dateStr}</div>
+      <div class="rm-title">${m.title}</div>
+      <div class="rm-desc">${m.desc}</div>
+      ${totalM ? `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:6px">${doneTasks}/${totalM} tasks completed</div>
+      <div style="height:3px;background:var(--border);margin-bottom:8px"><div style="height:100%;width:${totalM?Math.round(doneTasks/totalM*100):0}%;background:var(--success)"></div></div>` : ''}
+      <div class="rm-tasks">${m.tasks.slice(0, 6).map(t => `<div class="rm-task-chip ${state.taskStates[t.id]?'done':''}">${t.title.length>35?t.title.slice(0,35)+'...':t.title}</div>`).join('')}${m.tasks.length > 6 ? `<div class="rm-task-chip">+${m.tasks.length-6} more</div>` : ''}</div>
+    </div>`;
+  });
+  html += '</div>';
+
+  el.innerHTML = html;
 }
 
 // NAV
