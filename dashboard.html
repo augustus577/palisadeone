@@ -162,7 +162,7 @@
     .alert-rule { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); text-align: right; }
 
     /* DEVICES TABLE */
-    .device-row { display: grid; grid-template-columns: 1fr 120px 140px 100px 120px; gap: 12px; padding: 12px 20px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; transition: background 0.2s; cursor: pointer; }
+    .device-row { display: grid; grid-template-columns: 1fr 120px 140px 140px 100px 120px; gap: 12px; padding: 12px 20px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; transition: background 0.2s; cursor: pointer; }
     .device-row:hover { background: rgba(255,255,255,0.02); }
     .device-row:last-child { border-bottom: none; }
     .device-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; cursor: default; }
@@ -871,6 +871,11 @@
         <span class="nav-icon">📄</span>
         <span>Reports</span>
       </div>
+      <div class="nav-item" onclick="showView('phishing')">
+        <span class="nav-icon">🎣</span>
+        <span>Phishing Sim</span>
+        <span class="nav-badge" id="phish-badge" style="display:none;background:var(--warning)">0</span>
+      </div>
       <div class="nav-item" onclick="showView('settings')">
         <span class="nav-icon">⚙</span>
         <span>Settings</span>
@@ -1113,6 +1118,7 @@
               <div>Device Name</div>
               <div>IP Address</div>
               <div>OS</div>
+              <div>Disk Scan</div>
               <div>Status</div>
               <div>Actions</div>
             </div>
@@ -2248,6 +2254,244 @@
   </div>
 </div>
 
+<!-- PHISHING SIMULATION VIEW -->
+<!-- ============================================================ -->
+<div class="view" id="view-phishing">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-bottom:24px">
+    <div class="stat-card">
+      <div class="stat-label">TOTAL CAMPAIGNS</div>
+      <div class="stat-value" id="phish-total-campaigns">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">EMAILS SENT</div>
+      <div class="stat-value" id="phish-total-sent">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">AVG CLICK RATE</div>
+      <div class="stat-value" id="phish-avg-click" style="color:var(--warning)">0%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">AVG SUBMIT RATE</div>
+      <div class="stat-value" id="phish-avg-submit" style="color:var(--danger)">0%</div>
+    </div>
+  </div>
+
+  <!-- Campaign Controls -->
+  <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+    <button class="action-btn" onclick="document.getElementById('phish-new-campaign').style.display=document.getElementById('phish-new-campaign').style.display==='none'?'block':'none'" style="background:var(--accent);color:var(--black);font-weight:600">+ NEW CAMPAIGN</button>
+    <button class="action-btn" onclick="loadPhishCampaigns()">REFRESH</button>
+    <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px">
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>
+      WEBHOOK: soc.palisadeone.com:5678/webhook/phish-send
+    </div>
+  </div>
+
+  <!-- New Campaign Form -->
+  <div id="phish-new-campaign" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;margin-bottom:20px">CREATE PHISHING CAMPAIGN</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div>
+        <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:6px">CAMPAIGN NAME</label>
+        <input id="phish-campaign-name" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;border-radius:4px" placeholder="March 2026 — Healthcare Batch 1"/>
+      </div>
+      <div>
+        <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:6px">CLIENT</label>
+        <input id="phish-campaign-client" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;border-radius:4px" placeholder="Acme Healthcare"/>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div>
+        <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:6px">TEMPLATE</label>
+        <select id="phish-template" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;border-radius:4px;cursor:pointer">
+          <optgroup label="Easy">
+            <option value="m365-password">M365 Password Expiry</option>
+            <option value="onedrive-storage">OneDrive Storage Full</option>
+            <option value="account-locked">Account Locked</option>
+            <option value="fedex-delivery">FedEx Delivery Failed</option>
+            <option value="usps-redelivery">USPS Redelivery</option>
+            <option value="gmail-storage">Gmail Storage Full</option>
+            <option value="nigerian-prince">Nigerian Prince (Baseline)</option>
+          </optgroup>
+          <optgroup label="Medium">
+            <option value="sharepoint-doc">SharePoint Document Shared</option>
+            <option value="teams-message">Teams Missed Message</option>
+            <option value="voicemail">Voicemail Notification</option>
+            <option value="ups-customs">UPS Customs Fee</option>
+            <option value="amazon-order">Amazon Unauthorized Order</option>
+            <option value="mandatory-training">Mandatory Training Due</option>
+            <option value="google-drive">Google Drive Shared Doc</option>
+            <option value="zoom-recording">Zoom Recording Shared</option>
+            <option value="invoice-payment">Invoice Payment Due</option>
+            <option value="pto-balance">PTO Balance Expiring</option>
+          </optgroup>
+          <optgroup label="Hard">
+            <option value="mfa-reset">MFA Verification Alert</option>
+            <option value="email-quarantine">Email Quarantine Notice</option>
+            <option value="salary-adjustment">Salary Adjustment Notice</option>
+            <option value="it-password-reset">IT Password Reset Required</option>
+            <option value="bonus-payout">Q1 Bonus Payout</option>
+            <option value="docusign">DocuSign Document</option>
+            <option value="bank-transaction">Bank Suspicious Transaction</option>
+            <option value="direct-deposit">Direct Deposit Changed</option>
+            <option value="ceo-wire">CEO Wire Transfer Request</option>
+            <option value="data-breach-alert">Data Breach Alert (Internal)</option>
+          </optgroup>
+          <optgroup label="Industry Specific">
+            <option value="hipaa-ehr-update">Healthcare: EHR System Update</option>
+            <option value="court-filing">Legal: Court Filing Notice</option>
+            <option value="irs-verification">CPA: IRS Account Verification</option>
+            <option value="wire-instructions">Real Estate: Updated Wire Instructions</option>
+            <option value="cmmc-assessment">GovCon: CMMC Assessment Notice</option>
+            <option value="purchase-order">Manufacturing: PO Confirmation</option>
+          </optgroup>
+        </select>
+      </div>
+      <div>
+        <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:6px">LANDING PAGE</label>
+        <select id="phish-landing" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;border-radius:4px;cursor:pointer">
+          <option value="microsoft">Microsoft 365 Login</option>
+          <option value="google">Google Sign-In</option>
+          <option value="generic">Generic Login Portal</option>
+          <option value="none">No Landing Page (Track Click Only)</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:6px">EMPLOYEE LIST (one email per line, or name,email)</label>
+      <textarea id="phish-employee-list" style="width:100%;height:140px;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;border-radius:4px;resize:vertical" placeholder="john.smith@client.com
+Jane Doe,jane.doe@client.com
+mike@client.com"></textarea>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+      <div>
+        <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:6px">SENDER NAME</label>
+        <input id="phish-sender-name" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;border-radius:4px" placeholder="Microsoft 365 Team"/>
+      </div>
+      <div>
+        <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:6px">SENDER EMAIL</label>
+        <input id="phish-sender-email" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;border-radius:4px" placeholder="no-reply@security-alert.com"/>
+      </div>
+      <div>
+        <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:6px">SCHEDULE</label>
+        <select id="phish-schedule" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;border-radius:4px;cursor:pointer">
+          <option value="now">Send Immediately</option>
+          <option value="stagger-5">Stagger (5 min apart)</option>
+          <option value="stagger-15">Stagger (15 min apart)</option>
+          <option value="stagger-60">Stagger (1 hour apart)</option>
+          <option value="random-24h">Random within 24 hours</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px">
+      <button class="action-btn" onclick="launchPhishCampaign()" style="background:var(--danger);color:var(--white);font-weight:600;padding:12px 32px">LAUNCH CAMPAIGN</button>
+      <button class="action-btn" onclick="previewPhishEmail()" style="padding:12px 24px">PREVIEW EMAIL</button>
+      <button class="action-btn" onclick="document.getElementById('phish-new-campaign').style.display='none'" style="padding:12px 24px;color:var(--muted)">CANCEL</button>
+    </div>
+  </div>
+
+  <!-- Email Preview Modal -->
+  <div id="phish-preview-modal" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:2px">EMAIL PREVIEW</div>
+      <button class="action-btn" onclick="document.getElementById('phish-preview-modal').style.display='none'" style="color:var(--muted);font-size:18px;background:none;border:none">&times;</button>
+    </div>
+    <div id="phish-preview-content" style="background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:24px;font-size:14px;line-height:1.8"></div>
+  </div>
+
+  <!-- Active / Past Campaigns Table -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:2px">CAMPAIGNS</span>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="action-btn phish-filter-btn active" onclick="filterPhishCampaigns('all',this)">All</button>
+        <button class="action-btn phish-filter-btn" onclick="filterPhishCampaigns('active',this)">Active</button>
+        <button class="action-btn phish-filter-btn" onclick="filterPhishCampaigns('completed',this)">Completed</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-align:left">
+            <th style="padding:12px 16px;border-bottom:1px solid var(--border)">CAMPAIGN</th>
+            <th style="padding:12px 16px;border-bottom:1px solid var(--border)">CLIENT</th>
+            <th style="padding:12px 16px;border-bottom:1px solid var(--border)">TEMPLATE</th>
+            <th style="padding:12px 16px;border-bottom:1px solid var(--border)">SENT</th>
+            <th style="padding:12px 16px;border-bottom:1px solid var(--border)">OPENED</th>
+            <th style="padding:12px 16px;border-bottom:1px solid var(--border)">CLICKED</th>
+            <th style="padding:12px 16px;border-bottom:1px solid var(--border)">SUBMITTED</th>
+            <th style="padding:12px 16px;border-bottom:1px solid var(--border)">REPORTED</th>
+            <th style="padding:12px 16px;border-bottom:1px solid var(--border)">STATUS</th>
+            <th style="padding:12px 16px;border-bottom:1px solid var(--border)">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody id="phish-campaigns-tbody">
+          <tr><td colspan="10" style="padding:40px;text-align:center;color:var(--muted);font-size:13px">No campaigns yet. Click "+ NEW CAMPAIGN" to create your first phishing simulation.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Campaign Detail Panel (shown when clicking a campaign) -->
+  <div id="phish-detail-panel" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-top:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);letter-spacing:2px" id="phish-detail-name">Campaign Name</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)" id="phish-detail-meta">Client — Template — Date</div>
+      </div>
+      <button class="action-btn" onclick="document.getElementById('phish-detail-panel').style.display='none'" style="color:var(--muted)">&times; CLOSE</button>
+    </div>
+
+    <!-- Campaign Stats Row -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
+      <div style="background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">SENT</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent)" id="phish-d-sent">0</div>
+      </div>
+      <div style="background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">OPENED</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent2)" id="phish-d-opened">0</div>
+      </div>
+      <div style="background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">CLICKED</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--warning)" id="phish-d-clicked">0</div>
+      </div>
+      <div style="background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">SUBMITTED CREDS</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--danger)" id="phish-d-submitted">0</div>
+      </div>
+      <div style="background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">REPORTED</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--success)" id="phish-d-reported">0</div>
+      </div>
+    </div>
+
+    <!-- Per-Employee Results -->
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--white);letter-spacing:2px;margin-bottom:12px">EMPLOYEE RESULTS</div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-align:left">
+            <th style="padding:10px 14px;border-bottom:1px solid var(--border)">EMPLOYEE</th>
+            <th style="padding:10px 14px;border-bottom:1px solid var(--border)">EMAIL</th>
+            <th style="padding:10px 14px;border-bottom:1px solid var(--border)">SENT</th>
+            <th style="padding:10px 14px;border-bottom:1px solid var(--border)">OPENED</th>
+            <th style="padding:10px 14px;border-bottom:1px solid var(--border)">CLICKED</th>
+            <th style="padding:10px 14px;border-bottom:1px solid var(--border)">SUBMITTED</th>
+            <th style="padding:10px 14px;border-bottom:1px solid var(--border)">REPORTED</th>
+            <th style="padding:10px 14px;border-bottom:1px solid var(--border)">STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="phish-detail-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- SETTINGS VIEW -->
 <!-- ============================================================ -->
 <div class="view" id="view-settings">
@@ -2740,6 +2984,7 @@ function showView(name) {
   if (name === 'settings') loadSettings();
   if (name === 'playbooks') loadPlaybooks();
   if (name === 'reports') initReports();
+  if (name === 'phishing') loadPhishCampaigns();
 }
 
 function updatePreview() {
@@ -4322,6 +4567,29 @@ async function loadDevices() {
     document.getElementById('stat-agents').textContent = agents.length || '--';
     document.getElementById('dum-count').textContent = agents.length || '--';
 
+    // Fetch all scan statuses for devices
+    let scanStatuses = {};
+    try {
+      const scanRes = await fetch(`${PROXY_URL}/scan-status`);
+      scanStatuses = await scanRes.json();
+    } catch(e) {}
+
+    const renderScanBadge = (id) => {
+      const s = scanStatuses[id];
+      if (!s || s.status === 'none') return `<span style="color:var(--muted);font-size:11px;">Never</span>`;
+      if (s.status === 'running') return `<span class="scan-status-badge scan-status-running" onclick="event.stopPropagation();openEndpointPanel('${id}');setTimeout(()=>epTab('actions'),200)" style="cursor:pointer;" title="Click to view">⟳ IN PROGRESS</span>`;
+      if (s.status === 'completed') {
+        const tc = s.threatCount || 0;
+        const when = s.completedAt ? new Date(s.completedAt).toLocaleDateString() : '';
+        const badge = tc > 0
+          ? `<span class="scan-status-badge scan-status-error" onclick="event.stopPropagation();viewScanResults('${id}')" style="cursor:pointer;" title="Click to view findings">⚠ ${tc} THREAT${tc>1?'S':''}</span>`
+          : `<span class="scan-status-badge scan-status-completed" onclick="event.stopPropagation();viewScanResults('${id}')" style="cursor:pointer;" title="Click to view">✓ CLEAN</span>`;
+        return `<div>${badge}<div style="font-size:9px;color:var(--muted);margin-top:2px;">${when}</div></div>`;
+      }
+      if (s.status === 'error') return `<span class="scan-status-badge scan-status-error" title="${s.error||'Scan error'}">✕ ERROR</span>`;
+      return `<span style="color:var(--muted);font-size:11px;">--</span>`;
+    };
+
     const renderRow = (a) => {
       // Stale if lastKeepAlive is >5 minutes ago — treat as OFFLINE even if status says active
       const lastKA = a.lastKeepAlive ? new Date(a.lastKeepAlive) : null;
@@ -4333,6 +4601,7 @@ async function loadDevices() {
         <div><div class="device-name">${a.name||'Unknown'}</div><div class="device-ip">${a.ip||'N/A'}</div></div>
         <div class="device-ip">${a.ip||'--'}</div>
         <div class="device-os">${os}</div>
+        <div>${renderScanBadge(id)}</div>
         <div><span class="online-badge ${online?'online':'offline'}"><div class="online-dot ${online?'on':'off'}"></div>${online?'ONLINE':'OFFLINE'}</span></div>
         <div class="device-action">
           <button class="action-btn" title="Remote Desktop" onclick="event.stopPropagation();openEndpointPanel('${id}');setTimeout(()=>{epTab('actions');openRemoteDesktop();},200)" style="border-color:rgba(245,166,35,0.4);color:var(--warning);">🖥 Remote</button>
@@ -4347,7 +4616,7 @@ async function loadDevices() {
 
     document.getElementById('devices-list').innerHTML = rows;
     document.getElementById('overview-devices').innerHTML =
-      `<div class="device-row header"><div>Device</div><div>IP</div><div>OS</div><div>Status</div><div>Actions</div></div>${rows}`;
+      `<div class="device-row header"><div>Device</div><div>IP</div><div>OS</div><div>Disk Scan</div><div>Status</div><div>Actions</div></div>${rows}`;
   } catch(e) { console.log('Device load error:', e); }
 }
 
@@ -5016,6 +5285,8 @@ function updateFdsUI(agentId, scan) {
       if (tc > 0) showToast(`Scan on ${agentsData[agentId]?.name||agentId}: ${tc} threat(s) detected!`, 'warn');
       else showToast(`Scan on ${agentsData[agentId]?.name||agentId}: No threats.`, 'success');
     }
+    // Refresh device list scan badges
+    loadDevices();
   } else {
     fdsBtn.querySelector('.btn-label').textContent = 'FULL DISK SCAN';
     fdsBtn.querySelector('.btn-sub').textContent = 'Windows Defender';
@@ -5029,6 +5300,64 @@ function updateFdsUI(agentId, scan) {
     else if (scan.status === 'error') scanEl.innerHTML = '<span style="color:var(--danger);">Error</span> ' + (scan.error || '');
     else scanEl.innerHTML = '<span style="color:var(--muted);">No recent scan</span>';
   }
+}
+
+async function viewScanResults(agentId) {
+  try {
+    const r = await fetch(`${PROXY_URL}/scan-status/${agentId}`);
+    const d = await r.json();
+    const name = agentsData[agentId]?.name || agentId;
+    const tc = d.threatCount || 0;
+    const started = d.startedAt ? new Date(d.startedAt).toLocaleString() : '--';
+    const completed = d.completedAt ? new Date(d.completedAt).toLocaleString() : '--';
+    let threatsHtml = '';
+    if (d.threats && d.threats.length > 0) {
+      threatsHtml = `<table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:12px;">
+        <tr style="border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;">
+          <th style="padding:8px;text-align:left;">Threat Name</th>
+          <th style="padding:8px;text-align:left;">Severity</th>
+          <th style="padding:8px;text-align:left;">Process</th>
+          <th style="padding:8px;text-align:left;">Path</th>
+        </tr>
+        ${d.threats.map(t => `<tr style="border-bottom:1px solid rgba(17,34,64,0.3);">
+          <td style="padding:8px;color:var(--danger);font-family:'JetBrains Mono',monospace;">${t.name||'--'}</td>
+          <td style="padding:8px;"><span style="color:${t.severity>=4?'var(--danger)':t.severity>=2?'var(--warning)':'var(--text)'}">${['Unknown','Low','Medium','High','Severe','Critical'][t.severity]||t.severity}</span></td>
+          <td style="padding:8px;color:var(--text);font-size:11px;">${t.process||'--'}</td>
+          <td style="padding:8px;color:var(--muted);font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(t.path||'').replace(/"/g,'&quot;')}">${t.path||'--'}</td>
+        </tr>`).join('')}
+      </table>`;
+    } else {
+      threatsHtml = `<div style="text-align:center;padding:30px;color:var(--accent);font-size:14px;">✓ No threats detected</div>`;
+    }
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(3,5,10,0.85);z-index:10000;display:flex;align-items:center;justify-content:center;';
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    modal.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);letter-spacing:2px;">DISK SCAN RESULTS</div>
+          <div style="font-size:12px;color:var(--muted);">${name} — Agent #${agentId}</div>
+        </div>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;cursor:pointer;font-size:12px;">✕ CLOSE</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div style="background:var(--deep);border:1px solid var(--border);padding:12px;border-radius:4px;">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Status</div>
+          <div style="font-size:16px;color:${tc>0?'var(--danger)':'var(--accent)'};margin-top:4px;">${tc>0?'THREATS FOUND':'CLEAN'}</div>
+        </div>
+        <div style="background:var(--deep);border:1px solid var(--border);padding:12px;border-radius:4px;">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Threats</div>
+          <div style="font-size:16px;color:${tc>0?'var(--danger)':'var(--accent)'};margin-top:4px;">${tc}</div>
+        </div>
+        <div style="background:var(--deep);border:1px solid var(--border);padding:12px;border-radius:4px;">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Completed</div>
+          <div style="font-size:13px;color:var(--text);margin-top:4px;">${completed}</div>
+        </div>
+      </div>
+      ${threatsHtml}
+    </div>`;
+    document.body.appendChild(modal);
+  } catch(e) { showToast('Failed to load scan results', 'error'); }
 }
 
 async function loadFdsStatus(agentId) {
