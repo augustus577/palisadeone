@@ -1046,6 +1046,173 @@ function addUser(){var d=getD();var names=['Alex Johnson','Maria Garcia','Chris 
 
 function renderCertificates(){var d=getD();document.getElementById('cert-tb').innerHTML=d.certificates.map(function(c){return '<tr><td style="color:var(--white)">'+c.course+'</td><td>'+c.user+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+c.date+'</td><td><button class="btn btn-s btn-sm" onclick="toast(\'Download coming soon\',\'info\')">DOWNLOAD</button></td></tr>';}).join('');}
 
+function syncCertificate(userId, clientId, courseId, courseName, userName, score) {
+api('/certificates', 'POST', { userId: userId, clientId: clientId, courseId: courseId, courseName: courseName, userName: userName, score: score || 100 }).then(function(r){ if(r) console.log('Certificate synced'); }).catch(function(){});
+}
+
+/* ============ ONBOARD CLIENT ============ */
+var obStep=1,obData={company:'',industry:'',contact:'',contactEmail:'',tier:'',users:[],courses:[],dueDate:'',autoAssignOnFail:false};
+
+function initOnboard(){obStep=1;obData={company:'',industry:'',contact:'',contactEmail:'',tier:'',users:[],courses:[],dueDate:'',autoAssignOnFail:false};renderOnboard();}
+
+function renderOnboard(){
+var el=document.getElementById('ob-content');
+var stepsH='<div class="ob-steps">';
+for(var i=1;i<=4;i++){
+stepsH+='<div class="ob-step">';
+stepsH+='<div class="ob-dot'+(i===obStep?' active':'')+(i<obStep?' done':'')+'">'+( i<obStep?'&#10003;':i)+'</div>';
+if(i<4)stepsH+='<div class="ob-line'+(i<obStep?' done':'')+'"></div>';
+stepsH+='</div>';
+}
+stepsH+='</div>';
+var bodyH='';
+if(obStep===1){
+bodyH='<div style="max-width:600px;margin:0 auto">';
+bodyH+='<label class="ob-label">COMPANY NAME</label><input class="ob-input" id="ob-company" value="'+obData.company+'" placeholder="Enter company name">';
+bodyH+='<label class="ob-label">INDUSTRY</label><select class="ob-select" id="ob-industry"><option value="">Select industry</option>';
+['Healthcare','Finance','Technology','Manufacturing','Retail','Education','Legal','Government','Other'].forEach(function(ind){bodyH+='<option value="'+ind+'"'+(obData.industry===ind?' selected':'')+'>'+ind+'</option>';});
+bodyH+='</select>';
+bodyH+='<label class="ob-label">CONTACT NAME</label><input class="ob-input" id="ob-contact" value="'+obData.contact+'" placeholder="Primary contact name">';
+bodyH+='<label class="ob-label">CONTACT EMAIL</label><input class="ob-input" id="ob-contact-email" value="'+obData.contactEmail+'" placeholder="contact@company.com" type="email">';
+bodyH+='<label class="ob-label">SERVICE TIER</label>';
+bodyH+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">';
+[{t:'MONITOR',p:'$399/mo',d:'24/7 monitoring, alert triage, monthly reports'},{t:'DEFEND',p:'$599/mo',d:'Everything in Monitor + incident response, threat hunting'},{t:'DOMINATE',p:'$899/mo',d:'Everything in Defend + vCISO, compliance, red team exercises'}].forEach(function(tier){
+bodyH+='<div class="ob-card'+(obData.tier===tier.t?' selected':'')+'" onclick="obData.tier=\''+tier.t+'\';renderOnboard()">';
+bodyH+='<div style="font-family:Bebas Neue;font-size:22px;color:var(--accent);margin-bottom:4px">'+tier.t+'</div>';
+bodyH+='<div style="font-family:Bebas Neue;font-size:28px;color:var(--white);margin-bottom:8px">'+tier.p+'</div>';
+bodyH+='<div style="font-size:11px;color:var(--muted)">'+tier.d+'</div></div>';
+});
+bodyH+='</div>';
+bodyH+='<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px"><button class="btn btn-p btn-sm" onclick="obNext(1)">NEXT STEP &#8594;</button></div>';
+bodyH+='</div>';
+} else if(obStep===2){
+bodyH='<div style="max-width:700px;margin:0 auto">';
+bodyH+='<label class="ob-label">ADD EMPLOYEES</label>';
+bodyH+='<div id="ob-user-rows">';
+if(obData.users.length===0)obData.users.push({name:'',email:'',dept:''});
+obData.users.forEach(function(u,i){
+bodyH+='<div class="ob-user-row"><input class="ob-input" style="margin:0" placeholder="Name" value="'+u.name+'" onchange="obData.users['+i+'].name=this.value"><input class="ob-input" style="margin:0" placeholder="Email" value="'+u.email+'" onchange="obData.users['+i+'].email=this.value"><input class="ob-input" style="margin:0" placeholder="Dept" value="'+u.dept+'" onchange="obData.users['+i+'].dept=this.value"><button class="btn btn-sm" style="background:transparent;color:var(--danger);border:1px solid var(--danger);padding:4px 8px" onclick="obData.users.splice('+i+',1);renderOnboard()">&#10005;</button></div>';
+});
+bodyH+='</div>';
+bodyH+='<button class="btn btn-s btn-sm" style="margin-bottom:20px" onclick="obData.users.push({name:\'\',email:\'\',dept:\'\'});renderOnboard()">+ ADD ROW</button>';
+bodyH+='<label class="ob-label">BULK PASTE (CSV: name,email,department per line)</label>';
+bodyH+='<textarea class="ob-input" id="ob-bulk" rows="5" placeholder="John Doe,john@company.com,IT&#10;Jane Smith,jane@company.com,HR" style="height:auto;resize:vertical"></textarea>';
+bodyH+='<button class="btn btn-s btn-sm" style="margin-bottom:12px" onclick="parseBulkUsers()">PARSE CSV</button>';
+bodyH+='<div style="font-family:JetBrains Mono;font-size:10px;color:var(--accent);margin-bottom:20px" id="ob-user-count">'+obData.users.filter(function(u){return u.name&&u.email;}).length+' users added</div>';
+bodyH+='<div style="display:flex;justify-content:space-between;gap:10px;margin-top:20px"><button class="btn btn-s btn-sm" onclick="obStep=1;renderOnboard()">&#8592; BACK</button><button class="btn btn-p btn-sm" onclick="obNext(2)">NEXT STEP &#8594;</button></div>';
+bodyH+='</div>';
+} else if(obStep===3){
+bodyH='<div style="max-width:700px;margin:0 auto">';
+bodyH+='<label class="ob-label">SELECT COURSES TO AUTO-ASSIGN</label>';
+COURSES.forEach(function(c){
+var checked=obData.courses.indexOf(c.id)!==-1;
+bodyH+='<div class="ob-course-check'+(checked?' checked':'')+'" onclick="toggleObCourse('+c.id+')">';
+bodyH+='<div class="check-box">'+(checked?'&#10003;':'')+'</div>';
+bodyH+='<div style="flex:1;text-align:left"><span style="color:var(--white);font-size:12px">'+c.icon+' '+c.title+'</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--muted);margin-left:8px">'+c.dur+'</span></div>';
+bodyH+='</div>';
+});
+bodyH+='<label class="ob-label" style="margin-top:20px">DUE DATE</label>';
+bodyH+='<input class="ob-input" type="date" id="ob-due" value="'+obData.dueDate+'" onchange="obData.dueDate=this.value">';
+bodyH+='<div style="display:flex;align-items:center;gap:10px;margin-top:12px;margin-bottom:20px">';
+bodyH+='<div class="ob-course-check'+(obData.autoAssignOnFail?' checked':'')+'" onclick="obData.autoAssignOnFail=!obData.autoAssignOnFail;renderOnboard()" style="margin:0;flex:1">';
+bodyH+='<div class="check-box">'+(obData.autoAssignOnFail?'&#10003;':'')+'</div>';
+bodyH+='<span style="color:var(--white);font-size:12px">Auto-assign training when user fails phishing test</span>';
+bodyH+='</div></div>';
+bodyH+='<div style="display:flex;justify-content:space-between;gap:10px;margin-top:20px"><button class="btn btn-s btn-sm" onclick="obStep=2;renderOnboard()">&#8592; BACK</button><button class="btn btn-p btn-sm" onclick="obNext(3)">REVIEW &#8594;</button></div>';
+bodyH+='</div>';
+} else if(obStep===4){
+var validUsers=obData.users.filter(function(u){return u.name&&u.email;});
+var selCourses=COURSES.filter(function(c){return obData.courses.indexOf(c.id)!==-1;});
+bodyH='<div style="max-width:700px;margin:0 auto">';
+bodyH+='<div class="pn" style="margin-bottom:20px"><div class="pn-t">CLIENT INFO</div>';
+bodyH+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 0">';
+bodyH+='<div><span class="ob-label">COMPANY</span><div style="color:var(--white);font-size:13px">'+obData.company+'</div></div>';
+bodyH+='<div><span class="ob-label">INDUSTRY</span><div style="color:var(--white);font-size:13px">'+obData.industry+'</div></div>';
+bodyH+='<div><span class="ob-label">CONTACT</span><div style="color:var(--white);font-size:13px">'+obData.contact+'</div></div>';
+bodyH+='<div><span class="ob-label">EMAIL</span><div style="font-family:JetBrains Mono;font-size:11px;color:var(--text)">'+obData.contactEmail+'</div></div>';
+bodyH+='<div><span class="ob-label">SERVICE TIER</span><div style="color:var(--accent);font-family:Bebas Neue;font-size:18px">'+obData.tier+'</div></div>';
+bodyH+='</div></div>';
+bodyH+='<div class="pn" style="margin-bottom:20px"><div class="pn-t">EMPLOYEES ('+validUsers.length+')</div>';
+bodyH+='<div class="tw"><table><thead><tr><th>NAME</th><th>EMAIL</th><th>DEPARTMENT</th></tr></thead><tbody>';
+validUsers.forEach(function(u){bodyH+='<tr><td style="color:var(--white)">'+u.name+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+u.email+'</td><td>'+u.dept+'</td></tr>';});
+bodyH+='</tbody></table></div></div>';
+bodyH+='<div class="pn" style="margin-bottom:20px"><div class="pn-t">ASSIGNED COURSES ('+selCourses.length+')</div>';
+selCourses.forEach(function(c){bodyH+='<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text)">'+c.icon+' '+c.title+' <span style="font-family:JetBrains Mono;font-size:9px;color:var(--muted)">'+c.dur+'</span></div>';});
+bodyH+='<div style="margin-top:8px;font-size:11px;color:var(--muted)">Due: '+(obData.dueDate||'Not set')+'</div>';
+if(obData.autoAssignOnFail)bodyH+='<div style="margin-top:4px;font-size:11px;color:var(--accent)">&#10003; Auto-assign on phishing failure enabled</div>';
+bodyH+='</div>';
+bodyH+='<div style="display:flex;justify-content:space-between;gap:10px;margin-top:20px"><button class="btn btn-s btn-sm" onclick="obStep=3;renderOnboard()">&#8592; BACK</button><button class="btn btn-p btn-sm" id="ob-launch-btn" onclick="submitOnboard()">ONBOARD CLIENT</button></div>';
+bodyH+='</div>';
+}
+el.innerHTML=stepsH+bodyH;
+}
+
+function obNext(step){
+if(step===1){
+obData.company=document.getElementById('ob-company').value.trim();
+obData.industry=document.getElementById('ob-industry').value;
+obData.contact=document.getElementById('ob-contact').value.trim();
+obData.contactEmail=document.getElementById('ob-contact-email').value.trim();
+if(!obData.company){toast('Please enter company name','error');return;}
+if(!obData.industry){toast('Please select industry','error');return;}
+if(!obData.contact){toast('Please enter contact name','error');return;}
+if(!obData.contactEmail){toast('Please enter contact email','error');return;}
+if(!obData.tier){toast('Please select a service tier','error');return;}
+}
+if(step===2){
+var valid=obData.users.filter(function(u){return u.name&&u.email;});
+if(valid.length===0){toast('Please add at least one employee','error');return;}
+}
+if(step===3){
+obData.dueDate=document.getElementById('ob-due')?document.getElementById('ob-due').value:'';
+if(obData.courses.length===0){toast('Please select at least one course','error');return;}
+}
+obStep=step+1;renderOnboard();
+}
+
+function toggleObCourse(id){var idx=obData.courses.indexOf(id);if(idx===-1)obData.courses.push(id);else obData.courses.splice(idx,1);renderOnboard();}
+
+function parseBulkUsers(){
+var txt=document.getElementById('ob-bulk').value.trim();
+if(!txt){toast('Paste CSV data first','error');return;}
+var lines=txt.split('\n');var added=0;
+lines.forEach(function(line){
+var parts=line.split(',');
+if(parts.length>=2){
+var name=parts[0].trim(),email=parts[1].trim(),dept=parts[2]?parts[2].trim():'';
+if(name&&email){obData.users.push({name:name,email:email,dept:dept});added++;}
+}
+});
+toast(added+' users parsed','success');renderOnboard();
+}
+
+async function submitOnboard(){
+var btn=document.getElementById('ob-launch-btn');
+btn.disabled=true;btn.textContent='ONBOARDING...';
+var validUsers=obData.users.filter(function(u){return u.name&&u.email;});
+var payload={
+company:obData.company,
+industry:obData.industry,
+contactName:obData.contact,
+contactEmail:obData.contactEmail,
+serviceTier:obData.tier,
+users:validUsers,
+courseIds:obData.courses,
+dueDate:obData.dueDate,
+autoAssignOnFail:obData.autoAssignOnFail
+};
+var result=await api('/onboard','POST',payload);
+if(result&&!result.error){
+await loadServerData();
+var el=document.getElementById('ob-content');
+el.innerHTML='<div style="text-align:center;padding:60px 20px"><div style="font-size:60px;margin-bottom:20px">&#10003;</div><div style="font-family:Bebas Neue;font-size:36px;color:var(--accent);margin-bottom:12px">CLIENT ONBOARDED</div><div style="color:var(--text);font-size:14px;margin-bottom:24px">'+obData.company+' has been successfully onboarded with '+validUsers.length+' users and '+obData.courses.length+' courses assigned.</div><div class="pn" style="max-width:500px;margin:0 auto;text-align:left"><div class="pn-t">NEXT STEPS</div><div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text)">1. Deploy Wazuh agents to client endpoints</div><div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text)">2. Send training invitations to employees</div><div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text)">3. Schedule initial phishing simulation</div><div style="padding:8px 0;font-size:12px;color:var(--text)">4. Set up compliance reporting cadence</div></div><div style="margin-top:24px"><button class="btn btn-p btn-sm" onclick="showView(\'dashboard\')">GO TO DASHBOARD</button> <button class="btn btn-s btn-sm" onclick="initOnboard()">ONBOARD ANOTHER</button></div></div>';
+toast('Client onboarded successfully!','success');
+} else {
+btn.disabled=false;btn.textContent='ONBOARD CLIENT';
+toast('Onboarding failed: '+(result&&result.error?result.error:'Server error'),'error');
+}
+}
+
 document.addEventListener('DOMContentLoaded',function(){initDashboard();});
 
 /* ============ PHISHING INBOX SIMULATOR ============ */
