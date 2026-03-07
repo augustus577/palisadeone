@@ -1905,6 +1905,11 @@
             <span class="btn-label">PUSH POLICY</span>
             <span class="btn-sub">Update security config</span>
           </button>
+          <button class="ep-action-btn" style="border-color:rgba(0,132,255,0.4);color:var(--accent2);" onclick="deploySysmon()">
+            <span class="btn-icon">👁</span>
+            <span class="btn-label">DEPLOY SYSMON</span>
+            <span class="btn-sub">Enable full EDR telemetry</span>
+          </button>
         </div>
         <div class="ep-action-title" style="margin-top:8px;">External Links</div>
         <button class="ep-action-full" onclick="openInWazuh()">
@@ -5460,6 +5465,28 @@ async function runLiveQuery() {
     });
     showToast(res.ok ? `Command "${cmd}" dispatched to agent.` : `Dispatch attempted — verify in Wazuh.`, 'info');
   } catch(e) { showToast('Command dispatch failed.', 'error'); }
+}
+
+async function deploySysmon() {
+  if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
+  const name = agentsData[activeAgentId]?.name || activeAgentId;
+  const os = agentsData[activeAgentId]?.os?.name || '';
+  if (!os.toLowerCase().includes('windows')) {
+    showToast('Sysmon is Windows-only — this agent is ' + (os || 'unknown OS') + '.', 'warn');
+    return;
+  }
+  showToast(`Deploying Sysmon to ${name} — downloads from Sysinternals, takes ~30s...`, 'info');
+  try {
+    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ command: 'install-sysmon', arguments: [] })
+    });
+    if (res.ok) {
+      showToast(`Sysmon deployment sent to ${name}. Full EDR telemetry active within ~60s.`, 'success');
+    } else {
+      showToast('Command sent — verify in Wazuh active-response logs.', 'info');
+    }
+  } catch(e) { showToast('Deploy failed: ' + e.message, 'error'); }
 }
 
 async function pushPolicyUpdate() {
