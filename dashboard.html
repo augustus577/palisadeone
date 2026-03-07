@@ -626,6 +626,69 @@
     /* Watchlist empty */
     .edr-empty { padding: 32px; text-align: center; color: var(--muted); font-size: 12px; }
     .edr-empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.25; }
+
+    /* TRIAGE */
+    .triage-row { display: grid; grid-template-columns: 32px 60px 1fr 100px 110px 120px 80px; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); align-items: center; cursor: pointer; transition: background 0.15s; font-size: 12px; }
+    .triage-row:hover { background: rgba(255,255,255,0.02); }
+    .triage-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; cursor: default; }
+    .triage-status { font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 6px; border-radius: 2px; text-transform: uppercase; letter-spacing: 1px; display: inline-block; }
+    .ts-new { background: rgba(255,59,92,0.15); color: var(--danger); border: 1px solid rgba(255,59,92,0.3); }
+    .ts-investigating { background: rgba(245,166,35,0.12); color: var(--warning); border: 1px solid rgba(245,166,35,0.3); }
+    .ts-closed { background: rgba(0,255,209,0.08); color: var(--accent); border: 1px solid rgba(0,255,209,0.2); }
+    .ts-fp { background: rgba(74,96,128,0.2); color: var(--muted); border: 1px solid var(--border); }
+
+    /* MITRE HEATMAP */
+    .mitre-grid { display: grid; gap: 3px; }
+    .mitre-tactic-col { min-width: 0; }
+    .mitre-tactic-header { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 1px; padding: 6px 8px; background: var(--deep); border: 1px solid var(--border); text-align: center; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mitre-cell { padding: 5px 6px; font-size: 9px; font-family: 'JetBrains Mono', monospace; border: 1px solid rgba(17,34,64,0.8); cursor: pointer; transition: all 0.15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 28px; display: flex; align-items: center; }
+    .mitre-cell:hover { border-color: var(--accent2); z-index: 1; }
+    .mitre-cell.hit-0 { background: rgba(11,18,32,0.8); color: var(--muted); }
+    .mitre-cell.hit-low { background: rgba(245,166,35,0.12); color: var(--warning); border-color: rgba(245,166,35,0.2); }
+    .mitre-cell.hit-med { background: rgba(255,59,92,0.15); color: #ff6b6b; border-color: rgba(255,59,92,0.25); }
+    .mitre-cell.hit-high { background: rgba(255,59,92,0.3); color: var(--danger); border-color: rgba(255,59,92,0.5); font-weight: 700; }
+
+    /* ASSET INVENTORY */
+    .asset-row { display: grid; grid-template-columns: 180px 100px 80px 120px 1fr; gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--border); font-size: 12px; align-items: center; cursor: pointer; transition: background 0.15s; }
+    .asset-row:hover { background: rgba(255,255,255,0.02); }
+    .asset-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; cursor: default; }
+    .asset-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px; }
+    .asset-section { background: var(--deep); border: 1px solid var(--border); padding: 14px; }
+    .asset-section-title { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-bottom: 10px; }
+    .asset-pkg-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(17,34,64,0.5); font-size: 11px; }
+
+    /* AUTO-RESPONSE RULES */
+    .ar-rule-row { display: grid; grid-template-columns: 36px 1fr 90px 90px 90px 80px 80px; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); align-items: center; font-size: 12px; }
+    .ar-rule-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; }
+    .rule-toggle { width: 32px; height: 17px; border-radius: 9px; border: none; cursor: pointer; transition: background 0.2s; position: relative; }
+    .rule-toggle.on { background: var(--accent); }
+    .rule-toggle.off { background: var(--border2); }
+
+    /* SETTINGS */
+    .settings-section { background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
+    .settings-title { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-bottom: 14px; }
+    .settings-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .settings-label { font-size: 12px; color: var(--text); min-width: 160px; }
+    .settings-input { flex: 1; background: var(--deep); border: 1px solid var(--border); padding: 8px 12px; color: var(--white); font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; transition: border-color 0.2s; }
+    .settings-input:focus { border-color: var(--accent); }
+    .settings-save { padding: 8px 20px; background: var(--accent); color: var(--black); border: none; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; cursor: pointer; }
+
+    /* THREAT INTEL PANEL */
+    .ti-result { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 3px; font-size: 11px; margin-top: 5px; }
+    .ti-clean { background: rgba(0,255,209,0.06); border: 1px solid rgba(0,255,209,0.15); color: var(--accent); }
+    .ti-suspect { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.25); color: var(--warning); }
+    .ti-malicious { background: rgba(255,59,92,0.12); border: 1px solid rgba(255,59,92,0.3); color: var(--danger); }
+    .ti-unknown { background: rgba(74,96,128,0.15); border: 1px solid var(--border); color: var(--muted); }
+
+    /* AI ANALYSIS PANEL */
+    .ai-analysis { background: rgba(0,132,255,0.04); border: 1px solid rgba(0,132,255,0.15); padding: 14px; margin-top: 10px; }
+    .ai-row { margin-bottom: 10px; }
+    .ai-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--accent2); letter-spacing: 2px; margin-bottom: 3px; }
+    .ai-value { font-size: 12px; color: var(--text); line-height: 1.5; }
+    .fp-badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+    .fp-low { background: rgba(255,59,92,0.15); color: var(--danger); }
+    .fp-medium { background: rgba(245,166,35,0.12); color: var(--warning); }
+    .fp-high { background: rgba(0,255,209,0.08); color: var(--accent); }
   </style>
 </head>
 <body>
@@ -719,6 +782,23 @@
         <span class="nav-icon">&#9632;</span>
         <span>EDR Console</span>
         <span class="nav-badge" id="edr-incident-badge" style="display:none;background:var(--danger)">0</span>
+      </div>
+      <div class="nav-item" onclick="showView('triage')">
+        <span class="nav-icon">🎯</span>
+        <span>Alert Triage</span>
+        <span class="nav-badge" id="triage-badge" style="display:none;background:var(--warning)">0</span>
+      </div>
+      <div class="nav-item" onclick="showView('mitre')">
+        <span class="nav-icon">🗺</span>
+        <span>MITRE ATT&CK</span>
+      </div>
+      <div class="nav-item" onclick="showView('assets')">
+        <span class="nav-icon">🖥</span>
+        <span>Asset Inventory</span>
+      </div>
+      <div class="nav-item" onclick="showView('settings')">
+        <span class="nav-icon">⚙</span>
+        <span>Settings</span>
       </div>
       <div class="nav-item" onclick="window.location.href='zero-trust.html'">
         <span class="nav-icon">&#128274;</span>
@@ -1621,6 +1701,7 @@
           <div class="edr-tab" onclick="edrTab('playbooks')" id="etab-playbooks">RESPONSE PLAYBOOKS</div>
           <div class="edr-tab" onclick="edrTab('telemetry')" id="etab-telemetry">LIVE TELEMETRY</div>
           <div class="edr-tab" onclick="edrTab('watchlist')" id="etab-watchlist">WATCHLIST</div>
+          <div class="edr-tab" onclick="edrTab('rules')" id="etab-rules">AUTO-RESPONSE</div>
         </div>
 
         <!-- THREAT HUNT -->
@@ -1825,9 +1906,197 @@
           </div>
         </div>
 
+        <!-- AUTO-RESPONSE RULES TAB -->
+        <div class="edr-tab-content" id="et-rules">
+          <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;">
+            <div>
+              <div class="panel-header" style="margin-bottom:12px;">
+                <div class="panel-title">ACTIVE RULES</div>
+                <div class="panel-action" onclick="loadArRules()">↻ Refresh</div>
+              </div>
+              <div id="ar-rules-list" class="panel" style="padding:0;"></div>
+            </div>
+            <div>
+              <div class="panel" style="padding:16px;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:14px;">ADD NEW RULE</div>
+                <div style="margin-bottom:10px;">
+                  <label style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:5px;">RULE NAME</label>
+                  <input id="ar-rule-name" type="text" placeholder="e.g. Auto-isolate critical" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--text);padding:8px;font-size:12px;outline:none;font-family:'Outfit',sans-serif;" />
+                </div>
+                <div style="margin-bottom:10px;">
+                  <label style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:5px;">MINIMUM ALERT LEVEL</label>
+                  <select id="ar-rule-level" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--text);padding:8px;font-size:12px;outline:none;">
+                    <option value="15">15 — Maximum</option>
+                    <option value="13">13 — Near-critical</option>
+                    <option value="12" selected>12 — Critical</option>
+                    <option value="10">10 — High</option>
+                    <option value="7">7 — Medium-High</option>
+                  </select>
+                </div>
+                <div style="margin-bottom:10px;">
+                  <label style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:5px;">ACTION</label>
+                  <select id="ar-rule-action" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--text);padding:8px;font-size:12px;outline:none;">
+                    <option value="isolate-win">Isolate (Block all traffic)</option>
+                    <option value="kill-suspicious">Kill Suspicious Processes</option>
+                    <option value="unisolate-win">Unisolate (Restore)</option>
+                    <option value="restart-agent">Restart Agent</option>
+                  </select>
+                </div>
+                <div style="margin-bottom:14px;">
+                  <label style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:5px;">COOLDOWN (minutes)</label>
+                  <input id="ar-rule-cooldown" type="number" value="60" min="5" max="1440" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--text);padding:8px;font-size:12px;outline:none;" />
+                </div>
+                <button onclick="addArRule()" style="width:100%;padding:10px;background:var(--accent);color:var(--black);border:none;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;">ADD RULE</button>
+                <div style="margin-top:12px;padding:10px;background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.1);font-size:11px;color:var(--muted);line-height:1.6;">
+                  Rules fire automatically every 60s when matching alerts appear. Each rule has a per-agent cooldown to prevent alert storms.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TRIAGE VIEW -->
+<!-- ============================================================ -->
+<div class="view" id="view-triage">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Assign, investigate, and close alerts. FP marking feeds back into detection tuning.</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <select id="triage-filter-status" onchange="loadTriageQueue()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;font-size:12px;outline:none;">
+        <option value="new">New</option><option value="investigating">Investigating</option><option value="all">All</option><option value="closed">Closed</option><option value="fp">False Positives</option>
+      </select>
+      <select id="triage-filter-sev" onchange="loadTriageQueue()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;font-size:12px;outline:none;">
+        <option value="0">All Severities</option><option value="12">Critical (12+)</option><option value="7">High (7+)</option>
+      </select>
+      <button onclick="loadTriageQueue()" class="panel-action" style="font-size:11px;">↻ Refresh</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="triage-row header"><div></div><div>Level</div><div>Description</div><div>Agent</div><div>Status</div><div>Analyst</div><div>Time</div></div>
+    <div id="triage-list"><div style="padding:32px;text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div></div></div>
+  </div>
+</div>
+
+<!-- TRIAGE DETAIL MODAL -->
+<div id="triage-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border2);width:720px;max-height:90vh;overflow-y:auto;">
+    <div style="padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--deep);position:sticky;top:0;z-index:1;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;" id="tm-title">ALERT TRIAGE</div>
+      <button onclick="document.getElementById('triage-modal').style.display='none'" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;cursor:pointer;">✕</button>
+    </div>
+    <div style="padding:20px;" id="tm-body"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MITRE ATT&CK VIEW -->
+<!-- ============================================================ -->
+<div class="view" id="view-mitre">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div>
+      <div style="font-size:13px;color:var(--muted);">Coverage heatmap — darker red = more detections. Click any technique to hunt for it.</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="mitre-time" onchange="loadMitreHeatmap()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;font-size:12px;outline:none;">
+        <option value="now-24h">Last 24h</option><option value="now-7d">Last 7 days</option><option value="now-30d">Last 30 days</option>
+      </select>
+      <div style="display:flex;gap:6px;align-items:center;font-size:11px;color:var(--muted);">
+        <span style="width:12px;height:12px;background:rgba(11,18,32,0.8);border:1px solid var(--border);display:inline-block;"></span> No detections
+        <span style="width:12px;height:12px;background:rgba(245,166,35,0.2);display:inline-block;"></span> Low
+        <span style="width:12px;height:12px;background:rgba(255,59,92,0.25);display:inline-block;"></span> Medium
+        <span style="width:12px;height:12px;background:rgba(255,59,92,0.45);display:inline-block;"></span> High
+      </div>
+    </div>
+  </div>
+  <div id="mitre-stats-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;"></div>
+  <div class="panel" style="overflow-x:auto;">
+    <div id="mitre-heatmap" style="padding:16px;min-width:1100px;">
+      <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Building heatmap...</div>
+    </div>
+  </div>
+  <div id="mitre-blind-spots" style="margin-top:16px;"></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ASSET INVENTORY VIEW -->
+<!-- ============================================================ -->
+<div class="view" id="view-assets">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div style="font-size:13px;color:var(--muted);">Hardware, software, and network inventory from Wazuh syscollector. Click an endpoint to drill down.</div>
+    <button onclick="loadAssets()" class="panel-action" style="font-size:11px;">↻ Refresh</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;" id="asset-stats"></div>
+  <div class="panel">
+    <div class="asset-row header"><div>Endpoint</div><div>OS</div><div>Packages</div><div>Last Seen</div><div>IP</div></div>
+    <div id="asset-list"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading inventory...</div></div>
+  </div>
+</div>
+
+<!-- ASSET DETAIL MODAL -->
+<div id="asset-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border2);width:800px;max-height:90vh;overflow-y:auto;">
+    <div style="padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--deep);position:sticky;top:0;z-index:1;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;" id="am-title">ASSET DETAIL</div>
+      <button onclick="document.getElementById('asset-modal').style.display='none'" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;cursor:pointer;">✕</button>
+    </div>
+    <div id="am-body" style="padding:20px;"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SETTINGS VIEW -->
+<!-- ============================================================ -->
+<div class="view" id="view-settings">
+  <div style="max-width:700px;">
+
+    <div class="settings-section">
+      <div class="settings-title">THREAT INTELLIGENCE API KEYS</div>
+      <div class="settings-row">
+        <label class="settings-label">VirusTotal API Key</label>
+        <input class="settings-input" id="cfg-vt-key" type="password" placeholder="Enter VirusTotal API key..."/>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">AbuseIPDB API Key</label>
+        <input class="settings-input" id="cfg-abuse-key" type="password" placeholder="Enter AbuseIPDB API key..."/>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">Anthropic API Key</label>
+        <input class="settings-input" id="cfg-anthropic-key" type="password" placeholder="Enter Anthropic API key for AI analysis..."/>
+      </div>
+      <button class="settings-save" onclick="saveSettings('ti')">SAVE API KEYS</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">ALERT NOTIFICATIONS</div>
+      <div class="settings-row">
+        <label class="settings-label">Slack Webhook URL</label>
+        <input class="settings-input" id="cfg-slack" type="text" placeholder="https://hooks.slack.com/services/..."/>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">Alert Email</label>
+        <input class="settings-input" id="cfg-email" type="text" placeholder="alerts@yourcompany.com"/>
+      </div>
+      <div style="margin-bottom:12px;font-size:11px;color:var(--muted);">Notifications fire for Level 12+ alerts. Slack is instant — email via n8n workflow (configure separately).</div>
+      <div style="display:flex;gap:8px;">
+        <button class="settings-save" onclick="saveSettings('notify')">SAVE NOTIFICATIONS</button>
+        <button onclick="testNotification()" style="padding:8px 16px;background:transparent;border:1px solid var(--border2);color:var(--text);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif;">Test Notify</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">SYSTEM STATUS</div>
+      <div id="settings-status" style="font-size:12px;color:var(--muted);">Click to load current config...</div>
+      <button onclick="loadSettings()" class="panel-action" style="margin-top:10px;">Load Current Config</button>
+    </div>
+
   </div>
 </div>
 
@@ -2138,6 +2407,10 @@ function showView(name) {
   if (name === 'darkweb') initDarkWeb();
   if (name === 'vulnerabilities') initVulnView();
   if (name === 'edr') initEdrView();
+  if (name === 'triage') loadTriageQueue();
+  if (name === 'mitre') loadMitreHeatmap();
+  if (name === 'assets') loadAssets();
+  if (name === 'settings') loadSettings();
 }
 
 function updatePreview() {
@@ -4879,6 +5152,7 @@ function edrTab(tab) {
   if (tab === 'telemetry') { populateTelemAgentFilter(); loadLiveTelemetry(); startTelemetryRefresh(); }
   if (tab === 'watchlist') renderWatchlist();
   if (tab === 'incidents') loadIncidents();
+  if (tab === 'rules') loadArRules();
   if (tab !== 'telemetry') stopTelemetryRefresh();
 }
 
@@ -5774,6 +6048,761 @@ function openEdrForAgent() {
   document.getElementById('hunt-op').value = 'match_phrase';
   document.getElementById('hunt-value').value = name;
   runThreatHunt();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ALERT TRIAGE VIEW
+// ══════════════════════════════════════════════════════════════════════════════
+let triageAnnotations = {}; // id → {status, assignee, note, fp}
+
+async function loadTriageQueue() {
+  const el = document.getElementById('triage-list');
+  const statusFilter = document.getElementById('triage-filter-status')?.value || 'new';
+  const sevFilter = parseInt(document.getElementById('triage-filter-sev')?.value || '0');
+  el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-family:\'JetBrains Mono\',monospace;font-size:11px;"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div></div>';
+
+  // Load annotations from server
+  try {
+    const r = await fetch(`${PROXY_URL}/triage`);
+    if (r.ok) triageAnnotations = await r.json();
+  } catch(e) { triageAnnotations = {}; }
+
+  // Query Wazuh for recent alerts
+  const minLevel = sevFilter > 0 ? sevFilter : 7;
+  const body = { size: 50, sort: [{ timestamp: { order: 'desc' } }],
+    query: { bool: { filter: [
+      { range: { timestamp: { gte: 'now-24h' } } },
+      { range: { 'rule.level': { gte: minLevel } } }
+    ]}},
+    _source: ['timestamp','agent.name','agent.id','rule.level','rule.description','rule.id','rule.groups','rule.mitre'] };
+
+  let hits = [];
+  try {
+    const res = await fetch(`${PROXY_URL}/wazuh-alerts-4.x-*/_search`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const d = await res.json();
+    hits = d.hits?.hits || [];
+  } catch(e) {}
+
+  // Filter by triage status
+  const filtered = hits.filter(h => {
+    const ann = triageAnnotations[h._id] || {};
+    const st = ann.status || 'new';
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'fp') return ann.fp === true;
+    return st === statusFilter;
+  });
+
+  if (!filtered.length) {
+    el.innerHTML = `<div style="padding:32px;text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;">No alerts matching current filters.</div>`;
+    return;
+  }
+
+  el.innerHTML = filtered.map(h => {
+    const s = h._source;
+    const level = s.rule?.level || 0;
+    const ann = triageAnnotations[h._id] || {};
+    const status = ann.status || 'new';
+    const assignee = ann.assignee || '—';
+    const statusColor = status === 'closed' ? 'var(--muted)' : status === 'investigating' ? 'var(--warning)' : status === 'fp' ? 'var(--accent)' : 'var(--danger)';
+    return `<div class="triage-row" onclick="openTriageAlert('${escH(h._id)}', ${JSON.stringify(s).replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;')})">
+      <div>${ann.fp ? '<span class="fp-badge">FP</span>' : ''}</div>
+      <div>${levelBadge(level)}</div>
+      <div style="font-size:12px;color:var(--white);">${escH(s.rule?.description || 'Unknown')}</div>
+      <div style="font-size:11px;color:var(--muted);">${escH(s.agent?.name || 'unknown')}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${statusColor};text-transform:uppercase;">${status}</div>
+      <div style="font-size:11px;color:var(--muted);">${escH(assignee)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtTime(s.timestamp)}</div>
+    </div>`;
+  }).join('');
+}
+
+async function openTriageAlert(id, srcObj) {
+  const ann = triageAnnotations[id] || {};
+  const level = srcObj.rule?.level || 0;
+  const mitre = srcObj.rule?.mitre?.id || [];
+  const tactics = srcObj.rule?.mitre?.tactic || [];
+
+  document.getElementById('tm-title').textContent = `TRIAGE — Rule ${srcObj.rule?.id || id}`;
+  document.getElementById('tm-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:4px;">DESCRIPTION</div>
+        <div style="font-size:14px;color:var(--white);">${escH(srcObj.rule?.description || '—')}</div>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:4px;">AGENT / LEVEL</div>
+        <div>${escH(srcObj.agent?.name || '—')} &nbsp;${levelBadge(level)}</div>
+      </div>
+    </div>
+    ${mitre.length ? `<div style="margin-bottom:16px;padding:10px;background:rgba(0,132,255,0.06);border:1px solid rgba(0,132,255,0.15);">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2);letter-spacing:2px;margin-bottom:6px;">MITRE ATT&CK</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">${mitre.map(t=>`<span style="background:rgba(0,132,255,0.15);border:1px solid rgba(0,132,255,0.3);padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);">${escH(t)}</span>`).join('')}${tactics.map(t=>`<span style="font-size:11px;color:var(--muted);">${escH(t)}</span>`).join(' · ')}</div>
+    </div>` : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">STATUS</div>
+        <select id="tm-status" style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--text);padding:8px;font-size:12px;outline:none;">
+          <option value="new" ${(ann.status||'new')==='new'?'selected':''}>New</option>
+          <option value="investigating" ${ann.status==='investigating'?'selected':''}>Investigating</option>
+          <option value="closed" ${ann.status==='closed'?'selected':''}>Closed</option>
+          <option value="fp" ${ann.status==='fp'?'selected':''}>False Positive</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">ASSIGNEE</div>
+        <input id="tm-assignee" type="text" placeholder="analyst name..." value="${escH(ann.assignee||'')}"
+          style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--text);padding:8px;font-size:12px;outline:none;font-family:'Outfit',sans-serif;" />
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">ANALYST NOTES</div>
+      <textarea id="tm-note" rows="3" placeholder="Add investigation notes..." style="width:100%;background:var(--deep);border:1px solid var(--border);color:var(--text);padding:10px;font-size:12px;outline:none;resize:vertical;font-family:'Outfit',sans-serif;">${escH(ann.note||'')}</textarea>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="saveTriageAnnotation('${id}')" style="flex:1;min-width:120px;padding:10px;background:var(--accent);color:var(--black);border:none;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;">SAVE</button>
+      <button onclick="markAsFP('${id}')" style="padding:10px 14px;background:transparent;border:1px solid var(--warning);color:var(--warning);font-size:12px;cursor:pointer;">Mark FP</button>
+      <button onclick="openAlertInHunt(${JSON.stringify(srcObj.agent?.name||'').replace(/</g,'&lt;')},'${escH(srcObj.rule?.id||'')}')" style="padding:10px 14px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);font-size:12px;cursor:pointer;">Hunt Similar</button>
+      <button onclick="analyzeAlertWithAI_inline(this,${JSON.stringify(JSON.stringify(srcObj)).replace(/'/g,'&#39;')})" style="padding:10px 14px;background:transparent;border:1px solid var(--muted);color:var(--muted);font-size:12px;cursor:pointer;">AI Analysis</button>
+    </div>
+    <div id="tm-ai-result" style="margin-top:12px;"></div>`;
+  document.getElementById('triage-modal').style.display = 'flex';
+}
+
+async function saveTriageAnnotation(id) {
+  const ann = {
+    status: document.getElementById('tm-status').value,
+    assignee: document.getElementById('tm-assignee').value.trim(),
+    note: document.getElementById('tm-note').value.trim(),
+    fp: document.getElementById('tm-status').value === 'fp',
+    updatedAt: new Date().toISOString()
+  };
+  triageAnnotations[id] = ann;
+  try {
+    await fetch(`${PROXY_URL}/triage`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...ann }) });
+    showToast('Triage annotation saved.', 'success');
+    document.getElementById('triage-modal').style.display = 'none';
+    loadTriageQueue();
+  } catch(e) { showToast('Save failed — check proxy.', 'error'); }
+}
+
+function markAsFP(id) {
+  document.getElementById('tm-status').value = 'fp';
+  saveTriageAnnotation(id);
+}
+
+function openAlertInHunt(agentName, ruleId) {
+  document.getElementById('triage-modal').style.display = 'none';
+  showView('edr');
+  edrTab('hunt');
+  document.getElementById('hunt-field').value = 'rule.id';
+  document.getElementById('hunt-op').value = 'match_phrase';
+  document.getElementById('hunt-value').value = ruleId;
+  runThreatHunt();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MITRE ATT&CK HEATMAP
+// ══════════════════════════════════════════════════════════════════════════════
+const MITRE_TACTICS = [
+  { id: 'reconnaissance', name: 'Recon', key: 'Reconnaissance' },
+  { id: 'resource-development', name: 'Resource Dev', key: 'Resource Development' },
+  { id: 'initial-access', name: 'Initial Access', key: 'Initial Access' },
+  { id: 'execution', name: 'Execution', key: 'Execution' },
+  { id: 'persistence', name: 'Persistence', key: 'Persistence' },
+  { id: 'privilege-escalation', name: 'Priv Esc', key: 'Privilege Escalation' },
+  { id: 'defense-evasion', name: 'Defense Evasion', key: 'Defense Evasion' },
+  { id: 'credential-access', name: 'Cred Access', key: 'Credential Access' },
+  { id: 'discovery', name: 'Discovery', key: 'Discovery' },
+  { id: 'lateral-movement', name: 'Lateral Move', key: 'Lateral Movement' },
+  { id: 'collection', name: 'Collection', key: 'Collection' },
+  { id: 'command-and-control', name: 'C2', key: 'Command and Control' },
+  { id: 'exfiltration', name: 'Exfiltration', key: 'Exfiltration' },
+  { id: 'impact', name: 'Impact', key: 'Impact' }
+];
+
+async function loadMitreHeatmap() {
+  const heatmapEl = document.getElementById('mitre-heatmap');
+  const statsEl = document.getElementById('mitre-stats-row');
+  const blindEl = document.getElementById('mitre-blind-spots');
+  const timeRange = document.getElementById('mitre-time')?.value || 'now-24h';
+
+  heatmapEl.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Building heatmap...</div>';
+
+  const body = {
+    size: 0,
+    query: { bool: { filter: [{ range: { timestamp: { gte: timeRange } } }] } },
+    aggs: {
+      techniques: { terms: { field: 'rule.mitre.id', size: 100 } },
+      tactics: { terms: { field: 'rule.mitre.tactic', size: 30 } }
+    }
+  };
+
+  let techCounts = {}, tacticCounts = {}, totalMitre = 0;
+  try {
+    const res = await fetch(`${PROXY_URL}/wazuh-alerts-4.x-*/_search`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const d = await res.json();
+    (d.aggregations?.techniques?.buckets || []).forEach(b => { techCounts[b.key] = b.doc_count; totalMitre += b.doc_count; });
+    (d.aggregations?.tactics?.buckets || []).forEach(b => { tacticCounts[b.key] = b.doc_count; });
+  } catch(e) {}
+
+  // Stats row
+  const tacticHits = Object.keys(tacticCounts).length;
+  const techHits = Object.keys(techCounts).length;
+  const maxCount = Math.max(...Object.values(techCounts), 1);
+  statsEl.innerHTML = [
+    { label: 'TOTAL MITRE EVENTS', val: totalMitre.toLocaleString(), color: 'var(--accent)' },
+    { label: 'TACTICS OBSERVED', val: `${tacticHits} / 14`, color: 'var(--warning)' },
+    { label: 'TECHNIQUES HIT', val: techHits, color: 'var(--accent2)' },
+    { label: 'BLIND SPOTS', val: 14 - tacticHits, color: tacticHits < 8 ? 'var(--danger)' : 'var(--muted)' }
+  ].map(s => `<div class="stat-card">
+    <div class="stat-value" style="color:${s.color};">${s.val}</div>
+    <div class="stat-label">${s.label}</div>
+  </div>`).join('');
+
+  // Render heatmap — tactics as columns
+  heatmapEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(14,1fr);gap:4px;">
+      ${MITRE_TACTICS.map(tac => {
+        const count = tacticCounts[tac.key] || 0;
+        const intensity = count === 0 ? 0 : Math.min(1, count / maxCount);
+        const bg = count === 0
+          ? 'rgba(11,18,32,0.8)'
+          : intensity < 0.25
+            ? `rgba(245,166,35,${0.15 + intensity * 0.3})`
+            : intensity < 0.6
+              ? `rgba(255,59,92,${0.2 + intensity * 0.3})`
+              : `rgba(255,59,92,${0.45 + intensity * 0.4})`;
+        const border = count > 0 ? 'rgba(255,59,92,0.4)' : 'var(--border)';
+        return `<div class="mitre-cell${count>0?' hit-tactic':''}" onclick="huntMitreTactic('${escH(tac.key)}')"
+          style="background:${bg};border:1px solid ${border};padding:8px 4px;text-align:center;cursor:pointer;transition:all 0.2s;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;text-transform:uppercase;">${tac.name}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:${count>0?'20':'14'}px;color:${count>0?'var(--white)':'var(--muted)'};">${count>0?count.toLocaleString():'—'}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    ${Object.keys(techCounts).length > 0 ? `
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:3px;margin-bottom:10px;">TOP TECHNIQUES</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${Object.entries(techCounts).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([id,count])=>`
+          <div onclick="huntMitreTechnique('${escH(id)}')" title="Hunt ${escH(id)}"
+            style="background:rgba(255,59,92,0.1);border:1px solid rgba(255,59,92,0.3);padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);">${escH(id)}</span>
+            <span style="font-size:11px;color:var(--danger);font-weight:600;">${count}</span>
+          </div>`).join('')}
+      </div>
+    </div>` : ''}`;
+
+  // Blind spots panel
+  const hitKeys = Object.keys(tacticCounts);
+  const blindTactics = MITRE_TACTICS.filter(t => !hitKeys.some(k => k.toLowerCase().includes(t.id.replace('-',' ')) || k === t.key));
+  blindEl.innerHTML = blindTactics.length ? `<div class="panel" style="padding:14px 16px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--danger);letter-spacing:3px;margin-bottom:10px;">COVERAGE GAPS — NO DETECTIONS IN THESE TACTICS</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${blindTactics.map(t=>`<span style="background:rgba(255,59,92,0.06);border:1px solid rgba(255,59,92,0.2);padding:3px 10px;font-size:11px;color:var(--muted);">${t.key}</span>`).join('')}
+    </div>
+  </div>` : `<div class="panel" style="padding:14px 16px;"><div style="color:var(--accent);font-size:12px;">All 14 tactics have coverage in the selected time window.</div></div>`;
+}
+
+function huntMitreTactic(tactic) {
+  showView('edr');
+  edrTab('hunt');
+  document.getElementById('hunt-field').value = 'rule.mitre.tactic';
+  document.getElementById('hunt-op').value = 'match_phrase';
+  document.getElementById('hunt-value').value = tactic;
+  runThreatHunt();
+}
+
+function huntMitreTechnique(techId) {
+  showView('edr');
+  edrTab('hunt');
+  document.getElementById('hunt-field').value = 'rule.mitre.id';
+  document.getElementById('hunt-op').value = 'match_phrase';
+  document.getElementById('hunt-value').value = techId;
+  runThreatHunt();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ASSET INVENTORY VIEW
+// ══════════════════════════════════════════════════════════════════════════════
+async function loadAssets() {
+  const el = document.getElementById('asset-list');
+  const statsEl = document.getElementById('asset-stats');
+  el.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading inventory...</div>';
+
+  let agents = [];
+  try {
+    const r = await fetch(`${PROXY_URL}/agents?limit=500&status=all`);
+    const d = await r.json();
+    agents = (d.data?.affected_items || []).filter(a => a.id !== '000');
+  } catch(e) { el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--danger);font-size:12px;">Failed to load agents. Check proxy.</div>'; return; }
+
+  const now = Date.now();
+  const totalAgents = agents.length;
+  const online = agents.filter(a => a.status === 'active').length;
+  const windows = agents.filter(a => (a.os?.name||'').toLowerCase().includes('windows')).length;
+  const linux = agents.filter(a => (a.os?.name||'').toLowerCase().includes('linux') || (a.os?.name||'').toLowerCase().includes('ubuntu')).length;
+
+  statsEl.innerHTML = [
+    { label: 'TOTAL ENDPOINTS', val: totalAgents, color: 'var(--white)' },
+    { label: 'ONLINE', val: online, color: 'var(--accent)' },
+    { label: 'WINDOWS', val: windows, color: 'var(--accent2)' },
+    { label: 'LINUX / OTHER', val: linux, color: 'var(--warning)' }
+  ].map(s => `<div class="stat-card"><div class="stat-value" style="color:${s.color};">${s.val}</div><div class="stat-label">${s.label}</div></div>`).join('');
+
+  if (!agents.length) { el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px;">No endpoints enrolled.</div>'; return; }
+
+  // Load package counts per agent (parallel, best-effort)
+  const pkgCounts = {};
+  await Promise.allSettled(agents.slice(0,20).map(async a => {
+    try {
+      const r = await fetch(`${PROXY_URL}/syscollector/${a.id}/packages?limit=1`);
+      const d = await r.json();
+      pkgCounts[a.id] = d.data?.total_affected_items || '?';
+    } catch(e) { pkgCounts[a.id] = '?'; }
+  }));
+
+  el.innerHTML = agents.map(a => {
+    const isOnline = a.status === 'active';
+    const keep = a.lastKeepAlive ? new Date(a.lastKeepAlive).toLocaleDateString() : '—';
+    const ip = a.ip || '—';
+    const os = a.os?.name ? `${a.os.name} ${a.os.version||''}`.trim() : 'Unknown';
+    const pkgs = pkgCounts[a.id] !== undefined ? pkgCounts[a.id] : '...';
+    return `<div class="asset-row" onclick="openAssetDetail('${escH(a.id)}','${escH(a.name||'')}')">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:${isOnline?'var(--accent)':'var(--muted)'};flex-shrink:0;"></div>
+        <div>
+          <div style="font-size:13px;color:var(--white);font-weight:500;">${escH(a.name||'Unknown')}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">ID: ${a.id}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text);">${escH(os)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);">${pkgs}</div>
+      <div style="font-size:11px;color:var(--muted);">${keep}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${escH(ip)}</div>
+    </div>`;
+  }).join('');
+}
+
+async function openAssetDetail(agentId, agentName) {
+  document.getElementById('am-title').textContent = `ASSET — ${agentName}`;
+  document.getElementById('am-body').innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading syscollector data...</div>';
+  document.getElementById('asset-modal').style.display = 'flex';
+
+  try {
+    const [hwRes, osRes, pkgRes, procRes, netRes] = await Promise.allSettled([
+      fetch(`${PROXY_URL}/syscollector/${agentId}/hardware`).then(r=>r.json()),
+      fetch(`${PROXY_URL}/syscollector/${agentId}/os`).then(r=>r.json()),
+      fetch(`${PROXY_URL}/syscollector/${agentId}/packages?limit=50&sort=-name`).then(r=>r.json()),
+      fetch(`${PROXY_URL}/syscollector/${agentId}/processes?limit=20`).then(r=>r.json()),
+      fetch(`${PROXY_URL}/syscollector/${agentId}/ports?limit=20`).then(r=>r.json())
+    ]);
+
+    const hw = hwRes.status==='fulfilled' ? hwRes.value?.data?.affected_items?.[0] : null;
+    const os = osRes.status==='fulfilled' ? osRes.value?.data?.affected_items?.[0] : null;
+    const pkgs = pkgRes.status==='fulfilled' ? pkgRes.value?.data?.affected_items || [] : [];
+    const procs = procRes.status==='fulfilled' ? procRes.value?.data?.affected_items || [] : [];
+    const ports = netRes.status==='fulfilled' ? netRes.value?.data?.affected_items || [] : [];
+
+    document.getElementById('am-body').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
+        ${hw ? `<div style="background:var(--deep);border:1px solid var(--border);padding:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:10px;">HARDWARE</div>
+          ${[['CPU', hw.cpu?.name], ['Cores', hw.cpu?.cores], ['RAM', hw.ram?.total ? Math.round(hw.ram.total/1024)+'MB' : null], ['Board', hw.board_name]].filter(([,v])=>v).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span style="font-size:11px;color:var(--muted);">${k}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text);">${escH(String(v))}</span></div>`).join('')}
+        </div>` : ''}
+        ${os ? `<div style="background:var(--deep);border:1px solid var(--border);padding:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:10px;">OPERATING SYSTEM</div>
+          ${[['Name', os.os?.name], ['Version', os.os?.version], ['Build', os.os?.build], ['Arch', os.architecture], ['Hostname', os.hostname]].filter(([,v])=>v).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span style="font-size:11px;color:var(--muted);">${k}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text);">${escH(String(v))}</span></div>`).join('')}
+        </div>` : ''}
+      </div>
+
+      ${pkgs.length ? `<div style="margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:8px;">INSTALLED SOFTWARE (${pkgs.length} shown)</div>
+        <div style="max-height:180px;overflow-y:auto;border:1px solid var(--border);">
+          ${pkgs.map(p=>`<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;padding:6px 10px;border-bottom:1px solid rgba(17,34,64,0.6);align-items:center;">
+            <span style="font-size:11px;color:var(--text);">${escH(p.name||'—')}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${escH(p.version||'—')}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${escH(p.vendor||'')}</span>
+          </div>`).join('')}
+        </div>
+      </div>` : ''}
+
+      ${ports.length ? `<div style="margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:8px;">LISTENING PORTS</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${ports.filter(p=>p.state==='listening'||p.state==='LISTEN').map(p=>`<span style="background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.2);padding:3px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);">${p.protocol||'tcp'}:${p.local?.port||'?'}</span>`).join('')}
+        </div>
+      </div>` : ''}
+
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button onclick="activeAgentId='${agentId}';document.getElementById('asset-modal').style.display='none';deploySysmon();" style="padding:8px 14px;background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:11px;cursor:pointer;">Deploy Sysmon</button>
+        <button onclick="activeAgentId='${agentId}';document.getElementById('asset-modal').style.display='none';showView('edr');edrTab('hunt');document.getElementById('hunt-field').value='agent.name';document.getElementById('hunt-op').value='match_phrase';document.getElementById('hunt-value').value='${escH(agentName)}';runThreatHunt();" style="padding:8px 14px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);font-size:11px;cursor:pointer;">Hunt Endpoint</button>
+        <button onclick="window.open('rustdesk://${escH(agentName)}','_blank')" style="padding:8px 14px;background:transparent;border:1px solid var(--border2);color:var(--text);font-size:11px;cursor:pointer;">Remote Desktop</button>
+      </div>`;
+  } catch(e) {
+    document.getElementById('am-body').innerHTML = `<div style="color:var(--danger);font-size:12px;">Failed to load asset data: ${e.message}</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SETTINGS VIEW
+// ══════════════════════════════════════════════════════════════════════════════
+async function loadSettings() {
+  const el = document.getElementById('settings-status');
+  el.innerHTML = '<div class="loading-dots" style="display:inline-flex;gap:4px;"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Connecting...';
+  try {
+    const r = await fetch(`${PROXY_URL}/config`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const cfg = await r.json();
+    const keys = ['virustotal_key','abuseipdb_key','anthropic_key','slack_webhook','alert_email'];
+    const labels = { virustotal_key: 'VirusTotal', abuseipdb_key: 'AbuseIPDB', anthropic_key: 'Anthropic', slack_webhook: 'Slack Webhook', alert_email: 'Alert Email' };
+    el.innerHTML = keys.map(k => {
+      const set = cfg[k] && cfg[k] !== '••••' && cfg[k] !== '' && cfg[k] !== null;
+      return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:12px;color:var(--muted);">${labels[k]}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${set?'var(--accent)':'var(--danger)'};">${set?'✓ Configured':'✗ Not set'}</span>
+      </div>`;
+    }).join('') + `<div style="margin-top:10px;font-size:11px;color:var(--muted);">Proxy: <span style="color:var(--accent);">api.palisadeone.com:9443</span> — OK</div>`;
+  } catch(e) {
+    el.innerHTML = `<span style="color:var(--danger);">Could not reach proxy: ${e.message}</span>`;
+  }
+}
+
+async function saveSettings(section) {
+  let payload = {};
+  if (section === 'ti') {
+    const vt = document.getElementById('cfg-vt-key').value.trim();
+    const ab = document.getElementById('cfg-abuse-key').value.trim();
+    const an = document.getElementById('cfg-anthropic-key').value.trim();
+    if (vt) payload.virustotal_key = vt;
+    if (ab) payload.abuseipdb_key = ab;
+    if (an) payload.anthropic_key = an;
+  } else if (section === 'notify') {
+    const sl = document.getElementById('cfg-slack').value.trim();
+    const em = document.getElementById('cfg-email').value.trim();
+    if (sl) payload.slack_webhook = sl;
+    if (em) payload.alert_email = em;
+  }
+  if (!Object.keys(payload).length) { showToast('No values entered.', 'warn'); return; }
+  try {
+    const r = await fetch(`${PROXY_URL}/config`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (r.ok) {
+      showToast('Settings saved to server.', 'success');
+      // Clear password fields
+      ['cfg-vt-key','cfg-abuse-key','cfg-anthropic-key'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+      loadSettings();
+    } else { showToast('Save failed — check proxy.', 'error'); }
+  } catch(e) { showToast('Cannot reach server.', 'error'); }
+}
+
+async function testNotification() {
+  try {
+    const r = await fetch(`${PROXY_URL}/notify`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'test', message: 'PalisadeOne notification test — system OK', level: 'info' }) });
+    if (r.ok) showToast('Test notification sent! Check Slack/email.', 'success');
+    else showToast('Notification failed — configure webhook first.', 'warn');
+  } catch(e) { showToast('Cannot reach proxy for notify.', 'error'); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// THREAT INTELLIGENCE ENRICHMENT (alert panel)
+// ══════════════════════════════════════════════════════════════════════════════
+async function enrichWithTI(indicator, type) {
+  const resultEl = document.getElementById('ti-result');
+  if (!resultEl) return;
+  resultEl.innerHTML = '<div style="color:var(--muted);font-size:11px;">Querying threat intelligence...</div>';
+
+  const endpoint = type === 'ip' ? 'ip' : type === 'hash' ? 'hash' : 'domain';
+  try {
+    const r = await fetch(`${PROXY_URL}/threat-intel/${endpoint}?value=${encodeURIComponent(indicator)}`);
+    if (!r.ok) throw new Error('TI lookup failed');
+    const d = await r.json();
+
+    if (d.error) {
+      resultEl.innerHTML = `<div style="color:var(--warning);font-size:11px;">${escH(d.error)} — configure API keys in Settings.</div>`;
+      return;
+    }
+
+    // VirusTotal result
+    const vtPos = d.virustotal?.positives || d.virustotal?.data?.attributes?.last_analysis_stats?.malicious || 0;
+    const vtTotal = d.virustotal?.total || d.virustotal?.data?.attributes?.last_analysis_stats?.undetected || 0;
+    const abuseScore = d.abuseipdb?.data?.abuseConfidenceScore;
+
+    resultEl.innerHTML = `<div class="ti-result">
+      ${d.virustotal ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:11px;color:var(--muted);">VirusTotal</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${vtPos>0?'var(--danger)':'var(--accent)'};">${vtPos}/${vtTotal} detections</span>
+      </div>` : ''}
+      ${abuseScore !== undefined ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:11px;color:var(--muted);">AbuseIPDB Score</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${abuseScore>50?'var(--danger)':abuseScore>20?'var(--warning)':'var(--accent)'};">${abuseScore}%</span>
+      </div>` : ''}
+      ${d.abuseipdb?.data?.countryCode ? `<div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:11px;color:var(--muted);">Country</span>
+        <span style="font-size:11px;color:var(--text);">${escH(d.abuseipdb.data.countryCode)} — ${escH(d.abuseipdb.data.isp||'Unknown ISP')}</span>
+      </div>` : ''}
+    </div>`;
+  } catch(e) {
+    resultEl.innerHTML = `<div style="color:var(--danger);font-size:11px;">TI lookup failed: ${e.message}</div>`;
+  }
+}
+
+// Inject TI enrichment section into alert panel body
+function injectTISection(hit) {
+  const srcIp = hit.data?.srcip || hit.data?.win?.eventdata?.destinationIp || hit.data?.win?.eventdata?.sourceIp;
+  const fileHash = hit.data?.win?.eventdata?.hashes?.split(',').find(h=>h.startsWith('SHA256='))?.replace('SHA256=','') ||
+                   hit.syscheck?.sha256_after || hit.syscheck?.sha256_before;
+  const domain = hit.data?.win?.eventdata?.queryName;
+
+  if (!srcIp && !fileHash && !domain) return '';
+
+  const indicators = [];
+  if (srcIp) indicators.push({ type: 'ip', val: srcIp, label: 'Source IP' });
+  if (fileHash) indicators.push({ type: 'hash', val: fileHash, label: 'File Hash' });
+  if (domain) indicators.push({ type: 'domain', val: domain, label: 'Domain' });
+
+  return `<div class="ap-section">
+    <div class="ap-section-title">Threat Intelligence Enrichment</div>
+    ${indicators.map((ind, i) => `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);min-width:80px;">${ind.label}</span>
+        <code style="flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);background:var(--surface);padding:3px 6px;overflow:hidden;text-overflow:ellipsis;">${escH(ind.val)}</code>
+        <button onclick="enrichWithTI('${escH(ind.val)}','${ind.type}')" style="padding:3px 8px;background:transparent;border:1px solid var(--border2);color:var(--text);font-size:10px;cursor:pointer;white-space:nowrap;">Check TI</button>
+      </div>`).join('')}
+    <div id="ti-result" style="margin-top:8px;"></div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AI ALERT ANALYSIS
+// ══════════════════════════════════════════════════════════════════════════════
+async function analyzeAlertWithAI(hit) {
+  const btn = document.getElementById('ai-analyze-btn');
+  const resultEl = document.getElementById('ai-result');
+  if (!btn || !resultEl) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+  resultEl.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:10px;">Claude is analyzing this alert...</div>';
+
+  try {
+    const r = await fetch(`${PROXY_URL}/ai/analyze`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ alert: { rule: hit.rule, agent: hit.agent, data: hit.data, timestamp: hit.timestamp } })
+    });
+    if (!r.ok) throw new Error('AI endpoint returned ' + r.status);
+    const d = await r.json();
+
+    if (d.error) { resultEl.innerHTML = `<div style="color:var(--warning);font-size:12px;padding:10px;">${escH(d.error)} — add Anthropic API key in Settings.</div>`; btn.disabled=false; btn.textContent='AI Analysis'; return; }
+
+    const a = d.analysis || {};
+    resultEl.innerHTML = `<div class="ai-analysis">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:12px;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:6px;">CLAUDE ASSESSMENT</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7;">${escH(a.summary || d.raw || 'Analysis complete.')}</div>
+        </div>
+        ${a.riskScore !== undefined ? `<div style="text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:${a.riskScore>=80?'var(--danger)':a.riskScore>=50?'var(--warning)':'var(--accent)'};line-height:1;">${a.riskScore}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);">AI RISK</div>
+        </div>` : ''}
+      </div>
+      ${a.attackStage ? `<div style="margin-bottom:8px;font-size:11px;color:var(--muted);">Attack Stage: <span style="color:var(--warning);">${escH(a.attackStage)}</span></div>` : ''}
+      ${a.immediateActions?.length ? `<div style="margin-bottom:8px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">RECOMMENDED ACTIONS</div>
+        ${a.immediateActions.map(ac=>`<div style="padding:4px 0;font-size:12px;color:var(--text);">→ ${escH(ac)}</div>`).join('')}
+      </div>` : ''}
+      ${a.falsePositiveProbability !== undefined ? `<div style="font-size:11px;color:var(--muted);">False Positive Probability: <span style="color:var(--accent2);">${Math.round(a.falsePositiveProbability*100)}%</span></div>` : ''}
+    </div>`;
+  } catch(e) {
+    resultEl.innerHTML = `<div style="color:var(--danger);font-size:12px;padding:10px;">AI analysis failed: ${e.message}</div>`;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Re-analyze';
+}
+
+// Inline version used from triage modal
+async function analyzeAlertWithAI_inline(btn, srcJsonStr) {
+  const resultEl = document.getElementById('tm-ai-result');
+  btn.disabled = true; btn.textContent = 'Analyzing...';
+  resultEl.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:10px 0;">Claude is analyzing...</div>';
+  try {
+    const srcObj = JSON.parse(srcJsonStr);
+    const r = await fetch(`${PROXY_URL}/ai/analyze`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ alert: { rule: srcObj.rule, agent: srcObj.agent, data: srcObj.data, timestamp: srcObj.timestamp } })
+    });
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    const a = d.analysis || {};
+    resultEl.innerHTML = `<div class="ai-analysis" style="margin-top:0;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:6px;">CLAUDE ASSESSMENT</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.7;">${escH(a.summary || d.raw || 'No analysis returned.')}</div>
+      ${a.riskScore!==undefined?`<div style="margin-top:8px;font-size:11px;color:var(--muted);">Risk Score: <span style="color:${a.riskScore>=80?'var(--danger)':a.riskScore>=50?'var(--warning)':'var(--accent)'};">${a.riskScore}/100</span></div>`:''}
+      ${a.immediateActions?.length?`<div style="margin-top:8px;">${a.immediateActions.map(ac=>`<div style="font-size:11px;color:var(--text);">→ ${escH(ac)}</div>`).join('')}</div>`:''}
+    </div>`;
+  } catch(e) { resultEl.innerHTML = `<div style="color:var(--danger);font-size:11px;">AI failed: ${e.message}. Add Anthropic key in Settings.</div>`; }
+  btn.disabled = false; btn.textContent = 'AI Analysis';
+}
+
+// Patch buildAlertPanelBody to include TI enrichment + AI analysis sections
+const _origBuildAPB = buildAlertPanelBody;
+function buildAlertPanelBody(hit) {
+  const sections = [];
+
+  sections.push(triageSection(hit));
+
+  const mitreSection = buildMitreSection(hit);
+  if (mitreSection) sections.push(mitreSection);
+
+  const procSection = buildProcessSection(hit);
+  if (procSection) sections.push(procSection);
+
+  const fileSection = buildFileSection(hit);
+  if (fileSection) sections.push(fileSection);
+
+  const netSection = buildNetSection(hit);
+  if (netSection) sections.push(netSection);
+
+  const authSection = buildAuthSection(hit);
+  if (authSection) sections.push(authSection);
+
+  // TI enrichment (new)
+  const tiSection = injectTISection(hit);
+  if (tiSection) sections.push(tiSection);
+
+  // AI analysis section (new)
+  sections.push(`<div class="ap-section">
+    <div class="ap-section-title">AI Alert Analysis</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <button id="ai-analyze-btn" onclick="analyzeAlertWithAI(currentAlertHit)" style="padding:8px 16px;background:linear-gradient(135deg,rgba(0,132,255,0.2),rgba(0,255,209,0.1));border:1px solid var(--accent2);color:var(--accent2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:1px;">AI Analysis</button>
+      <span style="font-size:11px;color:var(--muted);">Powered by Claude — deep contextual analysis of this specific alert.</span>
+    </div>
+    <div id="ai-result"></div>
+  </div>`);
+
+  sections.push(buildActionsSection(hit));
+
+  sections.push(`<div class="ap-section" id="ap-related-section">
+    <div class="ap-section-title">Related Alerts — Same Host, Last Hour</div>
+    <div id="ap-related-list"><div style="color:var(--muted);font-size:12px;">Loading...</div></div>
+  </div>`);
+
+  sections.push(`<div class="ap-section ap-raw">
+    <div class="ap-section-title ap-raw-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      Raw Event Data <span style="margin-left:auto;font-size:12px;">▼</span>
+    </div>
+    <pre style="display:none;background:var(--surface);border:1px solid var(--border);padding:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text);overflow:auto;max-height:360px;white-space:pre-wrap;word-break:break-all;">${escH(JSON.stringify(hit, null, 2))}</pre>
+  </div>`);
+
+  return sections.join('');
+}
+
+// Store current open alert for AI analysis button
+let currentAlertHit = null;
+const _origOpenAlertPanel = openAlertPanel;
+function openAlertPanel(hit) {
+  currentAlertHit = hit;
+  // Call original but we've redefined buildAlertPanelBody above
+  if (!hit) return;
+  const panel = document.getElementById('alert-panel');
+  const overlay = document.getElementById('alert-overlay');
+  const level = hit.rule?.level || 0;
+  const sevLabel = level >= 12 ? 'CRITICAL' : level >= 7 ? 'HIGH' : level >= 4 ? 'MEDIUM' : 'LOW';
+  const sevClass = level >= 12 ? 'ap-sev-critical' : level >= 7 ? 'ap-sev-high' : level >= 4 ? 'ap-sev-medium' : 'ap-sev-low';
+  const badge = document.getElementById('ap-sev-badge');
+  badge.className = 'ap-sev-badge ' + sevClass;
+  badge.textContent = sevLabel;
+  document.getElementById('ap-rule-num').textContent = hit.rule?.id ? `Rule ${hit.rule.id}` : '';
+  document.getElementById('ap-title').textContent = hit.rule?.description || 'Security Event';
+  document.getElementById('ap-meta').innerHTML = `
+    <span>🕐 ${fmtDateTime(hit.timestamp)}</span>
+    <span>🖥 ${escH(hit.agent?.name || 'unknown')}</span>
+    ${hit.agent?.ip ? `<span>📍 ${escH(hit.agent.ip)}</span>` : ''}
+    ${(hit.rule?.groups || []).slice(0,3).map(g => `<span style="color:var(--muted);">${escH(g)}</span>`).join(' · ')}
+  `;
+  document.getElementById('ap-body').innerHTML = buildAlertPanelBody(hit);
+  overlay.style.display = 'block';
+  panel.classList.add('open');
+  loadRelatedAlerts(hit);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AUTO-RESPONSE RULES (EDR tab)
+// ══════════════════════════════════════════════════════════════════════════════
+let arRules = [];
+
+async function loadArRules() {
+  const el = document.getElementById('ar-rules-list');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:16px;">Loading rules...</div>';
+  try {
+    const r = await fetch(`${PROXY_URL}/ar-rules`);
+    arRules = r.ok ? await r.json() : [];
+  } catch(e) { arRules = []; }
+  renderArRules();
+}
+
+function renderArRules() {
+  const el = document.getElementById('ar-rules-list');
+  if (!el) return;
+  if (!arRules.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:20px;text-align:center;font-family:\'JetBrains Mono\',monospace;">No auto-response rules configured. Add one below.</div>';
+    return;
+  }
+  el.innerHTML = arRules.map((rule, i) => `
+    <div class="ar-rule-row">
+      <div>
+        <div style="font-size:13px;color:var(--white);margin-bottom:2px;">${escH(rule.name||'Unnamed Rule')}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Level ≥ ${rule.minLevel||12} · Action: ${escH(rule.action||'—')} · Cooldown: ${rule.cooldownMin||60}min</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div onclick="toggleArRule(${i})" style="width:32px;height:18px;background:${rule.enabled!==false?'var(--accent)':'var(--border)'};border-radius:9px;cursor:pointer;position:relative;transition:background 0.2s;">
+          <div style="width:14px;height:14px;background:var(--black);border-radius:50%;position:absolute;top:2px;${rule.enabled!==false?'right:2px':'left:2px'};transition:all 0.2s;"></div>
+        </div>
+        <button onclick="deleteArRule(${i})" style="padding:3px 8px;background:transparent;border:1px solid rgba(255,59,92,0.3);color:var(--danger);font-size:10px;cursor:pointer;">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+async function addArRule() {
+  const name = document.getElementById('ar-rule-name')?.value.trim();
+  const minLevel = parseInt(document.getElementById('ar-rule-level')?.value || '12');
+  const action = document.getElementById('ar-rule-action')?.value;
+  const cooldown = parseInt(document.getElementById('ar-rule-cooldown')?.value || '60');
+  if (!name || !action) { showToast('Fill in rule name and action.', 'warn'); return; }
+  const rule = { name, minLevel, action, cooldownMin: cooldown, enabled: true, createdAt: new Date().toISOString() };
+  arRules.push(rule);
+  await saveArRules();
+  // Clear fields
+  ['ar-rule-name','ar-rule-cooldown'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  showToast(`Rule "${name}" added.`, 'success');
+}
+
+async function toggleArRule(i) {
+  arRules[i].enabled = arRules[i].enabled === false ? true : false;
+  await saveArRules();
+}
+
+async function deleteArRule(i) {
+  const name = arRules[i].name;
+  arRules.splice(i, 1);
+  await saveArRules();
+  showToast(`Rule "${name}" deleted.`, 'info');
+}
+
+async function saveArRules() {
+  try {
+    await fetch(`${PROXY_URL}/ar-rules`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(arRules) });
+    renderArRules();
+  } catch(e) { showToast('Failed to save rules.', 'error'); }
 }
 </script>
 </body>
