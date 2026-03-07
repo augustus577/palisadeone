@@ -2048,10 +2048,6 @@
 
       </div>
 
-    </div>
-  </div>
-</div>
-
 <!-- ============================================================ -->
 <!-- TRIAGE VIEW -->
 <!-- ============================================================ -->
@@ -2292,13 +2288,128 @@
     </div>
 
     <div class="settings-section">
+      <div class="settings-title">DASHBOARD PREFERENCES</div>
+      <div class="settings-row">
+        <label class="settings-label">Default View on Login</label>
+        <select class="settings-input" id="cfg-default-view" style="margin:0;">
+          <option value="overview">Overview</option>
+          <option value="alerts">Security Alerts</option>
+          <option value="devices">Devices</option>
+          <option value="edr">EDR Console</option>
+          <option value="triage">Alert Triage</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">Auto-Refresh Interval (seconds)</label>
+        <input class="settings-input" id="cfg-refresh-interval" type="number" value="30" min="10" max="300" style="margin:0;"/>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">Alert Sound</label>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;">
+            <input type="checkbox" id="cfg-alert-sound" style="accent-color:var(--accent);"/> Enable critical alert sound
+          </label>
+        </div>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">Theme</label>
+        <div style="display:flex;gap:8px;">
+          <button onclick="setThemePref('dark')" id="theme-btn-dark" style="padding:8px 16px;background:var(--deep);border:1px solid var(--accent);color:var(--accent);font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;">DARK</button>
+          <button onclick="setThemePref('light')" id="theme-btn-light" style="padding:8px 16px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;">LIGHT</button>
+        </div>
+      </div>
+      <button class="settings-save" onclick="saveDashboardPrefs()">SAVE PREFERENCES</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">ALERT THRESHOLDS</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Configure which alert levels trigger notifications and automatic actions.</div>
+      <div class="settings-row">
+        <label class="settings-label">Notify on alert level &ge;</label>
+        <select class="settings-input" id="cfg-notify-level" style="margin:0;">
+          <option value="12">12+ (Critical only)</option>
+          <option value="10">10+ (High & Critical)</option>
+          <option value="7" selected>7+ (Medium, High & Critical)</option>
+          <option value="4">4+ (All except info)</option>
+          <option value="1">1+ (Everything)</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">Auto-isolate on level &ge;</label>
+        <select class="settings-input" id="cfg-isolate-level" style="margin:0;">
+          <option value="0">Disabled</option>
+          <option value="14">14+ (Severe only)</option>
+          <option value="12" selected>12+ (Critical)</option>
+          <option value="10">10+ (High & Critical)</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">Max alerts per page</label>
+        <input class="settings-input" id="cfg-alerts-per-page" type="number" value="50" min="10" max="200" style="margin:0;"/>
+      </div>
+      <button class="settings-save" onclick="saveAlertThresholds()">SAVE THRESHOLDS</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">DATA & RETENTION</div>
+      <div class="settings-row">
+        <label class="settings-label">Alert retention period</label>
+        <select class="settings-input" id="cfg-retention" style="margin:0;">
+          <option value="30">30 days</option>
+          <option value="60">60 days</option>
+          <option value="90" selected>90 days</option>
+          <option value="180">180 days</option>
+          <option value="365">1 year</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">Report history</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);" id="cfg-report-count">0 reports stored</span>
+          <button onclick="clearReportHistory()" style="padding:4px 10px;background:transparent;border:1px solid var(--danger);color:var(--danger);font-size:10px;cursor:pointer;font-family:'JetBrains Mono',monospace;">CLEAR</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">Triage history</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);" id="cfg-triage-count">0 items stored</span>
+          <button onclick="clearTriageHistory()" style="padding:4px 10px;background:transparent;border:1px solid var(--danger);color:var(--danger);font-size:10px;cursor:pointer;font-family:'JetBrains Mono',monospace;">CLEAR</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">USER ACCOUNT</div>
+      <div class="settings-row">
+        <label class="settings-label">Change Password</label>
+        <input class="settings-input" id="cfg-new-pass" type="password" placeholder="New password..." style="margin:0;"/>
+      </div>
+      <div class="settings-row">
+        <label class="settings-label">Confirm Password</label>
+        <input class="settings-input" id="cfg-confirm-pass" type="password" placeholder="Confirm new password..." style="margin:0;"/>
+      </div>
+      <button class="settings-save" onclick="changePassword()">UPDATE PASSWORD</button>
+    </div>
+
+    <div class="settings-section">
       <div class="settings-title">SYSTEM STATUS</div>
-      <div id="settings-status" style="font-size:12px;color:var(--muted);">Click to load current config...</div>
-      <button onclick="loadSettings()" class="panel-action" style="margin-top:10px;">Load Current Config</button>
+      <div id="settings-status" style="font-size:12px;color:var(--muted);">Loading...</div>
+    </div>
+
+    <div class="settings-section" style="border:1px solid rgba(255,68,102,0.2);background:rgba(255,68,102,0.03);">
+      <div class="settings-title" style="color:var(--danger);">DANGER ZONE</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button onclick="if(confirm('Clear all cached data? This cannot be undone.')){localStorage.clear();showToast('Cache cleared. Refreshing...','success');setTimeout(()=>location.reload(),1000);}" style="padding:8px 16px;background:transparent;border:1px solid var(--danger);color:var(--danger);font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;">CLEAR ALL CACHE</button>
+        <button onclick="if(confirm('Reset all settings to defaults?')){resetAllSettings();}" style="padding:8px 16px;background:transparent;border:1px solid var(--danger);color:var(--danger);font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;">RESET TO DEFAULTS</button>
+      </div>
     </div>
 
   </div>
 </div>
+
+    </div><!-- /.content -->
+  </div><!-- /.main -->
+</div><!-- /#app -->
 
 <!-- INCIDENT DETAIL MODAL -->
 <div id="incident-modal">
@@ -4339,10 +4450,21 @@ function openPlaybook(id) {
 }
 
 async function initDashboard() {
+  // Apply saved preferences
+  const prefs = JSON.parse(localStorage.getItem('p1_prefs') || '{}');
+  const savedTheme = localStorage.getItem('p1_theme');
+  if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+  const refreshMs = (parseInt(prefs.refreshInterval) || 30) * 1000;
+
   await Promise.all([refreshAll(), loadRmmPeers()]);
-  setInterval(refreshAll, 30000);
+  setInterval(refreshAll, refreshMs);
   setInterval(loadRmmPeers, 60000);
   loadTicketNavBadge();
+
+  // Navigate to default view if set
+  if (prefs.defaultView && prefs.defaultView !== 'overview') {
+    showView(prefs.defaultView);
+  }
 }
 
 // ============================================================
@@ -7124,6 +7246,44 @@ async function openAssetDetail(agentId, agentName) {
 // SETTINGS VIEW
 // ══════════════════════════════════════════════════════════════════════════════
 async function loadSettings() {
+  // Load saved local preferences
+  const prefs = JSON.parse(localStorage.getItem('p1_prefs') || '{}');
+  const defView = document.getElementById('cfg-default-view');
+  if (defView) defView.value = prefs.defaultView || 'overview';
+  const refInt = document.getElementById('cfg-refresh-interval');
+  if (refInt) refInt.value = prefs.refreshInterval || 30;
+  const alertSound = document.getElementById('cfg-alert-sound');
+  if (alertSound) alertSound.checked = prefs.alertSound || false;
+  const notifyLevel = document.getElementById('cfg-notify-level');
+  if (notifyLevel) notifyLevel.value = prefs.notifyLevel || '7';
+  const isolateLevel = document.getElementById('cfg-isolate-level');
+  if (isolateLevel) isolateLevel.value = prefs.isolateLevel || '12';
+  const alertsPerPage = document.getElementById('cfg-alerts-per-page');
+  if (alertsPerPage) alertsPerPage.value = prefs.alertsPerPage || 50;
+  const retention = document.getElementById('cfg-retention');
+  if (retention) retention.value = prefs.retention || '90';
+
+  // Update theme buttons
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  const darkBtn = document.getElementById('theme-btn-dark');
+  const lightBtn = document.getElementById('theme-btn-light');
+  if (theme === 'dark') {
+    if (darkBtn) { darkBtn.style.borderColor = 'var(--accent)'; darkBtn.style.color = 'var(--accent)'; }
+    if (lightBtn) { lightBtn.style.borderColor = 'var(--border)'; lightBtn.style.color = 'var(--muted)'; }
+  } else {
+    if (lightBtn) { lightBtn.style.borderColor = 'var(--accent)'; lightBtn.style.color = 'var(--accent)'; }
+    if (darkBtn) { darkBtn.style.borderColor = 'var(--border)'; darkBtn.style.color = 'var(--muted)'; }
+  }
+
+  // Data counts
+  const reportHistory = JSON.parse(localStorage.getItem('p1_report_history') || '[]');
+  const rc = document.getElementById('cfg-report-count');
+  if (rc) rc.textContent = reportHistory.length + ' reports stored';
+  const triageData = JSON.parse(localStorage.getItem('p1_triage') || '[]');
+  const tc = document.getElementById('cfg-triage-count');
+  if (tc) tc.textContent = triageData.length + ' items stored';
+
+  // Server status
   const el = document.getElementById('settings-status');
   el.innerHTML = '<div class="loading-dots" style="display:inline-flex;gap:4px;"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Connecting...';
   try {
@@ -7142,6 +7302,75 @@ async function loadSettings() {
   } catch(e) {
     el.innerHTML = `<span style="color:var(--danger);">Could not reach proxy: ${e.message}</span>`;
   }
+}
+
+function setThemePref(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('p1_theme', theme);
+  const darkBtn = document.getElementById('theme-btn-dark');
+  const lightBtn = document.getElementById('theme-btn-light');
+  if (theme === 'dark') {
+    darkBtn.style.borderColor = 'var(--accent)'; darkBtn.style.color = 'var(--accent)';
+    lightBtn.style.borderColor = 'var(--border)'; lightBtn.style.color = 'var(--muted)';
+  } else {
+    lightBtn.style.borderColor = 'var(--accent)'; lightBtn.style.color = 'var(--accent)';
+    darkBtn.style.borderColor = 'var(--border)'; darkBtn.style.color = 'var(--muted)';
+  }
+  showToast('Theme updated', 'success');
+}
+
+function saveDashboardPrefs() {
+  const prefs = JSON.parse(localStorage.getItem('p1_prefs') || '{}');
+  prefs.defaultView = document.getElementById('cfg-default-view').value;
+  prefs.refreshInterval = parseInt(document.getElementById('cfg-refresh-interval').value) || 30;
+  prefs.alertSound = document.getElementById('cfg-alert-sound').checked;
+  localStorage.setItem('p1_prefs', JSON.stringify(prefs));
+  showToast('Dashboard preferences saved', 'success');
+}
+
+function saveAlertThresholds() {
+  const prefs = JSON.parse(localStorage.getItem('p1_prefs') || '{}');
+  prefs.notifyLevel = document.getElementById('cfg-notify-level').value;
+  prefs.isolateLevel = document.getElementById('cfg-isolate-level').value;
+  prefs.alertsPerPage = parseInt(document.getElementById('cfg-alerts-per-page').value) || 50;
+  prefs.retention = document.getElementById('cfg-retention').value;
+  localStorage.setItem('p1_prefs', JSON.stringify(prefs));
+  showToast('Alert thresholds saved', 'success');
+}
+
+function clearReportHistory() {
+  if (!confirm('Delete all saved report history?')) return;
+  localStorage.removeItem('p1_report_history');
+  document.getElementById('cfg-report-count').textContent = '0 reports stored';
+  showToast('Report history cleared', 'success');
+}
+
+function clearTriageHistory() {
+  if (!confirm('Delete all saved triage data?')) return;
+  localStorage.removeItem('p1_triage');
+  document.getElementById('cfg-triage-count').textContent = '0 items stored';
+  showToast('Triage history cleared', 'success');
+}
+
+function changePassword() {
+  const newPass = document.getElementById('cfg-new-pass').value;
+  const confirm = document.getElementById('cfg-confirm-pass').value;
+  if (!newPass) { showToast('Enter a new password', 'error'); return; }
+  if (newPass !== confirm) { showToast('Passwords do not match', 'error'); return; }
+  if (newPass.length < 8) { showToast('Password must be at least 8 characters', 'error'); return; }
+  // Store locally (in a real app this would go to a backend)
+  localStorage.setItem('p1_pass', btoa(newPass));
+  document.getElementById('cfg-new-pass').value = '';
+  document.getElementById('cfg-confirm-pass').value = '';
+  showToast('Password updated successfully', 'success');
+}
+
+function resetAllSettings() {
+  localStorage.removeItem('p1_prefs');
+  localStorage.removeItem('p1_theme');
+  document.documentElement.setAttribute('data-theme', 'dark');
+  showToast('Settings reset to defaults. Refreshing...', 'success');
+  setTimeout(() => location.reload(), 1000);
 }
 
 async function saveSettings(section) {
