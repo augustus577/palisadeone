@@ -2539,6 +2539,11 @@
             <span class="btn-label">REMOTE DESKTOP</span>
             <span class="btn-sub">RustDesk — via P1 relay</span>
           </button>
+          <button class="ep-action-btn" style="border-color:rgba(245,166,35,0.4);color:var(--warning);" onclick="restartEndpoint()">
+            <span class="btn-icon">⚡</span>
+            <span class="btn-label">RESTART</span>
+            <span class="btn-sub">Reboot endpoint OS</span>
+          </button>
         </div>
         <div class="ep-action-title" style="margin-top:16px;">Response Actions</div>
         <div class="ep-action-grid">
@@ -2583,6 +2588,13 @@
           <div id="ep-rd-id-value" style="font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--accent);letter-spacing:2px;"></div>
           <div style="font-size:11px;color:var(--muted);margin-top:4px;">Password: <span style="color:var(--white);font-family:'JetBrains Mono',monospace;">P1Remote2026!</span></div>
         </div>
+
+        <!-- SESSION HISTORY -->
+        <div class="ep-action-title" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;">
+          <span>Remote Session History</span>
+          <span style="font-size:10px;color:var(--muted);font-weight:400;">audit log</span>
+        </div>
+        <div id="ep-session-history" style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;padding:4px 0;">Loading...</div>
       </div>
     </div>
 
@@ -4660,6 +4672,7 @@ function epTab(tab) {
   if (tab === 'vulns' && activeAgentId) loadEpVulns(activeAgentId);
   if (tab === 'timeline' && activeAgentId) loadEpTimeline(activeAgentId, 'all');
   if (tab === 'processes' && activeAgentId) loadEpProcesses(activeAgentId);
+  if (tab === 'actions' && activeAgentId) loadSessionHistory(activeAgentId);
 }
 
 // Global cache for endpoint alert hits — avoids embedding JSON in HTML attributes
@@ -4852,13 +4865,94 @@ function openRemoteDesktop() {
   const rdId = getRustDeskId(activeAgentId);
   const rdBox = document.getElementById('ep-rd-id-box');
   if (rdId) {
-    // Deep link into native RustDesk app — opens and connects directly, no typing needed
+    // Log the session before launching
+    const agent = agentsData[activeAgentId];
+    const userInfo = JSON.parse(sessionStorage.getItem('p1_user') || '{}');
+    fetch(`${PROXY_URL}/rmm/session-log`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agentId: activeAgentId,
+        agentName: agent?.name || activeAgentId,
+        action: 'remote_desktop',
+        technician: userInfo.email || userInfo.username || 'admin',
+        rustdeskId: rdId
+      })
+    }).catch(() => {});
+    // Deep link into native RustDesk app
     window.open(`rustdesk://${rdId}`, '_blank');
     document.getElementById('ep-rd-id-value').textContent = rdId;
     rdBox.style.display = 'block';
+    // Refresh session history after a short delay
+    setTimeout(() => loadSessionHistory(activeAgentId), 800);
   } else {
     rdBox.style.display = 'none';
     showToast('RustDesk not yet registered on this device. Run the installer first.', 'warn');
+  }
+}
+
+async function loadSessionHistory(agentId) {
+  const el = document.getElementById('ep-session-history');
+  if (!el) return;
+  try {
+    const r = await fetch(`${PROXY_URL}/rmm/sessions?agentId=${agentId}`);
+    const sessions = await r.json();
+    if (!sessions.length) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:6px 0;">No remote sessions recorded yet.</div>';
+      return;
+    }
+    const actionLabels = { remote_desktop: '🖥 Remote Desktop', restart: '⚡ Restart Endpoint', isolate: '🔒 Isolated', reconnect: '🔄 Reconnected' };
+    el.innerHTML = sessions.slice(0, 10).map(s => {
+      const dt = new Date(s.timestamp);
+      const dateStr = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const timeStr = dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      const label = actionLabels[s.action] || s.action;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;color:var(--text);">${label}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;">${s.technician || 'admin'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:10px;color:var(--muted);">${dateStr}</div>
+          <div style="font-size:10px;color:var(--muted);">${timeStr}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:11px;">Could not load session history.</div>';
+  }
+}
+
+async function restartEndpoint() {
+  if (!activeAgentId) return;
+  const agent = agentsData[activeAgentId];
+  const name = agent?.name || activeAgentId;
+  if (!confirm(`Restart ${name}?\n\nThis will reboot the endpoint in 60 seconds. Any unsaved work on that machine will be lost.`)) return;
+
+  showToast(`Sending restart command to ${name}...`, 'info');
+  try {
+    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ command: 'restart-win', arguments: [] })
+    });
+    if (!res.ok) throw new Error('AR returned ' + res.status);
+    // Log the action
+    const userInfo = JSON.parse(sessionStorage.getItem('p1_user') || '{}');
+    fetch(`${PROXY_URL}/rmm/session-log`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agentId: activeAgentId,
+        agentName: name,
+        action: 'restart',
+        technician: userInfo.email || userInfo.username || 'admin'
+      })
+    }).catch(() => {});
+    showToast(`Restart command sent — ${name} will reboot in 60s.`, 'success');
+    setTimeout(() => loadSessionHistory(activeAgentId), 1000);
+  } catch(e) {
+    showToast('Restart failed — ensure P1 agent v2+ is installed on this endpoint.', 'error');
   }
 }
 
