@@ -474,6 +474,158 @@
     .mitre-cell-id { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); }
     .mitre-cell-count { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
     .mitre-cell-name { font-size: 9px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── EDR CONSOLE ─────────────────────────────────────────────── */
+    .edr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .edr-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+    .edr-grid.full { grid-template-columns: 1fr; }
+
+    /* Threat Hunt */
+    .hunt-builder { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .hunt-field-select, .hunt-op-select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; font-size: 12px; outline: none; font-family: 'JetBrains Mono', monospace; min-width: 160px; }
+    .hunt-value-input { flex: 1; min-width: 200px; background: var(--surface); border: 1px solid var(--border); padding: 8px 12px; color: var(--white); font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; transition: border-color 0.2s; }
+    .hunt-value-input:focus { border-color: var(--accent); }
+    .hunt-btn { background: var(--accent); color: var(--black); border: none; padding: 8px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .hunt-btn:hover { background: var(--white); }
+    .hunt-result-row { display: grid; grid-template-columns: 90px 36px 130px 1fr 100px; gap: 10px; padding: 8px 16px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; font-size: 12px; cursor: pointer; transition: background 0.15s; }
+    .hunt-result-row:hover { background: rgba(0,255,209,0.02); }
+    .hunt-result-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; cursor: default; }
+    .hunt-saved-btn { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--deep); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; font-size: 12px; color: var(--text); }
+    .hunt-saved-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+    .hunt-saved-name { font-weight: 500; }
+    .hunt-saved-desc { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+    /* IOC Search */
+    .ioc-search-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    .ioc-type-select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 9px 12px; font-size: 12px; outline: none; min-width: 140px; }
+    .ioc-input { flex: 1; background: var(--surface); border: 1px solid var(--border); padding: 9px 14px; color: var(--white); font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none; transition: border-color 0.2s; }
+    .ioc-input:focus { border-color: var(--danger); }
+    .ioc-btn { background: var(--danger); color: var(--white); border: none; padding: 9px 24px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+    .ioc-btn:hover { background: #ff1a3d; }
+    .ioc-hit { padding: 10px 16px; border-bottom: 1px solid rgba(17,34,64,0.5); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.15s; }
+    .ioc-hit:hover { background: rgba(255,59,92,0.04); }
+    .ioc-hit-agent { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent2); width: 130px; flex-shrink: 0; }
+    .ioc-hit-desc { font-size: 12px; color: var(--text); flex: 1; }
+    .ioc-hit-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; }
+
+    /* Behavioral Analytics */
+    .behavior-card { background: var(--surface); border: 1px solid var(--border); padding: 16px 20px; display: flex; gap: 16px; align-items: center; cursor: pointer; transition: border-color 0.2s; }
+    .behavior-card:hover { border-color: var(--border2); }
+    .behavior-agent { flex: 1; }
+    .behavior-name { font-size: 13px; color: var(--white); font-weight: 500; margin-bottom: 4px; }
+    .behavior-ip { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+    .behavior-bars { flex: 2; display: flex; flex-direction: column; gap: 5px; }
+    .behavior-bar-row { display: flex; align-items: center; gap: 8px; font-size: 10px; }
+    .behavior-bar-label { font-family: 'JetBrains Mono', monospace; color: var(--muted); width: 60px; flex-shrink: 0; }
+    .behavior-bar-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .behavior-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+    .behavior-score { width: 56px; text-align: center; flex-shrink: 0; }
+    .behavior-score-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; line-height: 1; }
+    .behavior-score-label { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--muted); letter-spacing: 1px; }
+    .behavior-anomaly { display: inline-block; padding: 2px 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px; border-radius: 2px; }
+    .anomaly-high { background: rgba(255,59,92,0.15); color: var(--danger); border: 1px solid rgba(255,59,92,0.3); }
+    .anomaly-med { background: rgba(245,166,35,0.1); color: var(--warning); border: 1px solid rgba(245,166,35,0.3); }
+    .anomaly-low { background: rgba(0,255,209,0.05); color: var(--accent); border: 1px solid rgba(0,255,209,0.2); }
+
+    /* Incidents */
+    .incident-row { display: grid; grid-template-columns: 36px 120px 1fr 90px 80px 80px 100px; gap: 10px; padding: 10px 16px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; cursor: pointer; transition: background 0.15s; font-size: 12px; }
+    .incident-row:hover { background: rgba(255,255,255,0.02); }
+    .incident-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; cursor: default; }
+    .inc-status { display: inline-block; padding: 2px 7px; font-family: 'JetBrains Mono', monospace; font-size: 9px; border-radius: 2px; white-space: nowrap; }
+    .inc-open { background: rgba(255,59,92,0.12); color: var(--danger); border: 1px solid rgba(255,59,92,0.3); }
+    .inc-invest { background: rgba(245,166,35,0.1); color: var(--warning); border: 1px solid rgba(245,166,35,0.3); }
+    .inc-closed { background: rgba(0,255,209,0.06); color: var(--accent); border: 1px solid rgba(0,255,209,0.2); }
+    .inc-sev-badge { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 14px; border-radius: 2px; }
+
+    /* Playbooks */
+    .playbook-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .playbook-card { background: var(--surface); border: 1px solid var(--border); padding: 18px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+    .playbook-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .playbook-card.red::before { background: linear-gradient(to right, transparent, var(--danger), transparent); }
+    .playbook-card.blue::before { background: linear-gradient(to right, transparent, var(--accent2), transparent); }
+    .playbook-card.green::before { background: linear-gradient(to right, transparent, var(--accent), transparent); }
+    .playbook-card.yellow::before { background: linear-gradient(to right, transparent, var(--warning), transparent); }
+    .playbook-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+    .playbook-icon { font-size: 28px; margin-bottom: 10px; }
+    .playbook-name { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--white); letter-spacing: 1px; margin-bottom: 6px; }
+    .playbook-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .playbook-steps { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .playbook-step { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .playbook-step::before { content: '→'; color: var(--accent); }
+    .playbook-badge { position: absolute; top: 14px; right: 14px; background: rgba(0,255,209,0.1); border: 1px solid rgba(0,255,209,0.2); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 6px; }
+
+    /* Live Telemetry Feed */
+    .telemetry-item { display: grid; grid-template-columns: 70px 24px 120px 1fr 80px; gap: 10px; padding: 7px 16px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; font-size: 11px; font-family: 'JetBrains Mono', monospace; transition: background 0.1s; cursor: pointer; }
+    .telemetry-item:hover { background: rgba(0,255,209,0.02); }
+    .telemetry-time { color: var(--muted); }
+    .telemetry-agent { color: var(--accent2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .telemetry-proc { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .telemetry-dot-proc { color: var(--accent); }
+    .telemetry-dot-file { color: var(--warning); }
+    .telemetry-dot-net { color: var(--accent2); }
+    .telemetry-dot-auth { color: var(--danger); }
+
+    /* Endpoint Timeline */
+    .ep-timeline-item { display: flex; gap: 12px; padding: 10px 20px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: flex-start; cursor: pointer; transition: background 0.15s; }
+    .ep-timeline-item:hover { background: rgba(255,255,255,0.02); }
+    .ep-tl-icon { width: 28px; height: 28px; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+    .ep-tl-icon.proc { background: rgba(0,255,209,0.08); border: 1px solid rgba(0,255,209,0.2); }
+    .ep-tl-icon.file { background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.2); }
+    .ep-tl-icon.net { background: rgba(0,132,255,0.08); border: 1px solid rgba(0,132,255,0.2); }
+    .ep-tl-icon.auth { background: rgba(255,59,92,0.08); border: 1px solid rgba(255,59,92,0.2); }
+    .ep-tl-icon.alert { background: rgba(255,59,92,0.12); border: 1px solid rgba(255,59,92,0.3); }
+    .ep-tl-content { flex: 1; min-width: 0; }
+    .ep-tl-title { font-size: 12px; color: var(--text); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ep-tl-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+    .ep-tl-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; }
+
+    /* Process Tree */
+    .proc-tree-item { padding: 7px 20px; border-bottom: 1px solid rgba(17,34,64,0.5); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
+    .proc-tree-item:hover { background: rgba(255,255,255,0.02); }
+    .proc-indent { display: inline-block; width: 14px; border-left: 1px solid var(--border); border-bottom: 1px solid var(--border); height: 10px; margin-right: 4px; flex-shrink: 0; }
+    .proc-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent2); }
+    .proc-cmd { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 280px; }
+    .proc-suspicious { color: var(--danger); }
+    .proc-risk { font-family: 'JetBrains Mono', monospace; font-size: 9px; margin-left: auto; flex-shrink: 0; padding: 1px 5px; border-radius: 2px; }
+    .proc-risk.high { background: rgba(255,59,92,0.1); color: var(--danger); }
+    .proc-risk.med { background: rgba(245,166,35,0.1); color: var(--warning); }
+    .proc-risk.ok { background: rgba(0,255,209,0.06); color: var(--accent); }
+
+    /* Hunt active-query display */
+    .active-hunt-query { background: rgba(0,255,209,0.04); border: 1px solid rgba(0,255,209,0.15); padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Watchlist */
+    .watchlist-row { display: grid; grid-template-columns: 80px 1fr 100px 80px; gap: 10px; padding: 9px 16px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; font-size: 12px; }
+    .watchlist-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+    .watchlist-type { font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+    .watchlist-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--warning); word-break: break-all; }
+    .watchlist-hits { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--danger); }
+    .edr-tabs { display: flex; gap: 2px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+    .edr-tab { padding: 10px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; }
+    .edr-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .edr-tab:hover:not(.active) { color: var(--text); }
+    .edr-tab-content { display: none; }
+    .edr-tab-content.active { display: block; }
+
+    /* Live feed pulse */
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; flex-shrink: 0; display: inline-block; margin-right: 6px; }
+
+    /* Adversary intelligence */
+    .adversary-card { background: var(--surface); border: 1px solid var(--border); padding: 16px; margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .adversary-icon { width: 44px; height: 44px; background: rgba(255,59,92,0.08); border: 1px solid rgba(255,59,92,0.25); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .adversary-name { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--white); letter-spacing: 1px; margin-bottom: 4px; }
+    .adversary-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+    .adversary-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 6px; background: rgba(0,132,255,0.08); border: 1px solid rgba(0,132,255,0.2); color: var(--accent2); border-radius: 2px; }
+    .adversary-conf { font-family: 'Bebas Neue', sans-serif; font-size: 24px; margin-left: auto; flex-shrink: 0; }
+
+    /* Incident detail modal */
+    #incident-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 400; align-items: center; justify-content: center; }
+    #incident-modal.open { display: flex; }
+    .incident-modal-box { background: var(--surface); border: 1px solid var(--border2); width: 700px; max-height: 85vh; overflow-y: auto; }
+
+    /* Watchlist empty */
+    .edr-empty { padding: 32px; text-align: center; color: var(--muted); font-size: 12px; }
+    .edr-empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.25; }
   </style>
 </head>
 <body>
@@ -558,9 +710,10 @@
         <span class="nav-icon">🎓</span>
         <span>Security Training</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='edr.html'">
+      <div class="nav-item" onclick="showView('edr')">
         <span class="nav-icon">&#9632;</span>
         <span>EDR Console</span>
+        <span class="nav-badge" id="edr-incident-badge" style="display:none;background:var(--danger)">0</span>
       </div>
       <div class="nav-item" onclick="window.location.href='zero-trust.html'">
         <span class="nav-icon">&#128274;</span>
@@ -1355,7 +1508,261 @@
         </div>
       </div>
 
+      <!-- EDR CONSOLE VIEW -->
+      <div class="view" id="view-edr">
+        <div class="stats-row">
+          <div class="stat-card red">
+            <div class="stat-label">Open Incidents</div>
+            <div class="stat-value danger" id="edr-stat-incidents">--</div>
+            <div class="stat-sub">Requiring investigation</div>
+            <div class="stat-trend">🚨</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-label">High Risk Endpoints</div>
+            <div class="stat-value" style="color:var(--warning)" id="edr-stat-highrisk">--</div>
+            <div class="stat-sub">Behavioral anomaly detected</div>
+            <div class="stat-trend">⚡</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">IOC Watchlist</div>
+            <div class="stat-value blue" id="edr-stat-ioc">0</div>
+            <div class="stat-sub">Active indicators tracked</div>
+            <div class="stat-trend">👁</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Telemetry Events/hr</div>
+            <div class="stat-value accent" id="edr-stat-telemetry">--</div>
+            <div class="stat-sub">Live process telemetry</div>
+            <div class="stat-trend">📡</div>
+          </div>
+        </div>
+
+        <div class="edr-tabs">
+          <div class="edr-tab active" onclick="edrTab('hunt')" id="etab-hunt">THREAT HUNT</div>
+          <div class="edr-tab" onclick="edrTab('ioc')" id="etab-ioc">IOC SEARCH</div>
+          <div class="edr-tab" onclick="edrTab('incidents')" id="etab-incidents">INCIDENTS</div>
+          <div class="edr-tab" onclick="edrTab('behavioral')" id="etab-behavioral">BEHAVIORAL ANALYTICS</div>
+          <div class="edr-tab" onclick="edrTab('playbooks')" id="etab-playbooks">RESPONSE PLAYBOOKS</div>
+          <div class="edr-tab" onclick="edrTab('telemetry')" id="etab-telemetry">LIVE TELEMETRY</div>
+          <div class="edr-tab" onclick="edrTab('watchlist')" id="etab-watchlist">WATCHLIST</div>
+        </div>
+
+        <!-- THREAT HUNT -->
+        <div class="edr-tab-content active" id="et-hunt">
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-header">
+              <div class="panel-title">Query Builder</div>
+              <div class="panel-action" onclick="clearHuntResults()">Clear</div>
+            </div>
+            <div style="padding:16px;">
+              <div class="hunt-builder">
+                <select class="hunt-field-select" id="hunt-field">
+                  <option value="data.win.eventdata.commandLine">Command Line</option>
+                  <option value="data.win.eventdata.image">Process Image</option>
+                  <option value="data.win.eventdata.parentImage">Parent Process</option>
+                  <option value="data.win.eventdata.hashes">File Hash</option>
+                  <option value="data.srcip">Source IP</option>
+                  <option value="data.dstip">Dest IP</option>
+                  <option value="data.win.eventdata.targetUserName">Target Username</option>
+                  <option value="data.syscheck.path">File Path</option>
+                  <option value="agent.name">Agent Name</option>
+                  <option value="rule.description">Rule Description</option>
+                </select>
+                <select class="hunt-op-select" id="hunt-op">
+                  <option value="match_phrase">contains</option>
+                  <option value="match">matches</option>
+                  <option value="term">equals (exact)</option>
+                  <option value="wildcard">wildcard (*,?)</option>
+                </select>
+                <input type="text" class="hunt-value-input" id="hunt-value" placeholder="Enter search value..." onkeydown="if(event.key==='Enter')runThreatHunt()"/>
+                <select class="hunt-field-select" id="hunt-time" style="min-width:120px;">
+                  <option value="now-1h">Last 1 hour</option>
+                  <option value="now-24h" selected>Last 24 hours</option>
+                  <option value="now-7d">Last 7 days</option>
+                  <option value="now-30d">Last 30 days</option>
+                </select>
+                <button class="hunt-btn" onclick="runThreatHunt()">⌕ HUNT</button>
+              </div>
+              <div id="hunt-active-query" style="display:none;" class="active-hunt-query">
+                <span id="hunt-query-display"></span>
+                <span style="cursor:pointer;opacity:0.5" onclick="clearHuntResults()">✕</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:280px 1fr;gap:16px;">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">Saved Hunt Queries</div></div>
+              <div style="padding:8px;">
+                <div id="hunt-saved-list"></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title">Hunt Results</div>
+                <div id="hunt-result-count" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);"></div>
+              </div>
+              <div class="hunt-result-row header"><div>Time</div><div>Lvl</div><div>Agent</div><div>Match</div><div>Rule</div></div>
+              <div id="hunt-results"><div style="padding:32px;text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;">// Select a saved hunt or build a custom query above</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- IOC SEARCH -->
+        <div class="edr-tab-content" id="et-ioc">
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-header"><div class="panel-title">Indicator of Compromise Search</div></div>
+            <div style="padding:16px;">
+              <div class="ioc-search-row">
+                <select class="ioc-type-select" id="ioc-type">
+                  <option value="ip">IP Address</option>
+                  <option value="hash">File Hash (MD5/SHA256)</option>
+                  <option value="domain">Domain / URL</option>
+                  <option value="filename">Filename</option>
+                  <option value="process">Process Name</option>
+                  <option value="user">Username</option>
+                  <option value="registry">Registry Key</option>
+                </select>
+                <input type="text" class="ioc-input" id="ioc-value" placeholder="Enter IOC value..." onkeydown="if(event.key==='Enter')searchIOC()"/>
+                <button class="ioc-btn" onclick="searchIOC()">🔍 SEARCH ALL AGENTS</button>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);align-self:center;letter-spacing:1px;">RECENT:</span>
+                <div class="search-chip" onclick="iocQuickSearch('ip','192.168')">Private IPs</div>
+                <div class="search-chip" onclick="iocQuickSearch('process','powershell.exe')">powershell.exe</div>
+                <div class="search-chip" onclick="iocQuickSearch('process','cmd.exe')">cmd.exe</div>
+                <div class="search-chip" onclick="iocQuickSearch('process','mshta.exe')">mshta.exe</div>
+                <div class="search-chip" onclick="iocQuickSearch('process','wscript.exe')">wscript.exe</div>
+                <div class="search-chip" onclick="iocQuickSearch('process','certutil.exe')">certutil.exe</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Search Results</div>
+              <div id="ioc-result-summary" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);"></div>
+            </div>
+            <div id="ioc-results"><div style="padding:32px;text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;">// Enter an IOC value to search across all endpoint telemetry</div></div>
+          </div>
+        </div>
+
+        <!-- INCIDENTS -->
+        <div class="edr-tab-content" id="et-incidents">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Auto-correlated alert groups. Update status to track investigation progress.</div>
+            <button onclick="autoCorrelateIncidents()" style="background:var(--accent);color:var(--black);border:none;padding:7px 16px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;">⚡ AUTO-CORRELATE</button>
+          </div>
+          <div class="panel">
+            <div class="incident-row header"><div></div><div>ID</div><div>Title</div><div>Status</div><div>Agents</div><div>Alerts</div><div>Last Seen</div></div>
+            <div id="incident-list"><div style="padding:32px;text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;">// Click AUTO-CORRELATE to group recent alerts into incidents</div></div>
+          </div>
+        </div>
+
+        <!-- BEHAVIORAL ANALYTICS -->
+        <div class="edr-tab-content" id="et-behavioral">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Risk scores computed from alert frequency, MITRE coverage, and behavioral deviations. Higher = more anomalous.</div>
+            </div>
+            <button onclick="loadBehavioralAnalytics()" class="panel-action" style="font-size:11px;">↻ Refresh</button>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div class="edr-grid.three" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;" id="behavior-summary-cards">
+              <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div>
+            </div>
+          </div>
+          <div id="behavior-agent-list">
+            <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Computing behavioral baselines...</div>
+          </div>
+        </div>
+
+        <!-- RESPONSE PLAYBOOKS -->
+        <div class="edr-tab-content" id="et-playbooks">
+          <div style="margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Automated response workflows. Select an endpoint from the Devices view first, or run globally.</div>
+          <div class="playbook-grid" id="playbook-grid"></div>
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">Adversary Attribution</div></div>
+            <div style="padding:12px;" id="adversary-intel">
+              <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Analyzing MITRE patterns...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE TELEMETRY -->
+        <div class="edr-tab-content" id="et-telemetry">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <span class="live-dot"></span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);">LIVE PROCESS TELEMETRY — Auto-refreshes every 15s</span>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <select id="telem-agent-filter" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:12px;outline:none;font-family:'JetBrains Mono',monospace;">
+                <option value="">All Agents</option>
+              </select>
+              <select id="telem-type-filter" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:12px;outline:none;font-family:'JetBrains Mono',monospace;">
+                <option value="">All Events</option>
+                <option value="proc">Process</option>
+                <option value="file">File</option>
+                <option value="net">Network</option>
+                <option value="auth">Auth</option>
+              </select>
+              <button class="panel-action" onclick="loadLiveTelemetry()">↻ Refresh</button>
+            </div>
+          </div>
+          <div class="panel">
+            <div style="display:grid;grid-template-columns:70px 24px 120px 1fr 80px;gap:10px;padding:7px 16px;background:var(--deep);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;">
+              <div>Time</div><div>Type</div><div>Agent</div><div>Event</div><div>Rule</div>
+            </div>
+            <div id="telemetry-feed">
+              <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading process events...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WATCHLIST -->
+        <div class="edr-tab-content" id="et-watchlist">
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+              <div>
+                <label style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:5px;">TYPE</label>
+                <select id="wl-type" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px;font-size:12px;outline:none;min-width:130px;">
+                  <option value="ip">IP Address</option>
+                  <option value="hash">File Hash</option>
+                  <option value="domain">Domain</option>
+                  <option value="process">Process Name</option>
+                  <option value="user">Username</option>
+                </select>
+              </div>
+              <div style="flex:1;">
+                <label style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:5px;">IOC VALUE</label>
+                <input type="text" id="wl-value" placeholder="Add indicator to watch..." style="width:100%;background:var(--surface);border:1px solid var(--border);padding:8px 12px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--warning)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')addToWatchlist()"/>
+              </div>
+              <div>
+                <label style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:5px;">NOTE</label>
+                <input type="text" id="wl-note" placeholder="Optional note..." style="background:var(--surface);border:1px solid var(--border);padding:8px 12px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;width:180px;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--warning)'" onblur="this.style.borderColor='var(--border)'"/>
+              </div>
+              <button onclick="addToWatchlist()" style="background:var(--warning);color:var(--black);border:none;padding:8px 18px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;">+ ADD TO WATCHLIST</button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">Active Watchlist</div><div class="panel-action" onclick="checkWatchlistHits()">↻ Check All Hits</div></div>
+            <div class="watchlist-row header"><div>Type</div><div>Indicator</div><div>Hits (24h)</div><div>Action</div></div>
+            <div id="watchlist-items"><div style="padding:24px;text-align:center;color:var(--muted);font-size:12px;">No indicators on watchlist yet</div></div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
+  </div>
+</div>
+
+<!-- INCIDENT DETAIL MODAL -->
+<div id="incident-modal">
+  <div class="incident-modal-box">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--deep);">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;" id="inc-modal-title">INCIDENT</div>
+      <button onclick="document.getElementById('incident-modal').classList.remove('open')" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div style="padding:20px;" id="inc-modal-body"></div>
   </div>
 </div>
 
@@ -1391,8 +1798,10 @@
     </div>
     <button class="ep-close" onclick="closeEndpointPanel()">✕</button>
   </div>
-  <div class="ep-tabs">
+  <div class="ep-tabs" style="overflow-x:auto;">
     <div class="ep-tab active" onclick="epTab('overview')" id="tab-overview">OVERVIEW</div>
+    <div class="ep-tab" onclick="epTab('timeline')" id="tab-timeline">TIMELINE</div>
+    <div class="ep-tab" onclick="epTab('processes')" id="tab-processes">PROCESSES</div>
     <div class="ep-tab" onclick="epTab('alerts')" id="tab-alerts">ALERTS</div>
     <div class="ep-tab" onclick="epTab('vulns')" id="tab-vulns">VULNS</div>
     <div class="ep-tab" onclick="epTab('actions')" id="tab-actions">ACTIONS</div>
@@ -1408,6 +1817,36 @@
         </div>
       </div>
     </div>
+    <!-- TIMELINE TAB -->
+    <div class="ep-section" id="ep-timeline-section">
+      <div style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div class="ep-action-title" style="margin:0;">Unified Event Timeline — Last 24h</div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="loadEpTimeline(activeAgentId,'proc')" class="action-btn">Process</button>
+          <button onclick="loadEpTimeline(activeAgentId,'file')" class="action-btn">File</button>
+          <button onclick="loadEpTimeline(activeAgentId,'net')" class="action-btn">Network</button>
+          <button onclick="loadEpTimeline(activeAgentId,'all')" class="action-btn">All</button>
+        </div>
+      </div>
+      <div id="ep-timeline-list">
+        <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading timeline...</div>
+      </div>
+    </div>
+
+    <!-- PROCESSES TAB -->
+    <div class="ep-section" id="ep-processes-section">
+      <div style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <div class="ep-action-title" style="margin:0;">Process Activity — Last 24h</div>
+        <div class="panel-action" onclick="loadEpProcesses(activeAgentId)">↻ Refresh</div>
+      </div>
+      <div style="padding:7px 20px;background:var(--deep);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:flex;gap:12px;">
+        <span style="flex:1;">Process</span><span style="width:200px;">Command Line (truncated)</span><span style="width:60px;">Risk</span>
+      </div>
+      <div id="ep-processes-list">
+        <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading processes...</div>
+      </div>
+    </div>
+
     <!-- ALERTS TAB -->
     <div class="ep-section" id="ep-alerts-section">
       <div style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
@@ -1444,12 +1883,38 @@
             <span class="btn-sub">RustDesk — via P1 relay</span>
           </button>
         </div>
+        <div class="ep-action-title" style="margin-top:16px;">Response Actions</div>
+        <div class="ep-action-grid">
+          <button class="ep-action-btn" style="border-color:rgba(255,59,92,0.4);color:var(--danger);" onclick="killSuspiciousProcesses()">
+            <span class="btn-icon">💀</span>
+            <span class="btn-label">KILL PROCESSES</span>
+            <span class="btn-sub">Terminate suspicious procs</span>
+          </button>
+          <button class="ep-action-btn" style="border-color:rgba(245,166,35,0.4);color:var(--warning);" onclick="collectEvidence()">
+            <span class="btn-icon">🗂</span>
+            <span class="btn-label">COLLECT EVIDENCE</span>
+            <span class="btn-sub">Export logs & artifacts</span>
+          </button>
+          <button class="ep-action-btn" style="border-color:rgba(0,132,255,0.4);color:var(--accent2);" onclick="runLiveQuery()">
+            <span class="btn-icon">⌨</span>
+            <span class="btn-label">LIVE QUERY</span>
+            <span class="btn-sub">Run custom command</span>
+          </button>
+          <button class="ep-action-btn" style="border-color:rgba(0,255,209,0.3);color:var(--accent);" onclick="pushPolicyUpdate()">
+            <span class="btn-icon">📋</span>
+            <span class="btn-label">PUSH POLICY</span>
+            <span class="btn-sub">Update security config</span>
+          </button>
+        </div>
         <div class="ep-action-title" style="margin-top:8px;">External Links</div>
         <button class="ep-action-full" onclick="openInWazuh()">
           <span>📡</span> View Full Alert History in Wazuh SIEM
         </button>
         <button class="ep-action-full" onclick="openRemoteDesktop()">
           <span>🖥️</span> Launch Remote Desktop (RustDesk Web)
+        </button>
+        <button class="ep-action-full" onclick="openEdrForAgent()">
+          <span>🔍</span> Threat Hunt on This Endpoint
         </button>
         <div id="ep-rd-id-box" style="display:none;margin-top:12px;padding:12px 16px;background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.15);border-radius:4px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">RUSTDESK PEER ID</div>
@@ -1563,6 +2028,7 @@ function showView(name) {
   if (name === 'clients') loadClients();
   if (name === 'darkweb') initDarkWeb();
   if (name === 'vulnerabilities') initVulnView();
+  if (name === 'edr') initEdrView();
 }
 
 function updatePreview() {
@@ -3007,11 +3473,13 @@ function epTab(tab) {
   document.querySelectorAll('.ep-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.ep-section').forEach(s => s.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  const map = { overview: 'ep-overview', alerts: 'ep-alerts-section', actions: 'ep-actions-section', vulns: 'ep-vulns-section' };
+  const map = { overview: 'ep-overview', alerts: 'ep-alerts-section', actions: 'ep-actions-section', vulns: 'ep-vulns-section', timeline: 'ep-timeline-section', processes: 'ep-processes-section' };
   const el = document.getElementById(map[tab]);
   if (el) el.classList.add('active');
   if (tab === 'alerts' && activeAgentId) loadEpAlertsTab(activeAgentId);
   if (tab === 'vulns' && activeAgentId) loadEpVulns(activeAgentId);
+  if (tab === 'timeline' && activeAgentId) loadEpTimeline(activeAgentId, 'all');
+  if (tab === 'processes' && activeAgentId) loadEpProcesses(activeAgentId);
 }
 
 async function loadEpMiniAlerts(agentId) {
@@ -4014,6 +4482,894 @@ async function loadEpVulns(agentId) {
 function escH(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+// EDR CONSOLE
+// ============================================================
+
+let edrTelemetryTimer = null;
+let edrWatchlist = JSON.parse(localStorage.getItem('edr_watchlist') || '[]');
+let edrIncidents = JSON.parse(localStorage.getItem('edr_incidents') || '[]');
+
+const HUNT_SAVED_QUERIES = [
+  { label: 'PowerShell Encoded CMD', field: 'data.win.eventdata.commandLine', op: 'wildcard', value: '*-EncodedCommand*', time: 'now-24h' },
+  { label: 'LOLBin: Certutil Download', field: 'data.win.eventdata.commandLine', op: 'wildcard', value: '*certutil*urlcache*', time: 'now-24h' },
+  { label: 'LSASS Memory Access', field: 'data.win.eventdata.targetImage', op: 'wildcard', value: '*lsass*', time: 'now-24h' },
+  { label: 'Net Recon Commands', field: 'data.win.eventdata.commandLine', op: 'wildcard', value: '*net user*', time: 'now-24h' },
+  { label: 'Scheduled Task Create', field: 'data.win.eventdata.commandLine', op: 'wildcard', value: '*schtasks*/create*', time: 'now-7d' },
+  { label: 'WMI Remote Execution', field: 'data.win.eventdata.commandLine', op: 'wildcard', value: '*wmic*process*call*', time: 'now-7d' },
+  { label: 'Reg Run Key Persistence', field: 'data.win.eventdata.targetObject', op: 'wildcard', value: '*\\Run\\*', time: 'now-7d' },
+  { label: 'Mimikatz Patterns', field: 'data.win.eventdata.commandLine', op: 'wildcard', value: '*sekurlsa*', time: 'now-7d' },
+  { label: 'Suspicious Parent: Office', field: 'data.win.eventdata.parentImage', op: 'wildcard', value: '*WINWORD*', time: 'now-24h' },
+  { label: 'PsExec Lateral Move', field: 'data.win.eventdata.image', op: 'wildcard', value: '*psexec*', time: 'now-7d' },
+  { label: 'Shadow Copy Delete', field: 'data.win.eventdata.commandLine', op: 'wildcard', value: '*vssadmin*delete*', time: 'now-7d' },
+  { label: 'BitLocker Abuse', field: 'data.win.eventdata.commandLine', op: 'wildcard', value: '*manage-bde*', time: 'now-24h' },
+];
+
+const ADVERSARY_PATTERNS = [
+  { actor: 'APT28 (Fancy Bear)', origin: 'Russia / GRU', tactics: ['T1078','T1059','T1055'], tags: ['espionage','phishing','living-off-land'], color: '#FF3B5C' },
+  { actor: 'APT29 (Cozy Bear)', origin: 'Russia / SVR', tactics: ['T1003','T1021','T1547'], tags: ['supply-chain','steganography','persistence'], color: '#FF3B5C' },
+  { actor: 'Lazarus Group', origin: 'North Korea / RGB', tactics: ['T1059','T1486','T1078'], tags: ['ransomware','crypto','financial'], color: '#F5A623' },
+  { actor: 'Cl0p Ransomware', origin: 'Unknown (CIS)', tactics: ['T1486','T1490','T1003'], tags: ['ransomware','extortion','MOVEit'], color: '#FF3B5C' },
+  { actor: 'FIN7 / Carbanak', origin: 'Eastern Europe', tactics: ['T1059','T1055','T1547'], tags: ['financial','backdoor','spear-phishing'], color: '#F5A623' },
+  { actor: 'LockBit 3.0', origin: 'Unknown (RaaS)', tactics: ['T1486','T1490','T1070'], tags: ['ransomware-as-a-service','fast-encrypt'], color: '#FF3B5C' },
+  { actor: 'Scattered Spider', origin: 'English-speaking', tactics: ['T1078','T1110','T1021'], tags: ['social-eng','SIM-swap','cloud'], color: '#F5A623' },
+  { actor: 'MuddyWater', origin: 'Iran / MOIS', tactics: ['T1059','T1547','T1003'], tags: ['espionage','powershell','middle-east'], color: '#0084FF' },
+];
+
+const PLAYBOOK_DEFS = [
+  { id: 'isolate-ransomware', icon: '🚨', title: 'Ransomware Response', sev: 'critical', steps: ['Isolate affected endpoints via network cut','Kill suspicious encryption processes','Preserve memory dump for forensics','Notify stakeholders + initiate IR plan','Block C2 IPs at perimeter','Restore from last clean snapshot'] },
+  { id: 'cred-theft', icon: '🔑', title: 'Credential Theft Detected', sev: 'high', steps: ['Force password reset on affected accounts','Revoke active sessions (ADFS/Azure AD)','Check for lateral movement from compromised host','Enable MFA if not already active','Hunt for LSASS access events across fleet','Review privileged account activity'] },
+  { id: 'lateral-movement', icon: '🔀', title: 'Lateral Movement', sev: 'high', steps: ['Identify origin and destination hosts','Isolate pivot endpoint','Block port 445/135/3389 between workstations','Audit service account permissions','Hunt for PsExec/WMI/RDP artefacts','Reset service account credentials'] },
+  { id: 'phishing-exec', icon: '🎣', title: 'Phishing Payload Execution', sev: 'high', steps: ['Isolate endpoint — block internet egress','Kill suspicious child processes of Office/browser','Extract and sandbox dropped payload','Identify and block C2 domain/IP','Alert user — check for credential harvesting page','Block sender at email gateway'] },
+  { id: 'data-exfil', icon: '📤', title: 'Data Exfiltration Alert', sev: 'critical', steps: ['Block egress IPs at firewall immediately','Capture netflow — identify data volume','Determine what data was exfiltrated','Notify DPO — evaluate breach notification obligations','Isolate source endpoint','Preserve all logs for forensic hold'] },
+  { id: 'insider-threat', icon: '👤', title: 'Insider Threat Indicators', sev: 'medium', steps: ['Document observed anomalous behaviour','Silently increase monitoring — avoid tipping off','Preserve all access logs and email metadata','Engage HR and legal before confronting user','Identify data accessed outside normal scope','Prepare account lockout package for rapid execution'] },
+  { id: 'vuln-exploit', icon: '💣', title: 'Active Exploit Attempt', sev: 'critical', steps: ['Identify vulnerable service and version','Apply emergency patch or mitigating control','Isolate if exploitation confirmed','Check for webshell or backdoor drops','Block exploit-delivery IPs','Review all traffic from attacker IP last 30 days'] },
+  { id: 'malware-generic', icon: '🦠', title: 'Malware Detected', sev: 'high', steps: ['Quarantine/delete malware artefact','Isolate endpoint from network','Run full syscheck + rootcheck scan','Extract hash — search IOC across fleet','Check persistence (Run keys, tasks, services)','Clean and re-image if rootkit suspected'] },
+];
+
+function edrTab(tab) {
+  document.querySelectorAll('.edr-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.edr-tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('etab-' + tab).classList.add('active');
+  document.getElementById('et-' + tab).classList.add('active');
+  if (tab === 'behavioral') loadBehavioralAnalytics();
+  if (tab === 'playbooks') { renderPlaybooks(); loadAdversaryIntel(); }
+  if (tab === 'telemetry') { populateTelemAgentFilter(); loadLiveTelemetry(); startTelemetryRefresh(); }
+  if (tab === 'watchlist') renderWatchlist();
+  if (tab === 'incidents') loadIncidents();
+  if (tab !== 'telemetry') stopTelemetryRefresh();
+}
+
+function initEdrView() {
+  renderHuntSavedQueries();
+  loadEdrStats();
+  updateWatchlistBadge();
+}
+
+async function loadEdrStats() {
+  try {
+    const [incData, behavData, telData] = await Promise.all([
+      indexerSearch('wazuh-alerts-4.x-*', {
+        size: 0,
+        query: { bool: { filter: [{ range: { timestamp: { gte: 'now-24h' } } }, { range: { 'rule.level': { gte: 12 } } }] } },
+        aggs: { by_agent: { terms: { field: 'agent.id', size: 100 } } }
+      }),
+      indexerSearch('wazuh-alerts-4.x-*', {
+        size: 0,
+        query: { bool: { filter: [{ range: { timestamp: { gte: 'now-24h' } } }, { range: { 'rule.level': { gte: 7 } } }] } },
+        aggs: { by_agent: { terms: { field: 'agent.id', size: 100 } } }
+      }),
+      indexerSearch('wazuh-alerts-4.x-*', {
+        size: 0,
+        query: { bool: { filter: [{ range: { timestamp: { gte: 'now-1h' } } }] } }
+      })
+    ]);
+
+    const openInc = edrIncidents.filter(i => i.status === 'open').length;
+    document.getElementById('edr-stat-incidents').textContent = openInc;
+
+    const highRisk = (behavData?.aggregations?.by_agent?.buckets || []).filter(b => b.doc_count >= 5).length;
+    document.getElementById('edr-stat-highrisk').textContent = highRisk;
+    document.getElementById('edr-stat-ioc').textContent = edrWatchlist.length;
+
+    const evtCount = telData?.hits?.total?.value || 0;
+    document.getElementById('edr-stat-telemetry').textContent = evtCount.toLocaleString();
+
+    const badge = document.getElementById('edr-incident-badge');
+    if (badge) { badge.textContent = openInc; badge.style.display = openInc > 0 ? 'flex' : 'none'; }
+  } catch(e) {}
+}
+
+// ── THREAT HUNT ──────────────────────────────────────────────
+function renderHuntSavedQueries() {
+  const el = document.getElementById('hunt-saved-list');
+  if (!el) return;
+  el.innerHTML = HUNT_SAVED_QUERIES.map((q, i) => `
+    <div style="padding:8px 10px;border-bottom:1px solid var(--border);cursor:pointer;font-size:12px;color:var(--text);transition:background 0.15s;" onclick="runSavedHunt(${i})" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+      <div style="font-weight:500;">${escH(q.label)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escH(q.field)}: ${escH(q.value)}</div>
+    </div>`).join('');
+}
+
+function runSavedHunt(idx) {
+  const q = HUNT_SAVED_QUERIES[idx];
+  document.getElementById('hunt-field').value = q.field;
+  document.getElementById('hunt-op').value = q.op;
+  document.getElementById('hunt-value').value = q.value;
+  document.getElementById('hunt-time').value = q.time;
+  runThreatHunt();
+}
+
+async function runThreatHunt() {
+  const field = document.getElementById('hunt-field').value;
+  const op = document.getElementById('hunt-op').value;
+  const value = document.getElementById('hunt-value').value.trim();
+  const time = document.getElementById('hunt-time').value;
+  if (!value) { showToast('Enter a search value first.', 'warn'); return; }
+
+  const resultsEl = document.getElementById('hunt-results');
+  const countEl = document.getElementById('hunt-result-count');
+  resultsEl.innerHTML = '<div style="padding:24px;text-align:center;"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div></div>';
+
+  let clause;
+  if (op === 'wildcard') clause = { wildcard: { [field]: { value, case_insensitive: true } } };
+  else if (op === 'term') clause = { term: { [field]: value } };
+  else if (op === 'match_phrase') clause = { match_phrase: { [field]: value } };
+  else clause = { match: { [field]: value } };
+
+  const queryDisplay = document.getElementById('hunt-query-display');
+  queryDisplay.textContent = `${field} ${op} "${value}" — ${time.replace('now-','')}`;
+  document.getElementById('hunt-active-query').style.display = 'flex';
+
+  try {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 200, sort: [{ timestamp: { order: 'desc' } }],
+      query: { bool: { filter: [clause, { range: { timestamp: { gte: time } } }] } },
+      _source: ['timestamp','agent.name','agent.id','rule.level','rule.description','rule.mitre.id',field,'data.win.eventdata.commandLine','data.win.eventdata.image']
+    });
+    const hits = data?.hits?.hits || [];
+    const total = data?.hits?.total?.value || 0;
+    countEl.textContent = `${total.toLocaleString()} hits`;
+
+    if (!hits.length) {
+      resultsEl.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-family:\'JetBrains Mono\',monospace;font-size:11px;">// No matches found for this query</div>';
+      return;
+    }
+
+    resultsEl.innerHTML = hits.map(h => {
+      const s = h._source;
+      const level = s.rule?.level || 0;
+      const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : level >= 4 ? 'var(--accent2)' : 'var(--muted)';
+      const matchedVal = getNestedVal(s, field) || s?.data?.win?.eventdata?.commandLine || '';
+      const mitre = s.rule?.mitre?.id?.[0] || '';
+      return `<div class="hunt-result-row" onclick="openHuntResultDetail(${escH(JSON.stringify(h))})">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtTime(s.timestamp)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${color};">${level}</div>
+        <div style="font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escH(s.agent?.name || '--')}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escH(matchedVal)}">${escH(String(matchedVal).substring(0,80))}</div>
+        <div style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escH(s.rule?.description || '')}${mitre ? ` <span style="color:var(--accent2)">${mitre}</span>` : ''}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    resultsEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--danger);font-size:12px;">Query failed: ${escH(e.message)}</div>`;
+  }
+}
+
+function getNestedVal(obj, path) {
+  return path.split('.').reduce((o, k) => o?.[k], obj);
+}
+
+function openHuntResultDetail(hit) {
+  // Reuse the existing alert panel
+  if (hit && hit._source) openAlertPanel({ _source: hit._source });
+}
+
+function clearHuntResults() {
+  document.getElementById('hunt-results').innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-family:\'JetBrains Mono\',monospace;font-size:11px;">// Select a saved hunt or build a custom query above</div>';
+  document.getElementById('hunt-result-count').textContent = '';
+  document.getElementById('hunt-active-query').style.display = 'none';
+  document.getElementById('hunt-value').value = '';
+}
+
+// ── IOC SEARCH ───────────────────────────────────────────────
+function iocQuickSearch(type, val) {
+  document.getElementById('ioc-type').value = type;
+  document.getElementById('ioc-value').value = val;
+  searchIOC();
+}
+
+async function searchIOC() {
+  const type = document.getElementById('ioc-type').value;
+  const value = document.getElementById('ioc-value').value.trim();
+  if (!value) { showToast('Enter an IOC value to search.', 'warn'); return; }
+
+  const resultsEl = document.getElementById('ioc-results');
+  const summEl = document.getElementById('ioc-result-summary');
+  resultsEl.innerHTML = '<div style="padding:24px;text-align:center;"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div></div>';
+  summEl.textContent = 'Searching...';
+
+  // Map IOC type to Wazuh fields
+  const fieldMap = {
+    ip: ['data.srcip','data.dstip','data.win.eventdata.sourceIp','data.win.eventdata.destinationIp'],
+    hash: ['data.win.eventdata.hashes','data.syscheck.sha256_after','data.syscheck.md5_after'],
+    domain: ['data.win.eventdata.queryName','data.win.eventdata.destinationHostname','data.url'],
+    filename: ['data.win.eventdata.image','data.win.eventdata.targetFilename','data.syscheck.path'],
+    process: ['data.win.eventdata.image','data.win.eventdata.commandLine'],
+    user: ['data.win.eventdata.targetUserName','data.win.eventdata.subjectUserName','data.srcuser'],
+    registry: ['data.win.eventdata.targetObject','data.win.regkey']
+  };
+  const fields = fieldMap[type] || ['data.srcip'];
+
+  const clauses = fields.map(f => ({ wildcard: { [f]: { value: `*${value}*`, case_insensitive: true } } }));
+
+  try {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 200, sort: [{ timestamp: { order: 'desc' } }],
+      query: { bool: { filter: [{ range: { timestamp: { gte: 'now-30d' } } }], should: clauses, minimum_should_match: 1 } },
+      aggs: { by_agent: { terms: { field: 'agent.name', size: 20 } } }
+    });
+    const hits = data?.hits?.hits || [];
+    const total = data?.hits?.total?.value || 0;
+    const agentBuckets = data?.aggregations?.by_agent?.buckets || [];
+
+    summEl.textContent = `${total.toLocaleString()} matches across ${agentBuckets.length} agent(s) — last 30 days`;
+
+    if (!hits.length) {
+      resultsEl.innerHTML = `<div style="padding:32px;text-align:center;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;">✓ No matches found — IOC clean across all endpoints</div>`;
+      return;
+    }
+
+    let html = `<div style="padding:10px 14px;background:var(--deep);border-bottom:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap;">
+      ${agentBuckets.map(b => `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;"><span style="color:var(--danger)">●</span> ${escH(b.key)} <span style="color:var(--muted)">(${b.doc_count} hits)</span></span>`).join('')}
+    </div>`;
+
+    html += hits.map(h => {
+      const s = h._source;
+      const level = s.rule?.level || 0;
+      const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : 'var(--accent2)';
+      return `<div class="ioc-hit">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);min-width:100px;">${fmtTime(s.timestamp)}</div>
+          <div style="font-weight:500;color:${color};font-size:12px;min-width:90px;">${escH(s.agent?.name || '--')}</div>
+          <div style="flex:1;font-size:12px;color:var(--text);">${escH(s.rule?.description || 'Security event')}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${color};">${level}</div>
+        </div>
+        ${s.data?.win?.eventdata?.commandLine ? `<div style="margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);padding-left:200px;word-break:break-all;">${escH(String(s.data.win.eventdata.commandLine).substring(0,200))}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    resultsEl.innerHTML = html;
+  } catch(e) {
+    resultsEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--danger);font-size:12px;">Search failed: ${escH(e.message)}</div>`;
+  }
+}
+
+// ── INCIDENTS ────────────────────────────────────────────────
+async function autoCorrelateIncidents() {
+  showToast('Correlating alerts into incidents...', 'info');
+  try {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 500, sort: [{ timestamp: { order: 'desc' } }],
+      query: { bool: { filter: [{ range: { timestamp: { gte: 'now-24h' } } }, { range: { 'rule.level': { gte: 7 } } }] } },
+      _source: ['timestamp','agent.name','agent.id','rule.level','rule.description','rule.mitre.id','rule.mitre.tactic']
+    });
+    const hits = (data?.hits?.hits || []).map(h => h._source);
+    if (!hits.length) { showToast('No high-severity alerts in last 24h to correlate.', 'warn'); return; }
+
+    // Group by agent + MITRE tactic within 30-min windows
+    const groups = {};
+    hits.forEach(hit => {
+      const agentId = hit.agent?.id || 'unknown';
+      const tactic = hit.rule?.mitre?.tactic?.[0] || 'Unclassified';
+      const key = `${agentId}::${tactic}`;
+      if (!groups[key]) groups[key] = { agent: hit.agent?.name || agentId, agentId, tactic, alerts: [], maxLevel: 0 };
+      groups[key].alerts.push(hit);
+      if ((hit.rule?.level || 0) > groups[key].maxLevel) groups[key].maxLevel = hit.rule.level;
+    });
+
+    const newIncidents = Object.values(groups)
+      .filter(g => g.alerts.length >= 2)
+      .map((g, i) => {
+        const existing = edrIncidents.find(e => e.agentId === g.agentId && e.tactic === g.tactic && e.status !== 'closed');
+        if (existing) { existing.alertCount = g.alerts.length; existing.lastSeen = g.alerts[0].timestamp; existing.maxLevel = g.maxLevel; return null; }
+        return {
+          id: 'INC-' + Date.now().toString(36).toUpperCase().slice(-6) + i,
+          title: `${g.tactic} activity — ${g.agent}`,
+          status: 'open',
+          agent: g.agent,
+          agentId: g.agentId,
+          tactic: g.tactic,
+          alertCount: g.alerts.length,
+          maxLevel: g.maxLevel,
+          createdAt: new Date().toISOString(),
+          lastSeen: g.alerts[0].timestamp,
+          alerts: g.alerts.slice(0, 10)
+        };
+      }).filter(Boolean);
+
+    edrIncidents = [...newIncidents, ...edrIncidents].slice(0, 100);
+    localStorage.setItem('edr_incidents', JSON.stringify(edrIncidents));
+    loadIncidents();
+    loadEdrStats();
+    showToast(`Correlated ${newIncidents.length} new incident(s) from ${hits.length} alerts.`, 'success');
+  } catch(e) { showToast('Correlation failed: ' + e.message, 'error'); }
+}
+
+function loadIncidents() {
+  const el = document.getElementById('incident-list');
+  if (!el) return;
+  if (!edrIncidents.length) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-family:\'JetBrains Mono\',monospace;font-size:11px;">// Click AUTO-CORRELATE to group recent alerts into incidents</div>';
+    return;
+  }
+  el.innerHTML = edrIncidents.map(inc => {
+    const sev = inc.maxLevel >= 12 ? 'critical' : inc.maxLevel >= 7 ? 'high' : 'medium';
+    const sevColor = sev === 'critical' ? 'var(--danger)' : sev === 'high' ? 'var(--warning)' : 'var(--accent2)';
+    const statusCls = inc.status === 'open' ? 'inc-open' : inc.status === 'investigating' ? 'inc-invest' : 'inc-closed';
+    return `<div class="incident-row" onclick="openIncident('${escH(inc.id)}')">
+      <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${sevColor};"></span></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${escH(inc.id)}</div>
+      <div style="font-size:12px;font-weight:500;">${escH(inc.title)}</div>
+      <div><span class="inc-status ${statusCls}">${inc.status.toUpperCase()}</span></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;">${escH(inc.agent)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${sevColor};font-weight:700;">${inc.alertCount}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtTime(inc.lastSeen)}</div>
+    </div>`;
+  }).join('');
+}
+
+function openIncident(id) {
+  const inc = edrIncidents.find(i => i.id === id);
+  if (!inc) return;
+  document.getElementById('inc-modal-title').textContent = inc.id + ' — ' + inc.title;
+  const sev = inc.maxLevel >= 12 ? 'critical' : inc.maxLevel >= 7 ? 'high' : 'medium';
+  const sevColor = sev === 'critical' ? 'var(--danger)' : sev === 'high' ? 'var(--warning)' : 'var(--accent2)';
+  document.getElementById('inc-modal-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="background:var(--deep);border:1px solid var(--border);padding:12px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">STATUS</div>
+        <div style="display:flex;gap:8px;">
+          ${['open','investigating','closed'].map(s => `<button onclick="updateIncidentStatus('${inc.id}','${s}')" style="flex:1;padding:6px;border:1px solid ${inc.status===s?sevColor:'var(--border)'};background:${inc.status===s?'rgba(0,0,0,0.3)':'transparent'};color:${inc.status===s?sevColor:'var(--muted)'};font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif;text-transform:uppercase;letter-spacing:1px;">${s}</button>`).join('')}
+        </div>
+      </div>
+      <div style="background:var(--deep);border:1px solid var(--border);padding:12px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">SEVERITY</div>
+        <div style="font-size:20px;font-weight:700;color:${sevColor};font-family:'JetBrains Mono',monospace;">${sev.toUpperCase()} · L${inc.maxLevel}</div>
+      </div>
+      <div style="background:var(--deep);border:1px solid var(--border);padding:12px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">TACTIC</div>
+        <div style="font-size:13px;color:var(--accent2);">${escH(inc.tactic)}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">CORRELATED ALERTS</div>
+      ${(inc.alerts || []).map(a => `<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);min-width:90px;">${fmtTime(a.timestamp)}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${(a.rule?.level||0)>=12?'var(--danger)':'var(--warning)'};">L${a.rule?.level||'?'}</span>
+        <span style="font-size:12px;flex:1;">${escH(a.rule?.description||'')}</span>
+        ${(a.rule?.mitre?.id||[]).map(t=>`<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2);padding:2px 5px;border:1px solid rgba(0,132,255,0.3);">${t}</span>`).join('')}
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="showView('edr');edrTab('hunt');document.getElementById('hunt-field').value='agent.name';document.getElementById('hunt-value').value='${escH(inc.agent)}';runThreatHunt();document.getElementById('incident-modal').classList.remove('open');" style="flex:1;padding:8px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:1px;">🔍 HUNT ON AGENT</button>
+      <button onclick="runPlaybookForIncident('${escH(inc.id)}')" style="flex:1;padding:8px;background:transparent;border:1px solid var(--warning);color:var(--warning);font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:1px;">📋 RUN PLAYBOOK</button>
+    </div>`;
+  document.getElementById('incident-modal').classList.add('open');
+}
+
+function updateIncidentStatus(id, status) {
+  const inc = edrIncidents.find(i => i.id === id);
+  if (inc) { inc.status = status; localStorage.setItem('edr_incidents', JSON.stringify(edrIncidents)); openIncident(id); loadIncidents(); loadEdrStats(); }
+}
+
+function runPlaybookForIncident(id) {
+  document.getElementById('incident-modal').classList.remove('open');
+  edrTab('playbooks');
+  showToast('Select a relevant playbook below for this incident.', 'info');
+}
+
+// ── BEHAVIORAL ANALYTICS ──────────────────────────────────────
+async function loadBehavioralAnalytics() {
+  const summEl = document.getElementById('behavior-summary-cards');
+  const listEl = document.getElementById('behavior-agent-list');
+  summEl.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Computing...</div>';
+  listEl.innerHTML = '';
+
+  try {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 0,
+      query: { bool: { filter: [{ range: { timestamp: { gte: 'now-24h' } } }] } },
+      aggs: {
+        by_agent: {
+          terms: { field: 'agent.id', size: 50 },
+          aggs: {
+            agent_name: { terms: { field: 'agent.name', size: 1 } },
+            max_level: { max: { field: 'rule.level' } },
+            high_alerts: { filter: { range: { 'rule.level': { gte: 7 } } } },
+            mitre_tactics: { terms: { field: 'rule.mitre.tactic', size: 10 } },
+            over_time: { date_histogram: { field: 'timestamp', fixed_interval: '1h', min_doc_count: 0 } }
+          }
+        }
+      }
+    });
+
+    const buckets = data?.aggregations?.by_agent?.buckets || [];
+    if (!buckets.length) {
+      summEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:12px;padding:20px;">No telemetry in last 24h</div>';
+      return;
+    }
+
+    // Compute risk scores (0-100)
+    const scored = buckets.map(b => {
+      const alertCount = b.doc_count;
+      const highCount = b.high_alerts?.doc_count || 0;
+      const maxLevel = b.max_level?.value || 0;
+      const tacticCount = b.mitre_tactics?.buckets?.length || 0;
+      const name = b.agent_name?.buckets?.[0]?.key || b.key;
+
+      // Risk formula: base from alert count + high alert weight + max level + MITRE spread
+      let score = Math.min(100, Math.round(
+        (alertCount * 0.5) + (highCount * 5) + (maxLevel * 2) + (tacticCount * 8)
+      ));
+
+      const over_time = b.over_time?.buckets || [];
+      const counts = over_time.map(h => h.doc_count);
+      const avg = counts.reduce((a, b) => a + b, 0) / (counts.length || 1);
+      const peak = Math.max(...counts, 0);
+      if (peak > avg * 3) score = Math.min(100, score + 15); // spike anomaly
+
+      return { id: b.key, name, score, alertCount, highCount, maxLevel, tacticCount, tactics: b.mitre_tactics?.buckets || [], over_time };
+    }).sort((a, b) => b.score - a.score);
+
+    const highRiskCount = scored.filter(s => s.score >= 60).length;
+    const medRiskCount = scored.filter(s => s.score >= 30 && s.score < 60).length;
+    const avgScore = Math.round(scored.reduce((s, a) => s + a.score, 0) / scored.length);
+
+    summEl.innerHTML = `
+      <div style="background:var(--deep);border:1px solid rgba(255,59,92,0.3);padding:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">HIGH RISK ENDPOINTS</div>
+        <div style="font-size:28px;font-weight:700;color:var(--danger);">${highRiskCount}</div>
+        <div style="font-size:11px;color:var(--muted);">Score ≥ 60/100</div>
+      </div>
+      <div style="background:var(--deep);border:1px solid rgba(245,166,35,0.3);padding:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">MEDIUM RISK</div>
+        <div style="font-size:28px;font-weight:700;color:var(--warning);">${medRiskCount}</div>
+        <div style="font-size:11px;color:var(--muted);">Score 30–59/100</div>
+      </div>
+      <div style="background:var(--deep);border:1px solid var(--border);padding:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">FLEET AVG RISK SCORE</div>
+        <div style="font-size:28px;font-weight:700;color:var(--text);">${avgScore}<span style="font-size:14px;color:var(--muted);">/100</span></div>
+        <div style="font-size:11px;color:var(--muted);">${scored.length} monitored endpoints</div>
+      </div>`;
+
+    listEl.innerHTML = scored.map(ep => {
+      const riskColor = ep.score >= 60 ? 'var(--danger)' : ep.score >= 30 ? 'var(--warning)' : 'var(--accent)';
+      const tactics = ep.tactics.slice(0, 5).map(t => `<span style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.2);color:var(--accent2);margin-right:4px;">${escH(t.key)}</span>`).join('');
+      return `<div class="behavior-card" onclick="openEndpointByName('${escH(ep.name)}')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--white);">${escH(ep.name)}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;">${ep.alertCount} alerts · ${ep.highCount} high/critical · ${ep.tacticCount} MITRE tactics</div>
+          </div>
+          <div class="behavior-score" style="color:${riskColor};border-color:${riskColor};">${ep.score}<span style="font-size:10px;">/100</span></div>
+        </div>
+        <div class="behavior-bars">
+          <div class="behavior-bar-row"><span>Alert Volume</span><div style="flex:1;background:var(--border);height:4px;border-radius:2px;margin:0 10px;overflow:hidden;"><div style="height:100%;background:${riskColor};width:${Math.min(100,ep.alertCount*2)}%;transition:width 0.4s;"></div></div><span>${ep.alertCount}</span></div>
+          <div class="behavior-bar-row"><span>Risk Score</span><div style="flex:1;background:var(--border);height:4px;border-radius:2px;margin:0 10px;overflow:hidden;"><div style="height:100%;background:${riskColor};width:${ep.score}%;transition:width 0.4s;"></div></div><span>${ep.score}</span></div>
+          <div class="behavior-bar-row"><span>Max Severity</span><div style="flex:1;background:var(--border);height:4px;border-radius:2px;margin:0 10px;overflow:hidden;"><div style="height:100%;background:${riskColor};width:${(ep.maxLevel/15)*100}%;transition:width 0.4s;"></div></div><span>L${ep.maxLevel}</span></div>
+        </div>
+        <div style="margin-top:8px;">${tactics || '<span style="font-size:11px;color:var(--muted);">No MITRE coverage detected</span>'}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    summEl.innerHTML = `<div style="grid-column:1/-1;color:var(--danger);font-size:12px;padding:16px;">Load failed: ${escH(e.message)}</div>`;
+  }
+}
+
+function openEndpointByName(name) {
+  const agent = Object.values(agentsData).find(a => a.name === name);
+  if (agent) openEndpointPanel(agent.id);
+}
+
+// ── RESPONSE PLAYBOOKS ────────────────────────────────────────
+function renderPlaybooks() {
+  const el = document.getElementById('playbook-grid');
+  if (!el) return;
+  el.innerHTML = PLAYBOOK_DEFS.map(pb => {
+    const sevColor = pb.sev === 'critical' ? 'var(--danger)' : pb.sev === 'high' ? 'var(--warning)' : 'var(--accent2)';
+    return `<div class="playbook-card" onclick="runPlaybook('${pb.id}')">
+      <div style="font-size:28px;margin-bottom:8px;">${pb.icon}</div>
+      <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px;">${escH(pb.title)}</div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;background:rgba(0,0,0,0.3);border:1px solid ${sevColor};color:${sevColor};letter-spacing:1px;">${pb.sev.toUpperCase()}</span>
+      <div class="playbook-steps">${pb.steps.map((s,i) => `<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);min-width:14px;">${i+1}</span><span>${escH(s)}</span></div>`).join('')}</div>
+      <button style="width:100%;margin-top:10px;padding:7px;background:transparent;border:1px solid ${sevColor};color:${sevColor};font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;letter-spacing:1px;" onclick="event.stopPropagation();runPlaybook('${pb.id}')">▶ EXECUTE PLAYBOOK</button>
+    </div>`;
+  }).join('');
+}
+
+function runPlaybook(id) {
+  const pb = PLAYBOOK_DEFS.find(p => p.id === id);
+  if (!pb) return;
+  const target = activeAgentId ? (agentsData[activeAgentId]?.name || activeAgentId) : 'all endpoints';
+  showToast(`Playbook "${pb.title}" initiated on ${target} — follow steps in order.`, 'info');
+  // Log playbook execution
+  const log = JSON.parse(localStorage.getItem('playbook_log') || '[]');
+  log.unshift({ id, title: pb.title, agent: activeAgentId || 'all', at: new Date().toISOString() });
+  localStorage.setItem('playbook_log', JSON.stringify(log.slice(0, 50)));
+}
+
+function loadAdversaryIntel() {
+  const el = document.getElementById('adversary-intel');
+  if (!el) return;
+  el.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;">KNOWN THREAT ACTORS — Mapped to detected MITRE patterns</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">
+    ${ADVERSARY_PATTERNS.map(a => `<div class="adversary-card" style="border-color:${a.color}22;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:13px;font-weight:600;color:var(--white);">${escH(a.actor)}</div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">${escH(a.origin)}</span>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;">
+        ${a.tactics.map(t => `<span style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.2);color:var(--accent2);">${t}</span>`).join('')}
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">
+        ${a.tags.map(t => `<span class="adversary-tag">${escH(t)}</span>`).join('')}
+      </div>
+      <button onclick="huntForActor('${escH(a.actor)}')" style="margin-top:8px;width:100%;padding:5px;background:transparent;border:1px solid ${a.color}44;color:${a.color};font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:1px;">🔍 HUNT THIS ACTOR</button>
+    </div>`).join('')}
+  </div>`;
+}
+
+function huntForActor(actorName) {
+  const actor = ADVERSARY_PATTERNS.find(a => a.actor === actorName);
+  if (!actor || !actor.tactics.length) return;
+  edrTab('hunt');
+  document.getElementById('hunt-field').value = 'rule.mitre.id';
+  document.getElementById('hunt-op').value = 'term';
+  document.getElementById('hunt-value').value = actor.tactics[0];
+  runThreatHunt();
+}
+
+// ── LIVE TELEMETRY ────────────────────────────────────────────
+function populateTelemAgentFilter() {
+  const sel = document.getElementById('telem-agent-filter');
+  if (!sel) return;
+  const existing = Array.from(sel.options).map(o => o.value);
+  Object.values(agentsData).forEach(a => {
+    if (!existing.includes(a.id)) {
+      const opt = document.createElement('option');
+      opt.value = a.id; opt.textContent = a.name;
+      sel.appendChild(opt);
+    }
+  });
+}
+
+function startTelemetryRefresh() {
+  stopTelemetryRefresh();
+  edrTelemetryTimer = setInterval(loadLiveTelemetry, 15000);
+}
+
+function stopTelemetryRefresh() {
+  if (edrTelemetryTimer) { clearInterval(edrTelemetryTimer); edrTelemetryTimer = null; }
+}
+
+async function loadLiveTelemetry() {
+  const feedEl = document.getElementById('telemetry-feed');
+  if (!feedEl) return;
+  const agentFilter = document.getElementById('telem-agent-filter')?.value;
+  const typeFilter = document.getElementById('telem-type-filter')?.value;
+
+  // Build must clauses
+  const filters = [{ range: { timestamp: { gte: 'now-30m' } } }];
+  if (agentFilter) filters.push({ term: { 'agent.id': agentFilter } });
+
+  let typeClause = null;
+  if (typeFilter === 'proc') typeClause = { exists: { field: 'data.win.eventdata.image' } };
+  else if (typeFilter === 'file') typeClause = { exists: { field: 'data.syscheck.path' } };
+  else if (typeFilter === 'net') typeClause = { bool: { should: [{ exists: { field: 'data.srcip' } }, { exists: { field: 'data.dstip' } }], minimum_should_match: 1 } };
+  else if (typeFilter === 'auth') typeClause = { term: { 'rule.groups': 'authentication' } };
+  if (typeClause) filters.push(typeClause);
+
+  try {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 50, sort: [{ timestamp: { order: 'desc' } }],
+      query: { bool: { filter: filters } },
+      _source: ['timestamp','agent.name','rule.level','rule.description','rule.groups','data.win.eventdata.image','data.win.eventdata.commandLine','data.syscheck.path','data.srcip','data.dstip','data.win.eventdata.targetUserName']
+    });
+    const hits = data?.hits?.hits || [];
+    if (!hits.length) {
+      feedEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-family:\'JetBrains Mono\',monospace;font-size:11px;">// No telemetry events in last 30 minutes</div>';
+      return;
+    }
+    feedEl.innerHTML = hits.map(h => {
+      const s = h._source;
+      const level = s.rule?.level || 0;
+      const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : level >= 4 ? 'var(--accent2)' : 'var(--muted)';
+      const groups = s.rule?.groups || [];
+      let typeIcon = '📋', typeLabel = 'EVT';
+      if (groups.includes('syscheck') || s.data?.syscheck?.path) { typeIcon = '📁'; typeLabel = 'FILE'; }
+      else if (s.data?.win?.eventdata?.image) { typeIcon = '⚙'; typeLabel = 'PROC'; }
+      else if (s.data?.srcip || s.data?.dstip) { typeIcon = '🌐'; typeLabel = 'NET'; }
+      else if (groups.includes('authentication')) { typeIcon = '🔐'; typeLabel = 'AUTH'; }
+
+      const detail = s.data?.win?.eventdata?.commandLine || s.data?.win?.eventdata?.image || s.data?.syscheck?.path || (s.data?.srcip ? `${s.data.srcip} → ${s.data.dstip||'?'}` : s.rule?.description || '');
+      return `<div class="telemetry-item" onclick="edrTab('hunt');document.getElementById('hunt-value').value='${escH(s.agent?.name||'')}';document.getElementById('hunt-field').value='agent.name';runThreatHunt();">
+        <div class="telemetry-time">${fmtTime(s.timestamp)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:${color};padding:1px 4px;border:1px solid ${color}44;min-width:34px;text-align:center;">${typeLabel}</div>
+        <div style="font-size:11px;color:var(--muted);min-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escH(s.agent?.name||'--')}</div>
+        <div class="telemetry-proc" title="${escH(detail)}">${escH(String(detail).substring(0,120))}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${color};">${level > 0 ? 'L'+level : '--'}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+// ── WATCHLIST ──────────────────────────────────────────────────
+function addToWatchlist() {
+  const type = document.getElementById('wl-type').value;
+  const value = document.getElementById('wl-value').value.trim();
+  const note = document.getElementById('wl-note').value.trim();
+  if (!value) { showToast('Enter an indicator value.', 'warn'); return; }
+  if (edrWatchlist.find(w => w.value === value)) { showToast('IOC already on watchlist.', 'warn'); return; }
+  edrWatchlist.push({ type, value, note, hits: 0, addedAt: new Date().toISOString() });
+  localStorage.setItem('edr_watchlist', JSON.stringify(edrWatchlist));
+  document.getElementById('wl-value').value = '';
+  document.getElementById('wl-note').value = '';
+  renderWatchlist();
+  updateWatchlistBadge();
+  showToast(`${value} added to watchlist.`, 'success');
+}
+
+function removeFromWatchlist(value) {
+  edrWatchlist = edrWatchlist.filter(w => w.value !== value);
+  localStorage.setItem('edr_watchlist', JSON.stringify(edrWatchlist));
+  renderWatchlist();
+  updateWatchlistBadge();
+}
+
+function renderWatchlist() {
+  const el = document.getElementById('watchlist-items');
+  if (!el) return;
+  if (!edrWatchlist.length) {
+    el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px;">No indicators on watchlist yet</div>';
+    return;
+  }
+  el.innerHTML = edrWatchlist.map(w => `
+    <div class="watchlist-row">
+      <div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.2);color:var(--accent2);">${escH(w.type)}</span></div>
+      <div class="watchlist-val">${escH(w.value)}${w.note ? `<span style="font-size:10px;color:var(--muted);margin-left:8px;">${escH(w.note)}</span>` : ''}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${w.hits > 0 ? 'var(--danger)' : 'var(--muted)'};">${w.hits} <span style="font-weight:300;font-size:10px;">${w.hits===1?'hit':'hits'}</span></div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="iocQuickSearch('${w.type}','${escH(w.value)}');edrTab('ioc');" style="padding:4px 8px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:10px;cursor:pointer;">Search</button>
+        <button onclick="removeFromWatchlist('${escH(w.value)}')" style="padding:4px 8px;background:transparent;border:1px solid rgba(255,59,92,0.3);color:var(--danger);font-size:10px;cursor:pointer;">Remove</button>
+      </div>
+    </div>`).join('');
+}
+
+async function checkWatchlistHits() {
+  if (!edrWatchlist.length) { showToast('No indicators on watchlist.', 'warn'); return; }
+  showToast('Checking watchlist hits...', 'info');
+  const fieldMap = {
+    ip: ['data.srcip','data.dstip'],
+    hash: ['data.win.eventdata.hashes','data.syscheck.sha256_after'],
+    domain: ['data.win.eventdata.queryName','data.win.eventdata.destinationHostname'],
+    filename: ['data.win.eventdata.image','data.syscheck.path'],
+    process: ['data.win.eventdata.image'],
+    user: ['data.win.eventdata.targetUserName']
+  };
+  for (const w of edrWatchlist) {
+    const fields = fieldMap[w.type] || ['data.srcip'];
+    const clauses = fields.map(f => ({ wildcard: { [f]: { value: `*${w.value}*`, case_insensitive: true } } }));
+    try {
+      const data = await indexerSearch('wazuh-alerts-4.x-*', {
+        size: 0,
+        query: { bool: { filter: [{ range: { timestamp: { gte: 'now-24h' } } }], should: clauses, minimum_should_match: 1 } }
+      });
+      w.hits = data?.hits?.total?.value || 0;
+    } catch(e) {}
+  }
+  localStorage.setItem('edr_watchlist', JSON.stringify(edrWatchlist));
+  renderWatchlist();
+  const totalHits = edrWatchlist.reduce((s, w) => s + w.hits, 0);
+  showToast(`Watchlist check complete — ${totalHits} total hits across ${edrWatchlist.length} indicators.`, totalHits > 0 ? 'error' : 'success');
+}
+
+function updateWatchlistBadge() {
+  document.getElementById('edr-stat-ioc').textContent = edrWatchlist.length;
+}
+
+// ── ENDPOINT TIMELINE ─────────────────────────────────────────
+async function loadEpTimeline(agentId, filter) {
+  const el = document.getElementById('ep-timeline-list');
+  if (!el) return;
+  el.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading timeline...</div>';
+
+  // Highlight active filter button
+  document.querySelectorAll('#ep-timeline-section button.action-btn').forEach(b => b.style.borderColor = '');
+
+  const filters = [{ term: { 'agent.id': agentId } }, { range: { timestamp: { gte: 'now-24h' } } }];
+  if (filter === 'proc') filters.push({ exists: { field: 'data.win.eventdata.image' } });
+  else if (filter === 'file') filters.push({ exists: { field: 'data.syscheck.path' } });
+  else if (filter === 'net') filters.push({ bool: { should: [{ exists: { field: 'data.srcip' } }, { exists: { field: 'data.dstip' } }], minimum_should_match: 1 } });
+
+  try {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 100, sort: [{ timestamp: { order: 'desc' } }],
+      query: { bool: { filter: filters } },
+      _source: ['timestamp','rule.level','rule.description','rule.groups','rule.mitre.id','data.win.eventdata.image','data.win.eventdata.commandLine','data.syscheck.path','data.syscheck.event','data.srcip','data.dstip','data.win.eventdata.targetUserName']
+    });
+    const hits = data?.hits?.hits?.map(h => h._source) || [];
+    if (!hits.length) { el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px;">No events in last 24h for this filter</div>'; return; }
+
+    el.innerHTML = hits.map(s => {
+      const level = s.rule?.level || 0;
+      const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : level >= 4 ? 'var(--accent2)' : 'var(--muted)';
+      const groups = s.rule?.groups || [];
+      let icon = '📋', typeClass = 'alert';
+      if (s.data?.win?.eventdata?.image) { icon = '⚙'; typeClass = 'proc'; }
+      else if (s.data?.syscheck?.path) { icon = '📁'; typeClass = 'file'; }
+      else if (s.data?.srcip || s.data?.dstip) { icon = '🌐'; typeClass = 'net'; }
+      else if (groups.includes('authentication')) { icon = '🔐'; typeClass = 'auth'; }
+
+      const detail = s.data?.win?.eventdata?.commandLine || s.data?.win?.eventdata?.image || s.data?.syscheck?.path || (s.data?.srcip ? `${s.data.srcip} → ${s.data.dstip||'?'}` : '');
+      const mitre = (s.rule?.mitre?.id || []).slice(0, 2).map(t => `<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2);padding:1px 4px;border:1px solid rgba(0,132,255,0.3);margin-left:4px;">${t}</span>`).join('');
+      return `<div class="ep-timeline-item ep-tl-icon ${typeClass}">
+        <div style="font-size:18px;line-height:1;">${icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">${fmtTime(s.timestamp)}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${color};">${level > 0 ? 'L'+level : ''}</span>
+            ${mitre}
+          </div>
+          <div style="font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escH(s.rule?.description || 'Event')}</div>
+          ${detail ? `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escH(detail)}">${escH(String(detail).substring(0,100))}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = `<div style="padding:16px;color:var(--danger);font-size:12px;">Load failed: ${escH(e.message)}</div>`; }
+}
+
+// ── PROCESS TREE ──────────────────────────────────────────────
+async function loadEpProcesses(agentId) {
+  const el = document.getElementById('ep-processes-list');
+  if (!el) return;
+  el.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading process events...</div>';
+
+  try {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 150, sort: [{ timestamp: { order: 'desc' } }],
+      query: { bool: { filter: [
+        { term: { 'agent.id': agentId } },
+        { range: { timestamp: { gte: 'now-24h' } } },
+        { exists: { field: 'data.win.eventdata.image' } }
+      ] } },
+      _source: ['timestamp','rule.level','rule.description','rule.mitre.id','data.win.eventdata.image','data.win.eventdata.commandLine','data.win.eventdata.parentImage','data.win.eventdata.processId','data.win.eventdata.parentProcessId','data.win.eventdata.user']
+    });
+    const hits = data?.hits?.hits?.map(h => h._source) || [];
+    if (!hits.length) { el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px;">No process events in last 24h</div>'; return; }
+
+    // Build parent-child tree
+    const procs = hits.map(s => ({
+      pid: s.data?.win?.eventdata?.processId,
+      ppid: s.data?.win?.eventdata?.parentProcessId,
+      image: s.data?.win?.eventdata?.image || 'unknown',
+      parent: s.data?.win?.eventdata?.parentImage || '',
+      cmd: s.data?.win?.eventdata?.commandLine || '',
+      user: s.data?.win?.eventdata?.user || '',
+      level: s.rule?.level || 0,
+      ts: s.timestamp,
+      mitre: s.rule?.mitre?.id || [],
+      desc: s.rule?.description || ''
+    }));
+
+    // Group by parent process name
+    const byParent = {};
+    procs.forEach(p => {
+      const parentName = (p.parent.split('\\').pop() || 'System').toLowerCase();
+      if (!byParent[parentName]) byParent[parentName] = [];
+      byParent[parentName].push(p);
+    });
+
+    const suspiciousParents = ['winword.exe','excel.exe','powerpnt.exe','outlook.exe','explorer.exe'];
+    let html = '';
+    Object.entries(byParent).sort((a, b) => b[1].length - a[1].length).forEach(([parent, children]) => {
+      const isSuspicious = suspiciousParents.some(sp => parent.includes(sp.replace('.exe','')));
+      const parentColor = isSuspicious ? 'var(--warning)' : 'var(--muted)';
+      html += `<div style="margin-bottom:8px;">
+        <div class="proc-tree-item" style="background:var(--deep);border-left:3px solid ${parentColor};">
+          <span class="proc-name" style="color:${parentColor};">${escH(parent)}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-left:8px;">${children.length} child process${children.length!==1?'es':''}</span>
+          ${isSuspicious ? '<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--warning);margin-left:8px;padding:1px 5px;border:1px solid rgba(245,166,35,0.3);">⚠ SUSPICIOUS PARENT</span>' : ''}
+        </div>
+        ${children.slice(0,20).map(p => {
+          const risk = p.level >= 12 ? 'high' : p.level >= 7 ? 'med' : '';
+          const procName = p.image.split('\\').pop();
+          const riskColor = p.level >= 12 ? 'var(--danger)' : p.level >= 7 ? 'var(--warning)' : 'var(--text)';
+          return `<div class="proc-tree-item proc-indent" onclick="searchIOC2('process','${escH(procName)}')">
+            <span style="color:var(--muted);font-size:14px;">└</span>
+            <span class="proc-name" style="color:${riskColor};">${escH(procName)}</span>
+            ${risk ? `<span class="proc-risk">${p.level}</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-left:6px;">${fmtTime(p.ts)}</span>
+            ${p.mitre.length ? p.mitre.map(t=>`<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2);padding:1px 4px;border:1px solid rgba(0,132,255,0.2);margin-left:4px;">${t}</span>`).join('') : ''}
+            ${p.cmd ? `<div class="proc-cmd" style="margin-top:2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;" title="${escH(p.cmd)}">${escH(p.cmd.substring(0,80))}</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>`;
+    });
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = `<div style="padding:16px;color:var(--danger);font-size:12px;">Load failed: ${escH(e.message)}</div>`; }
+}
+
+function searchIOC2(type, val) {
+  edrTab('ioc');
+  document.getElementById('ioc-type').value = type;
+  document.getElementById('ioc-value').value = val;
+  searchIOC();
+}
+
+// ── ENDPOINT ACTIONS ──────────────────────────────────────────
+async function killSuspiciousProcesses() {
+  if (!activeAgentId) { showToast('No endpoint selected — open an endpoint first.', 'warn'); return; }
+  const name = agentsData[activeAgentId]?.name || activeAgentId;
+  if (!confirm(`Kill suspicious processes on ${name}? This sends an active-response command.`)) return;
+  showToast(`Sending process kill command to ${name}...`, 'info');
+  try {
+    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ command: 'kill-suspicious', arguments: [] })
+    });
+    showToast(res.ok ? 'Kill command sent — check agent for confirmation.' : 'Command sent (verify response in Wazuh).', 'success');
+  } catch(e) { showToast('Active response unavailable — check proxy route.', 'error'); }
+}
+
+async function collectEvidence() {
+  if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
+  const name = agentsData[activeAgentId]?.name || activeAgentId;
+  showToast(`Triggering evidence collection on ${name} — logs + syscheck + rootcheck...`, 'info');
+  try {
+    await Promise.all([
+      fetch(`${PROXY_URL}/syscheck?agents_list=${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } }),
+      fetch(`${PROXY_URL}/rootcheck?agents_list=${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } }),
+      fetch(`${PROXY_URL}/logcollector/files?agents_list=${activeAgentId}`, { method: 'GET' })
+    ]);
+    showToast('Evidence collection started — results appear in Wazuh indexer within minutes.', 'success');
+  } catch(e) { showToast('Collection partially started — check agent status.', 'warn'); }
+}
+
+async function runLiveQuery() {
+  if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
+  const cmd = prompt('Enter active-response command to run on agent:\n(e.g. "custom-command" or a registered AR script name)');
+  if (!cmd) return;
+  try {
+    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ command: cmd.trim(), arguments: [] })
+    });
+    showToast(res.ok ? `Command "${cmd}" dispatched to agent.` : `Dispatch attempted — verify in Wazuh.`, 'info');
+  } catch(e) { showToast('Command dispatch failed.', 'error'); }
+}
+
+async function pushPolicyUpdate() {
+  if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
+  const name = agentsData[activeAgentId]?.name || activeAgentId;
+  showToast(`Pushing policy update to ${name} — restarting agent configuration...`, 'info');
+  try {
+    const res = await fetch(`${PROXY_URL}/agents/${activeAgentId}/restart`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } });
+    showToast(res.ok ? 'Agent restart triggered — policy will reload on reconnect.' : 'Restart sent — verify connectivity.', 'success');
+  } catch(e) { showToast('Policy push failed — check agent status.', 'error'); }
+}
+
+function openEdrForAgent() {
+  if (!activeAgentId) return;
+  const name = agentsData[activeAgentId]?.name || '';
+  closeEndpointPanel();
+  showView('edr');
+  edrTab('hunt');
+  document.getElementById('hunt-field').value = 'agent.name';
+  document.getElementById('hunt-op').value = 'match_phrase';
+  document.getElementById('hunt-value').value = name;
+  runThreatHunt();
 }
 </script>
 </body>
