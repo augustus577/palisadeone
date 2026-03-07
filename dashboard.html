@@ -3984,6 +3984,9 @@ function epTab(tab) {
   if (tab === 'processes' && activeAgentId) loadEpProcesses(activeAgentId);
 }
 
+// Global cache for endpoint alert hits — avoids embedding JSON in HTML attributes
+window._epAlertCache = [];
+
 async function loadEpMiniAlerts(agentId) {
   const el = document.getElementById('ep-mini-alerts');
   try {
@@ -3992,11 +3995,10 @@ async function loadEpMiniAlerts(agentId) {
       query: { bool: { filter: [{ term: { 'agent.id': agentId } }, { range: { timestamp: { gte: 'now-24h' } } }] } }
     });
     const hits = data?.hits?.hits || [];
+    window._epAlertCache = hits;
     el.innerHTML = hits.length
-      ? hits.map((h, i) => epAlertRow(h._source, 55, h, i)).join('')
+      ? hits.map((h, i) => epAlertRow(h._source, 55, i)).join('')
       : '<div style="padding:12px 0;font-size:12px;color:var(--muted);">No alerts in last 24h — endpoint clean ✓</div>';
-    // Store hits for quick access
-    el._hits = hits;
   } catch(e) { el.innerHTML = '<div style="padding:12px 0;font-size:12px;color:var(--muted);">Could not load</div>'; }
 }
 
@@ -4010,19 +4012,20 @@ async function loadEpAlertsTab(agentId) {
       query: { bool: { filter: [{ term: { 'agent.id': agentId } }, { range: { timestamp: { gte: 'now-48h' } } }] } }
     });
     const hits = data?.hits?.hits || [];
+    window._epAlertCache = hits;
     countEl.textContent = (data?.hits?.total?.value || 0) + ' total';
-    list.innerHTML = hits.length ? hits.map((h,i) => epAlertRow(h._source, 65, h, i)).join('') :
+    list.innerHTML = hits.length ? hits.map((h,i) => epAlertRow(h._source, 65, i)).join('') :
       '<div style="padding:20px;font-size:12px;color:var(--muted);text-align:center;">No alerts in last 48h</div>';
   } catch(e) { list.innerHTML = '<div style="padding:16px;font-size:12px;color:var(--muted);">Could not load alerts</div>'; }
 }
 
-function epAlertRow(hit, maxLen, fullHit, idx) {
+function epAlertRow(hit, maxLen, cacheIdx) {
   const level = hit.rule?.level || 0;
   const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : level >= 4 ? 'var(--accent2)' : 'var(--muted)';
   const desc = (hit.rule?.description || 'Security event');
   const mitre = hit.rule?.mitre?.id?.[0];
-  const clickable = fullHit !== undefined;
-  const clickAttr = clickable ? `onclick="openEpAlertAI(${JSON.stringify(JSON.stringify(fullHit._source)).replace(/'/g,'&#39;')})" style="cursor:pointer;"` : '';
+  const clickable = cacheIdx !== undefined;
+  const clickAttr = clickable ? `onclick="openEpAlertAI(${cacheIdx})" style="cursor:pointer;"` : '';
   return `<div class="ep-alert-row" ${clickAttr} title="${clickable?'Click for AI analysis':''}">
     <div class="threat-dot" style="background:${color};margin-top:5px;flex-shrink:0;width:7px;height:7px;border-radius:50%;"></div>
     <div style="flex:1;min-width:0;">
@@ -4031,14 +4034,17 @@ function epAlertRow(hit, maxLen, fullHit, idx) {
     </div>
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px;">
       <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${color};">${level}</div>
-      ${clickable ? `<div style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;opacity:0.7;">AI ›</div>` : ''}
+      ${clickable ? `<div style="font-size:9px;color:var(--accent2);font-family:'JetBrains Mono',monospace;opacity:0.8;">AI ›</div>` : ''}
     </div>
   </div>`;
 }
 
 // Opens a quick AI analysis modal for an event clicked in the endpoint panel
-async function openEpAlertAI(srcJsonStr) {
-  const hit = JSON.parse(srcJsonStr);
+function openEpAlertAI(cacheIdx) {
+  const cached = window._epAlertCache[cacheIdx];
+  if (!cached) return;
+  const hit = cached._source;
+  window._epModalHit = hit; // store for modal buttons
   const level = hit.rule?.level || 0;
   const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : level >= 4 ? 'var(--accent2)' : 'var(--muted)';
 
@@ -4049,7 +4055,7 @@ async function openEpAlertAI(srcJsonStr) {
       <div style="padding:16px 22px;border-bottom:1px solid var(--border);background:var(--deep);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;">
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:2px;">EVENT AI ANALYSIS</div>
-          <div style="font-size:11px;color:${color};font-family:'JetBrains Mono',monospace;margin-top:2px;">Level ${level} · Rule ${hit.rule?.id||'?'} · ${escH(hit.agent?.name||'')}</div>
+          <div style="font-size:11px;color:${color};font-family:'JetBrains Mono',monospace;margin-top:2px;">Level ${level} · Rule ${escH(String(hit.rule?.id||'?'))} · ${escH(hit.agent?.name||'')}</div>
         </div>
         <button onclick="this.closest('div[style*=fixed]').remove()" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;cursor:pointer;font-size:14px;">✕</button>
       </div>
@@ -4059,11 +4065,11 @@ async function openEpAlertAI(srcJsonStr) {
           <div style="color:var(--muted);font-size:12px;font-family:'JetBrains Mono',monospace;">Click below to get Claude's analysis of this event...</div>
         </div>
         <div style="display:flex;gap:8px;">
-          <button id="ep-ai-btn" onclick="runEpAI(this,${JSON.stringify(JSON.stringify(hit)).replace(/'/g,'&#39;')})"
+          <button id="ep-ai-btn" onclick="runEpAI(this)"
             style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(0,132,255,0.2),rgba(0,255,209,0.1));border:1px solid var(--accent2);color:var(--accent2);font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:1px;">
             Analyze with Claude AI
           </button>
-          <button onclick="openAlertPanel(JSON.parse(${JSON.stringify(JSON.stringify({_source: hit})).replace(/'/g,'&#39;')}))"
+          <button onclick="openAlertPanel(window._epModalHit ? {_source: window._epModalHit} : null)"
             style="padding:10px 14px;background:transparent;border:1px solid var(--border);color:var(--text);font-size:12px;cursor:pointer;">
             Full Detail Panel
           </button>
@@ -4074,8 +4080,9 @@ async function openEpAlertAI(srcJsonStr) {
   modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
 }
 
-async function runEpAI(btn, srcJsonStr) {
-  const hit = JSON.parse(srcJsonStr);
+async function runEpAI(btn) {
+  const hit = window._epModalHit;
+  if (!hit) return;
   const resultEl = document.getElementById('ep-ai-result');
   btn.disabled = true; btn.textContent = 'Analyzing...';
   resultEl.innerHTML = '<div style="color:var(--muted);font-size:12px;font-family:\'JetBrains Mono\',monospace;padding:8px 0;">Claude is reviewing this event...</div>';
