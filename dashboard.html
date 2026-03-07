@@ -4602,11 +4602,11 @@ async function loadDevices() {
         const tc = s.threatCount || 0;
         const when = s.completedAt ? new Date(s.completedAt).toLocaleDateString() : '';
         const badge = tc > 0
-          ? `<span class="scan-status-badge scan-status-error" onclick="event.stopPropagation();viewScanResults('${id}')" style="cursor:pointer;" title="Click to view report">⚠ ${tc} THREAT${tc>1?'S':''}</span>`
-          : `<span class="scan-status-badge scan-status-completed" onclick="event.stopPropagation();viewScanResults('${id}')" style="cursor:pointer;" title="Click to view report">✓ CLEAN</span>`;
+          ? `<span class="scan-status-badge scan-status-error" onclick="event.stopPropagation();viewFdsResults('${id}')" style="cursor:pointer;" title="Click to view report">⚠ ${tc} THREAT${tc>1?'S':''}</span>`
+          : `<span class="scan-status-badge scan-status-completed" onclick="event.stopPropagation();viewFdsResults('${id}')" style="cursor:pointer;" title="Click to view report">✓ CLEAN</span>`;
         return `<div>${badge}<div style="font-size:9px;color:var(--muted);margin-top:2px;">${when}</div></div>`;
       }
-      if (s.status === 'error') return `<span class="scan-status-badge scan-status-error" onclick="event.stopPropagation();viewScanResults('${id}')" style="cursor:pointer;" title="Click to view">✕ ERROR</span>`;
+      if (s.status === 'error') return `<span class="scan-status-badge scan-status-error" onclick="event.stopPropagation();viewFdsResults('${id}')" style="cursor:pointer;" title="Click to view">✕ ERROR</span>`;
       return `<span style="color:var(--muted);font-size:11px;">--</span>`;
     };
 
@@ -5318,13 +5318,13 @@ function updateFdsUI(agentId, scan) {
   if (scanEl) {
     if (scan.status === 'queued') scanEl.innerHTML = '<span style="color:var(--accent2);">Pending</span> — waiting for agent pickup';
     else if (scan.status === 'running') scanEl.innerHTML = '<span style="color:var(--warning);">Scanning...</span> Started ' + (scan.startedAt ? new Date(scan.startedAt).toLocaleTimeString() : '--');
-    else if (scan.status === 'completed') scanEl.innerHTML = '<span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="viewScanResults(\'' + agentId + '\')">View Report</span> ' + (scan.completedAt ? new Date(scan.completedAt).toLocaleTimeString() : '') + ' — ' + (scan.threatCount||0) + ' threats';
+    else if (scan.status === 'completed') scanEl.innerHTML = '<span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="viewFdsResults(\'' + agentId + '\')">View Report</span> ' + (scan.completedAt ? new Date(scan.completedAt).toLocaleTimeString() : '') + ' — ' + (scan.threatCount||0) + ' threats';
     else if (scan.status === 'error') scanEl.innerHTML = '<span style="color:var(--danger);">Error</span> ' + (scan.error || '');
     else scanEl.innerHTML = '<span style="color:var(--muted);">No recent scan</span>';
   }
 }
 
-async function viewScanResults(agentId) {
+async function viewFdsResults(agentId) {
   try {
     const r = await fetch(`${PROXY_URL}/scan-status/${agentId}`);
     const d = await r.json();
