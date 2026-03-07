@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Palisade One — Security Operations Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -378,6 +379,101 @@
     .ep-vuln-title { font-size: 12px; color: var(--text); }
     .ep-vuln-pkg { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
     .ep-vuln-cve { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent2); }
+
+    /* ── SMART SEARCH / ALERT CONTROLS ─────────────────────────── */
+    .alert-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; align-items: center; }
+    .smart-search-wrap { flex: 1; min-width: 280px; display: flex; gap: 0; }
+    .smart-search-wrap input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-right: none; padding: 9px 14px; color: var(--white); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+    .smart-search-wrap input:focus { border-color: var(--accent); }
+    .smart-search-wrap input::placeholder { color: var(--muted); font-size: 12px; }
+    .smart-search-btn { background: var(--accent); color: var(--black); border: none; padding: 9px 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .smart-search-btn:hover { background: var(--white); }
+    .time-btns, .sev-btns { display: flex; gap: 3px; }
+    .time-btn, .sev-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 5px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; cursor: pointer; transition: all 0.15s; }
+    .time-btn:hover, .sev-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .time-btn.active, .sev-btn.active { background: rgba(0,255,209,0.08); border-color: var(--accent); color: var(--accent); }
+    .sev-btn.crit.active { background: rgba(255,59,92,0.1); border-color: var(--danger); color: var(--danger); }
+    .sev-btn.high.active { background: rgba(255,100,0,0.1); border-color: #FF6400; color: #FF6400; }
+    .sev-btn.med.active { background: rgba(245,166,35,0.1); border-color: var(--warning); color: var(--warning); }
+    .agent-filter-select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; font-size: 12px; outline: none; font-family: 'Outfit', sans-serif; }
+    .search-chip-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .search-chip { background: rgba(0,255,209,0.08); border: 1px solid rgba(0,255,209,0.25); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 10px; cursor: pointer; }
+    .search-chip:hover { background: rgba(0,255,209,0.15); }
+    .alert-count-bar { display: flex; gap: 16px; align-items: center; padding: 10px 0; margin-bottom: 12px; }
+    .alert-count-stat { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    .alert-count-stat .n { font-size: 18px; font-family: 'Bebas Neue', sans-serif; margin-right: 4px; }
+    .alert-row-v2 { display: grid; grid-template-columns: 110px 44px 40px 1fr 130px 110px 32px; gap: 10px; padding: 10px 16px; border-bottom: 1px solid rgba(17,34,64,0.6); align-items: center; transition: background 0.15s; cursor: pointer; }
+    .alert-row-v2:hover { background: rgba(0,255,209,0.03); }
+    .alert-row-v2.header { background: var(--deep); cursor: default; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+    .alert-row-v2.header:hover { background: var(--deep); }
+    .mitre-pill { background: rgba(0,132,255,0.12); border: 1px solid rgba(0,132,255,0.25); color: var(--accent2); font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 108px; display: inline-block; }
+    .rule-group-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); background: var(--deep); padding: 2px 5px; display: inline-block; }
+    .alert-expand-btn { color: var(--muted); font-size: 14px; text-align: center; }
+
+    /* ── ALERT DETAIL PANEL ─────────────────────────────────────── */
+    #alert-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
+    #alert-panel { position: fixed; top: 0; right: -700px; width: 680px; height: 100vh; background: var(--deep); border-left: 1px solid var(--border2); z-index: 201; transition: right 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; }
+    #alert-panel.open { right: 0; }
+    .ap-header { padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .ap-severity-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .ap-sev-badge { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 2px; padding: 2px 10px; }
+    .ap-sev-critical { background: rgba(255,59,92,0.15); color: var(--danger); border: 1px solid rgba(255,59,92,0.4); }
+    .ap-sev-high { background: rgba(255,100,0,0.12); color: #FF6400; border: 1px solid rgba(255,100,0,0.3); }
+    .ap-sev-medium { background: rgba(245,166,35,0.1); color: var(--warning); border: 1px solid rgba(245,166,35,0.3); }
+    .ap-sev-low { background: rgba(0,132,255,0.1); color: var(--accent2); border: 1px solid rgba(0,132,255,0.25); }
+    .ap-rule-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+    .ap-title { font-size: 16px; color: var(--white); font-weight: 500; line-height: 1.35; margin-bottom: 6px; }
+    .ap-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+    .ap-close { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 32px; height: 32px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+    .ap-close:hover { border-color: var(--danger); color: var(--danger); }
+    .ap-body { flex: 1; overflow-y: auto; padding: 0; }
+    .ap-body::-webkit-scrollbar { width: 4px; } .ap-body::-webkit-scrollbar-track { background: transparent; } .ap-body::-webkit-scrollbar-thumb { background: var(--border2); }
+    .ap-section { border-bottom: 1px solid var(--border); padding: 16px 24px; }
+    .ap-section-title { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .ap-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .ap-triage { background: rgba(0,255,209,0.03); border: 1px solid rgba(0,255,209,0.12); padding: 14px 16px; font-size: 13px; color: var(--text); line-height: 1.7; }
+    .ap-triage .triage-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--accent); margin-bottom: 8px; }
+    .ap-triage .risk-score { font-family: 'Bebas Neue', sans-serif; font-size: 28px; float: right; margin-left: 12px; }
+    .ap-kv-grid { display: grid; grid-template-columns: 130px 1fr; gap: 6px 12px; font-size: 12px; }
+    .ap-k { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 0; letter-spacing: 0.5px; }
+    .ap-v { color: var(--white); word-break: break-all; padding: 4px 0; font-size: 12px; }
+    .ap-v.mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text); }
+    .ap-v.path { color: var(--accent2); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    .ap-v.hash { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 10px; word-break: break-all; }
+    .ap-v.danger { color: var(--danger); }
+    .ap-v.warn { color: var(--warning); }
+    .ap-copy { cursor: pointer; font-size: 10px; color: var(--muted); margin-left: 6px; } .ap-copy:hover { color: var(--accent); }
+    .mitre-card { background: rgba(0,132,255,0.06); border: 1px solid rgba(0,132,255,0.2); padding: 12px 14px; margin-bottom: 8px; }
+    .mitre-tactic { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--accent2); margin-bottom: 4px; }
+    .mitre-tech { font-size: 13px; font-weight: 500; color: var(--white); margin-bottom: 6px; }
+    .mitre-desc { font-size: 11px; color: var(--muted); line-height: 1.6; }
+    .ap-related-row { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid rgba(17,34,64,0.4); }
+    .ap-raw pre { background: var(--surface); border: 1px solid var(--border); padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text); overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto; }
+    .ap-raw-toggle { cursor: pointer; display: flex; justify-content: space-between; }
+    .ap-raw-toggle:hover { color: var(--accent); }
+    .ap-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .ap-action-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; cursor: pointer; transition: all 0.15s; }
+    .ap-action-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .ap-action-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ── SIEM / ANALYTICS VIEW ──────────────────────────────────── */
+    .siem-widget-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .siem-widget { background: var(--surface); border: 1px solid var(--border); padding: 0; overflow: hidden; }
+    .siem-widget.wide { grid-column: span 2; }
+    .siem-widget-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .siem-widget-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .siem-widget-body { padding: 16px 18px; }
+    .siem-widget canvas { max-height: 220px; }
+    .siem-top-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(17,34,64,0.5); font-size: 12px; }
+    .siem-top-bar { height: 4px; background: var(--accent); border-radius: 2px; transition: width 0.5s; }
+    .siem-controls { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
+    .siem-time-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+    .mitre-heatmap { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 4px; }
+    .mitre-cell { padding: 6px 8px; background: var(--deep); border: 1px solid var(--border); text-align: center; cursor: pointer; transition: all 0.2s; }
+    .mitre-cell:hover { border-color: var(--accent2); }
+    .mitre-cell-id { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); }
+    .mitre-cell-count { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
+    .mitre-cell-name { font-size: 9px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -431,6 +527,10 @@
         <span class="nav-icon">🕵️</span>
         <span>Dark Web Monitor</span>
         <span class="nav-badge" id="dw-badge" style="display:none">0</span>
+      </div>
+      <div class="nav-item" onclick="showView('siem')">
+        <span class="nav-icon">📊</span>
+        <span>SIEM Analytics</span>
       </div>
       <div class="nav-section">Management</div>
       <div class="nav-item" onclick="showView('clients')">
@@ -621,22 +721,64 @@
 
       <!-- ALERTS VIEW -->
       <div class="view" id="view-alerts">
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">Security Alerts — Last 24 Hours</div>
-            <div class="panel-action" onclick="loadAlerts()">↻ Refresh</div>
+        <!-- Controls -->
+        <div class="alert-controls">
+          <div class="smart-search-wrap">
+            <input type="text" id="alert-search" placeholder='Search: "failed logon"  "powershell"  "ransomware"  "lateral movement"  "new process"  rule:60122' onkeydown="if(event.key==='Enter')runAlertSearch()"/>
+            <button class="smart-search-btn" onclick="runAlertSearch()">⌕ SEARCH</button>
           </div>
-          <div class="panel-body">
-            <div class="alert-row header">
-              <div>Time</div>
-              <div>Lvl</div>
-              <div>Description</div>
-              <div>Agent</div>
-              <div>Rule</div>
-            </div>
-            <div id="full-alerts-list">
-              <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div>
-            </div>
+          <div class="time-btns">
+            <button class="time-btn" onclick="setAlertTime('now-1h',this)">1H</button>
+            <button class="time-btn" onclick="setAlertTime('now-6h',this)">6H</button>
+            <button class="time-btn active" onclick="setAlertTime('now-24h',this)" id="alert-time-default">24H</button>
+            <button class="time-btn" onclick="setAlertTime('now-7d',this)">7D</button>
+            <button class="time-btn" onclick="setAlertTime('now-30d',this)">30D</button>
+          </div>
+          <div class="sev-btns">
+            <button class="sev-btn active" onclick="setAlertSev(0,this)">ALL</button>
+            <button class="sev-btn crit" onclick="setAlertSev(12,this)">CRITICAL</button>
+            <button class="sev-btn high" onclick="setAlertSev(7,this)">HIGH</button>
+            <button class="sev-btn med" onclick="setAlertSev(4,this)">MEDIUM</button>
+          </div>
+          <select class="agent-filter-select" id="alerts-agent-filter" onchange="runAlertSearch()">
+            <option value="">All Agents</option>
+          </select>
+          <div class="panel-action" onclick="runAlertSearch()">↻ Refresh</div>
+        </div>
+
+        <!-- Quick-search chips -->
+        <div class="search-chip-bar">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;align-self:center;">QUICK:</span>
+          <div class="search-chip" onclick="quickSearch('failed logon')">Failed Logon</div>
+          <div class="search-chip" onclick="quickSearch('powershell')">PowerShell</div>
+          <div class="search-chip" onclick="quickSearch('ransomware')">Ransomware</div>
+          <div class="search-chip" onclick="quickSearch('malware')">Malware</div>
+          <div class="search-chip" onclick="quickSearch('brute force')">Brute Force</div>
+          <div class="search-chip" onclick="quickSearch('privilege escalation')">Priv Escalation</div>
+          <div class="search-chip" onclick="quickSearch('new process')">New Process</div>
+          <div class="search-chip" onclick="quickSearch('lateral movement')">Lateral Movement</div>
+          <div class="search-chip" onclick="quickSearch('file modified')">File Modified</div>
+          <div class="search-chip" onclick="quickSearch('network scan')">Network Scan</div>
+        </div>
+
+        <!-- Stats bar -->
+        <div class="alert-count-bar" id="alert-count-bar" style="display:none;">
+          <div class="alert-count-stat"><span class="n danger" id="acs-critical">0</span> CRITICAL</div>
+          <div class="alert-count-stat"><span class="n" style="color:#FF6400" id="acs-high">0</span> HIGH</div>
+          <div class="alert-count-stat"><span class="n" style="color:var(--warning)" id="acs-medium">0</span> MEDIUM</div>
+          <div class="alert-count-stat"><span class="n" style="color:var(--muted)" id="acs-total">0</span> TOTAL</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto;" id="acs-label"></div>
+        </div>
+
+        <div class="panel">
+          <div class="alert-row-v2 header">
+            <div>Time</div><div>Lvl</div><div>Src</div><div>Description</div><div>Agent</div><div>MITRE</div><div></div>
+          </div>
+          <div id="full-alerts-list">
+            <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div>
+          </div>
+          <div id="alert-load-more" style="display:none;padding:14px;text-align:center;">
+            <button class="panel-action" onclick="loadMoreAlerts()">Load More →</button>
           </div>
         </div>
       </div>
@@ -1139,7 +1281,95 @@
 
       </div>
 
+      <!-- SIEM ANALYTICS VIEW -->
+      <div class="view" id="view-siem">
+        <div class="siem-controls">
+          <div class="time-btns">
+            <button class="time-btn" onclick="setSiemTime('now-1h',this)">1H</button>
+            <button class="time-btn active" onclick="setSiemTime('now-24h',this)">24H</button>
+            <button class="time-btn" onclick="setSiemTime('now-7d',this)">7D</button>
+            <button class="time-btn" onclick="setSiemTime('now-30d',this)">30D</button>
+          </div>
+          <div class="panel-action" onclick="loadSiemAnalytics()">↻ Refresh All</div>
+          <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);" id="siem-updated"></div>
+        </div>
+        <div class="siem-widget-grid">
+          <!-- Alert Timeline -->
+          <div class="siem-widget wide">
+            <div class="siem-widget-header">
+              <div class="siem-widget-title">Alert Volume — Timeline</div>
+              <div style="display:flex;gap:8px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">
+                <span><span style="color:var(--danger);">■</span> Critical</span>
+                <span><span style="color:#FF6400;">■</span> High</span>
+                <span><span style="color:var(--warning);">■</span> Medium</span>
+              </div>
+            </div>
+            <div class="siem-widget-body" style="height:200px;"><canvas id="chart-timeline"></canvas></div>
+          </div>
+          <!-- Severity Donut -->
+          <div class="siem-widget">
+            <div class="siem-widget-header"><div class="siem-widget-title">Alert Severity Breakdown</div></div>
+            <div class="siem-widget-body" style="height:220px;display:flex;align-items:center;justify-content:center;"><canvas id="chart-severity"></canvas></div>
+          </div>
+          <!-- Top Rules -->
+          <div class="siem-widget">
+            <div class="siem-widget-header"><div class="siem-widget-title">Top Triggered Rules</div></div>
+            <div class="siem-widget-body" id="siem-top-rules" style="padding:8px 18px;">
+              <div style="color:var(--muted);font-size:12px;">Loading...</div>
+            </div>
+          </div>
+          <!-- Top Agents -->
+          <div class="siem-widget">
+            <div class="siem-widget-header"><div class="siem-widget-title">Most Active Agents</div></div>
+            <div class="siem-widget-body" id="siem-top-agents" style="padding:8px 18px;">
+              <div style="color:var(--muted);font-size:12px;">Loading...</div>
+            </div>
+          </div>
+          <!-- Top Agents -->
+          <div class="siem-widget">
+            <div class="siem-widget-header"><div class="siem-widget-title">Authentication Events — Last 24h</div></div>
+            <div class="siem-widget-body" style="height:220px;"><canvas id="chart-auth"></canvas></div>
+          </div>
+          <!-- MITRE Coverage -->
+          <div class="siem-widget wide">
+            <div class="siem-widget-header">
+              <div class="siem-widget-title">MITRE ATT&amp;CK Coverage</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">Techniques seen in environment</div>
+            </div>
+            <div class="siem-widget-body">
+              <div class="mitre-heatmap" id="mitre-heatmap">
+                <div style="color:var(--muted);font-size:12px;grid-column:span 6;">Loading MITRE data...</div>
+              </div>
+            </div>
+          </div>
+          <!-- Rule Groups -->
+          <div class="siem-widget wide">
+            <div class="siem-widget-header"><div class="siem-widget-title">Rule Category Breakdown</div></div>
+            <div class="siem-widget-body" style="height:220px;"><canvas id="chart-groups"></canvas></div>
+          </div>
+        </div>
+      </div>
+
     </div>
+  </div>
+</div>
+
+<!-- ALERT DETAIL PANEL -->
+<div id="alert-overlay" onclick="closeAlertPanel()"></div>
+<div id="alert-panel">
+  <div class="ap-header">
+    <div style="flex:1;min-width:0;">
+      <div class="ap-severity-bar">
+        <span class="ap-sev-badge" id="ap-sev-badge">--</span>
+        <span class="ap-rule-num" id="ap-rule-num"></span>
+      </div>
+      <div class="ap-title" id="ap-title">Alert</div>
+      <div class="ap-meta" id="ap-meta"></div>
+    </div>
+    <button class="ap-close" onclick="closeAlertPanel()">✕</button>
+  </div>
+  <div class="ap-body" id="ap-body">
+    <!-- Dynamic content injected by JS -->
   </div>
 </div>
 
@@ -1318,7 +1548,8 @@ function showView(name) {
   currentView = name;
   // Clear device auto-refresh when leaving devices view
   if (deviceRefreshTimer && name !== 'devices') { clearInterval(deviceRefreshTimer); deviceRefreshTimer = null; }
-  if (name === 'alerts') loadAlerts();
+  if (name === 'alerts') { populateAlertAgentFilter(); runAlertSearch(); }
+  if (name === 'siem') initSiem();
   if (name === 'devices') {
     loadDevices();
     if (!deviceRefreshTimer) deviceRefreshTimer = setInterval(loadDevices, 30000);
@@ -1748,54 +1979,859 @@ function levelBadge(level) {
   return `<div class="alert-level level-low">${level}</div>`;
 }
 
-async function loadAlerts() {
+// ── ALERTS STATE ──────────────────────────────────────────────────────────────
+let alertTimeRange = 'now-24h';
+let alertMinLevel = 0;
+let alertSearchQuery = '';
+let alertsAllHits = [];
+let alertsOffset = 0;
+const ALERTS_PAGE = 50;
+
+function populateAlertAgentFilter() {
+  const sel = document.getElementById('alerts-agent-filter');
+  if (!sel || sel.options.length > 1) return;
+  Object.values(agentsData).forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id; opt.textContent = a.name || a.id;
+    sel.appendChild(opt);
+  });
+}
+
+function setAlertTime(range, btn) {
+  alertTimeRange = range;
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  runAlertSearch();
+}
+
+function setAlertSev(minLevel, btn) {
+  alertMinLevel = minLevel;
+  document.querySelectorAll('.sev-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  runAlertSearch();
+}
+
+function quickSearch(term) {
+  document.getElementById('alert-search').value = term;
+  runAlertSearch();
+}
+
+// Convert natural language search to Wazuh query
+function buildAlertQuery(searchTerm, minLevel, agentId) {
+  const filters = [];
+  filters.push({ range: { timestamp: { gte: alertTimeRange } } });
+  if (minLevel > 0) filters.push({ range: { 'rule.level': { gte: minLevel } } });
+  if (agentId) filters.push({ term: { 'agent.id': agentId } });
+
+  if (!searchTerm) return { bool: { filter: filters } };
+
+  // Rule ID shortcut: "rule:60122"
+  const ruleMatch = searchTerm.match(/rule:(\d+)/i);
+  if (ruleMatch) {
+    filters.push({ term: { 'rule.id': ruleMatch[1] } });
+    return { bool: { filter: filters } };
+  }
+
+  // Natural language keyword map
+  const nlMap = {
+    'failed logon': { must: [{ multi_match: { query: 'logon failure authentication failed', fields: ['rule.description', 'rule.groups'] } }] },
+    'brute force': { must: [{ multi_match: { query: 'brute force authentication multiple', fields: ['rule.description', 'rule.groups'] } }] },
+    'ransomware': { must: [{ multi_match: { query: 'ransomware', fields: ['rule.description', 'rule.groups', 'data.win.eventdata.description'] } }] },
+    'malware': { must: [{ multi_match: { query: 'malware trojan virus', fields: ['rule.description', 'rule.groups'] } }] },
+    'powershell': { must: [{ multi_match: { query: 'powershell', fields: ['rule.description', 'data.win.eventdata.commandLine', 'data.win.eventdata.parentCommandLine', 'data.command'] } }] },
+    'privilege escalation': { must: [{ multi_match: { query: 'privilege escalation administrator elevated', fields: ['rule.description', 'rule.groups'] } }] },
+    'lateral movement': { must: [{ multi_match: { query: 'lateral movement pass the hash wmi', fields: ['rule.description', 'rule.groups'] } }] },
+    'new process': { must: [{ multi_match: { query: 'process created new process', fields: ['rule.description'] } }] },
+    'file modified': { must: [{ multi_match: { query: 'file modified deleted created syscheck', fields: ['rule.description', 'rule.groups'] } }] },
+    'network scan': { must: [{ multi_match: { query: 'port scan network scan nmap', fields: ['rule.description', 'rule.groups'] } }] },
+  };
+
+  const lc = searchTerm.toLowerCase();
+  for (const [key, q] of Object.entries(nlMap)) {
+    if (lc.includes(key)) {
+      return { bool: { filter: filters, ...q } };
+    }
+  }
+
+  // Generic free-text search
+  return {
+    bool: {
+      filter: filters,
+      must: [{ multi_match: { query: searchTerm, fields: ['rule.description', 'rule.groups', 'agent.name', 'data.win.eventdata.commandLine', 'data.win.eventdata.targetUserName', 'data.srcip', 'data.dstip'], fuzziness: 'AUTO' } }]
+    }
+  };
+}
+
+async function runAlertSearch() {
+  alertsOffset = 0;
+  const listEl = document.getElementById('full-alerts-list');
+  listEl.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Searching...</div>';
+
+  const searchTerm = (document.getElementById('alert-search')?.value || '').trim();
+  const agentId = document.getElementById('alerts-agent-filter')?.value || '';
+  const query = buildAlertQuery(searchTerm, alertMinLevel, agentId);
+
   try {
     const data = await indexerSearch('wazuh-alerts-4.x-*', {
-      size: 50,
+      size: ALERTS_PAGE + 1,
       sort: [{ timestamp: { order: 'desc' } }],
-      query: { range: { timestamp: { gte: 'now-24h' } } }
+      query,
+      aggs: {
+        critical: { filter: { range: { 'rule.level': { gte: 12 } } } },
+        high: { filter: { range: { 'rule.level': { gte: 7, lt: 12 } } } },
+        medium: { filter: { range: { 'rule.level': { gte: 4, lt: 7 } } } }
+      }
+    });
+
+    alertsAllHits = data?.hits?.hits?.map(h => h._source) || [];
+    const total = data?.hits?.total?.value || 0;
+
+    // Update overview stats (only when showing all)
+    if (!searchTerm && alertMinLevel === 0 && !agentId) {
+      const critical = data?.aggregations?.critical?.doc_count || 0;
+      document.getElementById('stat-critical').textContent = critical;
+      document.getElementById('stat-total').textContent = total;
+      const badge = document.getElementById('alert-badge');
+      if (badge) badge.textContent = critical;
+      const scoreEl = document.getElementById('score-open');
+      if (scoreEl) scoreEl.textContent = critical;
+      const incEl = document.getElementById('incidents-count');
+      if (incEl) incEl.textContent = critical;
+    }
+
+    // Stats bar
+    const bar = document.getElementById('alert-count-bar');
+    if (bar) {
+      bar.style.display = 'flex';
+      document.getElementById('acs-critical').textContent = data?.aggregations?.critical?.doc_count || 0;
+      document.getElementById('acs-high').textContent = data?.aggregations?.high?.doc_count || 0;
+      document.getElementById('acs-medium').textContent = data?.aggregations?.medium?.doc_count || 0;
+      document.getElementById('acs-total').textContent = total.toLocaleString();
+      document.getElementById('acs-label').textContent = searchTerm ? `Results for "${searchTerm}"` : `${alertTimeRange.replace('now-','').replace('h',' hours').replace('d',' days')} window`;
+    }
+
+    alertsHitsCache = alertsAllHits;
+    const hasMore = alertsAllHits.length > ALERTS_PAGE;
+    const displayHits = hasMore ? alertsAllHits.slice(0, ALERTS_PAGE) : alertsAllHits;
+
+    listEl.innerHTML = displayHits.length
+      ? displayHits.map((hit, i) => renderAlertRowV2(hit, i)).join('')
+      : '<div style="padding:32px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--muted);">// No alerts match — try a different search or time range</div>';
+
+    const moreEl = document.getElementById('alert-load-more');
+    if (moreEl) moreEl.style.display = hasMore ? 'block' : 'none';
+
+    // Update threat feed on overview
+    updateThreatFeed(alertsAllHits.slice(0, 8));
+  } catch(e) {
+    listEl.innerHTML = `<div style="padding:20px;color:var(--danger);font-size:12px;">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadAlerts() { await runAlertSearch(); }
+
+function loadMoreAlerts() {
+  alertsOffset += ALERTS_PAGE;
+  const listEl = document.getElementById('full-alerts-list');
+  const moreHits = alertsAllHits.slice(alertsOffset, alertsOffset + ALERTS_PAGE);
+  listEl.innerHTML += moreHits.map((hit, i) => renderAlertRowV2(hit, alertsOffset + i)).join('');
+  if (alertsOffset + ALERTS_PAGE >= alertsAllHits.length) {
+    document.getElementById('alert-load-more').style.display = 'none';
+  }
+}
+
+function renderAlertRowV2(hit, idx) {
+  const level = hit.rule?.level || 0;
+  const desc = hit.rule?.description || 'Security event';
+  const agent = hit.agent?.name || 'unknown';
+  const ruleId = hit.rule?.id || '';
+  const mitre = hit.rule?.mitre?.id?.[0] || '';
+  const groups = (hit.rule?.groups || []).slice(0, 2).join(', ');
+
+  // Detect source type
+  const hasSysmon = !!(hit.data?.win?.eventdata?.image);
+  const hasFile = !!(hit.data?.syscheck?.path);
+  const hasNet = !!(hit.data?.srcip || hit.data?.win?.eventdata?.destinationIp);
+  const srcIcon = hasSysmon ? '⚙' : hasFile ? '📄' : hasNet ? '🌐' : '🔔';
+
+  return `<div class="alert-row-v2" onclick="openAlertPanel(alertsHitsCache[${idx}])">
+    <div class="alert-time" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtTime(hit.timestamp)}</div>
+    <div>${levelBadge(level)}</div>
+    <div style="font-size:14px;text-align:center;opacity:0.7;" title="${escH(groups)}">${srcIcon}</div>
+    <div>
+      <div style="font-size:12px;color:var(--text);line-height:1.4;">${escH(desc.substring(0,90))}${desc.length>90?'…':''}</div>
+      ${groups ? `<div class="rule-group-tag" style="margin-top:3px;">${escH(groups)}</div>` : ''}
+    </div>
+    <div style="font-size:12px;color:var(--muted);">${escH(agent)}</div>
+    <div>${mitre ? `<span class="mitre-pill">${escH(mitre)}</span>` : ''}</div>
+    <div class="alert-expand-btn">›</div>
+  </div>`;
+}
+
+// Cache for alert detail lookup — kept in sync by runAlertSearch
+let alertsHitsCache = [];
+
+function updateThreatFeed(hits) {
+  const el = document.getElementById('threat-feed');
+  if (!el) return;
+  el.innerHTML = hits.map(hit => {
+    const level = hit.rule?.level || 0;
+    const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : level >= 4 ? 'var(--accent2)' : 'var(--muted)';
+    const mitre = hit.rule?.mitre?.id?.[0] || null;
+    return `<div class="threat-item">
+      <div class="threat-dot" style="background:${color}"></div>
+      <div class="threat-content">
+        <div class="threat-desc">${hit.rule?.description || 'Security event'}</div>
+        <div class="threat-meta">${fmtTime(hit.timestamp)} · ${hit.agent?.name || 'unknown'} ${mitre ? `· <span class="mitre-tag">${mitre}</span>` : ''}</div>
+      </div>
+    </div>`;
+  }).join('') || '<div style="padding:20px;color:var(--muted);font-size:13px;">No recent threats</div>';
+  const ftEl = document.getElementById('feed-time');
+  if (ftEl) ftEl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', {hour12:false});
+}
+
+// ── ALERT DETAIL PANEL ────────────────────────────────────────────────────────
+function openAlertPanel(hit) {
+  if (!hit) return;
+  const panel = document.getElementById('alert-panel');
+  const overlay = document.getElementById('alert-overlay');
+
+  // Header
+  const level = hit.rule?.level || 0;
+  const sevLabel = level >= 12 ? 'CRITICAL' : level >= 7 ? 'HIGH' : level >= 4 ? 'MEDIUM' : 'LOW';
+  const sevClass = level >= 12 ? 'ap-sev-critical' : level >= 7 ? 'ap-sev-high' : level >= 4 ? 'ap-sev-medium' : 'ap-sev-low';
+  const badge = document.getElementById('ap-sev-badge');
+  badge.className = 'ap-sev-badge ' + sevClass;
+  badge.textContent = sevLabel;
+  document.getElementById('ap-rule-num').textContent = hit.rule?.id ? `Rule ${hit.rule.id}` : '';
+  document.getElementById('ap-title').textContent = hit.rule?.description || 'Security Event';
+  document.getElementById('ap-meta').innerHTML = `
+    <span>🕐 ${fmtDateTime(hit.timestamp)}</span>
+    <span>🖥 ${escH(hit.agent?.name || 'unknown')}</span>
+    ${hit.agent?.ip ? `<span>📍 ${escH(hit.agent.ip)}</span>` : ''}
+    ${(hit.rule?.groups || []).slice(0,3).map(g => `<span style="color:var(--muted);">${escH(g)}</span>`).join(' · ')}
+  `;
+
+  // Build body
+  document.getElementById('ap-body').innerHTML = buildAlertPanelBody(hit);
+
+  overlay.style.display = 'block';
+  panel.classList.add('open');
+
+  // Load related alerts async
+  loadRelatedAlerts(hit);
+}
+
+function closeAlertPanel() {
+  document.getElementById('alert-panel').classList.remove('open');
+  document.getElementById('alert-overlay').style.display = 'none';
+}
+
+function buildAlertPanelBody(hit) {
+  const sections = [];
+
+  // 1. AI Triage Summary
+  sections.push(triageSection(hit));
+
+  // 2. MITRE ATT&CK
+  const mitreSection = buildMitreSection(hit);
+  if (mitreSection) sections.push(mitreSection);
+
+  // 3. Process context
+  const procSection = buildProcessSection(hit);
+  if (procSection) sections.push(procSection);
+
+  // 4. File event
+  const fileSection = buildFileSection(hit);
+  if (fileSection) sections.push(fileSection);
+
+  // 5. Network context
+  const netSection = buildNetSection(hit);
+  if (netSection) sections.push(netSection);
+
+  // 6. Auth event
+  const authSection = buildAuthSection(hit);
+  if (authSection) sections.push(authSection);
+
+  // 7. Actions
+  sections.push(buildActionsSection(hit));
+
+  // 8. Related alerts placeholder
+  sections.push(`<div class="ap-section" id="ap-related-section">
+    <div class="ap-section-title">Related Alerts — Same Host, Last Hour</div>
+    <div id="ap-related-list"><div style="color:var(--muted);font-size:12px;">Loading...</div></div>
+  </div>`);
+
+  // 9. Raw JSON
+  sections.push(`<div class="ap-section ap-raw">
+    <div class="ap-section-title ap-raw-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      Raw Event Data <span style="margin-left:auto;font-size:12px;">▼</span>
+    </div>
+    <pre style="display:none;background:var(--surface);border:1px solid var(--border);padding:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text);overflow:auto;max-height:360px;white-space:pre-wrap;word-break:break-all;">${escH(JSON.stringify(hit, null, 2))}</pre>
+  </div>`);
+
+  return sections.join('');
+}
+
+function triageSection(hit) {
+  const level = hit.rule?.level || 0;
+  const groups = hit.rule?.groups || [];
+  const desc = hit.rule?.description || '';
+  const agent = hit.agent?.name || 'unknown';
+  const mitre = hit.rule?.mitre?.id || [];
+  const tactics = hit.rule?.mitre?.tactic || [];
+
+  // Risk score (0-100)
+  const risk = Math.min(100, Math.round(level * 7 + (mitre.length > 0 ? 15 : 0)));
+  const riskColor = risk >= 80 ? 'var(--danger)' : risk >= 50 ? 'var(--warning)' : 'var(--accent2)';
+
+  // Generate smart triage text
+  let triage = '';
+  const lc = (desc + ' ' + groups.join(' ')).toLowerCase();
+
+  if (lc.includes('ransomware')) {
+    triage = `<strong style="color:var(--danger);">Ransomware activity detected</strong> on <strong>${escH(agent)}</strong>. This indicates potential file encryption or ransom-related process behavior. Immediate isolation recommended to prevent spread. Verify backup integrity before any remediation.`;
+  } else if (lc.includes('brute') || lc.includes('multiple authentication') || lc.includes('logon failure')) {
+    const user = hit.data?.win?.eventdata?.targetUserName || hit.data?.win?.eventdata?.SubjectUserName || '';
+    const src = hit.data?.win?.eventdata?.ipAddress || hit.data?.srcip || '';
+    triage = `Authentication failures detected on <strong>${escH(agent)}</strong>${user ? ` targeting account <strong>${escH(user)}</strong>` : ''}${src ? ` from <strong>${escH(src)}</strong>` : ''}. This pattern is consistent with a brute-force or credential stuffing attack. Consider blocking the source IP and enabling account lockout policies.`;
+  } else if (lc.includes('powershell') || (hit.data?.win?.eventdata?.commandLine || '').toLowerCase().includes('powershell')) {
+    const cmd = hit.data?.win?.eventdata?.commandLine || hit.data?.win?.eventdata?.parentCommandLine || '';
+    const encoded = cmd.toLowerCase().includes('-enc') || cmd.toLowerCase().includes('encodedcommand');
+    triage = `PowerShell execution detected on <strong>${escH(agent)}</strong>${encoded ? ' with an <strong style="color:var(--danger);">encoded/obfuscated command</strong> — high confidence indicator of evasion' : ''}. Review the command line below for suspicious patterns. Encoded PowerShell is a common LOLBin technique (T1059.001).`;
+  } else if (lc.includes('injection') || lc.includes('shellcode')) {
+    triage = `Potential code injection detected on <strong>${escH(agent)}</strong>. This technique is used by attackers to execute malicious code within the context of a legitimate process, evading process-based detections. Review the process context below carefully.`;
+  } else if (lc.includes('privilege') || lc.includes('escalation') || lc.includes('administrator')) {
+    triage = `Privilege escalation attempt detected on <strong>${escH(agent)}</strong>. An account may be attempting to gain elevated access beyond its normal role. Review the process and user context to determine if this is authorized administrative activity.`;
+  } else if (lc.includes('lateral') || lc.includes('pass the hash') || lc.includes('wmi') || lc.includes('psexec')) {
+    triage = `Lateral movement indicators detected on <strong>${escH(agent)}</strong>. Techniques like Pass-the-Hash, WMI, or PsExec execution suggest an attacker is attempting to move across the network using compromised credentials. Check neighboring hosts for similar events.`;
+  } else if (lc.includes('malware') || lc.includes('trojan') || lc.includes('virus')) {
+    triage = `Malware detection triggered on <strong>${escH(agent)}</strong>. A known malicious signature or behavior pattern was identified. Review the file and process details below. Consider isolating this endpoint until the threat is confirmed and remediated.`;
+  } else if (lc.includes('syscheck') || lc.includes('file') || groups.includes('syscheck')) {
+    const path = hit.data?.syscheck?.path || '';
+    triage = `File integrity monitoring alert on <strong>${escH(agent)}</strong>${path ? ` for path <strong style="color:var(--accent2);">${escH(path)}</strong>` : ''}. A monitored file was created, modified, or deleted. Determine if this change was authorized — unexpected modifications to system files can indicate tampering or malware installation.`;
+  } else if (lc.includes('scan') || lc.includes('nmap') || lc.includes('port')) {
+    triage = `Network scanning activity detected ${hit.data?.srcip ? `from <strong>${escH(hit.data.srcip)}</strong>` : ''} targeting <strong>${escH(agent)}</strong>. Port scans are typically used for reconnaissance to identify attack surfaces. Verify whether this is an authorized security scan.`;
+  } else if (level >= 12) {
+    triage = `<strong style="color:var(--danger);">High-severity event</strong> on <strong>${escH(agent)}</strong>. This alert was triggered by rule ${hit.rule?.id || 'unknown'} with severity level ${level}/15${mitre.length ? `, mapped to MITRE technique <strong>${mitre[0]}</strong>` : ''}. Immediate investigation recommended — review all contextual data below.`;
+  } else {
+    triage = `Security event detected on <strong>${escH(agent)}</strong>. Rule <strong>${hit.rule?.id || '--'}</strong> was triggered: ${escH(desc)}. Review the event context below to determine if this requires action or can be tuned.${mitre.length ? ` MITRE technique <strong>${mitre[0]}</strong>${tactics.length ? ` (${tactics[0]})` : ''} applies.` : ''}`;
+  }
+
+  return `<div class="ap-section">
+    <div class="ap-section-title">AI Triage Analysis</div>
+    <div class="ap-triage">
+      <div style="display:flex;align-items:flex-start;gap:14px;">
+        <div style="flex:1;">
+          <div class="triage-label" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;">ASSESSMENT</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7;">${triage}</div>
+        </div>
+        <div style="text-align:center;flex-shrink:0;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:${riskColor};line-height:1;">${risk}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1px;">RISK/100</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// MITRE ATT&CK knowledge base (abbreviated)
+const MITRE_KB = {
+  'T1059.001': { name: 'PowerShell', tactic: 'Execution', desc: 'Adversaries may abuse PowerShell commands and scripts for execution. PowerShell is a powerful interactive command-line interface and scripting environment built into Windows.' },
+  'T1059': { name: 'Command and Scripting Interpreter', tactic: 'Execution', desc: 'Adversaries may abuse command and script interpreters to execute commands, scripts, or binaries.' },
+  'T1055': { name: 'Process Injection', tactic: 'Defense Evasion / Privilege Escalation', desc: 'Adversaries may inject code into processes to evade process-based defenses and elevate privileges.' },
+  'T1003': { name: 'OS Credential Dumping', tactic: 'Credential Access', desc: 'Adversaries may attempt to dump credentials to obtain account login and credential material.' },
+  'T1078': { name: 'Valid Accounts', tactic: 'Defense Evasion / Persistence', desc: 'Adversaries may obtain and abuse credentials of existing accounts as a means of gaining access.' },
+  'T1110': { name: 'Brute Force', tactic: 'Credential Access', desc: 'Adversaries may use brute force techniques to gain access to accounts when passwords are unknown or when password hashes are obtained.' },
+  'T1021': { name: 'Remote Services', tactic: 'Lateral Movement', desc: 'Adversaries may use remote services to initially access or move laterally to a system.' },
+  'T1547': { name: 'Boot or Logon Autostart Execution', tactic: 'Persistence', desc: 'Adversaries may configure system settings to execute a program during system boot to maintain persistence.' },
+  'T1543': { name: 'Create or Modify System Process', tactic: 'Persistence', desc: 'Adversaries may create or modify system-level processes to repeatedly execute malicious payloads.' },
+  'T1070': { name: 'Indicator Removal', tactic: 'Defense Evasion', desc: 'Adversaries may delete or modify artifacts to interfere with event collection or investigation.' },
+  'T1105': { name: 'Ingress Tool Transfer', tactic: 'Command and Control', desc: 'Adversaries may transfer tools or other files from an external system into a compromised environment.' },
+  'T1566': { name: 'Phishing', tactic: 'Initial Access', desc: 'Adversaries may send phishing messages to gain access to victim systems.' },
+  'T1190': { name: 'Exploit Public-Facing Application', tactic: 'Initial Access', desc: 'Adversaries may attempt to exploit a weakness in an internet-facing host.' },
+  'T1496': { name: 'Resource Hijacking', tactic: 'Impact', desc: 'Adversaries may leverage the resources of co-opted systems to complete resource-intensive tasks.' },
+  'T1486': { name: 'Data Encrypted for Impact', tactic: 'Impact', desc: 'Adversaries may encrypt data on target systems or on large numbers of systems in a network to interrupt availability.' },
+};
+
+function buildMitreSection(hit) {
+  const ids = hit.rule?.mitre?.id || [];
+  const tactics = hit.rule?.mitre?.tactic || [];
+  if (!ids.length) return null;
+
+  const cards = ids.map((id, i) => {
+    const kb = MITRE_KB[id] || {};
+    const tactic = tactics[i] || kb.tactic || 'Unknown';
+    const name = kb.name || id;
+    const desc = kb.desc || 'Review MITRE ATT&CK for full technique details.';
+    return `<div class="mitre-card">
+      <div class="mitre-tactic">${escH(tactic.toUpperCase())}</div>
+      <div class="mitre-tech">${escH(id)} — ${escH(name)}</div>
+      <div class="mitre-desc">${escH(desc)}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="ap-section">
+    <div class="ap-section-title">MITRE ATT&amp;CK</div>
+    ${cards}
+  </div>`;
+}
+
+function buildProcessSection(hit) {
+  const wd = hit.data?.win?.eventdata || {};
+  const image = wd.image || wd.Image || '';
+  const cmdLine = wd.commandLine || wd.CommandLine || wd.parentCommandLine || hit.data?.command || '';
+  const parentImage = wd.parentImage || wd.ParentImage || '';
+  const user = wd.subjectUserName || wd.SubjectUserName || wd.user || hit.data?.dstuser || '';
+  const pid = wd.processId || wd.ProcessId || wd.processGuid || '';
+  const ppid = wd.parentProcessId || wd.ParentProcessId || '';
+  // Hashes from Sysmon (format: "MD5=abc,SHA256=def")
+  const hashRaw = wd.hashes || wd.Hashes || '';
+  const hashParts = {};
+  hashRaw.split(',').forEach(p => { const [k, v] = p.split('='); if (k && v) hashParts[k.trim()] = v.trim(); });
+  const sha256 = hashParts['SHA256'] || hashParts['Sha256'] || '';
+  const md5 = hashParts['MD5'] || hashParts['Md5'] || '';
+
+  if (!image && !cmdLine && !user) return null;
+
+  const rows = [];
+  if (image) rows.push(['Image', `<span class="ap-v path">${escH(image)}</span>`]);
+  if (cmdLine) {
+    const isSuspicious = /(-enc|-encodedcommand|iex|invoke-expression|downloadstring|frombase64)/i.test(cmdLine);
+    rows.push(['Command Line', `<span class="ap-v mono" style="${isSuspicious ? 'color:var(--warning)' : ''}">${escH(cmdLine.substring(0, 300))}${cmdLine.length > 300 ? '…' : ''}</span>`]);
+  }
+  if (parentImage) rows.push(['Parent Process', `<span class="ap-v path">${escH(parentImage)}</span>`]);
+  if (user) rows.push(['User', `<span class="ap-v mono">${escH(user)}</span>`]);
+  if (pid) rows.push(['PID', `<span class="ap-v mono">${escH(String(pid))}</span>`]);
+  if (ppid) rows.push(['PPID', `<span class="ap-v mono">${escH(String(ppid))}</span>`]);
+  if (sha256) rows.push(['SHA256', `<span class="ap-v hash">${escH(sha256)}</span> <span class="ap-copy" onclick="navigator.clipboard.writeText('${escH(sha256)}')">📋</span>`]);
+  if (md5) rows.push(['MD5', `<span class="ap-v hash">${escH(md5)}</span>`]);
+
+  // Publisher info from image path heuristic
+  const publisher = getPublisherFromPath(image);
+  if (publisher) rows.push(['Publisher', `<span class="ap-v" style="color:${publisher.trusted ? 'var(--accent)' : 'var(--warning)'};">${escH(publisher.name)} ${publisher.trusted ? '✓ Trusted' : '⚠ Unverified'}</span>`]);
+
+  return `<div class="ap-section">
+    <div class="ap-section-title">Process Context</div>
+    <div class="ap-kv-grid">${rows.map(([k, v]) => `<div class="ap-k">${k}</div><div>${v}</div>`).join('')}</div>
+  </div>`;
+}
+
+function getPublisherFromPath(path) {
+  if (!path) return null;
+  const lp = path.toLowerCase();
+  if (lp.includes('\\windows\\system32\\') || lp.includes('\\windows\\syswow64\\')) return { name: 'Microsoft Windows', trusted: true };
+  if (lp.includes('\\microsoft office\\') || lp.includes('\\microsoft\\office\\')) return { name: 'Microsoft Office', trusted: true };
+  if (lp.includes('\\google\\chrome\\') || lp.includes('\\googlechrome\\')) return { name: 'Google LLC', trusted: true };
+  if (lp.includes('\\mozilla firefox\\')) return { name: 'Mozilla Foundation', trusted: true };
+  if (lp.includes('\\program files\\')) return { name: 'Third-party application', trusted: false };
+  if (lp.includes('\\appdata\\') || lp.includes('\\temp\\') || lp.includes('\\tmp\\')) return { name: 'User AppData / Temp', trusted: false };
+  return null;
+}
+
+function buildFileSection(hit) {
+  const sc = hit.data?.syscheck || {};
+  const tf = hit.data?.win?.eventdata?.targetFilename || hit.data?.win?.eventdata?.TargetFilename || '';
+  const path = sc.path || tf || '';
+  if (!path) return null;
+
+  const rows = [];
+  rows.push(['Path', `<span class="ap-v path">${escH(path)}</span>`]);
+  if (sc.event || sc.changed_attributes) rows.push(['Event', `<span class="ap-v ${sc.event === 'deleted' ? 'danger' : sc.event === 'added' ? 'ap-v' : 'warn'}">${escH(sc.event || '')}</span>`]);
+  if (sc.sha256_after) rows.push(['SHA256 (after)', `<span class="ap-v hash">${escH(sc.sha256_after)}</span> <span class="ap-copy" onclick="navigator.clipboard.writeText('${escH(sc.sha256_after)}')">📋</span>`]);
+  if (sc.sha1_after) rows.push(['SHA1', `<span class="ap-v hash">${escH(sc.sha1_after)}</span>`]);
+  if (sc.md5_after) rows.push(['MD5', `<span class="ap-v hash">${escH(sc.md5_after)}</span>`]);
+  if (sc.size_after) rows.push(['Size', `<span class="ap-v mono">${Number(sc.size_after).toLocaleString()} bytes</span>`]);
+  if (sc.changed_attributes) rows.push(['Changes', `<span class="ap-v mono">${escH(Array.isArray(sc.changed_attributes) ? sc.changed_attributes.join(', ') : sc.changed_attributes)}</span>`]);
+
+  // Suspicious path detection
+  const lp = path.toLowerCase();
+  const suspiciousPaths = ['\\temp\\', '\\tmp\\', '\\appdata\\roaming\\', '\\programdata\\', '\\windows\\temp\\', '/tmp/', '/var/tmp/'];
+  const isSusp = suspiciousPaths.some(sp => lp.includes(sp));
+  if (isSusp) rows.push(['⚠ Warning', `<span class="ap-v warn">File in high-risk directory — review immediately</span>`]);
+
+  return `<div class="ap-section">
+    <div class="ap-section-title">File Event</div>
+    <div class="ap-kv-grid">${rows.map(([k, v]) => `<div class="ap-k">${k}</div><div>${v}</div>`).join('')}</div>
+  </div>`;
+}
+
+function buildNetSection(hit) {
+  const wd = hit.data?.win?.eventdata || {};
+  const srcip = hit.data?.srcip || wd.sourceIp || wd.SourceIp || '';
+  const dstip = hit.data?.dstip || wd.destinationIp || wd.DestinationIp || '';
+  const srcport = wd.sourcePort || wd.SourcePort || '';
+  const dstport = wd.destinationPort || wd.DestinationPort || hit.data?.dstport || '';
+  const proto = wd.protocol || wd.Protocol || hit.data?.protocol || '';
+
+  if (!srcip && !dstip) return null;
+
+  const rows = [];
+  if (srcip) rows.push(['Source IP', `<span class="ap-v mono">${escH(srcip)}${srcport ? ':' + srcport : ''}</span>`]);
+  if (dstip) {
+    const isPublic = !dstip.startsWith('10.') && !dstip.startsWith('192.168.') && !dstip.startsWith('172.') && dstip !== '127.0.0.1';
+    rows.push(['Destination IP', `<span class="ap-v mono" style="${isPublic ? 'color:var(--warning)' : ''}">${escH(dstip)}${dstport ? ':' + dstport : ''}</span>${isPublic ? ' <span style="font-size:10px;color:var(--warning);">⚠ External</span>' : ''}`]);
+  }
+  if (proto) rows.push(['Protocol', `<span class="ap-v mono">${escH(proto)}</span>`]);
+  const direction = hit.data?.direction || '';
+  if (direction) rows.push(['Direction', `<span class="ap-v mono">${escH(direction)}</span>`]);
+
+  return `<div class="ap-section">
+    <div class="ap-section-title">Network Context</div>
+    <div class="ap-kv-grid">${rows.map(([k, v]) => `<div class="ap-k">${k}</div><div>${v}</div>`).join('')}</div>
+  </div>`;
+}
+
+function buildAuthSection(hit) {
+  const wd = hit.data?.win?.eventdata || {};
+  const targetUser = wd.targetUserName || wd.TargetUserName || '';
+  const subjectUser = wd.subjectUserName || wd.SubjectUserName || '';
+  const logonType = wd.logonType || wd.LogonType || '';
+  const workstation = wd.workstationName || wd.WorkstationName || '';
+  const ipAddress = wd.ipAddress || wd.IpAddress || '';
+
+  if (!targetUser && !subjectUser && !logonType) return null;
+
+  const logonTypes = { '2': 'Interactive', '3': 'Network', '4': 'Batch', '5': 'Service', '7': 'Unlock', '8': 'NetworkCleartext', '9': 'NewCredentials', '10': 'RemoteInteractive (RDP)', '11': 'CachedInteractive' };
+
+  const rows = [];
+  if (targetUser) rows.push(['Target Account', `<span class="ap-v mono">${escH(targetUser)}</span>`]);
+  if (subjectUser) rows.push(['Subject Account', `<span class="ap-v mono">${escH(subjectUser)}</span>`]);
+  if (logonType) rows.push(['Logon Type', `<span class="ap-v mono">${logonTypes[logonType] || logonType}${logonType === '10' ? ' <span style="color:var(--warning);">⚠ RDP</span>' : ''}</span>`]);
+  if (workstation) rows.push(['Workstation', `<span class="ap-v mono">${escH(workstation)}</span>`]);
+  if (ipAddress && ipAddress !== '-') rows.push(['Source IP', `<span class="ap-v mono">${escH(ipAddress)}</span>`]);
+
+  return `<div class="ap-section">
+    <div class="ap-section-title">Authentication Context</div>
+    <div class="ap-kv-grid">${rows.map(([k, v]) => `<div class="ap-k">${k}</div><div>${v}</div>`).join('')}</div>
+  </div>`;
+}
+
+function buildActionsSection(hit) {
+  const agentId = hit.agent?.id;
+  const agentName = hit.agent?.name || 'unknown';
+  return `<div class="ap-section">
+    <div class="ap-section-title">Analyst Actions</div>
+    <div class="ap-actions">
+      ${agentId ? `<button class="ap-action-btn danger" onclick="isolateFromAlert('${escH(agentId)}','${escH(agentName)}')">🔒 Isolate Endpoint</button>` : ''}
+      <button class="ap-action-btn" onclick="searchAlertInSiem(${JSON.stringify((hit.rule?.id || '')).replace(/"/g,"'")})">📡 Search in SIEM</button>
+      <button class="ap-action-btn" onclick="navigator.clipboard.writeText(JSON.stringify(arguments[0]||{}));showToast('Alert JSON copied','success')" >📋 Copy JSON</button>
+      ${agentId ? `<button class="ap-action-btn" onclick="closeAlertPanel();openEndpointPanel('${escH(agentId)}')">🖥 View Endpoint</button>` : ''}
+    </div>
+  </div>`;
+}
+
+async function loadRelatedAlerts(hit) {
+  const el = document.getElementById('ap-related-list');
+  if (!el) return;
+  try {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', {
+      size: 6,
+      sort: [{ timestamp: { order: 'desc' } }],
+      query: {
+        bool: {
+          filter: [
+            { term: { 'agent.id': hit.agent?.id || '' } },
+            { range: { timestamp: { gte: 'now-1h' } } }
+          ],
+          must_not: [{ term: { 'rule.id': hit.rule?.id || '' } }]
+        }
+      }
     });
     const hits = data?.hits?.hits?.map(h => h._source) || [];
-    const total = data?.hits?.total?.value || 0;
-    const critical = hits.filter(h => (h.rule?.level || 0) >= 12).length;
+    el.innerHTML = hits.length
+      ? hits.map(h => {
+          const level = h.rule?.level || 0;
+          const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : level >= 4 ? 'var(--accent2)' : 'var(--muted)';
+          return `<div class="ap-related-row">
+            <div style="width:7px;height:7px;border-radius:50%;background:${color};flex-shrink:0;margin-top:4px;"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;color:var(--text);">${escH((h.rule?.description || '').substring(0,70))}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">${fmtTime(h.timestamp)} · Rule ${h.rule?.id || '--'}</div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};">${level}</div>
+          </div>`;
+        }).join('')
+      : '<div style="color:var(--muted);font-size:12px;padding:8px 0;">No other events in last hour on this host</div>';
+  } catch(e) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;">Could not load</div>'; }
+}
 
-    document.getElementById('stat-critical').textContent = critical;
-    document.getElementById('stat-total').textContent = total;
-    document.getElementById('alert-badge').textContent = critical;
-    document.getElementById('score-open').textContent = critical;
-    document.getElementById('incidents-count').textContent = critical;
+function isolateFromAlert(agentId, agentName) {
+  showToast('Sending isolation command → ' + agentName + '...', 'info');
+  fetch(`${PROXY_URL}/active-response?agents_list=${agentId}`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ command: 'isolate-win', arguments: [] })
+  }).then(r => {
+    if (r.ok) showToast('Isolation command sent to ' + agentName, 'success');
+    else showToast('Isolation failed — check agent connectivity', 'error');
+  }).catch(() => showToast('Could not reach manager API', 'error'));
+}
 
-    const renderRows = (items, limit) => items.slice(0, limit).map(hit => {
-      const level = hit.rule?.level || 0;
-      const desc = hit.rule?.description || 'Security event';
-      const agent = hit.agent?.name || 'unknown';
-      const rule = hit.rule?.id || '--';
-      return `<div class="alert-row">
-        <div class="alert-time">${fmtTime(hit.timestamp)}</div>
-        <div>${levelBadge(level)}</div>
-        <div class="alert-desc">${desc.substring(0,80)}${desc.length>80?'...':''}</div>
-        <div class="alert-agent">${agent}</div>
-        <div class="alert-rule">${rule}</div>
-      </div>`;
-    }).join('') || '<div style="padding:20px;color:var(--muted);font-size:13px;text-align:center;">No alerts in last 24 hours</div>';
+function searchAlertInSiem(ruleId) {
+  window.open(`https://soc.palisadeone.com/app/discover#/?_a=(query:(language:kuery,query:'rule.id:"${encodeURIComponent(ruleId)}"'))`, '_blank');
+}
 
-    document.getElementById('recent-alerts-list').innerHTML = renderRows(hits, 8);
-    document.getElementById('full-alerts-list').innerHTML = renderRows(hits, 50);
+// ── SIEM ANALYTICS ────────────────────────────────────────────────────────────
+let siemTimeRange = 'now-24h';
+let siemCharts = {};
 
-    document.getElementById('threat-feed').innerHTML = hits.slice(0, 8).map(hit => {
-      const level = hit.rule?.level || 0;
-      const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : level >= 4 ? 'var(--accent2)' : 'var(--muted)';
-      const mitre = hit.rule?.mitre?.id?.[0] || null;
-      return `<div class="threat-item">
-        <div class="threat-dot" style="background:${color}"></div>
-        <div class="threat-content">
-          <div class="threat-desc">${hit.rule?.description || 'Security event'}</div>
-          <div class="threat-meta">${fmtTime(hit.timestamp)} · ${hit.agent?.name || 'unknown'} ${mitre ? `· <span class="mitre-tag">${mitre}</span>` : ''}</div>
-        </div>
-      </div>`;
-    }).join('') || '<div style="padding:20px;color:var(--muted);font-size:13px;">No recent threats</div>';
-    document.getElementById('feed-time').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', {hour12:false});
-  } catch(e) { console.log('Alert load error:', e); }
+function setSiemTime(range, btn) {
+  siemTimeRange = range;
+  document.querySelectorAll('#view-siem .time-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  loadSiemAnalytics();
+}
+
+async function initSiem() {
+  loadSiemAnalytics();
+}
+
+async function loadSiemAnalytics() {
+  const updEl = document.getElementById('siem-updated');
+  if (updEl) updEl.textContent = 'Loading...';
+
+  try {
+    const [timelineData, topRulesData, topAgentsData, mitreData, groupsData, authData] = await Promise.all([
+      fetchTimelineData(),
+      fetchTopRules(),
+      fetchTopAgents(),
+      fetchMitreData(),
+      fetchGroupsData(),
+      fetchAuthData()
+    ]);
+
+    renderTimeline(timelineData);
+    renderSeverityDonut(timelineData.sevCounts);
+    renderTopRules(topRulesData);
+    renderTopAgents(topAgentsData);
+    renderMitreHeatmap(mitreData);
+    renderGroupsChart(groupsData);
+    renderAuthChart(authData);
+
+    if (updEl) updEl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', {hour12:false});
+  } catch(e) { console.error('SIEM analytics error:', e); }
+}
+
+async function fetchTimelineData() {
+  const intervalMap = { 'now-1h': '5m', 'now-6h': '30m', 'now-24h': '1h', 'now-7d': '12h', 'now-30d': '1d' };
+  const interval = intervalMap[siemTimeRange] || '1h';
+
+  const data = await indexerSearch('wazuh-alerts-4.x-*', {
+    size: 0,
+    query: { range: { timestamp: { gte: siemTimeRange } } },
+    aggs: {
+      over_time: { date_histogram: { field: 'timestamp', fixed_interval: interval, min_doc_count: 0, extended_bounds: { min: siemTimeRange, max: 'now' } },
+        aggs: {
+          critical: { filter: { range: { 'rule.level': { gte: 12 } } } },
+          high: { filter: { range: { 'rule.level': { gte: 7, lt: 12 } } } },
+          medium: { filter: { range: { 'rule.level': { gte: 4, lt: 7 } } } }
+        }
+      },
+      critical_total: { filter: { range: { 'rule.level': { gte: 12 } } } },
+      high_total: { filter: { range: { 'rule.level': { gte: 7, lt: 12 } } } },
+      medium_total: { filter: { range: { 'rule.level': { gte: 4, lt: 7 } } } },
+      low_total: { filter: { range: { 'rule.level': { lt: 4 } } } }
+    }
+  });
+
+  const buckets = data?.aggregations?.over_time?.buckets || [];
+  return {
+    labels: buckets.map(b => { const d = new Date(b.key_as_string || b.key); return d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', hour12:false}); }),
+    critical: buckets.map(b => b.critical?.doc_count || 0),
+    high: buckets.map(b => b.high?.doc_count || 0),
+    medium: buckets.map(b => b.medium?.doc_count || 0),
+    sevCounts: {
+      critical: data?.aggregations?.critical_total?.doc_count || 0,
+      high: data?.aggregations?.high_total?.doc_count || 0,
+      medium: data?.aggregations?.medium_total?.doc_count || 0,
+      low: data?.aggregations?.low_total?.doc_count || 0
+    }
+  };
+}
+
+async function fetchTopRules() {
+  const data = await indexerSearch('wazuh-alerts-4.x-*', {
+    size: 0,
+    query: { range: { timestamp: { gte: siemTimeRange } } },
+    aggs: { top_rules: { terms: { field: 'rule.id', size: 10 },
+      aggs: { desc: { terms: { field: 'rule.description', size: 1 } } }
+    }}
+  });
+  return data?.aggregations?.top_rules?.buckets || [];
+}
+
+async function fetchTopAgents() {
+  const data = await indexerSearch('wazuh-alerts-4.x-*', {
+    size: 0,
+    query: { range: { timestamp: { gte: siemTimeRange } } },
+    aggs: { top_agents: { terms: { field: 'agent.name', size: 10 },
+      aggs: { critical: { filter: { range: { 'rule.level': { gte: 12 } } } } }
+    }}
+  });
+  return data?.aggregations?.top_agents?.buckets || [];
+}
+
+async function fetchMitreData() {
+  const data = await indexerSearch('wazuh-alerts-4.x-*', {
+    size: 0,
+    query: { bool: { filter: [{ range: { timestamp: { gte: siemTimeRange } } }, { exists: { field: 'rule.mitre.id' } }] } },
+    aggs: { mitre: { terms: { field: 'rule.mitre.id', size: 30 } } }
+  });
+  return data?.aggregations?.mitre?.buckets || [];
+}
+
+async function fetchGroupsData() {
+  const data = await indexerSearch('wazuh-alerts-4.x-*', {
+    size: 0,
+    query: { range: { timestamp: { gte: siemTimeRange } } },
+    aggs: { groups: { terms: { field: 'rule.groups', size: 12, exclude: ['syslog', 'authentication_success', 'pam'] } } }
+  });
+  return data?.aggregations?.groups?.buckets || [];
+}
+
+async function fetchAuthData() {
+  const data = await indexerSearch('wazuh-alerts-4.x-*', {
+    size: 0,
+    query: { bool: { filter: [{ range: { timestamp: { gte: siemTimeRange } } }, { terms: { 'rule.groups': ['authentication_success', 'authentication_failed', 'authentication_failures'] } }] } },
+    aggs: {
+      success: { filter: { term: { 'rule.groups': 'authentication_success' } } },
+      failed: { filter: { term: { 'rule.groups': 'authentication_failed' } } },
+      failures: { filter: { term: { 'rule.groups': 'authentication_failures' } } }
+    }
+  });
+  return {
+    success: data?.aggregations?.success?.doc_count || 0,
+    failed: data?.aggregations?.failed?.doc_count || 0,
+    failures: data?.aggregations?.failures?.doc_count || 0
+  };
+}
+
+const CHART_OPTS = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {} };
+const C = { critical: 'rgba(255,59,92,0.8)', high: 'rgba(255,100,0,0.7)', medium: 'rgba(245,166,35,0.7)', low: 'rgba(0,132,255,0.6)', border: '#112240', muted: '#4A6080', text: '#C8D8F0' };
+
+function destroyChart(id) { if (siemCharts[id]) { siemCharts[id].destroy(); delete siemCharts[id]; } }
+
+function renderTimeline(d) {
+  destroyChart('timeline');
+  const ctx = document.getElementById('chart-timeline')?.getContext('2d');
+  if (!ctx) return;
+  Chart.defaults.color = C.muted;
+  siemCharts['timeline'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: d.labels,
+      datasets: [
+        { label: 'Critical', data: d.critical, borderColor: C.critical, backgroundColor: 'rgba(255,59,92,0.1)', tension: 0.4, fill: true, pointRadius: 2 },
+        { label: 'High', data: d.high, borderColor: C.high, backgroundColor: 'rgba(255,100,0,0.08)', tension: 0.4, fill: true, pointRadius: 2 },
+        { label: 'Medium', data: d.medium, borderColor: C.medium, backgroundColor: 'rgba(245,166,35,0.06)', tension: 0.4, fill: true, pointRadius: 2 }
+      ]
+    },
+    options: { ...CHART_OPTS, plugins: { legend: { display: true, labels: { color: C.text, font: { family: 'JetBrains Mono', size: 10 }, boxWidth: 10 } } },
+      scales: { x: { ticks: { color: C.muted, font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 10 }, grid: { color: C.border } }, y: { ticks: { color: C.muted, font: { family: 'JetBrains Mono', size: 9 } }, grid: { color: C.border }, beginAtZero: true } }
+    }
+  });
+}
+
+function renderSeverityDonut(sev) {
+  destroyChart('severity');
+  const ctx = document.getElementById('chart-severity')?.getContext('2d');
+  if (!ctx) return;
+  siemCharts['severity'] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Critical', 'High', 'Medium', 'Low'],
+      datasets: [{ data: [sev.critical, sev.high, sev.medium, sev.low], backgroundColor: [C.critical, C.high, C.medium, C.low], borderColor: '#070C14', borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: { legend: { position: 'right', labels: { color: C.text, font: { family: 'JetBrains Mono', size: 10 }, boxWidth: 10, padding: 12 } } }
+    }
+  });
+}
+
+function renderTopRules(buckets) {
+  const el = document.getElementById('siem-top-rules');
+  if (!el) return;
+  const max = buckets[0]?.doc_count || 1;
+  el.innerHTML = buckets.length ? buckets.map(b => {
+    const desc = b.desc?.buckets?.[0]?.key || `Rule ${b.key}`;
+    const pct = Math.round((b.doc_count / max) * 100);
+    return `<div class="siem-top-row">
+      <div style="min-width:0;flex:1;">
+        <div style="font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escH(desc.substring(0,50))}</div>
+        <div style="margin-top:4px;height:3px;background:var(--deep);border-radius:2px;"><div class="siem-top-bar" style="width:${pct}%;background:var(--accent2);"></div></div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent2);margin-left:12px;flex-shrink:0;">${b.doc_count.toLocaleString()}</div>
+    </div>`;
+  }).join('') : '<div style="color:var(--muted);font-size:12px;padding:8px 0;">No data</div>';
+}
+
+function renderTopAgents(buckets) {
+  const el = document.getElementById('siem-top-agents');
+  if (!el) return;
+  const max = buckets[0]?.doc_count || 1;
+  el.innerHTML = buckets.length ? buckets.map(b => {
+    const pct = Math.round((b.doc_count / max) * 100);
+    const crit = b.critical?.doc_count || 0;
+    return `<div class="siem-top-row">
+      <div style="min-width:0;flex:1;">
+        <div style="font-size:12px;color:var(--text);">${escH(b.key)}</div>
+        <div style="margin-top:4px;height:3px;background:var(--deep);border-radius:2px;"><div class="siem-top-bar" style="width:${pct}%;background:${crit > 0 ? 'var(--danger)' : 'var(--accent)'};"></div></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-left:12px;flex-shrink:0;">
+        ${crit > 0 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--danger);">⚠ ${crit}</span>` : ''}
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);">${b.doc_count.toLocaleString()}</span>
+      </div>
+    </div>`;
+  }).join('') : '<div style="color:var(--muted);font-size:12px;padding:8px 0;">No data</div>';
+}
+
+function renderMitreHeatmap(buckets) {
+  const el = document.getElementById('mitre-heatmap');
+  if (!el) return;
+  const max = buckets[0]?.doc_count || 1;
+  el.innerHTML = buckets.length ? buckets.map(b => {
+    const kb = MITRE_KB[b.key] || {};
+    const intensity = Math.min(1, b.doc_count / max);
+    const bg = `rgba(0,132,255,${0.05 + intensity * 0.35})`;
+    const border = `rgba(0,132,255,${0.1 + intensity * 0.4})`;
+    return `<div class="mitre-cell" style="background:${bg};border-color:${border};" onclick="quickSearch('${escH(b.key)}');showView('alerts')">
+      <div class="mitre-cell-id">${escH(b.key)}</div>
+      <div class="mitre-cell-count" style="color:rgba(0,132,255,${0.5 + intensity * 0.5})">${b.doc_count}</div>
+      <div class="mitre-cell-name">${escH(kb.name || b.key)}</div>
+    </div>`;
+  }).join('') : '<div style="color:var(--muted);font-size:12px;">No MITRE-tagged alerts in this period</div>';
+}
+
+function renderGroupsChart(buckets) {
+  destroyChart('groups');
+  const ctx = document.getElementById('chart-groups')?.getContext('2d');
+  if (!ctx || !buckets.length) return;
+  siemCharts['groups'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: buckets.map(b => b.key.replace(/_/g, ' ').substring(0, 22)),
+      datasets: [{ data: buckets.map(b => b.doc_count), backgroundColor: buckets.map((_, i) => `hsla(${180 + i * 18},70%,50%,0.6)`), borderRadius: 2 }]
+    },
+    options: { ...CHART_OPTS, plugins: { legend: { display: false } },
+      scales: { x: { ticks: { color: C.muted, font: { family: 'JetBrains Mono', size: 9 }, maxRotation: 30 }, grid: { color: C.border } }, y: { ticks: { color: C.muted, font: { family: 'JetBrains Mono', size: 9 } }, grid: { color: C.border }, beginAtZero: true } }
+    }
+  });
+}
+
+function renderAuthChart(d) {
+  destroyChart('auth');
+  const ctx = document.getElementById('chart-auth')?.getContext('2d');
+  if (!ctx) return;
+  siemCharts['auth'] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Success', 'Failed', 'Failures (multi)'],
+      datasets: [{ data: [d.success, d.failed, d.failures], backgroundColor: ['rgba(0,255,209,0.6)', 'rgba(255,59,92,0.6)', 'rgba(245,166,35,0.6)'], borderColor: '#070C14', borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: { legend: { position: 'right', labels: { color: C.text, font: { family: 'JetBrains Mono', size: 10 }, boxWidth: 10 } } }
+    }
+  });
 }
 
 const agentsData = {};
