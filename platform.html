@@ -97,7 +97,7 @@
         <div class="arch-layer-title">ENDPOINT & NETWORK TELEMETRY</div>
         <p class="arch-layer-desc">Lightweight agents on every endpoint send continuous telemetry to our cloud platform. Every process, every file, every connection — captured.</p>
         <div class="arch-tags">
-          <span class="arch-tag red">Wazuh Agents</span>
+          <span class="arch-tag red">P1 Endpoint Agents</span>
           <span class="arch-tag red">Windows / Mac / Linux</span>
           <span class="arch-tag red">Network Sensors</span>
           <span class="arch-tag red">Cloud Connectors</span>
@@ -106,20 +106,20 @@
       <div class="arch-layer layer-2 fade-up">
         <div class="arch-layer-num">// LAYER 02 — ANALYSIS</div>
         <div class="arch-layer-title">AI-POWERED THREAT ANALYSIS</div>
-        <p class="arch-layer-desc">Raw telemetry is processed by Elastic ML for anomaly detection, Wazuh rules for known patterns, and Claude AI for contextual reasoning and plain-English reporting.</p>
+        <p class="arch-layer-desc">Raw telemetry is processed by P1 ML for anomaly detection, P1 detection rules for known patterns, and P1 AI for contextual reasoning and plain-English reporting.</p>
         <div class="arch-tags">
-          <span class="arch-tag blue">Elastic Stack</span>
-          <span class="arch-tag blue">Wazuh SIEM</span>
-          <span class="arch-tag blue">Claude AI</span>
+          <span class="arch-tag blue">P1 Analytics</span>
+          <span class="arch-tag blue">P1 SIEM</span>
+          <span class="arch-tag blue">P1 AI</span>
           <span class="arch-tag blue">ML Anomaly Detection</span>
         </div>
       </div>
       <div class="arch-layer layer-3 fade-up">
         <div class="arch-layer-num">// LAYER 03 — RESPONSE</div>
         <div class="arch-layer-title">AUTOMATED RESPONSE & REPORTING</div>
-        <p class="arch-layer-desc">Confirmed threats trigger automated responses — isolation, quarantine, blocking — in under one second. n8n orchestrates workflows and notifies the right people instantly.</p>
+        <p class="arch-layer-desc">Confirmed threats trigger automated responses — isolation, quarantine, blocking — in under one second. our automation engine orchestrates workflows and notifies the right people instantly.</p>
         <div class="arch-tags">
-          <span class="arch-tag">n8n SOAR</span>
+          <span class="arch-tag">P1 Automation</span>
           <span class="arch-tag">Auto-Isolation</span>
           <span class="arch-tag">File Quarantine</span>
           <span class="arch-tag">Alert Routing</span>
@@ -135,18 +135,18 @@
     <div class="flow-steps">
       <div class="flow-step fade-up">
         <div class="flow-num">01</div>
-        <div class="flow-info"><div class="flow-title">Telemetry Collected</div><p class="flow-desc">Wazuh agent on the endpoint captures process execution, file activity, registry changes, and network connections in real time.</p></div>
-        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">Wazuh 4.x Agent</div></div>
+        <div class="flow-info"><div class="flow-title">Telemetry Collected</div><p class="flow-desc">P1 agent on the endpoint captures process execution, file activity, registry changes, and network connections in real time.</p></div>
+        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">P1 Endpoint Agent</div></div>
       </div>
       <div class="flow-step fade-up">
         <div class="flow-num">02</div>
-        <div class="flow-info"><div class="flow-title">Rules & ML Analysis</div><p class="flow-desc">Events matched against 3,000+ Wazuh detection rules and Elastic ML behavioral baselines simultaneously. Statistical outliers flagged automatically.</p></div>
-        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">Elastic ML + Wazuh Rules</div></div>
+        <div class="flow-info"><div class="flow-title">Rules & ML Analysis</div><p class="flow-desc">Events matched against 3,000+ P1 detection rules and machine learning behavioral baselines simultaneously. Statistical outliers flagged automatically.</p></div>
+        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">P1 ML + P1 Detection Rules</div></div>
       </div>
       <div class="flow-step fade-up">
         <div class="flow-num">03</div>
-        <div class="flow-info"><div class="flow-title">AI Contextual Reasoning</div><p class="flow-desc">Claude AI analyzes the full process tree, parent-child relationships, and network behavior to determine intent and severity — eliminating false positives.</p></div>
-        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">Claude AI API</div></div>
+        <div class="flow-info"><div class="flow-title">AI Contextual Reasoning</div><p class="flow-desc">P1 AI analyzes the full process tree, parent-child relationships, and network behavior to determine intent and severity — eliminating false positives.</p></div>
+        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">P1 AI Engine</div></div>
       </div>
       <div class="flow-step fade-up">
         <div class="flow-num">04</div>
@@ -161,7 +161,7 @@
       <div class="flow-step fade-up">
         <div class="flow-num">06</div>
         <div class="flow-info"><div class="flow-title">Notify & Report</div><p class="flow-desc">Client notified instantly via email/SMS with an AI-written plain English explanation of what happened, what was done, and recommended next steps.</p></div>
-        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">n8n + Claude AI</div></div>
+        <div class="flow-tech"><div class="flow-tech-label">Technology</div><div class="flow-tech-value">P1 Automation + P1 AI</div></div>
       </div>
     </div>
   </div>
@@ -181,7 +181,7 @@
         <div class="ai-demo-header"><div class="ai-demo-title">// AI ALERT ANALYSIS — LIVE EXAMPLE</div></div>
         <div class="ai-demo-body">
           <div class="ai-message"><div class="ai-role">// Raw Alert Input</div><div class="ai-text">winword.exe spawned cmd.exe → powershell.exe -encodedCommand JABz... Process hash: 4a7f2c... VirusTotal: 38/70 engines flagged</div></div>
-          <div class="ai-message"><div class="ai-role">// Claude AI Analysis</div><div class="ai-text response">This alert indicates a macro-based malware execution pattern — a Word document opened by the user contained a malicious macro that launched PowerShell with an encoded command, consistent with a phishing attack. The encoded command attempts to download a secondary payload. The endpoint has been automatically isolated. Recommend: reset user credentials, scan all received emails from the past 48 hours, and review any files opened before this alert.</div></div>
+          <div class="ai-message"><div class="ai-role">// P1 AI Analysis</div><div class="ai-text response">This alert indicates a macro-based malware execution pattern — a Word document opened by the user contained a malicious macro that launched PowerShell with an encoded command, consistent with a phishing attack. The encoded command attempts to download a secondary payload. The endpoint has been automatically isolated. Recommend: reset user credentials, scan all received emails from the past 48 hours, and review any files opened before this alert.</div></div>
         </div>
       </div>
     </div>
@@ -192,14 +192,14 @@
     <div class="section-label fade-up">Technology Stack</div>
     <h2 class="section-title fade-up">BUILT ON<br>PROVEN TOOLS</h2>
     <div class="stack-grid">
-      <div class="stack-card fade-up"><div class="stack-icon">🛡️</div><div class="stack-name">Wazuh</div><div class="stack-role">EDR, SIEM, File Integrity, Vulnerability Detection</div></div>
-      <div class="stack-card fade-up"><div class="stack-icon">📊</div><div class="stack-name">Elastic Stack</div><div class="stack-role">Log ingestion, ML anomaly detection, Kibana dashboards</div></div>
-      <div class="stack-card fade-up"><div class="stack-icon">🤖</div><div class="stack-name">Claude AI</div><div class="stack-role">Alert analysis, report generation, remediation guidance</div></div>
-      <div class="stack-card fade-up"><div class="stack-icon">⚙️</div><div class="stack-name">n8n</div><div class="stack-role">SOAR automation, alert routing, workflow orchestration</div></div>
-      <div class="stack-card fade-up"><div class="stack-icon">🖥️</div><div class="stack-name">MeshCentral</div><div class="stack-role">Remote monitoring, remote access, asset management</div></div>
-      <div class="stack-card fade-up"><div class="stack-icon">🔒</div><div class="stack-name">OpenZiti</div><div class="stack-role">Zero trust networking, identity-based access</div></div>
-      <div class="stack-card fade-up"><div class="stack-icon">🌐</div><div class="stack-name">OpenCTI + MISP</div><div class="stack-role">Threat intelligence feeds, IOC correlation</div></div>
-      <div class="stack-card fade-up"><div class="stack-icon">☁️</div><div class="stack-name">Hetzner Cloud</div><div class="stack-role">High-performance EU/US cloud infrastructure</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">🛡️</div><div class="stack-name">Palisade SIEM</div><div class="stack-role">EDR, SIEM, File Integrity, Vulnerability Detection</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">📊</div><div class="stack-name">P1 Analytics</div><div class="stack-role">Log ingestion, ML anomaly detection, custom dashboards</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">🤖</div><div class="stack-name">P1 AI</div><div class="stack-role">Alert analysis, report generation, remediation guidance</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">⚙️</div><div class="stack-name">P1 Automation</div><div class="stack-role">SOAR automation, alert routing, workflow orchestration</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">🖥️</div><div class="stack-name">P1 Remote</div><div class="stack-role">Remote monitoring, remote access, asset management</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">🔒</div><div class="stack-name">P1 Zero Trust Network</div><div class="stack-role">Zero trust networking, identity-based access</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">🌐</div><div class="stack-name">P1 Threat Intel</div><div class="stack-role">Threat intelligence feeds, IOC correlation</div></div>
+      <div class="stack-card fade-up"><div class="stack-icon">☁️</div><div class="stack-name">Dedicated Cloud</div><div class="stack-role">High-performance EU/US cloud infrastructure</div></div>
     </div>
   </div>
 
@@ -239,11 +239,11 @@
       </div>
       <div style="background:var(--surface);border:1px solid var(--border);padding:32px;border-top:3px solid var(--accent2);transition:transform 0.3s;" class="fade-up" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;margin-bottom:12px;">AI IS NATIVE</div>
-        <p style="font-size:13px;color:var(--muted);line-height:1.7;">AI isn't an add-on feature — it's woven into every layer. Alert analysis, report generation, threat classification, and remediation guidance all run through Claude AI automatically.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;">AI isn't an add-on feature — it's woven into every layer. Alert analysis, report generation, threat classification, and remediation guidance all run through P1 AI automatically.</p>
       </div>
       <div style="background:var(--surface);border:1px solid var(--border);padding:32px;border-top:3px solid var(--danger);transition:transform 0.3s;" class="fade-up" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;margin-bottom:12px;">SMB-FIRST DESIGN</div>
-        <p style="font-size:13px;color:var(--muted);line-height:1.7;">Everything is designed for 5-200 person businesses. No enterprise complexity. Deploy in hours, not weeks. Your clients see a clean portal — not a Kibana dashboard.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;">Everything is designed for 5-200 person businesses. No enterprise complexity. Deploy in hours, not weeks. Your clients see a clean portal — not a generic SIEM dashboard.</p>
       </div>
     </div>
   </section>

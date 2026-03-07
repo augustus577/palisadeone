@@ -839,7 +839,7 @@ textarea.scan-input{height:80px;resize:vertical}
                 <option value="sentinelone">SentinelOne</option>
                 <option value="sophos">Sophos</option>
                 <option value="bitdefender">Bitdefender</option>
-                <option value="wazuh">Wazuh</option>
+                <option value="wazuh">PalisadeOne EDR</option>
                 <option value="other">Other / Basic AV</option>
               </select>
             </div>
@@ -2075,7 +2075,7 @@ const taskTemplates = {
     {title:'Update Training for Current Threats',desc:'Revise training content to cover AI phishing, QR code attacks, and social engineering tactics.',sev:'medium',ctrl:'AT-2(5)',fw:'nist800'}
   ],
   'AU': [
-    {title:'Deploy SIEM Solution',desc:'Deploy a SIEM (Wazuh, Splunk, or similar) to centralize log collection with real-time correlation and alerting.',sev:'critical',ctrl:'AU-6',fw:'nist800'},
+    {title:'Deploy SIEM Solution',desc:'Deploy a SIEM solution to centralize log collection with real-time correlation and alerting.',sev:'critical',ctrl:'AU-6',fw:'nist800'},
     {title:'Define Log Retention Policy',desc:'Implement 1-year minimum online log retention with 3-year archive. Configure tamper-proof storage.',sev:'high',ctrl:'AU-11',fw:'pci'},
     {title:'Enable Comprehensive Logging',desc:'Enable audit logging on all systems: servers, endpoints, network devices, cloud services, and applications.',sev:'critical',ctrl:'AU-2',fw:'cmmc'},
     {title:'Configure NTP Time Synchronization',desc:'Configure NTP on all systems to synchronize with authoritative time source for log correlation.',sev:'medium',ctrl:'AU-8',fw:'pci'},
@@ -2144,7 +2144,7 @@ const taskTemplates = {
     {title:'Deploy Certificate Management',desc:'Implement automated certificate lifecycle management with expiration monitoring and alerts.',sev:'medium',ctrl:'SC-17',fw:'soc2'}
   ],
   'SI': [
-    {title:'Deploy EDR/XDR on All Endpoints',desc:'Install EDR (Wazuh, CrowdStrike, SentinelOne) on all endpoints with 24/7 monitoring.',sev:'critical',ctrl:'SI-3',fw:'nist800'},
+    {title:'Deploy EDR/XDR on All Endpoints',desc:'Install EDR/XDR on all endpoints with 24/7 monitoring.',sev:'critical',ctrl:'SI-3',fw:'nist800'},
     {title:'Implement Automated Patch Management',desc:'Deploy automated patching (WSUS, Intune, Automox) for OS, apps, and firmware. Critical patches within 14 days.',sev:'high',ctrl:'SI-2',fw:'pci'},
     {title:'Deploy File Integrity Monitoring',desc:'Implement FIM on all critical system files, configurations, and registries.',sev:'high',ctrl:'SI-7',fw:'pci'},
     {title:'Deploy Network IDS/IPS',desc:'Implement intrusion detection/prevention on all network segments with alerting.',sev:'high',ctrl:'SI-4',fw:'cmmc'},
@@ -2774,7 +2774,7 @@ function getQuickWins() {
     'AC': { title: 'Enable MFA on All Accounts', desc: 'Deploy multi-factor authentication across all user accounts, starting with admin and privileged access. This single control blocks 99.9% of credential-based attacks.', effort: 'LOW', impact: '+8-12 pts', icon: '🔐' },
     'AT': { title: 'Launch Security Awareness Training', desc: 'Deploy a managed phishing simulation and training platform (KnowBe4, Proofpoint). Takes 1 day to set up, runs automatically from there.', effort: 'LOW', impact: '+5-8 pts', icon: '🎓' },
     'CM': { title: 'Deploy Automated Patch Management', desc: 'Enable Windows Update for Business or deploy Automox. Automated patching closes your #1 attack surface with minimal effort.', effort: 'LOW', impact: '+6-10 pts', icon: '🔄' },
-    'AU': { title: 'Enable Centralized Logging', desc: 'Forward all endpoint and server logs to a SIEM (Wazuh). Gives instant visibility into what is happening across your environment.', effort: 'MEDIUM', impact: '+5-8 pts', icon: '📋' },
+    'AU': { title: 'Enable Centralized Logging', desc: 'Forward all endpoint and server logs to a SIEM. Gives instant visibility into what is happening across your environment.', effort: 'MEDIUM', impact: '+5-8 pts', icon: '📋' },
     'SI': { title: 'Deploy EDR on All Endpoints', desc: 'Install EDR/XDR agents on every endpoint. Provides real-time threat detection and automated response capabilities.', effort: 'MEDIUM', impact: '+8-12 pts', icon: '🛡️' },
     'IA': { title: 'Implement Password Policy & PAM', desc: 'Enforce 14+ character passwords, deploy a password manager, and implement privileged access management for admin accounts.', effort: 'LOW', impact: '+5-8 pts', icon: '🔑' },
     'CP': { title: 'Test Your Backups', desc: 'Verify backup integrity and perform a full restoration test. Many organizations discover their backups are broken only during an incident.', effort: 'LOW', impact: '+4-6 pts', icon: '💾' },

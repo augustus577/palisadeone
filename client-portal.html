@@ -888,7 +888,7 @@
         <div class="stat-card">
           <div class="stat-label">SCA Score</div>
           <div class="stat-value" id="comp-sca-score">--</div>
-          <div class="stat-sub">Wazuh Security Configuration</div>
+          <div class="stat-sub">Security Configuration Assessment</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Passing Checks</div>
@@ -919,7 +919,7 @@
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">SCA POLICY RESULTS</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">FROM WAZUH</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">LIVE DATA</div>
         </div>
         <div id="sca-results" style="max-height:500px;overflow-y:auto;">
           <div class="loading-dots"><span></span><span></span><span></span></div>
@@ -2167,7 +2167,7 @@ const KB_ARTICLES = [
   {
     cat: 'GETTING STARTED', title: 'What is PalisadeOne?',
     desc: 'An overview of the PalisadeOne platform, what it does, and how it protects your business.',
-    content: `<h3>What is PalisadeOne?</h3><p>PalisadeOne is a managed security service provider (MSSP) platform that provides enterprise-grade cybersecurity for small and mid-sized businesses. Our platform combines:</p><ul><li><strong>EDR (Endpoint Detection & Response)</strong> — AI-powered threat detection on every endpoint</li><li><strong>SIEM (Security Information & Event Management)</strong> — centralized log collection and analysis</li><li><strong>Zero Trust Architecture</strong> — identity-based access control</li><li><strong>Vulnerability Management</strong> — continuous scanning and remediation</li><li><strong>Dark Web Monitoring</strong> — credential exposure detection</li></ul><h3>How Does It Work?</h3><p>A lightweight agent (Wazuh) is installed on each of your endpoints. This agent continuously monitors processes, file changes, network connections, and system events. All data is sent to our cloud platform where it's analyzed by AI and our SOC team 24/7.</p><h3>What Happens When a Threat is Detected?</h3><p>When our platform detects a threat, it responds automatically in under 1 second — isolating the endpoint, quarantining malicious files, and notifying your team. Our AI provides a plain-English explanation of what happened and recommended next steps.</p>`
+    content: `<h3>What is PalisadeOne?</h3><p>PalisadeOne is a managed security service provider (MSSP) platform that provides enterprise-grade cybersecurity for small and mid-sized businesses. Our platform combines:</p><ul><li><strong>EDR (Endpoint Detection & Response)</strong> — AI-powered threat detection on every endpoint</li><li><strong>SIEM (Security Information & Event Management)</strong> — centralized log collection and analysis</li><li><strong>Zero Trust Architecture</strong> — identity-based access control</li><li><strong>Vulnerability Management</strong> — continuous scanning and remediation</li><li><strong>Dark Web Monitoring</strong> — credential exposure detection</li></ul><h3>How Does It Work?</h3><p>A lightweight P1 agent is installed on each of your endpoints. This agent continuously monitors processes, file changes, network connections, and system events. All data is sent to our cloud platform where it's analyzed by AI and our SOC team 24/7.</p><h3>What Happens When a Threat is Detected?</h3><p>When our platform detects a threat, it responds automatically in under 1 second — isolating the endpoint, quarantining malicious files, and notifying your team. Our AI provides a plain-English explanation of what happened and recommended next steps.</p>`
   },
   {
     cat: 'GETTING STARTED', title: 'Understanding Your Dashboard',
@@ -2197,7 +2197,7 @@ const KB_ARTICLES = [
   {
     cat: 'COMPLIANCE', title: 'Understanding HIPAA Requirements',
     desc: 'Key HIPAA security requirements and how PalisadeOne helps you meet them.',
-    content: `<h3>HIPAA Security Rule Overview</h3><p>If your organization handles Protected Health Information (PHI), you must comply with the HIPAA Security Rule. Key requirements include:</p><ul><li><strong>Access Controls</strong> — unique user IDs, emergency access procedures, automatic logoff</li><li><strong>Audit Controls</strong> — record and examine access to information systems</li><li><strong>Integrity Controls</strong> — protect ePHI from improper alteration or destruction</li><li><strong>Transmission Security</strong> — protect ePHI transmitted electronically</li><li><strong>Risk Analysis</strong> — conduct an accurate and thorough assessment of risks</li></ul><h3>How PalisadeOne Helps</h3><ul><li>Continuous audit logging via Wazuh SIEM</li><li>Access monitoring and alerting</li><li>File integrity monitoring for PHI databases</li><li>Encryption enforcement checking</li><li>Annual security risk assessment via our Cyber Assessment tool</li><li>HIPAA compliance documentation for audits</li></ul>`
+    content: `<h3>HIPAA Security Rule Overview</h3><p>If your organization handles Protected Health Information (PHI), you must comply with the HIPAA Security Rule. Key requirements include:</p><ul><li><strong>Access Controls</strong> — unique user IDs, emergency access procedures, automatic logoff</li><li><strong>Audit Controls</strong> — record and examine access to information systems</li><li><strong>Integrity Controls</strong> — protect ePHI from improper alteration or destruction</li><li><strong>Transmission Security</strong> — protect ePHI transmitted electronically</li><li><strong>Risk Analysis</strong> — conduct an accurate and thorough assessment of risks</li></ul><h3>How PalisadeOne Helps</h3><ul><li>Continuous audit logging via P1 SIEM</li><li>Access monitoring and alerting</li><li>File integrity monitoring for PHI databases</li><li>Encryption enforcement checking</li><li>Annual security risk assessment via our Cyber Assessment tool</li><li>HIPAA compliance documentation for audits</li></ul>`
   },
   {
     cat: 'COMPLIANCE', title: 'Cyber Insurance Documentation',

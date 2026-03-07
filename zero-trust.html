@@ -668,7 +668,7 @@
         <div class="panel-header">
           <div class="panel-title">Managed Devices</div>
           <div class="panel-actions">
-            <button class="panel-btn primary" style="font-size:9px;" onclick="deployAllSysmon()">DEPLOY SYSMON ALL</button>
+            <button class="panel-btn primary" style="font-size:9px;" onclick="deployAllSysmon()">DEPLOY TELEMETRY ALL</button>
             <button class="panel-btn" style="font-size:9px;" onclick="deployAllWDAC()">DEPLOY WDAC ALL</button>
             <select class="filter-select" id="dev-mode-filter" onchange="renderDevices()">
               <option value="all">All Modes</option>
@@ -746,8 +746,8 @@
       </div>
       <!-- Sysmon Live Discovery Panel -->
       <div class="panel" id="sysmon-discovered" style="border-color:rgba(168,85,247,0.3);">
-        <div class="panel-header"><div class="panel-title" style="color:var(--purple);">Live Process Discovery (Sysmon)</div><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Waiting for Sysmon data...</span></div>
-        <div style="padding:20px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">Deploy Sysmon on endpoints to see real-time application discovery here. Go to Devices &rarr; click SYSMON button.</div>
+        <div class="panel-header"><div class="panel-title" style="color:var(--purple);">Live Process Discovery</div><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Waiting for telemetry data...</span></div>
+        <div style="padding:20px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">Deploy P1 Telemetry on endpoints to see real-time application discovery here. Go to Devices &rarr; click TELEMETRY button.</div>
       </div>
     </div>
 
@@ -981,7 +981,7 @@
     <div class="view" id="view-killchain">
       <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(255,59,92,0.04);border-color:rgba(255,59,92,0.15);">
         <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Process Kill Chain Visualizer</div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Real-time process ancestry trees from Sysmon data. See every parent&#8594;child process chain. Suspicious chains are auto-flagged with MITRE ATT&amp;CK tactic mapping. Click any node to inspect, block, or isolate.</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Real-time process ancestry trees from endpoint telemetry. See every parent&#8594;child process chain. Suspicious chains are auto-flagged with MITRE ATT&amp;CK tactic mapping. Click any node to inspect, block, or isolate.</div>
       </div>
       <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
         <div class="stat-card red"><div class="stat-label">Suspicious Chains</div><div class="stat-value" style="color:var(--danger)" id="kc-suspicious">0</div></div>
@@ -1122,7 +1122,7 @@
     <div class="view" id="view-appgraph">
       <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(168,85,247,0.04);border-color:rgba(168,85,247,0.15);">
         <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Application Relationship Graph</div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Visual map of which applications communicate with each other, spawn child processes, or share files. Reveals shadow IT, unauthorized data flows, and lateral movement paths. Built from real Sysmon process creation and network connection data.</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Visual map of which applications communicate with each other, spawn child processes, or share files. Reveals shadow IT, unauthorized data flows, and lateral movement paths. Built from real process creation and network connection telemetry.</div>
       </div>
       <div class="panel">
         <div class="panel-header">
@@ -1773,7 +1773,7 @@ function renderDevices() {
           <button class="mode-opt ${d.mode==='monitor'?'active-monitor':''}" onclick="setDeviceMode('${d.id}','monitor')">MONITOR</button>
         </div>
         <div style="display:flex;gap:4px;margin-top:4px;">
-          <button class="panel-btn" style="padding:2px 6px;font-size:8px;" onclick="deploySysmon('${d.id}','${d.name}')" title="Install Sysmon">SYSMON</button>
+          <button class="panel-btn" style="padding:2px 6px;font-size:8px;" onclick="deploySysmon('${d.id}','${d.name}')" title="Deploy Process Telemetry">TELEMETRY</button>
           <button class="panel-btn" style="padding:2px 6px;font-size:8px;" onclick="deployWDAC('${d.id}','${d.name}','${d.mode}')" title="Deploy WDAC Policy">WDAC</button>
         </div>
       </td>
@@ -1799,14 +1799,14 @@ async function setDeviceMode(id, mode) {
 
 // ========== DEPLOYMENT ACTIONS ==========
 async function deploySysmon(agentId, agentName) {
-  if (!confirm(`Deploy Sysmon on ${agentName}? This will download and install Sysmon for process monitoring.`)) return;
-  toast(`Deploying Sysmon on ${agentName}...`, 'info');
+  if (!confirm(`Deploy P1 Telemetry on ${agentName}? This will install process monitoring on this endpoint.`)) return;
+  toast(`Deploying P1 Telemetry on ${agentName}...`, 'info');
   if (_apiConnected) {
     const result = await ztFetch('/deploy/sysmon', { method: 'POST', body: JSON.stringify({ agentId, agentName }) });
     if (result && result.ok) {
-      toast(`Sysmon deployment triggered on ${agentName}`, 'success');
+      toast(`P1 Telemetry deployment triggered on ${agentName}`, 'success');
     } else {
-      toast(`Sysmon deployment may have failed: ${JSON.stringify(result)}`, 'error');
+      toast(`Telemetry deployment may have failed: ${JSON.stringify(result)}`, 'error');
     }
   } else {
     toast('API offline — cannot deploy remotely', 'error');
@@ -1831,13 +1831,13 @@ async function deployWDAC(agentId, agentName, currentMode) {
 }
 
 async function deployAllSysmon() {
-  if (!confirm(`Deploy Sysmon on ALL ${DEVICES.length} devices? This will install process monitoring on every endpoint.`)) return;
-  toast(`Deploying Sysmon to ${DEVICES.length} devices...`, 'info');
+  if (!confirm(`Deploy P1 Telemetry on ALL ${DEVICES.length} devices? This will install process monitoring on every endpoint.`)) return;
+  toast(`Deploying P1 Telemetry to ${DEVICES.length} devices...`, 'info');
   for (const d of DEVICES) {
     if (d.id === '000') continue;
     await ztFetch('/deploy/sysmon', { method: 'POST', body: JSON.stringify({ agentId: d.id, agentName: d.name }) });
   }
-  toast(`Sysmon deployment triggered on all devices`, 'success');
+  toast(`P1 Telemetry deployment triggered on all devices`, 'success');
 }
 
 async function deployAllWDAC() {
@@ -1859,7 +1859,7 @@ async function renderApplications() {
     if (sysmonData && sysmonData.apps && sysmonData.apps.length > 0) {
       const discoveredEl = document.getElementById('sysmon-discovered');
       if (discoveredEl) {
-        discoveredEl.innerHTML = `<div class="panel-header"><div class="panel-title">Live Discovered Processes (Sysmon - Last 24h)</div><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);">${sysmonData.total} unique apps</span></div>` +
+        discoveredEl.innerHTML = `<div class="panel-header"><div class="panel-title">Live Discovered Processes (Last 24h)</div><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);">${sysmonData.total} unique apps</span></div>` +
           `<div style="max-height:200px;overflow-y:auto;"><table class="tbl"><thead><tr><th>Process</th><th>Publisher</th><th>Signed</th><th>Devices</th><th>Executions</th><th>Action</th></tr></thead><tbody>` +
           sysmonData.apps.slice(0, 30).map(a => `<tr>
             <td><div style="font-weight:500;color:var(--white);">${esc(a.name)}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">${esc(a.path)}</div></td>
@@ -1920,7 +1920,7 @@ async function setAppStatus(id, status) {
 }
 
 async function addDiscoveredApp(name, path, publisher, signed) {
-  const app = { name, path, publisher, signed, status: 'uncategorized', category: 'Discovered', riskScore: signed ? 20 : 65, devices: 1, hash: 'auto-discovered', aiVerdict: 'Auto-discovered via Sysmon process monitoring.' };
+  const app = { name, path, publisher, signed, status: 'uncategorized', category: 'Discovered', riskScore: signed ? 20 : 65, devices: 1, hash: 'auto-discovered', aiVerdict: 'Auto-discovered via P1 process monitoring.' };
   if (_apiConnected) {
     const result = await ztFetch('/applications', { method: 'POST', body: JSON.stringify(app) });
     if (result && result.ok) app.id = 'a_' + Date.now();
@@ -2371,7 +2371,7 @@ async function renderKillChain() {
   const filter = document.getElementById('kc-filter')?.value || 'suspicious';
 
   if (!_kcData) {
-    document.getElementById('kc-trees').innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Loading process chains from Sysmon...</span></div>';
+    document.getElementById('kc-trees').innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Loading process chains...</span></div>';
     _kcData = await ztFetch('/kill-chains?hours=6');
     if (!_kcData || !_kcData.chains) { _kcData = { total:0, suspicious:0, normal:0, uniqueProcesses:0, mitreTactics:[], chains:[] }; }
   }
@@ -2440,14 +2440,14 @@ let _genomeData = null;
 async function renderGenome() {
   const listEl = document.getElementById('genome-list');
   if (!_genomeData) {
-    listEl.innerHTML = '<div style="grid-column:1/-1;" class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Building behavioral genomes from Sysmon data...</span></div>';
+    listEl.innerHTML = '<div style="grid-column:1/-1;" class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Building behavioral genomes from endpoint telemetry...</span></div>';
     _genomeData = await ztFetch('/app-genome?hours=24');
     if (!_genomeData || !_genomeData.genomes) _genomeData = { total: 0, genomes: [] };
   }
 
   const APP_GENOMES = _genomeData.genomes;
   listEl.innerHTML = APP_GENOMES.length === 0
-    ? '<div style="grid-column:1/-1;padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">No app behavioral data yet. Deploy Sysmon on endpoints to start building genomes.</div>'
+    ? '<div style="grid-column:1/-1;padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">No app behavioral data yet. Deploy P1 Telemetry on endpoints to start building genomes.</div>'
     : APP_GENOMES.map(g => {
     const strandHtml = g.genome.map(v => {
       const cls = v >= 8 ? 'genome-danger' : v >= 5 ? 'genome-warn' : 'genome-normal';
@@ -2673,7 +2673,7 @@ async function renderPeerShield() {
 
   const data = await ztFetch('/peer-intel');
   if (!data || !data.feed) {
-    feedEl.innerHTML = '<div style="padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">No IOC data available yet. IOCs are auto-extracted from blocked events and high-severity Sysmon alerts.</div>';
+    feedEl.innerHTML = '<div style="padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">No IOC data available yet. IOCs are auto-extracted from blocked events and high-severity endpoint alerts.</div>';
     return;
   }
   _peerData = data;
@@ -2748,14 +2748,14 @@ async function captureForensics() {
   const targetEl = document.getElementById('forensic-target');
   const device = DEVICES.find(d => d.id === targetEl.value);
   if (!device) { toast('Select a device','error'); return; }
-  toast(`Capturing forensic snapshot of ${device.name} from Sysmon data...`,'info');
+  toast(`Capturing forensic snapshot of ${device.name} from endpoint telemetry...`,'info');
 
   const resultsEl = document.getElementById('forensic-results');
-  resultsEl.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Querying Sysmon data for ' + esc(device.name) + '...</span></div></div>';
+  resultsEl.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Querying telemetry for' + esc(device.name) + '...</span></div></div>';
 
   const data = await ztFetch('/forensics/' + device.id);
   if (!data || !data.processes) {
-    resultsEl.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--danger);">No Sysmon data available for this agent. Deploy Sysmon first.</div>';
+    resultsEl.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--danger);">No telemetry data available for this agent. Deploy P1 Telemetry first.</div>';
     return;
   }
 
@@ -2808,7 +2808,7 @@ async function captureForensics() {
       })()}
     </div>
     <div style="grid-column:1/-1;padding:10px 16px;background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.15);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;">
-      SNAPSHOT CAPTURED AT ${ts} &middot; AGENT: ${esc(device.name)} (ID:${device.id}) &middot; SOURCE: LIVE SYSMON DATA &middot; EVIDENCE-GRADE TIMESTAMP
+      SNAPSHOT CAPTURED AT ${ts} &middot; AGENT: ${esc(device.name)} (ID:${device.id}) &middot; SOURCE: LIVE P1 TELEMETRY &middot; EVIDENCE-GRADE TIMESTAMP
     </div>`;
   toast(`Forensic snapshot complete for ${device.name} — ${s.totalProcesses} processes, ${s.totalConnections} connections`, 'success');
 }
@@ -2832,13 +2832,13 @@ async function renderAppGraph() {
   const typeFilter = document.getElementById('graph-type')?.value || 'parent';
 
   if (!_graphData || _graphFilter !== typeFilter) {
-    canvas.innerHTML = '<div class="loading" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Building relationship graph from Sysmon data...</span></div>';
+    canvas.innerHTML = '<div class="loading" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Building relationship graph from endpoint telemetry...</span></div>';
     _graphData = await ztFetch('/app-relationships?hours=24&type=' + typeFilter);
     _graphFilter = typeFilter;
     if (!_graphData || !_graphData.relationships) _graphData = { total:0, nodes:[], relationships:[] };
   }
   if (filtered.length === 0 && _graphData.total === 0) {
-    canvas.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">No relationships found. Deploy Sysmon on endpoints.</div>';
+    canvas.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">No relationships found. Deploy P1 Telemetry on endpoints.</div>';
     document.getElementById('app-graph-table').innerHTML = '';
     return;
   }

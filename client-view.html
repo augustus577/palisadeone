@@ -1428,7 +1428,7 @@ async function loadVulns() {
       <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2)">${escH(h.agent?.name||'--')}</div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text)">${cvss}</div>
     </div>`;
-  }).join('') : '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">No vulnerability data found. Ensure Wazuh vulnerability detector is enabled and feeds have synced.</div>';
+  }).join('') : '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">No vulnerability data found. Ensure vulnerability detection is enabled and feeds have synced.</div>';
 }
 
 // ── SUPPORT TICKET ────────────────────────────────────────────────
