@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Palisade One — Live Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #03050A; --deep: #070C14; --surface: #0B1220; --surface2: #0F1A2E;
+      --border: #112240; --border2: #1A3060;
+      --accent: #00FFD1; --accent2: #0084FF;
+      --danger: #FF3B5C; --warning: #F5A623; --success: #00FFD1;
+      --text: #C8D8F0; --muted: #4A6080; --white: #F0F6FF;
+      --purple: #A855F7;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; overflow-x: hidden; min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,255,209,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,209,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+
+    /* DEMO BANNER */
+    .demo-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 999; background: linear-gradient(90deg, var(--accent2), var(--purple), var(--accent)); padding: 1px; }
+    .demo-banner-inner { background: var(--black); display: flex; align-items: center; justify-content: center; gap: 16px; padding: 8px 20px; }
+    .demo-banner-text { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 2px; }
+    .demo-banner-btn { background: var(--accent); color: var(--black); border: none; padding: 4px 16px; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
+    .demo-banner-btn:hover { background: var(--white); transform: scale(1.05); }
+
+    /* SIDEBAR */
+    .sidebar { position: fixed; left: 0; top: 36px; bottom: 0; width: 240px; background: var(--deep); border-right: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; }
+    .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .sidebar-logo-icon { width: 32px; height: 32px; background: rgba(0,255,209,0.1); border: 1px solid rgba(0,255,209,0.3); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .sidebar-logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--white); letter-spacing: 3px; }
+    .sidebar-logo-text span { color: var(--accent); }
+    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+    .nav-section { padding: 12px 20px 4px; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; cursor: pointer; transition: all 0.2s; border-left: 2px solid transparent; color: var(--muted); font-size: 13px; font-weight: 400; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+    .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,255,209,0.04); }
+    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
+    .nav-badge.blue { background: var(--accent2); }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+    .sidebar-status { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); }
+    .status-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+    /* MAIN */
+    .main { margin-left: 240px; margin-top: 36px; min-height: calc(100vh - 36px); position: relative; z-index: 1; }
+    .topbar { padding: 0 32px; height: 64px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(7,12,20,0.8); backdrop-filter: blur(20px); position: sticky; top: 36px; z-index: 50; }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--white); letter-spacing: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; font-size: 11px; cursor: pointer; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    .topbar-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .topbar-time { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+    .content { padding: 32px; }
+
+    /* VIEWS */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* STAT CARDS */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; position: relative; overflow: hidden; transition: all 0.3s; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .stat-card.green::before { background: linear-gradient(to right, transparent, var(--accent), transparent); }
+    .stat-card.red::before { background: linear-gradient(to right, transparent, var(--danger), transparent); }
+    .stat-card.blue::before { background: linear-gradient(to right, transparent, var(--accent2), transparent); }
+    .stat-card.yellow::before { background: linear-gradient(to right, transparent, var(--warning), transparent); }
+    .stat-card.purple::before { background: linear-gradient(to right, transparent, var(--purple), transparent); }
+    .stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+    .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+    .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 42px; line-height: 1; color: var(--white); letter-spacing: 2px; }
+    .stat-value.danger { color: var(--danger); }
+    .stat-value.accent { color: var(--accent); }
+    .stat-value.blue { color: var(--accent2); }
+    .stat-value.purple { color: var(--purple); }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+    .stat-trend { position: absolute; top: 20px; right: 20px; font-size: 20px; opacity: 0.3; }
+    .stat-spark { position: absolute; bottom: 0; right: 0; width: 80px; height: 30px; opacity: 0.3; }
+    .trend-up { color: var(--accent); font-size: 11px; font-weight: 600; }
+    .trend-down { color: var(--danger); font-size: 11px; font-weight: 600; }
+
+    /* GRID */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+    /* PANEL */
+    .panel { background: var(--surface); border: 1px solid var(--border); margin-bottom: 16px; }
+    .panel-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .panel-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+    .panel-title::before { content: '//'; color: var(--muted); }
+    .panel-action { font-size: 11px; color: var(--muted); cursor: pointer; transition: color 0.2s; font-family: 'JetBrains Mono', monospace; }
+    .panel-action:hover { color: var(--accent); }
+    .panel-body { padding: 20px; }
+
+    /* LIVE THREAT MAP */
+    .threat-map-container { position: relative; width: 100%; height: 320px; overflow: hidden; background: radial-gradient(ellipse at center, rgba(0,132,255,0.05) 0%, transparent 70%); }
+    .threat-map-container canvas { width: 100% !important; height: 100% !important; }
+    .map-legend { position: absolute; bottom: 12px; right: 12px; display: flex; gap: 12px; }
+    .map-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+    .map-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .map-stat { position: absolute; top: 12px; left: 16px; }
+    .map-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--danger); }
+    .map-stat-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; }
+
+    /* ALERT TABLE */
+    .alert-row { display: grid; grid-template-columns: 90px 50px 1fr 140px 100px 70px; gap: 8px; padding: 10px 20px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; transition: background 0.2s; cursor: pointer; font-size: 12px; }
+    .alert-row:hover { background: rgba(255,255,255,0.02); }
+    .alert-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; cursor: default; }
+    .alert-row.header:hover { background: var(--deep); }
+    .alert-time { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+    .alert-level { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 2px; font-family: 'Bebas Neue', sans-serif; font-size: 14px; }
+    .level-critical { background: rgba(255,59,92,0.15); color: var(--danger); border: 1px solid rgba(255,59,92,0.3); }
+    .level-high { background: rgba(245,166,35,0.15); color: var(--warning); border: 1px solid rgba(245,166,35,0.3); }
+    .level-medium { background: rgba(0,132,255,0.15); color: var(--accent2); border: 1px solid rgba(0,132,255,0.3); }
+    .level-low { background: rgba(0,255,209,0.05); color: var(--muted); border: 1px solid var(--border); }
+    .alert-desc { font-size: 12px; color: var(--text); }
+    .alert-agent { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent2); }
+    .alert-mitre { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 2px 8px; background: rgba(0,132,255,0.1); border: 1px solid rgba(0,132,255,0.2); color: var(--accent2); display: inline-block; }
+    .alert-status { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 8px; border-radius: 2px; text-align: center; }
+    .status-new { background: rgba(255,59,92,0.1); color: var(--danger); border: 1px solid rgba(255,59,92,0.2); }
+    .status-investigating { background: rgba(245,166,35,0.1); color: var(--warning); border: 1px solid rgba(245,166,35,0.2); }
+    .status-resolved { background: rgba(0,255,209,0.1); color: var(--accent); border: 1px solid rgba(0,255,209,0.2); }
+
+    /* DEVICE TABLE */
+    .device-row { display: grid; grid-template-columns: 1fr 120px 100px 90px 80px 100px; gap: 8px; padding: 10px 20px; border-bottom: 1px solid rgba(17,34,64,0.5); align-items: center; transition: background 0.2s; cursor: pointer; }
+    .device-row:hover { background: rgba(255,255,255,0.02); }
+    .device-row.header { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; cursor: default; }
+    .device-name { font-size: 13px; color: var(--white); font-weight: 500; display: flex; align-items: center; gap: 8px; }
+    .device-icon { font-size: 16px; opacity: 0.5; }
+    .device-ip { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+    .device-os { font-size: 12px; color: var(--text); }
+    .online-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; }
+    .online-badge.online { color: var(--accent); }
+    .online-badge.offline { color: var(--muted); }
+    .online-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .online-dot.on { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+    .online-dot.off { background: var(--muted); }
+    .device-risk { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 3px 8px; text-align: center; border-radius: 2px; }
+    .risk-low { background: rgba(0,255,209,0.1); color: var(--accent); border: 1px solid rgba(0,255,209,0.2); }
+    .risk-medium { background: rgba(0,132,255,0.1); color: var(--accent2); border: 1px solid rgba(0,132,255,0.2); }
+    .risk-high { background: rgba(245,166,35,0.1); color: var(--warning); border: 1px solid rgba(245,166,35,0.2); }
+    .risk-critical { background: rgba(255,59,92,0.1); color: var(--danger); border: 1px solid rgba(255,59,92,0.2); }
+    .action-btn { padding: 4px 10px; font-size: 10px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; background: transparent; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; }
+    .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .action-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* SCORE RING */
+    .score-ring { position: relative; width: 140px; height: 140px; margin: 0 auto 16px; }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-num { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--white); line-height: 1; }
+    .score-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 1px; }
+    .score-items { display: flex; flex-direction: column; gap: 10px; padding: 16px 20px; }
+    .score-item { display: flex; align-items: center; justify-content: space-between; }
+    .score-item-label { font-size: 12px; color: var(--text); }
+    .score-item-bar { flex: 1; height: 4px; background: var(--border); margin: 0 12px; border-radius: 2px; overflow: hidden; }
+    .score-item-fill { height: 100%; border-radius: 2px; transition: width 1.5s ease; }
+    .score-item-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); width: 30px; text-align: right; }
+
+    /* THREAT FEED */
+    .threat-item { padding: 12px 20px; border-bottom: 1px solid rgba(17,34,64,0.5); display: flex; gap: 12px; align-items: flex-start; transition: background 0.2s; }
+    .threat-item:hover { background: rgba(255,255,255,0.02); }
+    .threat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .threat-content { flex: 1; }
+    .threat-desc { font-size: 12px; color: var(--text); margin-bottom: 3px; }
+    .threat-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+
+    /* COMPLIANCE BAR */
+    .compliance-fw { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(17,34,64,0.3); }
+    .compliance-fw:last-child { border-bottom: none; }
+    .fw-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text); width: 100px; letter-spacing: 1px; }
+    .fw-bar { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .fw-fill { height: 100%; border-radius: 4px; transition: width 2s ease; }
+    .fw-pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; width: 40px; text-align: right; }
+
+    /* VULNERABILITY CARDS */
+    .vuln-card { background: var(--surface2); border: 1px solid var(--border); padding: 16px; margin-bottom: 8px; transition: all 0.2s; cursor: pointer; }
+    .vuln-card:hover { border-color: var(--border2); }
+    .vuln-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .vuln-title { font-size: 13px; color: var(--white); font-weight: 500; }
+    .vuln-cvss { font-family: 'Bebas Neue', sans-serif; font-size: 18px; padding: 2px 8px; border-radius: 2px; }
+    .vuln-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); display: flex; gap: 16px; }
+
+    /* LIVE TERMINAL */
+    .terminal { background: var(--deep); border: 1px solid var(--border); overflow: hidden; }
+    .terminal-bar { background: rgba(0,0,0,0.3); padding: 8px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .td1 { background: var(--danger); } .td2 { background: var(--warning); } .td3 { background: var(--accent); }
+    .terminal-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-left: 8px; }
+    .terminal-body { padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.8; max-height: 240px; overflow-y: auto; }
+    .term-line { color: var(--muted); }
+    .term-line .cmd { color: var(--accent); }
+    .term-line .warn { color: var(--warning); }
+    .term-line .err { color: var(--danger); }
+    .term-line .ok { color: var(--accent); }
+    .term-line .info { color: var(--accent2); }
+    .term-cursor { display: inline-block; width: 8px; height: 14px; background: var(--accent); animation: blink 1s step-end infinite; vertical-align: middle; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* INCIDENT TIMELINE */
+    .timeline { position: relative; padding-left: 24px; }
+    .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+    .timeline-item { position: relative; padding: 0 0 20px 20px; }
+    .timeline-item::before { content: ''; position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--accent); background: var(--deep); }
+    .timeline-item.critical::before { border-color: var(--danger); box-shadow: 0 0 8px rgba(255,59,92,0.5); }
+    .timeline-item.warning::before { border-color: var(--warning); }
+    .timeline-item.resolved::before { border-color: var(--accent); background: var(--accent); }
+    .timeline-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+    .timeline-text { font-size: 12px; color: var(--text); }
+    .timeline-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 6px; margin-top: 4px; border-radius: 2px; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 500; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border2); width: 600px; max-width: 90vw; max-height: 80vh; overflow-y: auto; position: relative; }
+    .modal::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, var(--accent), var(--accent2)); }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--white); letter-spacing: 2px; }
+    .modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+    .modal-close:hover { color: var(--danger); }
+    .modal-body { padding: 24px; }
+
+    /* ENDPOINT DETAIL PANEL */
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .detail-item { }
+    .detail-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+    .detail-value { font-size: 13px; color: var(--white); }
+    .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .detail-btn { padding: 8px 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+    .detail-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .detail-btn.danger { border-color: rgba(255,59,92,0.3); }
+    .detail-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+    .detail-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,255,209,0.05); }
+
+    /* ANIMATED NOTIFICATIONS */
+    .notification { position: fixed; top: 48px; right: 20px; z-index: 600; padding: 12px 20px; background: var(--surface); border: 1px solid var(--border2); display: flex; align-items: center; gap: 10px; font-size: 12px; transform: translateX(120%); transition: transform 0.3s ease; }
+    .notification.show { transform: translateX(0); }
+    .notification::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+    .notification.success::before { background: var(--accent); }
+    .notification.danger::before { background: var(--danger); }
+    .notification.warning::before { background: var(--warning); }
+    .notif-icon { font-size: 16px; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: var(--deep); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    /* CHART CONTAINER */
+    .chart-container { position: relative; height: 200px; }
+
+    /* LOADING */
+    .loading { display: flex; align-items: center; gap: 8px; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+    .loading-dots { display: flex; gap: 4px; }
+    .loading-dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; animation: loadingDot 1.4s infinite; }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes loadingDot { 0%,80%,100%{opacity:0.2}40%{opacity:1} }
+
+    /* RESPONSE TIME ANIMATION */
+    @keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: countUp 0.5s ease forwards; }
+
+    /* ATTACK PULSE */
+    @keyframes attackPulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(3); opacity: 0; } }
+    .attack-pulse { position: absolute; width: 6px; height: 6px; border-radius: 50%; }
+    .attack-pulse::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid; animation: attackPulse 1.5s ease-out infinite; }
+
+    /* MITRE MATRIX MINI */
+    .mitre-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .mitre-cell { padding: 6px 4px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+    .mitre-cell:hover { border-color: var(--accent2); }
+    .mitre-cell.hot { background: rgba(255,59,92,0.1); border-color: rgba(255,59,92,0.3); color: var(--danger); }
+    .mitre-cell.warm { background: rgba(245,166,35,0.1); border-color: rgba(245,166,35,0.3); color: var(--warning); }
+    .mitre-cell.cool { background: rgba(0,132,255,0.1); border-color: rgba(0,132,255,0.3); color: var(--accent2); }
+    .mitre-header { font-size: 9px; color: var(--accent2); background: var(--deep); padding: 8px 4px; font-family: 'JetBrains Mono', monospace; text-align: center; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+
+<!-- DEMO BANNER -->
+<div class="demo-banner">
+  <div class="demo-banner-inner">
+    <div class="demo-banner-text">INTERACTIVE DEMO — SAMPLE DATA</div>
+    <button class="demo-banner-btn" onclick="window.location.href='contact.html'">Schedule Live Demo</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">&#x25C8;</div>
+    <div class="sidebar-logo-text">PALISADE<span>ONE</span></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Operations</div>
+    <div class="nav-item active" onclick="showView('overview')"><span class="nav-icon">&#x25A0;</span> Command Center</div>
+    <div class="nav-item" onclick="showView('alerts')"><span class="nav-icon">&#x26A0;</span> Threat Alerts <span class="nav-badge">24</span></div>
+    <div class="nav-item" onclick="showView('endpoints')"><span class="nav-icon">&#x2630;</span> Endpoints <span class="nav-badge blue">48</span></div>
+    <div class="nav-item" onclick="showView('threats')"><span class="nav-icon">&#x2622;</span> Threat Intel</div>
+    <div class="nav-section">Investigation</div>
+    <div class="nav-item" onclick="showView('incident')"><span class="nav-icon">&#x1F50D;</span> Incident Response</div>
+    <div class="nav-item" onclick="showView('hunting')"><span class="nav-icon">&#x2316;</span> Threat Hunting</div>
+    <div class="nav-section">Compliance</div>
+    <div class="nav-item" onclick="showView('compliance')"><span class="nav-icon">&#x2611;</span> Compliance</div>
+    <div class="nav-item" onclick="showView('vulns')"><span class="nav-icon">&#x2620;</span> Vulnerabilities</div>
+    <div class="nav-section">Management</div>
+    <div class="nav-item" onclick="showView('reports')"><span class="nav-icon">&#x1F4CA;</span> Reports</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-status"><span class="status-dot"></span> SOC ACTIVE — 24/7</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:8px;">Demo Client: Acme Corp</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="pageTitle">COMMAND CENTER</div>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="triggerDemoAttack()">&#x26A1; Simulate Attack</button>
+      <button class="topbar-btn" onclick="showView('reports')">&#x1F4CA; Reports</button>
+      <span class="topbar-time" id="clock"></span>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- COMMAND CENTER -->
+    <div id="view-overview" class="view active">
+      <div class="stats-row">
+        <div class="stat-card green">
+          <div class="stat-label">Protected Endpoints</div>
+          <div class="stat-value accent" id="stat-endpoints">48</div>
+          <div class="stat-sub"><span class="trend-up">&#9650; 100%</span> coverage</div>
+          <div class="stat-trend">&#x1F5A5;</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Active Threats</div>
+          <div class="stat-value danger" id="stat-threats">3</div>
+          <div class="stat-sub"><span class="trend-down">&#9660; 67%</span> vs last week</div>
+          <div class="stat-trend">&#x26A0;</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Mean Time to Detect</div>
+          <div class="stat-value blue">4.2<span style="font-size:20px">m</span></div>
+          <div class="stat-sub"><span class="trend-up">&#9650; 38%</span> faster</div>
+          <div class="stat-trend">&#x23F1;</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Security Score</div>
+          <div class="stat-value purple">87</div>
+          <div class="stat-sub"><span class="trend-up">&#9650; 12pts</span> this month</div>
+          <div class="stat-trend">&#x1F6E1;</div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Live Threat Map</div>
+            <span class="panel-action" style="color:var(--danger);">&#x25CF; LIVE</span>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <div class="threat-map-container">
+              <canvas id="threatMapCanvas"></canvas>
+              <div class="map-stat">
+                <div class="map-stat-val" id="mapAttackCount">1,247</div>
+                <div class="map-stat-label">BLOCKED TODAY</div>
+              </div>
+              <div class="map-legend">
+                <div class="map-legend-item"><div class="map-legend-dot" style="background:var(--danger)"></div> Attack Origin</div>
+                <div class="map-legend-item"><div class="map-legend-dot" style="background:var(--accent)"></div> Protected Asset</div>
+                <div class="map-legend-item"><div class="map-legend-dot" style="background:var(--accent2)"></div> Blocked</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Security Score</div>
+            </div>
+            <div class="panel-body" style="text-align:center;">
+              <div class="score-ring">
+                <svg width="140" height="140">
+                  <circle cx="70" cy="70" r="60" fill="none" stroke="var(--border)" stroke-width="8"/>
+                  <circle id="scoreArc" cx="70" cy="70" r="60" fill="none" stroke="url(#scoreGrad)" stroke-width="8" stroke-dasharray="0 377" stroke-linecap="round"/>
+                  <defs><linearGradient id="scoreGrad"><stop offset="0%" stop-color="var(--accent2)"/><stop offset="100%" stop-color="var(--accent)"/></linearGradient></defs>
+                </svg>
+                <div class="score-ring-text">
+                  <div class="score-num" id="scoreVal">0</div>
+                  <div class="score-label">/ 100</div>
+                </div>
+              </div>
+            </div>
+            <div class="score-items">
+              <div class="score-item"><span class="score-item-label">Identity</span><div class="score-item-bar"><div class="score-item-fill" style="width:0%;background:var(--accent)" data-width="92"></div></div><span class="score-item-val">92%</span></div>
+              <div class="score-item"><span class="score-item-label">Network</span><div class="score-item-bar"><div class="score-item-fill" style="width:0%;background:var(--accent2)" data-width="85"></div></div><span class="score-item-val">85%</span></div>
+              <div class="score-item"><span class="score-item-label">Endpoint</span><div class="score-item-bar"><div class="score-item-fill" style="width:0%;background:var(--accent)" data-width="90"></div></div><span class="score-item-val">90%</span></div>
+              <div class="score-item"><span class="score-item-label">Data</span><div class="score-item-bar"><div class="score-item-fill" style="width:0%;background:var(--warning)" data-width="78"></div></div><span class="score-item-val">78%</span></div>
+              <div class="score-item"><span class="score-item-label">Cloud</span><div class="score-item-bar"><div class="score-item-fill" style="width:0%;background:var(--accent2)" data-width="82"></div></div><span class="score-item-val">82%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Recent Alerts</div>
+            <span class="panel-action" onclick="showView('alerts')">View All &#x2192;</span>
+          </div>
+          <div class="panel-body" style="padding:0;" id="recentAlerts"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Live SOC Terminal</div>
+            <span class="panel-action" style="color:var(--accent);">&#x25CF; LIVE</span>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <div class="terminal" style="border:none;">
+              <div class="terminal-bar">
+                <span class="term-dot td1"></span><span class="term-dot td2"></span><span class="term-dot td3"></span>
+                <span class="terminal-title">soc-analyst@palisadeone</span>
+              </div>
+              <div class="terminal-body" id="liveTerminal"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Alert Trend (7 Days)</div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-container"><canvas id="alertTrendChart"></canvas></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">MITRE ATT&CK Coverage</div>
+          </div>
+          <div class="panel-body" id="mitreGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTS VIEW -->
+    <div id="view-alerts" class="view">
+      <div class="stats-row">
+        <div class="stat-card red"><div class="stat-label">Critical</div><div class="stat-value danger">3</div></div>
+        <div class="stat-card yellow"><div class="stat-label">High</div><div class="stat-value" style="color:var(--warning)">8</div></div>
+        <div class="stat-card blue"><div class="stat-label">Medium</div><div class="stat-value blue">13</div></div>
+        <div class="stat-card green"><div class="stat-label">MTTR</div><div class="stat-value accent">12<span style="font-size:20px">m</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">All Alerts</div>
+          <div style="display:flex;gap:8px;">
+            <button class="topbar-btn" style="font-size:10px;" onclick="filterAlerts('all')">All</button>
+            <button class="topbar-btn" style="font-size:10px;color:var(--danger);border-color:rgba(255,59,92,0.3);" onclick="filterAlerts('critical')">Critical</button>
+            <button class="topbar-btn" style="font-size:10px;color:var(--warning);border-color:rgba(245,166,35,0.3);" onclick="filterAlerts('high')">High</button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0;" id="allAlerts"></div>
+      </div>
+    </div>
+
+    <!-- ENDPOINTS VIEW -->
+    <div id="view-endpoints" class="view">
+      <div class="stats-row">
+        <div class="stat-card green"><div class="stat-label">Online</div><div class="stat-value accent">45</div></div>
+        <div class="stat-card red"><div class="stat-label">Offline</div><div class="stat-value danger">3</div></div>
+        <div class="stat-card blue"><div class="stat-label">EDR Coverage</div><div class="stat-value blue">100%</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Needs Attention</div><div class="stat-value" style="color:var(--warning)">5</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Managed Endpoints</div>
+          <div style="display:flex;gap:8px;">
+            <button class="topbar-btn" style="font-size:10px;">All (48)</button>
+            <button class="topbar-btn" style="font-size:10px;">Servers (12)</button>
+            <button class="topbar-btn" style="font-size:10px;">Workstations (36)</button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0;" id="endpointTable"></div>
+      </div>
+    </div>
+
+    <!-- THREAT INTEL -->
+    <div id="view-threats" class="view">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Threat Intelligence Feed</div></div>
+          <div class="panel-body" style="padding:0;" id="threatFeed"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Top Attack Sources (24h)</div></div>
+          <div class="panel-body">
+            <div class="chart-container"><canvas id="attackSourceChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">IOC Watchlist</div></div>
+        <div class="panel-body" id="iocList"></div>
+      </div>
+    </div>
+
+    <!-- INCIDENT RESPONSE -->
+    <div id="view-incident" class="view">
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card blue"><div class="stat-label">Active Incidents</div><div class="stat-value blue">2</div></div>
+        <div class="stat-card green"><div class="stat-label">Resolved (30d)</div><div class="stat-value accent">14</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Avg Resolution</div><div class="stat-value" style="color:var(--warning)">2.4<span style="font-size:20px">h</span></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Active Incident — Brute Force Campaign</div><span class="panel-action" style="color:var(--danger)">&#x25CF; ACTIVE</span></div>
+          <div class="panel-body" id="incidentTimeline"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Incident Actions</div></div>
+          <div class="panel-body" id="incidentActions"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THREAT HUNTING -->
+    <div id="view-hunting" class="view">
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Threat Hunt Query</div></div>
+        <div class="panel-body">
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <input type="text" id="huntQuery" value="process.name:powershell.exe AND event.action:connection_attempted" style="flex:1;background:var(--deep);border:1px solid var(--border);padding:10px 16px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;" />
+            <button class="topbar-btn" onclick="runHunt()" style="padding:10px 20px;">&#x2316; Hunt</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="topbar-btn" style="font-size:10px;" onclick="setHunt('process.name:mimikatz*')">Credential Dumping</button>
+            <button class="topbar-btn" style="font-size:10px;" onclick="setHunt('dns.query:*.onion OR dns.query:*.tor2web*')">Tor Traffic</button>
+            <button class="topbar-btn" style="font-size:10px;" onclick="setHunt('file.extension:encrypted OR file.extension:locked')">Ransomware IOC</button>
+            <button class="topbar-btn" style="font-size:10px;" onclick="setHunt('network.bytes_out > 500000000')">Data Exfil</button>
+            <button class="topbar-btn" style="font-size:10px;" onclick="setHunt('registry.path:*\\CurrentVersion\\Run*')">Persistence</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel" id="huntResults" style="display:none;">
+        <div class="panel-header"><div class="panel-title">Hunt Results</div><span class="panel-action" id="huntCount"></span></div>
+        <div class="panel-body" style="padding:0;" id="huntResultsBody"></div>
+      </div>
+    </div>
+
+    <!-- COMPLIANCE -->
+    <div id="view-compliance" class="view">
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card green"><div class="stat-label">Overall Compliance</div><div class="stat-value accent">87%</div></div>
+        <div class="stat-card blue"><div class="stat-label">Controls Mapped</div><div class="stat-value blue">215</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Gaps Identified</div><div class="stat-value" style="color:var(--warning)">23</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Framework Compliance</div></div>
+          <div class="panel-body" id="complianceBars"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Compliance Trend</div></div>
+          <div class="panel-body"><div class="chart-container"><canvas id="complianceTrendChart"></canvas></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VULNERABILITIES -->
+    <div id="view-vulns" class="view">
+      <div class="stats-row">
+        <div class="stat-card red"><div class="stat-label">Critical CVEs</div><div class="stat-value danger">4</div></div>
+        <div class="stat-card yellow"><div class="stat-label">High</div><div class="stat-value" style="color:var(--warning)">12</div></div>
+        <div class="stat-card blue"><div class="stat-label">Medium</div><div class="stat-value blue">28</div></div>
+        <div class="stat-card green"><div class="stat-label">Patched (30d)</div><div class="stat-value accent">67</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Critical Vulnerabilities</div></div>
+          <div class="panel-body" id="vulnList"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Vulnerability Trend</div></div>
+          <div class="panel-body"><div class="chart-container"><canvas id="vulnTrendChart"></canvas></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="view-reports" class="view">
+      <div class="grid-3col">
+        <div class="panel" style="cursor:pointer;" onclick="notify('Generating Executive Report...','success')">
+          <div class="panel-body" style="text-align:center;padding:40px;">
+            <div style="font-size:36px;margin-bottom:12px;">&#x1F4CA;</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;">Executive Summary</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;">Monthly security posture overview for leadership</div>
+          </div>
+        </div>
+        <div class="panel" style="cursor:pointer;" onclick="notify('Generating Compliance Report...','success')">
+          <div class="panel-body" style="text-align:center;padding:40px;">
+            <div style="font-size:36px;margin-bottom:12px;">&#x2611;</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;">Compliance Report</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;">Framework compliance status with gap analysis</div>
+          </div>
+        </div>
+        <div class="panel" style="cursor:pointer;" onclick="notify('Generating Incident Report...','success')">
+          <div class="panel-body" style="text-align:center;padding:40px;">
+            <div style="font-size:36px;margin-bottom:12px;">&#x1F50D;</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;">Incident Report</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;">Detailed incident timeline and response metrics</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-3col">
+        <div class="panel" style="cursor:pointer;" onclick="notify('Generating Vulnerability Report...','success')">
+          <div class="panel-body" style="text-align:center;padding:40px;">
+            <div style="font-size:36px;margin-bottom:12px;">&#x2620;</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;">Vulnerability Report</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;">CVE analysis with remediation priorities</div>
+          </div>
+        </div>
+        <div class="panel" style="cursor:pointer;" onclick="notify('Generating Risk Assessment...','success')">
+          <div class="panel-body" style="text-align:center;padding:40px;">
+            <div style="font-size:36px;margin-bottom:12px;">&#x1F6E1;</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;">Risk Assessment</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;">Quantified risk analysis with heatmap</div>
+          </div>
+        </div>
+        <div class="panel" style="cursor:pointer;" onclick="notify('Generating Board Deck...','success')">
+          <div class="panel-body" style="text-align:center;padding:40px;">
+            <div style="font-size:36px;margin-bottom:12px;">&#x1F4C8;</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;">Board Deck</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;">Board-ready security metrics presentation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENDPOINT DETAIL MODAL -->
+<div class="modal-overlay" id="endpointModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalEndpointName">Endpoint Details</div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalEndpointBody"></div>
+  </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notification" id="notification">
+  <span class="notif-icon" id="notifIcon"></span>
+  <span id="notifText"></span>
+</div>
+
+<script>
+// ============ DEMO DATA ============
+const DEMO_ALERTS = [
+  {time:'14:32:08',level:15,desc:'Brute force SSH detected — 847 failed attempts from 45.33.49.119',agent:'DC-01',mitre:'T1110.001',status:'investigating'},
+  {time:'14:28:41',level:14,desc:'Mimikatz credential dump detected via PowerShell',agent:'WS-FINANCE-03',mitre:'T1003.001',status:'new'},
+  {time:'14:15:22',level:13,desc:'Ransomware behavioral pattern — rapid file encryption on shared drive',agent:'FS-01',mitre:'T1486',status:'new'},
+  {time:'13:58:10',level:10,desc:'Suspicious outbound connection to known C2 server (APT29 infrastructure)',agent:'WS-HR-07',mitre:'T1071.001',status:'investigating'},
+  {time:'13:42:33',level:9,desc:'Privilege escalation attempt via CVE-2024-30088 exploit',agent:'WS-DEV-12',mitre:'T1068',status:'investigating'},
+  {time:'13:31:05',level:8,desc:'Unauthorized USB mass storage device connected',agent:'WS-EXEC-01',mitre:'T1091',status:'new'},
+  {time:'12:55:18',level:8,desc:'DNS tunneling detected — high-entropy subdomain queries',agent:'PROXY-01',mitre:'T1071.004',status:'investigating'},
+  {time:'12:41:09',level:7,desc:'New scheduled task created by non-admin user',agent:'WS-MKT-05',mitre:'T1053.005',status:'new'},
+  {time:'12:22:44',level:7,desc:'Large file upload to cloud storage (OneDrive) — 2.3GB',agent:'WS-SALES-02',mitre:'T1567.002',status:'investigating'},
+  {time:'11:58:30',level:6,desc:'Failed MFA challenge from unusual geolocation (Lagos, Nigeria)',agent:'AZURE-AD',mitre:'T1078.004',status:'resolved'},
+  {time:'11:45:12',level:6,desc:'Service account password spray detected across 12 accounts',agent:'DC-02',mitre:'T1110.003',status:'resolved'},
+  {time:'11:30:55',level:5,desc:'Windows Defender tamper protection disabled',agent:'WS-IT-04',mitre:'T1562.001',status:'resolved'},
+  {time:'11:15:03',level:5,desc:'Unusual PowerShell encoded command execution',agent:'WS-DEV-08',mitre:'T1059.001',status:'resolved'},
+  {time:'10:48:22',level:4,desc:'New admin account created outside change management',agent:'DC-01',mitre:'T1136.001',status:'resolved'},
+  {time:'10:22:11',level:4,desc:'TLS certificate expiring in 7 days — mail.acme.com',agent:'MAIL-01',mitre:'N/A',status:'resolved'},
+];
+
+const DEMO_ENDPOINTS = [
+  {name:'DC-01',ip:'10.0.1.10',os:'Windows Server 2022',type:'server',status:'online',risk:'low',alerts:2,agent:'Wazuh 4.7.5'},
+  {name:'DC-02',ip:'10.0.1.11',os:'Windows Server 2022',type:'server',status:'online',risk:'low',alerts:1,agent:'Wazuh 4.7.5'},
+  {name:'FS-01',ip:'10.0.1.20',os:'Windows Server 2022',type:'server',status:'online',risk:'critical',alerts:5,agent:'Wazuh 4.7.5'},
+  {name:'MAIL-01',ip:'10.0.1.30',os:'Windows Server 2022',type:'server',status:'online',risk:'medium',alerts:1,agent:'Wazuh 4.7.5'},
+  {name:'SQL-01',ip:'10.0.1.40',os:'Windows Server 2022',type:'server',status:'online',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+  {name:'WEB-01',ip:'10.0.1.50',os:'Ubuntu 22.04',type:'server',status:'online',risk:'medium',alerts:3,agent:'Wazuh 4.7.5'},
+  {name:'PROXY-01',ip:'10.0.1.60',os:'Ubuntu 22.04',type:'server',status:'online',risk:'high',alerts:4,agent:'Wazuh 4.7.5'},
+  {name:'SIEM-01',ip:'10.0.1.70',os:'Ubuntu 22.04',type:'server',status:'online',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+  {name:'VPN-01',ip:'10.0.1.80',os:'pfSense 2.7',type:'server',status:'online',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+  {name:'BACKUP-01',ip:'10.0.1.90',os:'Ubuntu 22.04',type:'server',status:'online',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+  {name:'K8S-MASTER',ip:'10.0.2.10',os:'Ubuntu 22.04',type:'server',status:'online',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+  {name:'K8S-WORKER-01',ip:'10.0.2.11',os:'Ubuntu 22.04',type:'server',status:'online',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+  {name:'WS-EXEC-01',ip:'10.0.10.10',os:'Windows 11 Pro',type:'workstation',status:'online',risk:'medium',alerts:1,agent:'Wazuh 4.7.5'},
+  {name:'WS-FINANCE-01',ip:'10.0.10.20',os:'Windows 11 Pro',type:'workstation',status:'online',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+  {name:'WS-FINANCE-02',ip:'10.0.10.21',os:'Windows 11 Pro',type:'workstation',status:'online',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+  {name:'WS-FINANCE-03',ip:'10.0.10.22',os:'Windows 11 Pro',type:'workstation',status:'online',risk:'critical',alerts:3,agent:'Wazuh 4.7.5'},
+  {name:'WS-HR-07',ip:'10.0.10.37',os:'Windows 11 Pro',type:'workstation',status:'online',risk:'high',alerts:2,agent:'Wazuh 4.7.5'},
+  {name:'WS-DEV-08',ip:'10.0.10.48',os:'macOS Sonoma',type:'workstation',status:'online',risk:'medium',alerts:1,agent:'Wazuh 4.7.5'},
+  {name:'WS-DEV-12',ip:'10.0.10.52',os:'Ubuntu 22.04',type:'workstation',status:'online',risk:'high',alerts:2,agent:'Wazuh 4.7.5'},
+  {name:'WS-MKT-05',ip:'10.0.10.65',os:'Windows 11 Pro',type:'workstation',status:'online',risk:'medium',alerts:1,agent:'Wazuh 4.7.5'},
+  {name:'WS-SALES-02',ip:'10.0.10.72',os:'Windows 11 Pro',type:'workstation',status:'online',risk:'medium',alerts:1,agent:'Wazuh 4.7.5'},
+  {name:'WS-IT-04',ip:'10.0.10.84',os:'Windows 11 Pro',type:'workstation',status:'online',risk:'medium',alerts:1,agent:'Wazuh 4.7.5'},
+  {name:'WS-LEGAL-01',ip:'10.0.10.90',os:'macOS Sonoma',type:'workstation',status:'offline',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+  {name:'WS-LEGAL-02',ip:'10.0.10.91',os:'Windows 11 Pro',type:'workstation',status:'offline',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+  {name:'WS-OPS-03',ip:'10.0.10.103',os:'Windows 11 Pro',type:'workstation',status:'offline',risk:'low',alerts:0,agent:'Wazuh 4.7.5'},
+];
+
+const DEMO_VULNS = [
+  {cve:'CVE-2024-30088',title:'Windows Kernel Elevation of Privilege',cvss:9.8,hosts:3,status:'Unpatched',age:'12d'},
+  {cve:'CVE-2024-21762',title:'FortiOS Out-of-bound Write (RCE)',cvss:9.6,hosts:1,status:'Patching',age:'8d'},
+  {cve:'CVE-2024-3400',title:'PAN-OS GlobalProtect Command Injection',cvss:9.4,hosts:2,status:'Mitigated',age:'15d'},
+  {cve:'CVE-2024-28995',title:'SolarWinds Serv-U Path Traversal',cvss:8.6,hosts:1,status:'Unpatched',age:'5d'},
+  {cve:'CVE-2024-4577',title:'PHP-CGI Argument Injection (RCE)',cvss:8.1,hosts:2,status:'Patched',age:'22d'},
+  {cve:'CVE-2024-21413',title:'Microsoft Outlook RCE (MonikerLink)',cvss:7.8,hosts:8,status:'Patching',age:'30d'},
+];
+
+const THREAT_INTEL = [
+  {type:'critical',title:'APT29 (Cozy Bear) targeting financial sector with new backdoor',source:'CISA Advisory',time:'2h ago'},
+  {type:'critical',title:'Active exploitation of Palo Alto CVE-2024-3400 in the wild',source:'Unit 42',time:'4h ago'},
+  {type:'high',title:'New Akira ransomware variant bypasses EDR via BYOVD',source:'Sophos Labs',time:'6h ago'},
+  {type:'high',title:'QakBot resurgence via Teams phishing with OneNote attachments',source:'Microsoft DART',time:'8h ago'},
+  {type:'medium',title:'New DarkGate malware loader distributed via LinkedIn messages',source:'Palo Alto',time:'12h ago'},
+  {type:'medium',title:'Increased SSH brute-force from Mirai botnet targeting port 2222',source:'Shadowserver',time:'14h ago'},
+  {type:'low',title:'Google Chrome zero-day CVE-2024-7971 — update available',source:'Google TAG',time:'1d ago'},
+  {type:'low',title:'NIST updates CVSS to version 4.0 with new scoring methodology',source:'NIST NVD',time:'2d ago'},
+];
+
+const TERMINAL_LINES = [
+  {text:'[<span class="info">14:32:08</span>] <span class="err">CRITICAL</span> Brute force detected: 847 attempts from 45.33.49.119 on DC-01:22'},
+  {text:'[<span class="info">14:32:09</span>] <span class="cmd">AUTO-RESPONSE</span> Blocking IP 45.33.49.119 on perimeter firewall...'},
+  {text:'[<span class="info">14:32:09</span>] <span class="ok">BLOCKED</span> IP 45.33.49.119 added to deny list (rule #4891)'},
+  {text:'[<span class="info">14:32:10</span>] <span class="cmd">ENRICHMENT</span> IP 45.33.49.119 → AbuseIPDB: 100% confidence malicious, OVH SAS (FR)'},
+  {text:'[<span class="info">14:28:41</span>] <span class="err">CRITICAL</span> Mimikatz signature detected on WS-FINANCE-03 (PID:4892)'},
+  {text:'[<span class="info">14:28:42</span>] <span class="cmd">AUTO-RESPONSE</span> Isolating endpoint WS-FINANCE-03 from network...'},
+  {text:'[<span class="info">14:28:43</span>] <span class="ok">ISOLATED</span> WS-FINANCE-03 network access restricted to SOC only'},
+  {text:'[<span class="info">14:28:44</span>] <span class="cmd">FORENSICS</span> Memory dump initiated on WS-FINANCE-03...'},
+  {text:'[<span class="info">14:28:45</span>] <span class="warn">ALERT</span> Ticket INC-2024-0892 created, assigned to Tier 2 analyst'},
+  {text:'[<span class="info">14:15:22</span>] <span class="err">CRITICAL</span> Ransomware pattern: 142 files renamed to .encrypted in \\\\FS-01\\shared'},
+  {text:'[<span class="info">14:15:23</span>] <span class="cmd">AUTO-RESPONSE</span> Killing process cryptor.exe (PID:7213) on FS-01'},
+  {text:'[<span class="info">14:15:23</span>] <span class="cmd">AUTO-RESPONSE</span> Disabling SMB shares on FS-01...'},
+  {text:'[<span class="info">14:15:24</span>] <span class="ok">CONTAINED</span> Ransomware process terminated, shares disabled'},
+  {text:'[<span class="info">14:15:25</span>] <span class="cmd">RECOVERY</span> Initiating restore from last known good backup (13:00 snapshot)'},
+  {text:'[<span class="info">13:58:10</span>] <span class="warn">HIGH</span> C2 beacon detected: WS-HR-07 → 185.220.101.34:443 (APT29 infra)'},
+  {text:'[<span class="info">13:58:11</span>] <span class="cmd">AUTO-RESPONSE</span> DNS sinkhole applied for 185.220.101.34'},
+];
+
+// ============ CORE FUNCTIONS ============
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const view = document.getElementById('view-' + id);
+  if (view) view.classList.add('active');
+  const titles = {overview:'Command Center',alerts:'Threat Alerts',endpoints:'Managed Endpoints',threats:'Threat Intelligence',incident:'Incident Response',hunting:'Threat Hunting',compliance:'Compliance Dashboard',vulns:'Vulnerability Management',reports:'Report Center'};
+  document.getElementById('pageTitle').textContent = titles[id] || id.toUpperCase();
+  document.querySelectorAll('.nav-item').forEach(n => { if (n.textContent.trim().toLowerCase().includes(id.substring(0,4))) n.classList.add('active'); });
+  if (id === 'compliance') renderComplianceTrend();
+  if (id === 'vulns') renderVulnTrend();
+  if (id === 'threats') { renderThreatIntel(); renderAttackSources(); }
+}
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {hour12:false}) + ' UTC';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ============ THREAT MAP (Canvas) ============
+let mapCanvas, mapCtx;
+const attackOrigins = [
+  {x:0.15,y:0.25,label:'Moscow',color:'#FF3B5C'},{x:0.55,y:0.20,label:'Beijing',color:'#FF3B5C'},
+  {x:0.48,y:0.30,label:'Tehran',color:'#FF3B5C'},{x:0.52,y:0.25,label:'Pyongyang',color:'#FF3B5C'},
+  {x:0.08,y:0.35,label:'Lagos',color:'#F5A623'},{x:0.60,y:0.55,label:'Jakarta',color:'#F5A623'},
+  {x:0.35,y:0.40,label:'Mumbai',color:'#F5A623'},{x:0.20,y:0.55,label:'Sao Paulo',color:'#F5A623'},
+];
+const protectedAssets = [
+  {x:0.78,y:0.28,label:'HQ NYC',color:'#00FFD1'},
+  {x:0.72,y:0.25,label:'DC Virginia',color:'#00FFD1'},
+  {x:0.85,y:0.30,label:'AWS us-east',color:'#0084FF'},
+  {x:0.12,y:0.22,label:'Azure EU',color:'#0084FF'},
+];
+let attackLines = [];
+let particles = [];
+
+function initThreatMap() {
+  mapCanvas = document.getElementById('threatMapCanvas');
+  mapCtx = mapCanvas.getContext('2d');
+  resizeMap();
+  window.addEventListener('resize', resizeMap);
+  setInterval(spawnAttack, 800);
+  animateMap();
+}
+
+function resizeMap() {
+  const rect = mapCanvas.parentElement.getBoundingClientRect();
+  mapCanvas.width = rect.width * 2;
+  mapCanvas.height = rect.height * 2;
+  mapCanvas.style.width = rect.width + 'px';
+  mapCanvas.style.height = rect.height + 'px';
+  mapCtx.scale(2, 2);
+}
+
+function spawnAttack() {
+  const from = attackOrigins[Math.floor(Math.random() * attackOrigins.length)];
+  const to = protectedAssets[Math.floor(Math.random() * protectedAssets.length)];
+  attackLines.push({ from, to, progress: 0, blocked: Math.random() > 0.1 });
+}
+
+function animateMap() {
+  const w = mapCanvas.width / 2;
+  const h = mapCanvas.height / 2;
+  mapCtx.clearRect(0, 0, w, h);
+
+  // Draw subtle world outline dots
+  drawWorldDots(w, h);
+
+  // Draw attack lines
+  attackLines.forEach((line, i) => {
+    line.progress += 0.02;
+    if (line.progress > 1.2) { attackLines.splice(i, 1); return; }
+    const fx = line.from.x * w, fy = line.from.y * h;
+    const tx = line.to.x * w, ty = line.to.y * h;
+    const cx = (fx + tx) / 2, cy = Math.min(fy, ty) - 40;
+    const t = Math.min(line.progress, 1);
+    const px = (1-t)*(1-t)*fx + 2*(1-t)*t*cx + t*t*tx;
+    const py = (1-t)*(1-t)*fy + 2*(1-t)*t*cy + t*t*ty;
+
+    mapCtx.beginPath();
+    mapCtx.moveTo(fx, fy);
+    const steps = Math.floor(t * 20);
+    for (let s = 0; s <= steps; s++) {
+      const st = s / 20;
+      const sx = (1-st)*(1-st)*fx + 2*(1-st)*st*cx + st*st*tx;
+      const sy = (1-st)*(1-st)*fy + 2*(1-st)*st*cy + st*st*ty;
+      mapCtx.lineTo(sx, sy);
+    }
+    mapCtx.strokeStyle = line.blocked ? 'rgba(0,132,255,0.3)' : 'rgba(255,59,92,0.4)';
+    mapCtx.lineWidth = 1;
+    mapCtx.stroke();
+
+    // Head dot
+    mapCtx.beginPath();
+    mapCtx.arc(px, py, 2, 0, Math.PI * 2);
+    mapCtx.fillStyle = line.blocked ? '#0084FF' : '#FF3B5C';
+    mapCtx.fill();
+
+    // Block burst
+    if (line.progress >= 1 && line.blocked) {
+      const burst = (line.progress - 1) * 5;
+      mapCtx.beginPath();
+      mapCtx.arc(tx, ty, 4 + burst * 10, 0, Math.PI * 2);
+      mapCtx.strokeStyle = `rgba(0,255,209,${0.5 - burst * 2.5})`;
+      mapCtx.lineWidth = 1;
+      mapCtx.stroke();
+    }
+  });
+
+  // Draw nodes
+  attackOrigins.forEach(n => {
+    mapCtx.beginPath();
+    mapCtx.arc(n.x * w, n.y * h, 3, 0, Math.PI * 2);
+    mapCtx.fillStyle = n.color;
+    mapCtx.fill();
+    mapCtx.beginPath();
+    mapCtx.arc(n.x * w, n.y * h, 6, 0, Math.PI * 2);
+    mapCtx.strokeStyle = n.color + '40';
+    mapCtx.lineWidth = 1;
+    mapCtx.stroke();
+  });
+  protectedAssets.forEach(n => {
+    mapCtx.beginPath();
+    mapCtx.arc(n.x * w, n.y * h, 4, 0, Math.PI * 2);
+    mapCtx.fillStyle = n.color;
+    mapCtx.fill();
+    mapCtx.beginPath();
+    mapCtx.arc(n.x * w, n.y * h, 8, 0, Math.PI * 2);
+    mapCtx.strokeStyle = n.color + '60';
+    mapCtx.lineWidth = 1.5;
+    mapCtx.stroke();
+  });
+
+  requestAnimationFrame(animateMap);
+}
+
+function drawWorldDots(w, h) {
+  // Simplified continent outlines as dot clusters
+  const continents = [
+    // North America
+    ...[[0.68,0.18],[0.70,0.20],[0.72,0.22],[0.74,0.24],[0.76,0.26],[0.78,0.28],[0.75,0.30],[0.73,0.32],[0.71,0.30],[0.69,0.28],[0.67,0.26],[0.65,0.24],[0.66,0.22],[0.70,0.16],[0.72,0.15],[0.74,0.18],[0.76,0.20],[0.78,0.22],[0.80,0.20]],
+    // South America
+    ...[[0.22,0.50],[0.24,0.48],[0.23,0.52],[0.22,0.55],[0.21,0.58],[0.20,0.62],[0.19,0.65],[0.20,0.68],[0.22,0.70],[0.23,0.66],[0.24,0.60],[0.25,0.55],[0.26,0.50]],
+    // Europe
+    ...[[0.10,0.18],[0.12,0.20],[0.14,0.22],[0.13,0.19],[0.11,0.24],[0.09,0.22],[0.08,0.20],[0.10,0.25],[0.12,0.27],[0.14,0.25],[0.15,0.23],[0.16,0.25]],
+    // Africa
+    ...[[0.10,0.32],[0.12,0.34],[0.14,0.36],[0.12,0.38],[0.10,0.40],[0.09,0.42],[0.10,0.45],[0.11,0.48],[0.12,0.50],[0.13,0.46],[0.14,0.42],[0.13,0.38],[0.11,0.35]],
+    // Asia
+    ...[[0.20,0.18],[0.25,0.20],[0.30,0.22],[0.35,0.20],[0.40,0.22],[0.45,0.24],[0.50,0.22],[0.55,0.25],[0.52,0.28],[0.48,0.30],[0.44,0.28],[0.40,0.26],[0.35,0.24],[0.30,0.25],[0.25,0.23]],
+    // Australia
+    ...[[0.55,0.55],[0.57,0.53],[0.59,0.55],[0.60,0.58],[0.58,0.60],[0.56,0.58],[0.54,0.57]],
+  ];
+  mapCtx.fillStyle = 'rgba(0,255,209,0.06)';
+  continents.forEach(p => {
+    mapCtx.beginPath();
+    mapCtx.arc(p[0] * w, p[1] * h, 2, 0, Math.PI * 2);
+    mapCtx.fill();
+  });
+}
+
+// ============ RENDER ALERTS ============
+function renderAlerts(container, alerts, limit) {
+  const el = document.getElementById(container);
+  const list = limit ? alerts.slice(0, limit) : alerts;
+  let html = '<div class="alert-row header"><span>Time</span><span>Level</span><span>Description</span><span>Source</span><span>MITRE</span><span>Status</span></div>';
+  list.forEach(a => {
+    const lc = a.level >= 12 ? 'critical' : a.level >= 7 ? 'high' : a.level >= 4 ? 'medium' : 'low';
+    const sc = a.status === 'new' ? 'status-new' : a.status === 'investigating' ? 'status-investigating' : 'status-resolved';
+    html += `<div class="alert-row" onclick="notify('Opening alert detail for ${a.agent}...','warning')">
+      <span class="alert-time">${a.time}</span>
+      <span><span class="alert-level level-${lc}">${a.level}</span></span>
+      <span class="alert-desc">${a.desc}</span>
+      <span class="alert-agent">${a.agent}</span>
+      <span class="alert-mitre">${a.mitre}</span>
+      <span class="alert-status ${sc}">${a.status}</span>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function filterAlerts(level) {
+  let filtered = DEMO_ALERTS;
+  if (level === 'critical') filtered = DEMO_ALERTS.filter(a => a.level >= 12);
+  else if (level === 'high') filtered = DEMO_ALERTS.filter(a => a.level >= 7);
+  renderAlerts('allAlerts', filtered);
+}
+
+// ============ RENDER ENDPOINTS ============
+function renderEndpoints() {
+  const el = document.getElementById('endpointTable');
+  let html = '<div class="device-row header"><span>Endpoint</span><span>IP Address</span><span>OS</span><span>Status</span><span>Risk</span><span>Actions</span></div>';
+  DEMO_ENDPOINTS.forEach(d => {
+    const icon = d.type === 'server' ? '&#x1F5A5;' : '&#x1F4BB;';
+    html += `<div class="device-row" onclick="showEndpointDetail('${d.name}')">
+      <span class="device-name"><span class="device-icon">${icon}</span> ${d.name}</span>
+      <span class="device-ip">${d.ip}</span>
+      <span class="device-os">${d.os}</span>
+      <span class="online-badge ${d.status}"><span class="online-dot ${d.status==='online'?'on':'off'}"></span> ${d.status.toUpperCase()}</span>
+      <span class="device-risk risk-${d.risk}">${d.risk.toUpperCase()}</span>
+      <span><button class="action-btn" onclick="event.stopPropagation();showEndpointDetail('${d.name}')">Details</button></span>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function showEndpointDetail(name) {
+  const d = DEMO_ENDPOINTS.find(e => e.name === name);
+  if (!d) return;
+  document.getElementById('modalEndpointName').textContent = d.name + ' — Endpoint Details';
+  const body = document.getElementById('modalEndpointBody');
+  body.innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">Hostname</div><div class="detail-value">${d.name}</div></div>
+      <div class="detail-item"><div class="detail-label">IP Address</div><div class="detail-value">${d.ip}</div></div>
+      <div class="detail-item"><div class="detail-label">Operating System</div><div class="detail-value">${d.os}</div></div>
+      <div class="detail-item"><div class="detail-label">EDR Agent</div><div class="detail-value">${d.agent}</div></div>
+      <div class="detail-item"><div class="detail-label">Status</div><div class="detail-value"><span class="online-badge ${d.status}"><span class="online-dot ${d.status==='online'?'on':'off'}"></span> ${d.status.toUpperCase()}</span></div></div>
+      <div class="detail-item"><div class="detail-label">Risk Level</div><div class="detail-value"><span class="device-risk risk-${d.risk}">${d.risk.toUpperCase()}</span></div></div>
+      <div class="detail-item"><div class="detail-label">Active Alerts</div><div class="detail-value" style="color:${d.alerts>0?'var(--danger)':'var(--accent)'}">${d.alerts}</div></div>
+      <div class="detail-item"><div class="detail-label">Last Seen</div><div class="detail-value">${d.status==='online'?'Just now':'3 hours ago'}</div></div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:12px;">RESPONSE ACTIONS</div>
+    <div class="detail-actions">
+      <button class="detail-btn" onclick="demoAction('Initiating remote shell on ${d.name}...')">&#x2316; Remote Shell</button>
+      <button class="detail-btn" onclick="demoAction('Collecting forensic artifacts from ${d.name}...')">&#x1F50D; Collect Artifacts</button>
+      <button class="detail-btn" onclick="demoAction('Running full system scan on ${d.name}...')">&#x1F6E1; Full Scan</button>
+      <button class="detail-btn danger" onclick="demoAction('Isolating ${d.name} from network...')">&#x26D4; Isolate</button>
+      <button class="detail-btn" onclick="demoAction('Restarting Wazuh agent on ${d.name}...')">&#x21BB; Restart Agent</button>
+      <button class="detail-btn danger" onclick="demoAction('Initiating wipe on ${d.name}...')">&#x2622; Remote Wipe</button>
+    </div>
+  `;
+  document.getElementById('endpointModal').classList.add('active');
+}
+
+function closeModal() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+
+function demoAction(msg) {
+  closeModal();
+  notify(msg, 'success');
+}
+
+// ============ LIVE TERMINAL ============
+let termLineIdx = 0;
+function addTerminalLine() {
+  const el = document.getElementById('liveTerminal');
+  if (!el) return;
+  if (termLineIdx < TERMINAL_LINES.length) {
+    const line = TERMINAL_LINES[termLineIdx];
+    el.innerHTML += `<div class="term-line">${line.text}</div>`;
+    termLineIdx++;
+  } else {
+    // Generate random log lines
+    const types = [
+      `[<span class="info">${new Date().toLocaleTimeString('en-US',{hour12:false})}</span>] <span class="ok">OK</span> Heartbeat received from ${DEMO_ENDPOINTS[Math.floor(Math.random()*DEMO_ENDPOINTS.length)].name}`,
+      `[<span class="info">${new Date().toLocaleTimeString('en-US',{hour12:false})}</span>] <span class="cmd">SCAN</span> Vulnerability scan completed — ${Math.floor(Math.random()*5)} new findings`,
+      `[<span class="info">${new Date().toLocaleTimeString('en-US',{hour12:false})}</span>] <span class="ok">BLOCKED</span> Phishing URL blocked: hxxp://login-microsoft365[.]com/auth`,
+      `[<span class="info">${new Date().toLocaleTimeString('en-US',{hour12:false})}</span>] <span class="warn">ALERT</span> Unusual login time for user jsmith@acme.com (03:42 local)`,
+    ];
+    el.innerHTML += `<div class="term-line">${types[Math.floor(Math.random()*types.length)]}</div>`;
+  }
+  // Keep cursor
+  const cursor = el.querySelector('.term-cursor');
+  if (cursor) cursor.remove();
+  el.innerHTML += '<span class="term-cursor"></span>';
+  el.scrollTop = el.scrollHeight;
+}
+
+// ============ CHARTS ============
+function renderAlertTrend() {
+  const ctx = document.getElementById('alertTrendChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [
+        { label: 'Critical', data: [2, 1, 3, 1, 2, 0, 3], borderColor: '#FF3B5C', backgroundColor: 'rgba(255,59,92,0.1)', fill: true, tension: 0.4, pointRadius: 3 },
+        { label: 'High', data: [5, 8, 6, 4, 7, 3, 8], borderColor: '#F5A623', backgroundColor: 'rgba(245,166,35,0.1)', fill: true, tension: 0.4, pointRadius: 3 },
+        { label: 'Medium', data: [12, 15, 9, 11, 14, 8, 13], borderColor: '#0084FF', backgroundColor: 'rgba(0,132,255,0.05)', fill: true, tension: 0.4, pointRadius: 3 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#4A6080', font: { family: 'JetBrains Mono', size: 10 } } } },
+      scales: {
+        x: { grid: { color: 'rgba(17,34,64,0.5)' }, ticks: { color: '#4A6080', font: { family: 'JetBrains Mono', size: 10 } } },
+        y: { grid: { color: 'rgba(17,34,64,0.5)' }, ticks: { color: '#4A6080', font: { family: 'JetBrains Mono', size: 10 } } }
+      }
+    }
+  });
+}
+
+function renderComplianceTrend() {
+  const ctx = document.getElementById('complianceTrendChart');
+  if (!ctx || ctx._rendered) return;
+  ctx._rendered = true;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [
+        { label: 'NIST 800-53', data: [62, 68, 72, 78, 83, 87], borderColor: '#00FFD1', tension: 0.4, pointRadius: 3 },
+        { label: 'SOC 2', data: [55, 60, 67, 73, 79, 84], borderColor: '#0084FF', tension: 0.4, pointRadius: 3 },
+        { label: 'HIPAA', data: [70, 72, 75, 80, 85, 91], borderColor: '#A855F7', tension: 0.4, pointRadius: 3 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#4A6080', font: { family: 'JetBrains Mono', size: 10 } } } },
+      scales: {
+        x: { grid: { color: 'rgba(17,34,64,0.5)' }, ticks: { color: '#4A6080', font: { family: 'JetBrains Mono', size: 10 } } },
+        y: { min: 40, max: 100, grid: { color: 'rgba(17,34,64,0.5)' }, ticks: { color: '#4A6080', font: { family: 'JetBrains Mono', size: 10 } } }
+      }
+    }
+  });
+}
+
+function renderVulnTrend() {
+  const ctx = document.getElementById('vulnTrendChart');
+  if (!ctx || ctx._rendered) return;
+  ctx._rendered = true;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [
+        { label: 'Found', data: [45, 38, 52, 29, 44, 33], backgroundColor: 'rgba(255,59,92,0.3)', borderColor: '#FF3B5C', borderWidth: 1 },
+        { label: 'Remediated', data: [40, 42, 48, 35, 50, 67], backgroundColor: 'rgba(0,255,209,0.3)', borderColor: '#00FFD1', borderWidth: 1 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#4A6080', font: { family: 'JetBrains Mono', size: 10 } } } },
+      scales: {
+        x: { grid: { color: 'rgba(17,34,64,0.5)' }, ticks: { color: '#4A6080', font: { family: 'JetBrains Mono', size: 10 } } },
+        y: { grid: { color: 'rgba(17,34,64,0.5)' }, ticks: { color: '#4A6080', font: { family: 'JetBrains Mono', size: 10 } } }
+      }
+    }
+  });
+}
+
+function renderAttackSources() {
+  const ctx = document.getElementById('attackSourceChart');
+  if (!ctx || ctx._rendered) return;
+  ctx._rendered = true;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Russia', 'China', 'Iran', 'N. Korea', 'Brazil', 'Nigeria', 'Indonesia', 'Other'],
+      datasets: [{
+        data: [28, 22, 15, 12, 8, 6, 5, 4],
+        backgroundColor: ['#FF3B5C','#F5A623','#A855F7','#0084FF','#00FFD1','#FFD700','#FF6B6B','#4A6080'],
+        borderColor: '#0B1220', borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right', labels: { color: '#4A6080', font: { family: 'JetBrains Mono', size: 10 }, padding: 12 } } }
+    }
+  });
+}
+
+// ============ COMPLIANCE ============
+function renderCompliance() {
+  const frameworks = [
+    {name:'NIST 800-53',pct:87,color:'var(--accent)'},
+    {name:'NIST CSF',pct:91,color:'var(--accent)'},
+    {name:'SOC 2',pct:84,color:'var(--accent2)'},
+    {name:'HIPAA',pct:91,color:'var(--purple)'},
+    {name:'PCI DSS',pct:79,color:'var(--warning)'},
+    {name:'CMMC',pct:82,color:'var(--accent2)'},
+    {name:'ISO 27001',pct:88,color:'var(--accent)'},
+  ];
+  const el = document.getElementById('complianceBars');
+  el.innerHTML = frameworks.map(f => `
+    <div class="compliance-fw">
+      <span class="fw-name">${f.name}</span>
+      <div class="fw-bar"><div class="fw-fill" style="width:0%;background:${f.color}" data-width="${f.pct}"></div></div>
+      <span class="fw-pct" style="color:${f.color}">${f.pct}%</span>
+    </div>
+  `).join('');
+  setTimeout(() => {
+    el.querySelectorAll('.fw-fill').forEach(bar => { bar.style.width = bar.dataset.width + '%'; });
+  }, 200);
+}
+
+// ============ VULNS ============
+function renderVulns() {
+  const el = document.getElementById('vulnList');
+  el.innerHTML = DEMO_VULNS.map(v => {
+    const cc = v.cvss >= 9 ? 'var(--danger)' : v.cvss >= 7 ? 'var(--warning)' : 'var(--accent2)';
+    const bg = v.cvss >= 9 ? 'rgba(255,59,92,0.1)' : v.cvss >= 7 ? 'rgba(245,166,35,0.1)' : 'rgba(0,132,255,0.1)';
+    return `<div class="vuln-card" onclick="notify('Opening CVE detail: ${v.cve}','warning')">
+      <div class="vuln-header">
+        <span class="vuln-title">${v.cve} — ${v.title}</span>
+        <span class="vuln-cvss" style="color:${cc};background:${bg}">${v.cvss}</span>
+      </div>
+      <div class="vuln-meta">
+        <span>Hosts: ${v.hosts}</span>
+        <span>Status: ${v.status}</span>
+        <span>Age: ${v.age}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============ THREAT INTEL ============
+function renderThreatIntel() {
+  const el = document.getElementById('threatFeed');
+  if (!el) return;
+  el.innerHTML = THREAT_INTEL.map(t => {
+    const dotColor = t.type === 'critical' ? 'var(--danger)' : t.type === 'high' ? 'var(--warning)' : t.type === 'medium' ? 'var(--accent2)' : 'var(--muted)';
+    return `<div class="threat-item">
+      <div class="threat-dot" style="background:${dotColor};box-shadow:0 0 6px ${dotColor}"></div>
+      <div class="threat-content">
+        <div class="threat-desc">${t.title}</div>
+        <div class="threat-meta">${t.source} &middot; ${t.time}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // IOC watchlist
+  const iocEl = document.getElementById('iocList');
+  if (iocEl) {
+    const iocs = [
+      {type:'IP',value:'45.33.49.119',threat:'Brute Force',confidence:'High'},
+      {type:'IP',value:'185.220.101.34',threat:'APT29 C2',confidence:'Critical'},
+      {type:'Domain',value:'login-microsoft365[.]com',threat:'Phishing',confidence:'High'},
+      {type:'Hash',value:'a3b9c4d8e2f1...7890',threat:'Mimikatz',confidence:'Critical'},
+      {type:'IP',value:'103.224.212.222',threat:'Scanning',confidence:'Medium'},
+    ];
+    iocEl.innerHTML = '<div style="display:grid;grid-template-columns:60px 1fr 120px 80px;gap:8px;padding:8px 0;font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;border-bottom:1px solid var(--border);"><span>TYPE</span><span>INDICATOR</span><span>THREAT</span><span>CONF.</span></div>' +
+      iocs.map(i => `<div style="display:grid;grid-template-columns:60px 1fr 120px 80px;gap:8px;padding:10px 0;border-bottom:1px solid rgba(17,34,64,0.3);font-size:12px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);">${i.type}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--white);">${i.value}</span>
+        <span style="color:var(--text);">${i.threat}</span>
+        <span style="color:${i.confidence==='Critical'?'var(--danger)':i.confidence==='High'?'var(--warning)':'var(--accent2)'};font-size:11px;">${i.confidence}</span>
+      </div>`).join('');
+  }
+}
+
+// ============ INCIDENT TIMELINE ============
+function renderIncident() {
+  const el = document.getElementById('incidentTimeline');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="timeline">
+      <div class="timeline-item critical">
+        <div class="timeline-time">14:32:08 — Detection</div>
+        <div class="timeline-text">SIEM detected 847 failed SSH login attempts from 45.33.49.119 targeting DC-01</div>
+        <span class="timeline-tag" style="background:rgba(255,59,92,0.1);color:var(--danger);border:1px solid rgba(255,59,92,0.2);">T1110.001 — Brute Force</span>
+      </div>
+      <div class="timeline-item warning">
+        <div class="timeline-time">14:32:09 — Auto-Response</div>
+        <div class="timeline-text">Automated playbook triggered: IP blocked on perimeter firewall, alert escalated to Tier 2</div>
+      </div>
+      <div class="timeline-item warning">
+        <div class="timeline-time">14:33:15 — Enrichment</div>
+        <div class="timeline-text">Threat intelligence enrichment: IP belongs to OVH SAS (France), AbuseIPDB score: 100%, linked to 12 prior campaigns</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-time">14:35:42 — Investigation</div>
+        <div class="timeline-text">SOC analyst confirmed no successful authentications. Reviewed logs: all 847 attempts rejected by fail2ban</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-time">14:38:00 — Hardening</div>
+        <div class="timeline-text">SSH access restricted to VPN-only. GeoIP blocking enabled for non-US sources on management ports</div>
+      </div>
+      <div class="timeline-item resolved">
+        <div class="timeline-time">14:42:30 — Contained</div>
+        <div class="timeline-text">Incident contained. No evidence of compromise. Added /24 block to threat feed for proactive protection</div>
+        <span class="timeline-tag" style="background:rgba(0,255,209,0.1);color:var(--accent);border:1px solid rgba(0,255,209,0.2);">MTTR: 10m 22s</span>
+      </div>
+    </div>
+  `;
+
+  const actEl = document.getElementById('incidentActions');
+  if (actEl) {
+    actEl.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="detail-btn active" onclick="notify('Playbook already executed — IP blocked','success')">&#x2611; Block Source IP</button>
+        <button class="detail-btn" onclick="notify('Scanning all endpoints for IOCs from this campaign...','warning')">&#x1F50D; Sweep All Endpoints</button>
+        <button class="detail-btn" onclick="notify('Generating forensic report for INC-2024-0892...','success')">&#x1F4C4; Generate Report</button>
+        <button class="detail-btn" onclick="notify('Adding 45.33.49.0/24 to global blocklist...','success')">&#x1F6AB; Block /24 Subnet</button>
+        <button class="detail-btn" onclick="notify('Enabling enhanced monitoring on DC-01...','success')">&#x1F4E1; Enhanced Monitoring</button>
+        <button class="detail-btn danger" onclick="notify('Escalating to CISO and legal team...','danger')">&#x26A0; Escalate to CISO</button>
+      </div>
+      <div style="margin-top:20px;padding:16px;background:var(--surface2);border:1px solid var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:8px;">INCIDENT METRICS</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div><span style="font-size:11px;color:var(--muted);">Time to Detect</span><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);">< 1m</div></div>
+          <div><span style="font-size:11px;color:var(--muted);">Time to Respond</span><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);">1m</div></div>
+          <div><span style="font-size:11px;color:var(--muted);">Time to Contain</span><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);">10m</div></div>
+          <div><span style="font-size:11px;color:var(--muted);">Data Exfiltrated</span><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);">0 bytes</div></div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// ============ MITRE GRID ============
+function renderMitre() {
+  const tactics = ['Recon','Initial Access','Execution','Persistence','Priv Esc','Defense Evasion','Cred Access'];
+  const techniques = [
+    ['T1595','T1566','T1059','T1053','T1068','T1562','T1003'],
+    ['T1592','T1190','T1204','T1547','T1548','T1070','T1110'],
+    ['T1589','T1133','T1047','T1136','T1134','T1036','T1556'],
+    ['T1590','T1078','T1106','T1574','T1055','T1027','T1552'],
+  ];
+  const heat = {T1110:'hot',T1003:'hot',T1059:'warm',T1566:'hot',T1068:'warm',T1562:'warm',T1053:'cool',T1078:'warm',T1071:'warm',T1486:'hot'};
+
+  const el = document.getElementById('mitreGrid');
+  let html = '<div class="mitre-grid">';
+  tactics.forEach(t => html += `<div class="mitre-header">${t}</div>`);
+  techniques.forEach(row => {
+    row.forEach(t => {
+      const h = heat[t] || '';
+      html += `<div class="mitre-cell ${h}" title="${t}">${t}</div>`;
+    });
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ============ THREAT HUNTING ============
+function setHunt(q) { document.getElementById('huntQuery').value = q; }
+function runHunt() {
+  const results = document.getElementById('huntResults');
+  const body = document.getElementById('huntResultsBody');
+  results.style.display = 'block';
+  body.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Querying across all endpoints...</div>';
+  setTimeout(() => {
+    const count = Math.floor(Math.random() * 8) + 2;
+    document.getElementById('huntCount').textContent = count + ' results found';
+    let html = '<div class="alert-row header"><span>Time</span><span>Level</span><span>Description</span><span>Source</span><span>MITRE</span><span>Status</span></div>';
+    for (let i = 0; i < count; i++) {
+      const a = DEMO_ALERTS[Math.floor(Math.random() * DEMO_ALERTS.length)];
+      const lc = a.level >= 12 ? 'critical' : a.level >= 7 ? 'high' : 'medium';
+      html += `<div class="alert-row">
+        <span class="alert-time">${a.time}</span>
+        <span><span class="alert-level level-${lc}">${a.level}</span></span>
+        <span class="alert-desc">${a.desc}</span>
+        <span class="alert-agent">${a.agent}</span>
+        <span class="alert-mitre">${a.mitre}</span>
+        <span class="alert-status status-investigating">Review</span>
+      </div>`;
+    }
+    body.innerHTML = html;
+  }, 1500);
+}
+
+// ============ NOTIFICATIONS ============
+function notify(msg, type) {
+  const el = document.getElementById('notification');
+  const icons = { success: '&#x2713;', danger: '&#x26A0;', warning: '&#x26A1;' };
+  el.className = 'notification ' + (type || 'success');
+  document.getElementById('notifIcon').innerHTML = icons[type] || icons.success;
+  document.getElementById('notifText').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ============ SIMULATE ATTACK BUTTON ============
+function triggerDemoAttack() {
+  notify('Simulating APT attack scenario...', 'danger');
+  const term = document.getElementById('liveTerminal');
+  const attackLines = [
+    `<div class="term-line">[<span class="info">${new Date().toLocaleTimeString('en-US',{hour12:false})}</span>] <span class="err">CRITICAL</span> &#x26A0; ATTACK SIMULATION INITIATED</div>`,
+    `<div class="term-line">[<span class="info">${new Date().toLocaleTimeString('en-US',{hour12:false})}</span>] <span class="err">ALERT</span> Spearphishing email delivered to 5 mailboxes (T1566.001)</div>`,
+    `<div class="term-line">[<span class="info">${new Date().toLocaleTimeString('en-US',{hour12:false})}</span>] <span class="warn">DETECT</span> Malicious macro execution blocked on WS-FINANCE-01</div>`,
+    `<div class="term-line">[<span class="info">${new Date().toLocaleTimeString('en-US',{hour12:false})}</span>] <span class="cmd">AUTO-RESPONSE</span> Quarantining email across all mailboxes...</div>`,
+    `<div class="term-line">[<span class="info">${new Date().toLocaleTimeString('en-US',{hour12:false})}</span>] <span class="ok">CONTAINED</span> All 5 emails quarantined. 0 users clicked. Attack neutralized in 4.2 seconds.</div>`,
+  ];
+  attackLines.forEach((line, i) => {
+    setTimeout(() => {
+      const cursor = term.querySelector('.term-cursor');
+      if (cursor) cursor.remove();
+      term.innerHTML += line + '<span class="term-cursor"></span>';
+      term.scrollTop = term.scrollHeight;
+    }, (i + 1) * 1200);
+  });
+
+  // Update stats
+  setTimeout(() => {
+    const el = document.getElementById('mapAttackCount');
+    let current = parseInt(el.textContent.replace(',', ''));
+    el.textContent = (current + 5).toLocaleString();
+    notify('Attack simulation complete — all threats neutralized', 'success');
+  }, 6500);
+}
+
+// ============ SCORE ANIMATION ============
+function animateScore() {
+  const target = 87;
+  const arc = document.getElementById('scoreArc');
+  const num = document.getElementById('scoreVal');
+  const circumference = 2 * Math.PI * 60;
+  let current = 0;
+  const interval = setInterval(() => {
+    current++;
+    if (current > target) { clearInterval(interval); return; }
+    num.textContent = current;
+    arc.setAttribute('stroke-dasharray', `${(current / 100) * circumference} ${circumference}`);
+  }, 20);
+
+  // Animate score bars
+  setTimeout(() => {
+    document.querySelectorAll('.score-item-fill').forEach(bar => {
+      bar.style.width = bar.dataset.width + '%';
+    });
+  }, 500);
+}
+
+// ============ INCREMENT BLOCKED COUNTER ============
+function incrementBlockedCount() {
+  const el = document.getElementById('mapAttackCount');
+  if (!el) return;
+  let val = parseInt(el.textContent.replace(/,/g, ''));
+  val += Math.floor(Math.random() * 3) + 1;
+  el.textContent = val.toLocaleString();
+}
+
+// ============ INIT ============
+window.addEventListener('DOMContentLoaded', () => {
+  renderAlerts('recentAlerts', DEMO_ALERTS, 6);
+  renderAlerts('allAlerts', DEMO_ALERTS);
+  renderEndpoints();
+  renderAlertTrend();
+  renderMitre();
+  renderCompliance();
+  renderVulns();
+  renderIncident();
+  initThreatMap();
+  animateScore();
+
+  // Terminal lines every 2.5 seconds
+  setTimeout(() => addTerminalLine(), 500);
+  setInterval(addTerminalLine, 2500);
+
+  // Blocked counter increment
+  setInterval(incrementBlockedCount, 3000);
+});
+</script>
+</body>
+</html>
