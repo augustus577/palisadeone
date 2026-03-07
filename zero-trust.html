@@ -588,6 +588,8 @@
         <div class="panel-header">
           <div class="panel-title">Managed Devices</div>
           <div class="panel-actions">
+            <button class="panel-btn primary" style="font-size:9px;" onclick="deployAllSysmon()">DEPLOY SYSMON ALL</button>
+            <button class="panel-btn" style="font-size:9px;" onclick="deployAllWDAC()">DEPLOY WDAC ALL</button>
             <select class="filter-select" id="dev-mode-filter" onchange="renderDevices()">
               <option value="all">All Modes</option>
               <option value="learning">Learning</option>
@@ -661,6 +663,11 @@
           </thead>
           <tbody id="app-tbody"></tbody>
         </table>
+      </div>
+      <!-- Sysmon Live Discovery Panel -->
+      <div class="panel" id="sysmon-discovered" style="border-color:rgba(168,85,247,0.3);">
+        <div class="panel-header"><div class="panel-title" style="color:var(--purple);">Live Process Discovery (Sysmon)</div><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Waiting for Sysmon data...</span></div>
+        <div style="padding:20px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">Deploy Sysmon on endpoints to see real-time application discovery here. Go to Devices &rarr; click SYSMON button.</div>
       </div>
     </div>
 
@@ -1512,6 +1519,10 @@ function renderDevices() {
           <button class="mode-opt ${d.mode==='secured'?'active-secure':''}" onclick="setDeviceMode('${d.id}','secured')">SECURE</button>
           <button class="mode-opt ${d.mode==='monitor'?'active-monitor':''}" onclick="setDeviceMode('${d.id}','monitor')">MONITOR</button>
         </div>
+        <div style="display:flex;gap:4px;margin-top:4px;">
+          <button class="panel-btn" style="padding:2px 6px;font-size:8px;" onclick="deploySysmon('${d.id}','${d.name}')" title="Install Sysmon">SYSMON</button>
+          <button class="panel-btn" style="padding:2px 6px;font-size:8px;" onclick="deployWDAC('${d.id}','${d.name}','${d.mode}')" title="Deploy WDAC Policy">WDAC</button>
+        </div>
       </td>
     </tr>`;
   }).join('');
@@ -1533,8 +1544,81 @@ async function setDeviceMode(id, mode) {
   }
 }
 
+// ========== DEPLOYMENT ACTIONS ==========
+async function deploySysmon(agentId, agentName) {
+  if (!confirm(`Deploy Sysmon on ${agentName}? This will download and install Sysmon for process monitoring.`)) return;
+  toast(`Deploying Sysmon on ${agentName}...`, 'info');
+  if (_apiConnected) {
+    const result = await ztFetch('/deploy/sysmon', { method: 'POST', body: JSON.stringify({ agentId, agentName }) });
+    if (result && result.ok) {
+      toast(`Sysmon deployment triggered on ${agentName}`, 'success');
+    } else {
+      toast(`Sysmon deployment may have failed: ${JSON.stringify(result)}`, 'error');
+    }
+  } else {
+    toast('API offline — cannot deploy remotely', 'error');
+  }
+}
+
+async function deployWDAC(agentId, agentName, currentMode) {
+  const wdacMode = currentMode === 'secured' ? 'enforce' : 'audit';
+  const modeLabel = wdacMode === 'enforce' ? 'ENFORCE (block non-whitelisted apps)' : 'AUDIT (log-only, no blocking)';
+  if (!confirm(`Deploy WDAC policy on ${agentName} in ${modeLabel} mode?`)) return;
+  toast(`Deploying WDAC ${wdacMode} policy on ${agentName}...`, 'info');
+  if (_apiConnected) {
+    const result = await ztFetch('/deploy/wdac', { method: 'POST', body: JSON.stringify({ agentId, agentName, mode: wdacMode }) });
+    if (result && result.ok) {
+      toast(`WDAC ${wdacMode} mode deployed on ${agentName}`, 'success');
+    } else {
+      toast(`WDAC deployment issue: ${JSON.stringify(result)}`, 'error');
+    }
+  } else {
+    toast('API offline — cannot deploy remotely', 'error');
+  }
+}
+
+async function deployAllSysmon() {
+  if (!confirm(`Deploy Sysmon on ALL ${DEVICES.length} devices? This will install process monitoring on every endpoint.`)) return;
+  toast(`Deploying Sysmon to ${DEVICES.length} devices...`, 'info');
+  for (const d of DEVICES) {
+    if (d.id === '000') continue;
+    await ztFetch('/deploy/sysmon', { method: 'POST', body: JSON.stringify({ agentId: d.id, agentName: d.name }) });
+  }
+  toast(`Sysmon deployment triggered on all devices`, 'success');
+}
+
+async function deployAllWDAC() {
+  if (!confirm(`Deploy WDAC policies on ALL devices? Learning devices get AUDIT mode, Secured devices get ENFORCE mode.`)) return;
+  toast(`Deploying WDAC to ${DEVICES.length} devices...`, 'info');
+  for (const d of DEVICES) {
+    if (d.id === '000') continue;
+    const mode = d.mode === 'secured' ? 'enforce' : 'audit';
+    await ztFetch('/deploy/wdac', { method: 'POST', body: JSON.stringify({ agentId: d.id, agentName: d.name, mode }) });
+  }
+  toast(`WDAC policies deployed on all devices`, 'success');
+}
+
 // ========== APPLICATIONS ==========
-function renderApplications() {
+async function renderApplications() {
+  // Load Sysmon-discovered apps in background
+  if (_apiConnected) {
+    const sysmonData = await ztFetch('/sysmon-apps?hours=24');
+    if (sysmonData && sysmonData.apps && sysmonData.apps.length > 0) {
+      const discoveredEl = document.getElementById('sysmon-discovered');
+      if (discoveredEl) {
+        discoveredEl.innerHTML = `<div class="panel-header"><div class="panel-title">Live Discovered Processes (Sysmon - Last 24h)</div><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);">${sysmonData.total} unique apps</span></div>` +
+          `<div style="max-height:200px;overflow-y:auto;"><table class="tbl"><thead><tr><th>Process</th><th>Publisher</th><th>Signed</th><th>Devices</th><th>Executions</th><th>Action</th></tr></thead><tbody>` +
+          sysmonData.apps.slice(0, 30).map(a => `<tr>
+            <td><div style="font-weight:500;color:var(--white);">${esc(a.name)}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">${esc(a.path)}</div></td>
+            <td style="font-size:11px;">${esc(a.publisher)}</td>
+            <td>${a.signed ? '<span style="color:var(--accent);font-size:10px;">&#10003;</span>' : '<span style="color:var(--danger);font-size:10px;">&#10007;</span>'}</td>
+            <td style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);">${a.devices}</td>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${a.count}</td>
+            <td><button class="panel-btn" style="padding:2px 6px;font-size:8px;" onclick="addDiscoveredApp('${esc(a.name)}','${esc(a.path)}','${esc(a.publisher)}',${a.signed})">+ ADD</button></td>
+          </tr>`).join('') + `</tbody></table></div>`;
+      }
+    }
+  }
   const statusFilter = document.getElementById('app-status-filter')?.value || 'all';
   const search = (document.getElementById('app-search')?.value || '').toLowerCase();
   let list = APPLICATIONS;
@@ -1580,6 +1664,18 @@ async function setAppStatus(id, status) {
   if (_apiConnected) {
     await ztFetch('/applications/' + id, { method: 'PUT', body: JSON.stringify({ status }) });
   }
+}
+
+async function addDiscoveredApp(name, path, publisher, signed) {
+  const app = { name, path, publisher, signed, status: 'uncategorized', category: 'Discovered', riskScore: signed ? 20 : 65, devices: 1, hash: 'auto-discovered', aiVerdict: 'Auto-discovered via Sysmon process monitoring.' };
+  if (_apiConnected) {
+    const result = await ztFetch('/applications', { method: 'POST', body: JSON.stringify(app) });
+    if (result && result.ok) app.id = 'a_' + Date.now();
+  }
+  if (!app.id) app.id = 'a_' + Date.now();
+  APPLICATIONS.push(app);
+  renderApplications();
+  toast(`${name} added to application catalog`, 'success');
 }
 
 // ========== RINGFENCING ==========
