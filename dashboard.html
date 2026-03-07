@@ -9402,14 +9402,6 @@ function pollPhishTracking() {
 }
 setInterval(pollPhishTracking, 30000);
 
-function showToast(msg) {
-  const toast = document.getElementById('ep-toast');
-  if (!toast) return;
-  toast.textContent = msg;
-  toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--accent);color:var(--black);padding:12px 24px;border-radius:4px;font-weight:600;font-size:13px;z-index:9999;transition:opacity .3s';
-  toast.style.opacity = '1';
-  setTimeout(() => { toast.style.opacity = '0'; }, 3000);
-}
 </script>
 </body>
 </html>
