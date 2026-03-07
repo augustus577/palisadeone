@@ -203,6 +203,51 @@
     </div>
   </div>
 
+  <!-- PERFORMANCE METRICS -->
+  <section style="padding:80px 60px;background:var(--black);">
+    <div class="section-label fade-up" style="text-align:center;justify-content:center;">Performance</div>
+    <h2 class="section-title fade-up" style="text-align:center;">PLATFORM<br><span style="color:var(--accent)">BY THE NUMBERS</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:48px;">
+      <div style="background:var(--deep);padding:40px 24px;text-align:center;" class="fade-up">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent);line-height:1;" class="perf-counter" data-target="3000">0</div>
+        <div style="font-size:12px;color:var(--accent);margin-top:4px;">+</div>
+        <div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:8px;">Detection Rules</div>
+      </div>
+      <div style="background:var(--deep);padding:40px 24px;text-align:center;" class="fade-up">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent2);line-height:1;">&lt;1s</div>
+        <div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:12px;">Response Time</div>
+      </div>
+      <div style="background:var(--deep);padding:40px 24px;text-align:center;" class="fade-up">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent);line-height:1;">99.9%</div>
+        <div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:12px;">Platform Uptime</div>
+      </div>
+      <div style="background:var(--deep);padding:40px 24px;text-align:center;" class="fade-up">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent2);line-height:1;">24/7</div>
+        <div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:12px;">SOC Monitoring</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECURITY DIFFERENTIATORS -->
+  <section style="padding:0 60px 80px;background:var(--black);">
+    <div class="section-label fade-up">Why We're Different</div>
+    <h2 class="section-title fade-up">NOT ANOTHER<br>RESELLER</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;">
+      <div style="background:var(--surface);border:1px solid var(--border);padding:32px;border-top:3px solid var(--accent);transition:transform 0.3s;" class="fade-up" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;margin-bottom:12px;">WE OWN THE CODE</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;">Every component of our platform is built and maintained by us. No third-party licensing fees passed to clients. No vendor lock-in. Full control over features and pricing.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);padding:32px;border-top:3px solid var(--accent2);transition:transform 0.3s;" class="fade-up" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;margin-bottom:12px;">AI IS NATIVE</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;">AI isn't an add-on feature — it's woven into every layer. Alert analysis, report generation, threat classification, and remediation guidance all run through Claude AI automatically.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);padding:32px;border-top:3px solid var(--danger);transition:transform 0.3s;" class="fade-up" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;margin-bottom:12px;">SMB-FIRST DESIGN</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;">Everything is designed for 5-200 person businesses. No enterprise complexity. Deploy in hours, not weeks. Your clients see a clean portal — not a Kibana dashboard.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- CLIENT PORTAL -->
   <div class="portal-section" style="padding-top:80px;padding-bottom:80px;">
     <div class="section-label fade-up">Client Portal</div>
@@ -221,5 +266,24 @@
       <a href="contact.html" class="btn-secondary">Book a Demo</a>
     </div>
   </div>
+  <script>
+    // Animated counter for detection rules
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const target = parseInt(e.target.dataset.target);
+        if (!target) return;
+        let current = 0;
+        const step = Math.ceil(target / 50);
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) { current = target; clearInterval(timer); }
+          e.target.textContent = current.toLocaleString();
+        }, 25);
+        counterObserver.unobserve(e.target);
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.perf-counter').forEach(el => counterObserver.observe(el));
+  </script>
 </body>
 </html>

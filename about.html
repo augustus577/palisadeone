@@ -34,6 +34,30 @@
     .stat-big { font-family:'Bebas Neue',sans-serif;font-size:56px;color:var(--accent);letter-spacing:2px;line-height:1; }
     .stat-label { font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:8px; }
     .cta-section { padding:120px 60px;text-align:center;background:var(--deep); }
+    /* Timeline */
+    .timeline-section { padding:120px 60px;background:var(--black); }
+    .timeline { position:relative;margin-top:64px;padding-left:40px; }
+    .timeline::before { content:'';position:absolute;left:15px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--accent),var(--accent2),var(--danger)); }
+    .timeline-item { position:relative;margin-bottom:48px;opacity:0;transform:translateY(20px);transition:all 0.6s ease; }
+    .timeline-item.visible { opacity:1;transform:translateY(0); }
+    .timeline-dot { position:absolute;left:-33px;top:4px;width:12px;height:12px;background:var(--accent);border:2px solid var(--deep);border-radius:0;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%); }
+    .timeline-date { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:3px;margin-bottom:8px; }
+    .timeline-title { font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);letter-spacing:2px;margin-bottom:8px; }
+    .timeline-desc { font-size:13px;color:var(--muted);line-height:1.7;max-width:600px; }
+
+    /* Certifications */
+    .certs-section { padding:80px 60px;background:var(--deep);border-top:1px solid var(--border);border-bottom:1px solid var(--border); }
+    .certs-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px; }
+    .cert-card { background:var(--surface);border:1px solid var(--border);padding:32px 24px;text-align:center;transition:border-color 0.3s,transform 0.3s; }
+    .cert-card:hover { border-color:var(--accent);transform:translateY(-4px); }
+    .cert-icon { font-size:36px;margin-bottom:16px;display:block; }
+    .cert-name { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;margin-bottom:8px; }
+    .cert-desc { font-size:12px;color:var(--muted);line-height:1.6; }
+
+    /* Counter animation */
+    .stat-big { transition:color 0.3s; }
+    .stat-box:hover .stat-big { color:var(--white); }
+
     @media(max-width:768px) {
       .about-hero { padding:120px 24px 60px; }
       .mission-section { grid-template-columns:1fr;gap:48px;padding:80px 24px; }
@@ -41,6 +65,9 @@
       .team-grid { grid-template-columns:1fr; }
       .stats-section { grid-template-columns:1fr 1fr;padding:48px 24px; }
       .team-section,.cta-section { padding:80px 24px; }
+      .timeline-section { padding:80px 24px; }
+      .certs-grid { grid-template-columns:1fr 1fr; }
+      .certs-section { padding:60px 24px; }
     }
   </style>
 </head>
@@ -148,6 +175,66 @@
     </div>
   </section>
 
+  <!-- TIMELINE -->
+  <section class="timeline-section">
+    <div class="section-label fade-up">Our Journey</div>
+    <h2 class="section-title fade-up">HOW WE<br>GOT HERE</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">2024 — THE PROBLEM</div>
+        <div class="timeline-title">SAW THE GAP FIRSTHAND</div>
+        <div class="timeline-desc">After years in enterprise security consulting, we watched small businesses get destroyed by attacks that basic tools could have prevented — if anyone had built them affordably.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:var(--accent2);"></div>
+        <div class="timeline-date">2024 — THE BUILD</div>
+        <div class="timeline-title">BUILT THE PLATFORM FROM ZERO</div>
+        <div class="timeline-desc">Instead of reselling enterprise tools at a markup, we built our own stack on Wazuh, Elastic, and AI. Every line of code, every automation, every dashboard — owned by us.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:var(--warning);"></div>
+        <div class="timeline-date">2025 — THE PLATFORM</div>
+        <div class="timeline-title">LAUNCHED PALISADE ONE</div>
+        <div class="timeline-desc">Deployed the full platform: SOC dashboard, client portal, AI-powered reporting, automated response, dark web monitoring — everything an enterprise SOC has, at SMB pricing.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:var(--danger);"></div>
+        <div class="timeline-date">2026 — TODAY</div>
+        <div class="timeline-title">PROTECTING BUSINESSES NATIONWIDE</div>
+        <div class="timeline-desc">Now serving businesses across the US with 24/7 monitoring, sub-second automated response, and the kind of security that used to cost six figures a year.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CERTIFICATIONS -->
+  <section class="certs-section">
+    <div class="section-label fade-up" style="text-align:center;justify-content:center;">Frameworks & Standards</div>
+    <h2 class="section-title fade-up" style="text-align:center;">WE SPEAK YOUR<br><span style="color:var(--accent)">COMPLIANCE LANGUAGE</span></h2>
+    <div class="certs-grid">
+      <div class="cert-card fade-up">
+        <span class="cert-icon">🏛️</span>
+        <div class="cert-name">NIST 800-53</div>
+        <div class="cert-desc">Full control mapping and continuous compliance monitoring against federal security standards.</div>
+      </div>
+      <div class="cert-card fade-up">
+        <span class="cert-icon">🏥</span>
+        <div class="cert-name">HIPAA</div>
+        <div class="cert-desc">Healthcare data protection compliance — technical safeguards, audit controls, and breach notification.</div>
+      </div>
+      <div class="cert-card fade-up">
+        <span class="cert-icon">💳</span>
+        <div class="cert-name">PCI-DSS</div>
+        <div class="cert-desc">Payment card industry compliance for businesses handling credit card data and transactions.</div>
+      </div>
+      <div class="cert-card fade-up">
+        <span class="cert-icon">🛡️</span>
+        <div class="cert-name">SOC 2</div>
+        <div class="cert-desc">Service organization controls for security, availability, processing integrity, and confidentiality.</div>
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section class="cta-section">
     <h2 class="section-title fade-up">JOIN THE BUSINESSES<br><span style="color:var(--accent)">WE PROTECT</span></h2>
@@ -157,5 +244,33 @@
       <a href="services.html" class="btn-secondary">See Our Services</a>
     </div>
   </section>
+  <script>
+    // Scroll-triggered animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.timeline-item').forEach(el => observer.observe(el));
+
+    // Animated counters for stats
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target.querySelector('.stat-big');
+        const text = el.textContent;
+        if (text.match(/^\d+/)) {
+          const target = parseInt(text);
+          let current = 0;
+          const step = Math.ceil(target / 40);
+          const timer = setInterval(() => {
+            current += step;
+            if (current >= target) { current = target; clearInterval(timer); }
+            el.textContent = text.replace(/\d+/, current);
+          }, 30);
+        }
+        counterObserver.unobserve(e.target);
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.stat-box').forEach(el => counterObserver.observe(el));
+  </script>
 </body>
 </html>

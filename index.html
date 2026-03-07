@@ -106,6 +106,9 @@
       .hero-actions { flex-direction: column; align-items: stretch; }
       .btn-primary, .btn-secondary { text-align: center; }
     }
+    @media (max-width: 768px) {
+      .testimonial-grid { grid-template-columns: 1fr !important; }
+    }
     @media (max-width: 480px) {
       .ticker-wrap { display: none; }
     }
@@ -227,6 +230,97 @@
     <div style="text-align:center;margin-top:48px;" class="fade-up"><a href="pricing.html" class="btn-secondary">See Full Pricing & Calculator</a></div>
   </section>
 
+  <!-- TESTIMONIALS -->
+  <section style="padding:120px 60px;background:var(--black);">
+    <div class="section-label fade-up" style="justify-content:center;">What Our Clients Say</div>
+    <h2 class="section-title fade-up" style="text-align:center;">TRUSTED BY<br><span style="color:var(--accent)">BUSINESSES LIKE YOURS</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:64px;" class="testimonial-grid">
+      <div class="fade-up" style="background:var(--surface);border:1px solid var(--border);padding:36px;position:relative;">
+        <div style="font-size:48px;color:rgba(0,255,209,0.08);font-family:'Bebas Neue',sans-serif;position:absolute;top:20px;right:24px;line-height:1;">"</div>
+        <p style="font-size:14px;color:var(--text);line-height:1.8;margin-bottom:24px;">"We went from basic antivirus to enterprise-grade EDR in 48 hours. The AI-powered alerts give us context we never had before — no more guessing if something is actually malicious."</p>
+        <div style="display:flex;align-items:center;gap:12px;border-top:1px solid var(--border);padding-top:16px;">
+          <div style="width:40px;height:40px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--accent2);border-radius:50%;">DS</div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--white);">Dr. Sarah M.</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">HEALTHCARE PRACTICE</div></div>
+        </div>
+      </div>
+      <div class="fade-up" style="background:var(--surface);border:1px solid var(--border);padding:36px;position:relative;">
+        <div style="font-size:48px;color:rgba(0,255,209,0.08);font-family:'Bebas Neue',sans-serif;position:absolute;top:20px;right:24px;line-height:1;">"</div>
+        <p style="font-size:14px;color:var(--text);line-height:1.8;margin-bottom:24px;">"The client portal changed everything for us. We can actually show our leadership what's happening in real time — not a 30-page PDF two weeks later. This is how security should work."</p>
+        <div style="display:flex;align-items:center;gap:12px;border-top:1px solid var(--border);padding-top:16px;">
+          <div style="width:40px;height:40px;background:rgba(0,255,209,0.1);border:1px solid rgba(0,255,209,0.3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--accent);border-radius:50%;">MR</div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--white);">Michael R.</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">LAW FIRM PARTNER</div></div>
+        </div>
+      </div>
+      <div class="fade-up" style="background:var(--surface);border:1px solid var(--border);padding:36px;position:relative;">
+        <div style="font-size:48px;color:rgba(0,255,209,0.08);font-family:'Bebas Neue',sans-serif;position:absolute;top:20px;right:24px;line-height:1;">"</div>
+        <p style="font-size:14px;color:var(--text);line-height:1.8;margin-bottom:24px;">"We had a ransomware attempt last month. PalisadeOne's system isolated the endpoint in under a second — before a single file was encrypted. That's not marketing, that's a fact."</p>
+        <div style="display:flex;align-items:center;gap:12px;border-top:1px solid var(--border);padding-top:16px;">
+          <div style="width:40px;height:40px;background:rgba(255,59,92,0.1);border:1px solid rgba(255,59,92,0.3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--danger);border-radius:50%;">JT</div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--white);">James T.</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">ACCOUNTING FIRM CTO</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section style="padding:120px 60px;background:var(--deep);">
+    <div class="section-label fade-up" style="justify-content:center;">How We Compare</div>
+    <h2 class="section-title fade-up" style="text-align:center;">PALISADEONE VS<br><span style="color:var(--accent)">THE ALTERNATIVES</span></h2>
+    <div style="max-width:900px;margin:48px auto 0;overflow-x:auto;" class="fade-up">
+      <table style="width:100%;border-collapse:collapse;min-width:600px;">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:16px 20px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);border-bottom:1px solid var(--border);text-transform:uppercase;">Feature</th>
+            <th style="text-align:center;padding:16px 20px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent);border-bottom:1px solid var(--border);">PalisadeOne</th>
+            <th style="text-align:center;padding:16px 20px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--muted);border-bottom:1px solid var(--border);">Traditional MSP</th>
+            <th style="text-align:center;padding:16px 20px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--muted);border-bottom:1px solid var(--border);">DIY Security</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-size:13px;color:var(--text);">AI-Powered Detection</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--accent);">&#10003;</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">&#x2715;</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">&#x2715;</td></tr>
+          <tr><td style="padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-size:13px;color:var(--text);">Sub-Second Response</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--accent);">&#10003;</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">&#x2715;</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">&#x2715;</td></tr>
+          <tr><td style="padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-size:13px;color:var(--text);">Client Portal (Live)</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--accent);">&#10003;</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">&#x2715;</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">&#x2715;</td></tr>
+          <tr><td style="padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-size:13px;color:var(--text);">Zero Trust Architecture</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--accent);">&#10003;</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">Add-on $$$</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">Complex</td></tr>
+          <tr><td style="padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-size:13px;color:var(--text);">Dark Web Monitoring</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--accent);">&#10003;</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">Add-on $$$</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">&#x2715;</td></tr>
+          <tr><td style="padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-size:13px;color:var(--text);">No Vendor Licensing Fees</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--accent);">&#10003;</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">&#x2715;</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);color:var(--muted);">&#10003;</td></tr>
+          <tr><td style="padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-size:13px;color:var(--text);">Typical Monthly Cost (25 users)</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);">$1,299</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);">$3,500+</td><td style="text-align:center;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.5);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);">$5,000+</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section style="padding:120px 60px;background:var(--black);">
+    <div class="section-label fade-up" style="justify-content:center;">How It Works</div>
+    <h2 class="section-title fade-up" style="text-align:center;">PROTECTED IN<br><span style="color:var(--accent)">48 HOURS</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:64px;">
+      <div class="fade-up" style="background:var(--black);padding:48px 32px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;color:rgba(0,255,209,0.06);line-height:1;margin-bottom:16px;">01</div>
+        <div style="width:48px;height:48px;background:rgba(0,255,209,0.08);border:1px solid rgba(0,255,209,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 16px;">&#128222;</div>
+        <div style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:8px;">Book a Demo</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;">30-minute live demo. We show you the platform with real data — no slides.</p>
+      </div>
+      <div class="fade-up" style="background:var(--black);padding:48px 32px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;color:rgba(0,255,209,0.06);line-height:1;margin-bottom:16px;">02</div>
+        <div style="width:48px;height:48px;background:rgba(0,132,255,0.08);border:1px solid rgba(0,132,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 16px;">&#128203;</div>
+        <div style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:8px;">Custom Proposal</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;">Tailored proposal with exact pricing based on your environment within 24 hours.</p>
+      </div>
+      <div class="fade-up" style="background:var(--black);padding:48px 32px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;color:rgba(0,255,209,0.06);line-height:1;margin-bottom:16px;">03</div>
+        <div style="width:48px;height:48px;background:rgba(0,255,209,0.08);border:1px solid rgba(0,255,209,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 16px;">&#9881;</div>
+        <div style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:8px;">Silent Deployment</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;">Agents deploy silently on all endpoints. No user disruption, no restarts needed.</p>
+      </div>
+      <div class="fade-up" style="background:var(--black);padding:48px 32px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;color:rgba(0,255,209,0.06);line-height:1;margin-bottom:16px;">04</div>
+        <div style="width:48px;height:48px;background:rgba(0,255,209,0.08);border:1px solid rgba(0,255,209,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 16px;">&#128274;</div>
+        <div style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:8px;">Fully Protected</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;">24/7 monitoring active. Client portal live. You're now enterprise-grade secured.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="cta-section">
     <div class="cta-bg"></div>
     <div style="position:relative;z-index:2;">
@@ -250,12 +344,27 @@
         el.textContent = Math.floor(start).toLocaleString();
       }, 16);
     }
-    setTimeout(() => {
-      animateCounter(document.getElementById('counter1'), 2847, 2000);
-      animateCounter(document.getElementById('counter2'), 3, 1500);
-      animateCounter(document.getElementById('counter3'), 99, 2000);
-      animateCounter(document.getElementById('counter4'), 24, 1500);
-    }, 600);
+    // Use intersection observer so counters animate when visible
+    const statsBar = document.querySelector('.stats-bar');
+    let countersStarted = false;
+    const counterObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !countersStarted) {
+          countersStarted = true;
+          animateCounter(document.getElementById('counter1'), 2847, 2000);
+          animateCounter(document.getElementById('counter2'), 3, 1500);
+          animateCounter(document.getElementById('counter3'), 99, 2000);
+          animateCounter(document.getElementById('counter4'), 24, 1500);
+        }
+      });
+    }, { threshold: 0.3 });
+    if (statsBar) counterObserver.observe(statsBar);
+
+    // Parallax on hero background
+    window.addEventListener('scroll', () => {
+      const hero = document.querySelector('.hero-bg');
+      if (hero) hero.style.transform = `translateY(${window.scrollY * 0.3}px)`;
+    });
   </script>
 </body>
 </html>

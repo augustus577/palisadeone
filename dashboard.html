@@ -863,6 +863,14 @@
         <span class="nav-icon">🖥</span>
         <span>Asset Inventory</span>
       </div>
+      <div class="nav-item" onclick="showView('playbooks')">
+        <span class="nav-icon">&#128214;</span>
+        <span>SOC Playbooks</span>
+      </div>
+      <div class="nav-item" onclick="showView('reports')">
+        <span class="nav-icon">📄</span>
+        <span>Reports</span>
+      </div>
       <div class="nav-item" onclick="showView('settings')">
         <span class="nav-icon">⚙</span>
         <span>Settings</span>
@@ -1491,19 +1499,19 @@
 
         <div class="stats-row">
           <div class="stat-card blue">
-            <div class="stat-label">NIST Score</div>
-            <div class="stat-value blue">--</div>
-            <div class="stat-sub">Framework compliance</div>
+            <div class="stat-label">Overall Score</div>
+            <div class="stat-value blue" id="comp-overall">--</div>
+            <div class="stat-sub">SCA compliance %</div>
           </div>
           <div class="stat-card yellow">
-            <div class="stat-label">CIS Controls</div>
-            <div class="stat-value" style="color:var(--warning)">--</div>
-            <div class="stat-sub">Controls implemented</div>
+            <div class="stat-label">Policies Scanned</div>
+            <div class="stat-value" style="color:var(--warning)" id="comp-policies">--</div>
+            <div class="stat-sub">SCA benchmarks</div>
           </div>
           <div class="stat-card green">
-            <div class="stat-label">Policy Checks</div>
+            <div class="stat-label">Passing Checks</div>
             <div class="stat-value accent" id="policy-pass">--</div>
-            <div class="stat-sub">Passing checks</div>
+            <div class="stat-sub">Configurations correct</div>
           </div>
           <div class="stat-card red">
             <div class="stat-label">Failed Checks</div>
@@ -1513,8 +1521,8 @@
         </div>
         <div class="panel">
           <div class="panel-header">
-            <div class="panel-title">Compliance Details</div>
-            <div class="panel-action" onclick="loadCompliance()">↻ Refresh</div>
+            <div class="panel-title">SCA Compliance — Live from Wazuh</div>
+            <div class="panel-action" onclick="loadCompliance()">&#8635; Refresh</div>
           </div>
           <div id="compliance-list">
             <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading compliance data from Wazuh...</div>
@@ -2135,6 +2143,115 @@
 </div>
 
 <!-- ============================================================ -->
+<!-- SOC PLAYBOOKS VIEW -->
+<!-- ============================================================ -->
+<div class="view" id="view-playbooks">
+  <div class="stats-row" style="margin-bottom:20px;">
+    <div class="stat-card blue">
+      <div class="stat-label">Total Playbooks</div>
+      <div class="stat-value blue">8</div>
+      <div class="stat-sub">incident response procedures</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Categories</div>
+      <div class="stat-value accent">4</div>
+      <div class="stat-sub">playbook categories</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-label">Last Updated</div>
+      <div class="stat-value" style="color:var(--warning);font-size:18px;">Mar 2026</div>
+      <div class="stat-sub">current revision</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Mean Response</div>
+      <div class="stat-value">< 1s</div>
+      <div class="stat-sub">automated actions</div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:16px;">
+    <div class="panel-header">
+      <div class="panel-title">SOC PLAYBOOKS & RUNBOOKS</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">STANDARD OPERATING PROCEDURES</div>
+    </div>
+  </div>
+
+  <div id="playbook-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+  <div id="playbook-detail" style="display:none;"></div>
+</div>
+
+<!-- REPORTS VIEW -->
+<!-- ============================================================ -->
+<div class="view" id="view-reports">
+  <div class="stats-row" style="grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+    <div class="stat-card"><div class="stat-icon" style="background:rgba(0,255,209,0.1);color:var(--accent)">📄</div><div><div class="stat-label">Report Type</div><div class="stat-value" style="font-size:18px;">Monthly Security</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:rgba(59,158,255,0.1);color:var(--accent2)">📊</div><div><div class="stat-label">Data Source</div><div class="stat-value" style="font-size:18px;">Live Wazuh</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:rgba(245,166,35,0.1);color:var(--warning)">🎨</div><div><div class="stat-label">Format</div><div class="stat-value" style="font-size:18px;">Branded HTML/PDF</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:rgba(255,68,102,0.1);color:var(--danger)">⚡</div><div><div class="stat-label">Generation</div><div class="stat-value" style="font-size:18px;">Real-Time</div></div></div>
+  </div>
+
+  <div class="panel" style="margin-bottom:24px;">
+    <div class="panel-header"><span class="panel-title">Generate Security Report</span></div>
+    <div class="panel-body" style="padding:24px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:16px;align-items:end;">
+        <div>
+          <label style="font-size:11px;color:var(--muted);letter-spacing:1px;display:block;margin-bottom:6px;">CLIENT NAME</label>
+          <input type="text" id="report-client" class="settings-input" placeholder="Client name" value="All Clients" style="margin:0;"/>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);letter-spacing:1px;display:block;margin-bottom:6px;">MONTH</label>
+          <input type="month" id="report-month" class="settings-input" style="margin:0;"/>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);letter-spacing:1px;display:block;margin-bottom:6px;">ALERT RANGE</label>
+          <select id="report-range" class="settings-input" style="margin:0;">
+            <option value="all">All Levels</option>
+            <option value="high">High & Critical Only</option>
+            <option value="critical">Critical Only</option>
+          </select>
+        </div>
+        <button onclick="generateMonthlyReport()" style="padding:12px 24px;background:var(--accent);color:var(--black);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:2px;border:none;cursor:pointer;height:42px;">GENERATE</button>
+      </div>
+      <div id="report-status" style="margin-top:16px;font-size:12px;color:var(--muted);display:none;"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:24px;">
+    <div class="panel-header"><span class="panel-title">Recent Reports</span></div>
+    <div class="panel-body" id="report-history" style="padding:16px;">
+      <div style="text-align:center;padding:32px;color:var(--muted);font-size:13px;">Generate your first report above. Reports open in a new tab — use your browser's Print function to save as PDF.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><span class="panel-title">How It Works</span></div>
+    <div class="panel-body" style="padding:24px;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+        <div style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:8px;">1️⃣</div>
+          <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Set Parameters</div>
+          <div style="font-size:12px;color:var(--muted);">Choose client, month, and alert severity range</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:8px;">2️⃣</div>
+          <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Pull Live Data</div>
+          <div style="font-size:12px;color:var(--muted);">Queries Wazuh for alerts, agents, and SCA compliance data</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:8px;">3️⃣</div>
+          <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Generate Report</div>
+          <div style="font-size:12px;color:var(--muted);">Branded HTML report with charts, tables, and recommendations</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:8px;">4️⃣</div>
+          <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Print to PDF</div>
+          <div style="font-size:12px;color:var(--muted);">Use browser Print to save as a clean, branded PDF</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- SETTINGS VIEW -->
 <!-- ============================================================ -->
 <div class="view" id="view-settings">
@@ -2494,6 +2611,8 @@ function showView(name) {
   if (name === 'mitre') loadMitreHeatmap();
   if (name === 'assets') loadAssets();
   if (name === 'settings') loadSettings();
+  if (name === 'playbooks') loadPlaybooks();
+  if (name === 'reports') initReports();
 }
 
 function updatePreview() {
@@ -3863,20 +3982,138 @@ async function loadDevices() {
 }
 
 async function loadCompliance() {
-  document.getElementById('policy-pass').textContent = '72';
-  document.getElementById('policy-fail').textContent = '28';
-  document.getElementById('compliance-list').innerHTML = `
-    <div style="padding:16px 20px;border-bottom:1px solid rgba(17,34,64,0.5);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div style="font-size:13px;color:var(--white);font-weight:500;">CIS Benchmark for Windows</div>
-        <div style="display:flex;gap:12px;font-family:JetBrains Mono,monospace;font-size:11px;">
-          <span style="color:var(--accent)">✓ 72</span><span style="color:var(--danger)">✗ 28</span>
+  const container = document.getElementById('compliance-list');
+  container.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading compliance data from Wazuh...</div>';
+
+  try {
+    // Query Wazuh SCA results from the indexer
+    const body = JSON.stringify({
+      size: 0,
+      query: {
+        bool: {
+          must: [
+            { exists: { field: "data.sca.check.result" } }
+          ]
+        }
+      },
+      aggs: {
+        by_policy: {
+          terms: { field: "data.sca.policy.keyword", size: 20 },
+          aggs: {
+            results: {
+              terms: { field: "data.sca.check.result.keyword", size: 5 }
+            }
+          }
+        }
+      }
+    });
+
+    const res = await fetch(PROXY_URL + '/wazuh-alerts-*/_search', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body
+    });
+    const data = await res.json();
+    const buckets = data.aggregations?.by_policy?.buckets || [];
+
+    if (buckets.length === 0) {
+      // Fallback: try direct SCA checks query
+      const body2 = JSON.stringify({
+        size: 200,
+        sort: [{ "timestamp": { "order": "desc" } }],
+        query: { bool: { must: [{ exists: { field: "data.sca.check.result" } }] } }
+      });
+      const res2 = await fetch(PROXY_URL + '/wazuh-alerts-*/_search', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body2
+      });
+      const data2 = await res2.json();
+      const hits = data2.hits?.hits || [];
+
+      if (hits.length === 0) {
+        container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">
+          No SCA compliance data found. SCA scans run automatically when agents have SCA policies enabled.
+          <br><br><span style="font-family:'JetBrains Mono',monospace;font-size:10px;">To enable: Configure SCA policies in ossec.conf on each agent</span>
+        </div>`;
+        document.getElementById('policy-pass').textContent = '--';
+        document.getElementById('policy-fail').textContent = '--';
+        return;
+      }
+
+      // Manually aggregate from raw hits
+      const policyMap = {};
+      hits.forEach(h => {
+        const s = h._source;
+        const policy = s.data?.sca?.policy || 'Unknown Policy';
+        const result = s.data?.sca?.check?.result || 'unknown';
+        if (!policyMap[policy]) policyMap[policy] = { passed: 0, failed: 0, total: 0 };
+        policyMap[policy].total++;
+        if (result === 'passed') policyMap[policy].passed++;
+        else policyMap[policy].failed++;
+      });
+
+      let totalPass = 0, totalFail = 0;
+      const html = Object.entries(policyMap).map(([policy, stats]) => {
+        totalPass += stats.passed;
+        totalFail += stats.failed;
+        const pct = stats.total > 0 ? Math.round((stats.passed / stats.total) * 100) : 0;
+        const color = pct >= 80 ? 'var(--accent)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+        return `<div style="padding:16px 20px;border-bottom:1px solid rgba(17,34,64,0.5);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:13px;color:var(--white);font-weight:500;">${policy}</div>
+            <div style="display:flex;gap:12px;font-family:JetBrains Mono,monospace;font-size:11px;">
+              <span style="color:var(--accent)">&#10003; ${stats.passed}</span><span style="color:var(--danger)">&#10007; ${stats.failed}</span>
+            </div>
+          </div>
+          <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${color};border-radius:2px;transition:width 0.8s ease;"></div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:6px;">${pct}% compliant | ${stats.total} checks evaluated</div>
+        </div>`;
+      }).join('');
+
+      document.getElementById('policy-pass').textContent = totalPass;
+      document.getElementById('policy-fail').textContent = totalFail;
+      container.innerHTML = html;
+      return;
+    }
+
+    // Render aggregated buckets
+    let totalPass = 0, totalFail = 0;
+    const html = buckets.map(b => {
+      const policy = b.key;
+      let passed = 0, failed = 0;
+      b.results.buckets.forEach(r => {
+        if (r.key === 'passed') passed = r.doc_count;
+        else failed += r.doc_count;
+      });
+      totalPass += passed;
+      totalFail += failed;
+      const total = passed + failed;
+      const pct = total > 0 ? Math.round((passed / total) * 100) : 0;
+      const color = pct >= 80 ? 'var(--accent)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+      return `<div style="padding:16px 20px;border-bottom:1px solid rgba(17,34,64,0.5);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-size:13px;color:var(--white);font-weight:500;">${policy}</div>
+          <div style="display:flex;gap:12px;font-family:JetBrains Mono,monospace;font-size:11px;">
+            <span style="color:var(--accent)">&#10003; ${passed}</span><span style="color:var(--danger)">&#10007; ${failed}</span>
+          </div>
         </div>
-      </div>
-      <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
-        <div style="height:100%;width:72%;background:var(--accent);border-radius:2px;"></div>
-      </div>
+        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:2px;transition:width 0.8s ease;"></div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:6px;">${pct}% compliant | ${total} checks evaluated</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('policy-pass').textContent = totalPass;
+    document.getElementById('policy-fail').textContent = totalFail;
+    container.innerHTML = html;
+  } catch(e) {
+    console.error('Compliance load error:', e);
+    container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">
+      Unable to load compliance data. Check Wazuh SCA configuration.
     </div>`;
+    document.getElementById('policy-pass').textContent = '--';
+    document.getElementById('policy-fail').textContent = '--';
+  }
 }
 
 function updateScore(critical, total) {
@@ -3900,6 +4137,205 @@ async function refreshAll() {
   const critical = parseInt(document.getElementById('stat-critical').textContent) || 0;
   const total = parseInt(document.getElementById('stat-total').textContent) || 0;
   updateScore(critical, total);
+}
+
+// ============================================================
+// SOC PLAYBOOKS
+// ============================================================
+const SOC_PLAYBOOKS = [
+  {
+    id: 'ransomware', cat: 'CRITICAL INCIDENT', priority: 'CRITICAL',
+    title: 'Ransomware Detection & Response',
+    summary: 'Automated and manual response procedures when ransomware behavior is detected on an endpoint.',
+    steps: [
+      { action: 'Automated', desc: 'Endpoint isolated from network via firewall rules (< 1 second)', auto: true },
+      { action: 'Automated', desc: 'Malicious process terminated and file quarantined', auto: true },
+      { action: 'Automated', desc: 'File hash submitted to VirusTotal for validation', auto: true },
+      { action: 'Automated', desc: 'Alert sent to SOC team and client via n8n workflow', auto: true },
+      { action: 'SOC Analyst', desc: 'Review alert details, confirm ransomware classification (MITRE T1486)' },
+      { action: 'SOC Analyst', desc: 'Check for lateral movement indicators across other endpoints' },
+      { action: 'SOC Analyst', desc: 'Identify infection vector (phishing email, RDP, drive-by download)' },
+      { action: 'SOC Analyst', desc: 'Assess data impact — check shadow copy status, encrypted file count' },
+      { action: 'SOC Lead', desc: 'Notify client with AI-generated incident report' },
+      { action: 'SOC Lead', desc: 'Coordinate recovery: restore from backup, rebuild if necessary' },
+      { action: 'Post-Incident', desc: 'Conduct root cause analysis and update detection rules' },
+      { action: 'Post-Incident', desc: 'Generate post-incident report for client and insurance documentation' }
+    ]
+  },
+  {
+    id: 'brute-force', cat: 'ACTIVE THREAT', priority: 'HIGH',
+    title: 'Brute Force / Credential Attack Response',
+    summary: 'Response procedure for detected brute force login attempts against endpoints or services.',
+    steps: [
+      { action: 'Automated', desc: 'Source IP blocked via Wazuh active response after 5 failed attempts', auto: true },
+      { action: 'Automated', desc: 'Alert generated with source IP, target account, and attempt count', auto: true },
+      { action: 'SOC Analyst', desc: 'Verify if any attempts were successful (check for login success events)' },
+      { action: 'SOC Analyst', desc: 'Check AbuseIPDB for source IP reputation and threat intel' },
+      { action: 'SOC Analyst', desc: 'If successful login: escalate immediately, force password reset, check for persistence' },
+      { action: 'SOC Analyst', desc: 'Review target account MFA status — ensure MFA is enabled' },
+      { action: 'SOC Lead', desc: 'If internal source: investigate compromised endpoint' },
+      { action: 'SOC Lead', desc: 'Update IP blocklist if external; notify client if internal threat' }
+    ]
+  },
+  {
+    id: 'malware', cat: 'ACTIVE THREAT', priority: 'HIGH',
+    title: 'Malware Detection & Containment',
+    summary: 'Standard operating procedure for malware detected on endpoint (non-ransomware).',
+    steps: [
+      { action: 'Automated', desc: 'File quarantined with permissions stripped', auto: true },
+      { action: 'Automated', desc: 'Process tree killed if active execution detected', auto: true },
+      { action: 'Automated', desc: 'Hash checked against VirusTotal (70+ engines)', auto: true },
+      { action: 'SOC Analyst', desc: 'Classify malware type: trojan, worm, PUP, spyware, coinminer' },
+      { action: 'SOC Analyst', desc: 'Check for persistence mechanisms (registry, scheduled tasks, services)' },
+      { action: 'SOC Analyst', desc: 'Verify no C2 communication (outbound connection analysis)' },
+      { action: 'SOC Analyst', desc: 'Check other endpoints for same hash or similar behavior' },
+      { action: 'SOC Lead', desc: 'Clean or rebuild endpoint based on severity' },
+      { action: 'SOC Lead', desc: 'Notify client with remediation summary' }
+    ]
+  },
+  {
+    id: 'phishing', cat: 'INVESTIGATION', priority: 'MEDIUM',
+    title: 'Phishing Email Investigation',
+    summary: 'Procedure for investigating reported phishing emails and assessing impact.',
+    steps: [
+      { action: 'SOC Analyst', desc: 'Analyze email headers: check SPF, DKIM, DMARC alignment' },
+      { action: 'SOC Analyst', desc: 'Extract and detonate URLs in sandbox (Any.run, URLscan.io)' },
+      { action: 'SOC Analyst', desc: 'Extract and analyze attachments in sandbox environment' },
+      { action: 'SOC Analyst', desc: 'Check if any users clicked the link or opened attachments (proxy logs)' },
+      { action: 'SOC Analyst', desc: 'If credentials entered: force password reset, check for MFA bypass' },
+      { action: 'SOC Analyst', desc: 'Block sender domain/IP in email gateway' },
+      { action: 'SOC Lead', desc: 'Send phishing alert to all client users if widespread campaign' },
+      { action: 'SOC Lead', desc: 'Update phishing detection rules and email filters' }
+    ]
+  },
+  {
+    id: 'agent-offline', cat: 'MONITORING', priority: 'MEDIUM',
+    title: 'Agent Offline / Endpoint Not Reporting',
+    summary: 'Investigation procedure when a monitored endpoint stops reporting to the Wazuh manager.',
+    steps: [
+      { action: 'Automated', desc: 'n8n workflow checks agent status every 15 minutes', auto: true },
+      { action: 'Automated', desc: 'Alert generated after 15+ minutes of no communication', auto: true },
+      { action: 'SOC Analyst', desc: 'Check if endpoint is powered off (expected: employee off-hours)' },
+      { action: 'SOC Analyst', desc: 'Attempt RustDesk remote connection to verify endpoint status' },
+      { action: 'SOC Analyst', desc: 'Check for network issues (VPN disconnected, office internet outage)' },
+      { action: 'SOC Analyst', desc: 'If suspicious: check last alerts before disconnect for signs of tampering' },
+      { action: 'SOC Lead', desc: 'If agent was deliberately disabled: escalate as potential compromise' },
+      { action: 'SOC Lead', desc: 'Contact client IT for physical verification if unresolvable remotely' }
+    ]
+  },
+  {
+    id: 'lateral', cat: 'CRITICAL INCIDENT', priority: 'CRITICAL',
+    title: 'Lateral Movement Detection',
+    summary: 'Response when lateral movement is detected between endpoints within a client network.',
+    steps: [
+      { action: 'Automated', desc: 'Alert generated for anomalous internal connections (MITRE T1021)', auto: true },
+      { action: 'SOC Analyst', desc: 'Identify source and destination endpoints of lateral movement' },
+      { action: 'SOC Analyst', desc: 'Check for PsExec, WMI, RDP, or PowerShell remoting usage' },
+      { action: 'SOC Analyst', desc: 'Determine if legitimate admin activity or adversary movement' },
+      { action: 'SOC Analyst', desc: 'If malicious: immediately isolate both source and destination endpoints' },
+      { action: 'SOC Analyst', desc: 'Check for credential dumping (Mimikatz, LSASS access)' },
+      { action: 'SOC Lead', desc: 'Map full attack chain using MITRE ATT&CK framework' },
+      { action: 'SOC Lead', desc: 'Initiate full network sweep for additional compromised systems' },
+      { action: 'Post-Incident', desc: 'Force org-wide password reset if credential compromise confirmed' }
+    ]
+  },
+  {
+    id: 'new-client', cat: 'ONBOARDING', priority: 'LOW',
+    title: 'New Client Onboarding Checklist',
+    summary: 'Step-by-step procedure for onboarding a new client to the PalisadeOne platform.',
+    steps: [
+      { action: 'Account Manager', desc: 'Create client account in portal (auth system)' },
+      { action: 'Account Manager', desc: 'Set client tier (Monitor/Defend/Dominate)' },
+      { action: 'SOC Engineer', desc: 'Generate installer .cmd with client name and group' },
+      { action: 'SOC Engineer', desc: 'Deploy installer to all client endpoints (silent install)' },
+      { action: 'SOC Engineer', desc: 'Verify all agents reporting to Wazuh manager' },
+      { action: 'SOC Engineer', desc: 'Enable SCA policies for client OS type (Windows/Linux/Mac)' },
+      { action: 'SOC Engineer', desc: 'Configure dark web monitoring for client domain' },
+      { action: 'SOC Analyst', desc: 'Run initial vulnerability scan on client infrastructure' },
+      { action: 'SOC Analyst', desc: 'Review initial alert baseline — tune out false positives' },
+      { action: 'Account Manager', desc: 'Send client portal credentials and welcome packet' },
+      { action: 'Account Manager', desc: 'Schedule 30-day check-in call' }
+    ]
+  },
+  {
+    id: 'escalation', cat: 'PROCESS', priority: 'INFO',
+    title: 'Escalation Procedures & SLA Matrix',
+    summary: 'Standard escalation paths and SLA targets for different severity levels.',
+    steps: [
+      { action: 'Process', desc: 'Critical (Level 12+): Automated response + SOC review within 15 minutes' },
+      { action: 'Process', desc: 'High (Level 7-11): SOC review within 1 hour, client notification within 2 hours' },
+      { action: 'Process', desc: 'Medium (Level 4-6): SOC review within 4 hours, included in daily digest' },
+      { action: 'Process', desc: 'Low (Level 1-3): Logged and reviewed in weekly report' },
+      { action: 'Escalation Path', desc: 'L1 SOC Analyst → L2 Senior Analyst → SOC Lead → Management' },
+      { action: 'Escalation Path', desc: 'If L1 cannot resolve within SLA → auto-escalate to L2' },
+      { action: 'Escalation Path', desc: 'All Critical alerts escalate directly to SOC Lead' },
+      { action: 'SLA Target', desc: 'Dominate tier: 2-hour response SLA, Defend: 4-hour, Monitor: 8-hour' }
+    ]
+  }
+];
+
+function loadPlaybooks() {
+  const list = document.getElementById('playbook-list');
+  const detail = document.getElementById('playbook-detail');
+  detail.style.display = 'none';
+  list.style.display = 'flex';
+
+  list.innerHTML = SOC_PLAYBOOKS.map(pb => {
+    const prioColors = { CRITICAL: 'var(--danger)', HIGH: '#FF6400', MEDIUM: 'var(--warning)', LOW: 'var(--accent2)', INFO: 'var(--muted)' };
+    const color = prioColors[pb.priority] || 'var(--muted)';
+    return `<div class="panel" style="cursor:pointer;margin-bottom:0;" onclick="openPlaybook('${pb.id}')">
+      <div style="padding:20px;display:flex;align-items:center;gap:16px;">
+        <div style="width:4px;height:48px;background:${color};flex-shrink:0;border-radius:2px;"></div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:2px;">${pb.title}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;padding:2px 8px;border:1px solid ${color};color:${color};border-radius:2px;">${pb.priority}</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);">${pb.summary}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2);letter-spacing:2px;margin-top:6px;">${pb.cat} | ${pb.steps.length} STEPS</div>
+        </div>
+        <span style="color:var(--muted);font-size:18px;">&#9654;</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openPlaybook(id) {
+  const pb = SOC_PLAYBOOKS.find(p => p.id === id);
+  if (!pb) return;
+  const list = document.getElementById('playbook-list');
+  const detail = document.getElementById('playbook-detail');
+  list.style.display = 'none';
+  detail.style.display = 'block';
+
+  const prioColors = { CRITICAL: 'var(--danger)', HIGH: '#FF6400', MEDIUM: 'var(--warning)', LOW: 'var(--accent2)', INFO: 'var(--muted)' };
+  const color = prioColors[pb.priority] || 'var(--muted)';
+
+  detail.innerHTML = `
+    <button onclick="loadPlaybooks()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 16px;font-size:11px;cursor:pointer;margin-bottom:16px;transition:all 0.15s;font-family:'JetBrains Mono',monospace;letter-spacing:1px;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">&larr; ALL PLAYBOOKS</button>
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">${pb.title}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">${pb.summary}</div>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;padding:4px 12px;border:1px solid ${color};color:${color};border-radius:2px;">${pb.priority} | ${pb.cat}</span>
+      </div>
+      <div style="padding:0;">
+        ${pb.steps.map((s, i) => `
+          <div style="display:flex;gap:16px;padding:14px 20px;border-bottom:1px solid rgba(17,34,64,0.3);align-items:flex-start;">
+            <div style="width:28px;height:28px;background:${s.auto ? 'rgba(0,255,209,0.1)' : 'var(--deep)'};border:1px solid ${s.auto ? 'rgba(0,255,209,0.3)' : 'var(--border)'};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:${s.auto ? 'var(--accent)' : 'var(--muted)'};flex-shrink:0;">${i + 1}</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;color:var(--text);">${s.desc}</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">${s.action}</span>
+                ${s.auto ? '<span style="font-family:JetBrains Mono,monospace;font-size:9px;padding:1px 6px;background:rgba(0,255,209,0.1);border:1px solid rgba(0,255,209,0.25);color:var(--accent);letter-spacing:1px;border-radius:2px;">AUTOMATED</span>' : ''}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
 }
 
 async function initDashboard() {
@@ -7039,6 +7475,256 @@ async function saveArRules() {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(arRules) });
     renderArRules();
   } catch(e) { showToast('Failed to save rules.', 'error'); }
+}
+
+// ============================================================
+// REPORTS VIEW
+// ============================================================
+const reportHistory = JSON.parse(localStorage.getItem('p1_report_history') || '[]');
+
+function initReports() {
+  const monthInput = document.getElementById('report-month');
+  if (monthInput && !monthInput.value) {
+    const now = new Date();
+    monthInput.value = now.toISOString().slice(0, 7);
+  }
+  renderReportHistory();
+}
+
+function renderReportHistory() {
+  const container = document.getElementById('report-history');
+  if (!reportHistory.length) {
+    container.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted);font-size:13px;">Generate your first report above. Reports open in a new tab — use your browser\'s Print function to save as PDF.</div>';
+    return;
+  }
+  container.innerHTML = reportHistory.slice(0, 10).map(r => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-size:13px;color:var(--white);font-weight:500;">📄 ${r.client} — ${r.monthName}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Generated ${r.date} &bull; ${r.alertCount} alerts &bull; Health: ${r.healthScore}/100</div>
+      </div>
+      <button onclick="regenerateReport('${r.client}','${r.month}')" style="padding:6px 14px;background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;">REGENERATE</button>
+    </div>
+  `).join('');
+}
+
+function regenerateReport(client, month) {
+  document.getElementById('report-client').value = client;
+  document.getElementById('report-month').value = month;
+  generateMonthlyReport();
+}
+
+async function generateMonthlyReport() {
+  const client = document.getElementById('report-client').value || 'All Clients';
+  const month = document.getElementById('report-month').value;
+  const range = document.getElementById('report-range').value;
+  const statusEl = document.getElementById('report-status');
+
+  if (!month) { showToast('Please select a month', 'error'); return; }
+
+  statusEl.style.display = 'block';
+  statusEl.innerHTML = '<span style="color:var(--accent);">⏳ Fetching alert data from Wazuh...</span>';
+
+  try {
+    const [year, mon] = month.split('-');
+    const startDate = `${month}-01T00:00:00Z`;
+    const endDate = new Date(parseInt(year), parseInt(mon), 0);
+    endDate.setHours(23, 59, 59);
+    const endDateStr = endDate.toISOString();
+
+    // Build query
+    const must = [{ range: { timestamp: { gte: startDate, lte: endDateStr } } }];
+    if (range === 'high') must.push({ range: { 'rule.level': { gte: 7 } } });
+    if (range === 'critical') must.push({ range: { 'rule.level': { gte: 12 } } });
+
+    const res = await fetch(`${PROXY_URL}/wazuh-alerts-*/_search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        size: 2000,
+        query: { bool: { must } },
+        sort: [{ timestamp: 'desc' }]
+      })
+    });
+    const data = await res.json();
+    const hits = data.hits?.hits || [];
+
+    statusEl.innerHTML = `<span style="color:var(--accent);">📊 Processing ${hits.length} alerts...</span>`;
+
+    // Fetch SCA data
+    let scaPolicies = [];
+    try {
+      const scaRes = await fetch(`${PROXY_URL}/wazuh-alerts-*/_search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          size: 0,
+          query: { bool: { must: [{ exists: { field: 'data.sca.policy' } }] } },
+          aggs: {
+            by_policy: {
+              terms: { field: 'data.sca.policy.keyword', size: 20 },
+              aggs: { results: { terms: { field: 'data.sca.check.result.keyword', size: 5 } } }
+            }
+          }
+        })
+      });
+      const scaData = await scaRes.json();
+      scaPolicies = (scaData.aggregations?.by_policy?.buckets || []).map(p => {
+        let pass = 0, fail = 0;
+        (p.results?.buckets || []).forEach(r => {
+          if (r.key === 'passed') pass = r.doc_count;
+          else if (r.key === 'failed') fail = r.doc_count;
+        });
+        return { name: p.key, pass, fail };
+      });
+    } catch(e) { /* SCA data optional */ }
+
+    statusEl.innerHTML = '<span style="color:var(--accent);">🎨 Generating branded report...</span>';
+
+    // Generate the report HTML
+    const reportHTML = generateSecurityReportHTML(hits, { client, month, scaPolicies });
+
+    // Open in new tab
+    const win = window.open('', '_blank');
+    win.document.write(reportHTML);
+    win.document.close();
+
+    // Save to history
+    const monthName = new Date(parseInt(year), parseInt(mon) - 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    let critical = 0, high = 0;
+    hits.forEach(h => {
+      const lvl = h._source?.rule?.level || 0;
+      if (lvl >= 12) critical++;
+      else if (lvl >= 7) high++;
+    });
+    const healthScore = Math.max(0, Math.min(100, Math.round(100 - (critical * 5) - (high * 2))));
+
+    reportHistory.unshift({
+      client, month, monthName,
+      date: new Date().toLocaleDateString(),
+      alertCount: hits.length,
+      healthScore
+    });
+    if (reportHistory.length > 20) reportHistory.length = 20;
+    localStorage.setItem('p1_report_history', JSON.stringify(reportHistory));
+    renderReportHistory();
+
+    statusEl.innerHTML = '<span style="color:var(--accent);">✅ Report generated and opened in new tab. Use Print (Ctrl+P) to save as PDF.</span>';
+    showToast('Report generated successfully', 'success');
+  } catch(err) {
+    statusEl.innerHTML = `<span style="color:var(--danger);">Error: ${err.message}</span>`;
+    showToast('Failed to generate report', 'error');
+  }
+}
+
+function generateSecurityReportHTML(hits, options) {
+  const { client = 'All Clients', month = '', scaPolicies = [] } = options;
+  const [year, mon] = month.split('-');
+  const monthName = new Date(parseInt(year), parseInt(mon) - 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const generatedDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  let critical = 0, high = 0, medium = 0, low = 0;
+  const ruleCounts = {}, agentCounts = {}, mitreCounts = {}, dailyCounts = {};
+
+  hits.forEach(hit => {
+    const s = hit._source || {};
+    const level = s.rule?.level || 0;
+    if (level >= 12) critical++; else if (level >= 7) high++; else if (level >= 4) medium++; else low++;
+    const rd = s.rule?.description || 'Unknown';
+    ruleCounts[rd] = (ruleCounts[rd] || 0) + 1;
+    const an = s.agent?.name || 'Unknown';
+    agentCounts[an] = (agentCounts[an] || 0) + 1;
+    (s.rule?.mitre?.technique || []).forEach(t => { mitreCounts[t] = (mitreCounts[t] || 0) + 1; });
+    const day = (s.timestamp || '').slice(0, 10);
+    if (day) dailyCounts[day] = (dailyCounts[day] || 0) + 1;
+  });
+
+  const totalAlerts = hits.length;
+  const healthScore = Math.max(0, Math.min(100, 100 - (critical * 5) - (high * 2) - (medium * 0.5)));
+  const topRules = Object.entries(ruleCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const topAgents = Object.entries(agentCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const topMitre = Object.entries(mitreCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const days = Object.entries(dailyCounts).sort((a, b) => a[0].localeCompare(b[0]));
+  const maxDay = Math.max(...days.map(d => d[1]), 1);
+
+  const bars = days.map(([d, c]) => {
+    const pct = Math.round((c / maxDay) * 100);
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:rgba(0,255,209,0.15);height:120px;position:relative;"><div style="position:absolute;bottom:0;width:100%;height:${pct}%;background:linear-gradient(to top,#00FFD1,#0084FF);"></div></div><span style="font-size:8px;color:#4A6080;">${parseInt(d.slice(-2))}</span></div>`;
+  }).join('');
+
+  const ruleRows = topRules.map(([desc, cnt], i) =>
+    `<tr><td style="padding:8px 12px;border-bottom:1px solid #112240;color:#C8D8F0;font-size:12px;">${i+1}</td><td style="padding:8px 12px;border-bottom:1px solid #112240;color:#C8D8F0;font-size:12px;">${desc}</td><td style="padding:8px 12px;border-bottom:1px solid #112240;color:#00FFD1;font-size:12px;text-align:right;">${cnt}</td></tr>`
+  ).join('');
+
+  const agentRows = topAgents.map(([n, c]) =>
+    `<tr><td style="padding:8px 12px;border-bottom:1px solid #112240;color:#C8D8F0;font-size:12px;">${n}</td><td style="padding:8px 12px;border-bottom:1px solid #112240;color:#00FFD1;font-size:12px;text-align:right;">${c}</td></tr>`
+  ).join('');
+
+  const mitreTags = topMitre.map(([t, c]) =>
+    `<span style="display:inline-block;padding:4px 10px;margin:3px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.2);color:#0084FF;font-size:10px;letter-spacing:1px;">${t} (${c})</span>`
+  ).join('');
+
+  const scaHTML = scaPolicies.map(p => {
+    const total = (p.pass + p.fail) || 1;
+    const pct = Math.round((p.pass / total) * 100);
+    return `<div style="margin-bottom:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#C8D8F0;">${p.name}</span><span style="font-size:12px;color:#00FFD1;">${pct}%</span></div><div style="height:6px;background:#112240;border-radius:3px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${pct>=80?'#00FFD1':pct>=60?'#F5A623':'#FF3B5C'};border-radius:3px;"></div></div><div style="font-size:10px;color:#4A6080;margin-top:2px;">${p.pass} passed / ${p.fail} failed</div></div>`;
+  }).join('');
+
+  const hs = Math.round(healthScore);
+  const hsColor = hs >= 80 ? '#00FFD1' : hs >= 60 ? '#F5A623' : '#FF3B5C';
+  const endpointCount = Object.keys(agentCounts).length;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Security Report - ${monthName} - ${client}</title>
+<style>@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');*{margin:0;padding:0;box-sizing:border-box;}body{background:#03050A;color:#C8D8F0;font-family:'Outfit',sans-serif;line-height:1.6;}@media print{body{background:#fff;color:#1a1a1a;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.no-print{display:none!important;}.page-break{page-break-before:always;}}.rc{max-width:900px;margin:0 auto;padding:40px;}.rs{border:1px solid #112240;padding:32px;margin-bottom:24px;}.sh{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#F0F6FF;letter-spacing:2px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #112240;}table{width:100%;border-collapse:collapse;}th{padding:8px 12px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;color:#4A6080;letter-spacing:2px;border-bottom:2px solid #112240;}.pb{position:fixed;bottom:24px;right:24px;padding:14px 28px;background:#00FFD1;color:#03050A;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:2px;border:none;cursor:pointer;z-index:100;}.pb:hover{opacity:0.9;}</style></head><body>
+<button class="pb no-print" onclick="window.print()">PRINT / SAVE PDF</button>
+<div class="rc">
+<div style="text-align:center;padding:60px 40px;border:1px solid #112240;margin-bottom:40px;position:relative;overflow:hidden;">
+<div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 40%,rgba(0,255,209,0.05) 0%,transparent 60%);"></div>
+<div style="position:relative;"><div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#00FFD1;letter-spacing:6px;">PALISADE<span style="color:#0084FF;">ONE</span></div>
+<div style="font-family:'Bebas Neue',sans-serif;font-size:42px;color:#F0F6FF;letter-spacing:3px;margin-top:16px;">MONTHLY SECURITY REPORT</div>
+<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#4A6080;letter-spacing:2px;margin-top:12px;">${monthName.toUpperCase()} &bull; ${client.toUpperCase()}</div>
+<div style="font-size:11px;color:#4A6080;margin-top:8px;">Generated ${generatedDate}</div></div></div>
+
+<div class="rs"><div class="sh">EXECUTIVE SUMMARY</div>
+<div style="display:grid;grid-template-columns:140px 1fr;gap:40px;align-items:center;">
+<div style="text-align:center;">
+<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" fill="none" stroke="#112240" stroke-width="8"/><circle cx="60" cy="60" r="54" fill="none" stroke="${hsColor}" stroke-width="8" stroke-dasharray="${(hs/100)*339} 339" stroke-linecap="round" transform="rotate(-90 60 60)"/></svg>
+<div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:${hsColor};margin-top:-78px;position:relative;">${hs}</div>
+<div style="font-size:10px;color:#4A6080;letter-spacing:2px;margin-top:42px;">HEALTH SCORE</div></div>
+<div><p style="font-size:14px;line-height:1.8;margin-bottom:16px;">During ${monthName}, your environment generated <strong style="color:#F0F6FF;">${totalAlerts.toLocaleString()}</strong> security events across <strong style="color:#F0F6FF;">${endpointCount}</strong> monitored endpoints. ${critical > 0 ? `<span style="color:#FF3B5C;font-weight:600;">${critical} critical alerts</span> were detected and addressed.` : 'No critical-severity alerts were detected.'}</p>
+<p style="font-size:13px;color:#4A6080;line-height:1.7;">${hs >= 80 ? 'Your security posture is strong. Continue maintaining current controls.' : hs >= 60 ? 'Your security posture needs attention. Review the recommendations below.' : 'Immediate attention required. Critical findings should be remediated ASAP.'}</p></div></div></div>
+
+<div class="rs"><div class="sh">ALERT OVERVIEW</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+<div style="background:#070C14;border:1px solid #112240;padding:20px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#FF3B5C;line-height:1;">${critical}</div><div style="font-size:10px;color:#4A6080;letter-spacing:2px;margin-top:6px;">CRITICAL</div></div>
+<div style="background:#070C14;border:1px solid #112240;padding:20px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#F5A623;line-height:1;">${high}</div><div style="font-size:10px;color:#4A6080;letter-spacing:2px;margin-top:6px;">HIGH</div></div>
+<div style="background:#070C14;border:1px solid #112240;padding:20px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#0084FF;line-height:1;">${medium}</div><div style="font-size:10px;color:#4A6080;letter-spacing:2px;margin-top:6px;">MEDIUM</div></div>
+<div style="background:#070C14;border:1px solid #112240;padding:20px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#4A6080;line-height:1;">${low}</div><div style="font-size:10px;color:#4A6080;letter-spacing:2px;margin-top:6px;">LOW</div></div></div>
+<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#00FFD1;letter-spacing:3px;margin-bottom:12px;">// DAILY ALERT VOLUME</div>
+<div style="display:flex;gap:2px;align-items:flex-end;height:140px;padding-top:20px;">${bars}</div></div>
+
+<div class="rs page-break"><div class="sh">TOP DETECTION RULES</div>
+<table><thead><tr><th>#</th><th>Rule Description</th><th style="text-align:right;">Count</th></tr></thead><tbody>${ruleRows}</tbody></table></div>
+
+<div class="rs"><div class="sh">ENDPOINT ALERT DISTRIBUTION</div>
+<table><thead><tr><th>Agent / Endpoint</th><th style="text-align:right;">Alerts</th></tr></thead><tbody>${agentRows}</tbody></table></div>
+
+${mitreTags ? `<div class="rs"><div class="sh">MITRE ATT&CK TECHNIQUES</div><div style="margin-top:8px;">${mitreTags}</div></div>` : ''}
+
+${scaHTML ? `<div class="rs page-break"><div class="sh">COMPLIANCE STATUS (SCA)</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#00FFD1;letter-spacing:3px;margin-bottom:12px;">// SECURITY CONFIGURATION ASSESSMENT</div>${scaHTML}</div>` : ''}
+
+<div class="rs"><div class="sh">RECOMMENDATIONS</div><div style="display:flex;flex-direction:column;gap:16px;">
+${critical > 0 ? `<div style="padding:16px;background:rgba(255,59,92,0.08);border-left:3px solid #FF3B5C;"><div style="font-size:13px;color:#FF3B5C;font-weight:600;margin-bottom:4px;">Address Critical Alerts</div><p style="font-size:12px;color:#4A6080;">${critical} critical alerts detected. Review each incident and ensure remediation is complete.</p></div>` : ''}
+${high > 10 ? `<div style="padding:16px;background:rgba(245,166,35,0.08);border-left:3px solid #F5A623;"><div style="font-size:13px;color:#F5A623;font-weight:600;margin-bottom:4px;">Reduce High-Severity Volume</div><p style="font-size:12px;color:#4A6080;">${high} high-severity alerts may indicate tuning opportunities or unaddressed vulnerabilities.</p></div>` : ''}
+<div style="padding:16px;background:rgba(0,255,209,0.05);border-left:3px solid #00FFD1;"><div style="font-size:13px;color:#00FFD1;font-weight:600;margin-bottom:4px;">Maintain Endpoint Coverage</div><p style="font-size:12px;color:#4A6080;">${endpointCount} endpoints currently reporting. Ensure all company devices have agents installed.</p></div>
+<div style="padding:16px;background:rgba(0,132,255,0.05);border-left:3px solid #0084FF;"><div style="font-size:13px;color:#0084FF;font-weight:600;margin-bottom:4px;">Review Compliance Posture</div><p style="font-size:12px;color:#4A6080;">Review SCA results and prioritize remediation of failed checks to strengthen security posture.</p></div>
+</div></div>
+
+<div style="text-align:center;padding:40px;font-size:11px;color:#4A6080;border-top:1px solid #112240;margin-top:40px;">
+<div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#4A6080;letter-spacing:4px;margin-bottom:8px;">PALISADE<span style="color:#00FFD1;">ONE</span></div>
+<div>This report is confidential and intended for ${client} only.</div>
+<div style="margin-top:4px;">hello@palisadeone.com &bull; palisadeone.com</div></div>
+</div></body></html>`;
 }
 </script>
 </body>
