@@ -839,15 +839,15 @@
       </div>
       <div class="nav-item" onclick="window.location.href='cyber-assessment.html'">
         <span class="nav-icon">🔬</span>
-        <span>Cyber Assessment</span>
+        <span>Palisade Compliance</span>
       </div>
       <div class="nav-item" onclick="window.location.href='training.html'">
         <span class="nav-icon">🎓</span>
-        <span>Security Training</span>
+        <span>Palisade Training</span>
       </div>
       <div class="nav-item" onclick="showView('edr')">
         <span class="nav-icon">&#9632;</span>
-        <span>EDR Console</span>
+        <span>P1 EDR Console</span>
         <span class="nav-badge" id="edr-incident-badge" style="display:none;background:var(--danger)">0</span>
       </div>
       <div class="nav-item" onclick="showView('triage')">
@@ -877,7 +877,7 @@
       </div>
       <div class="nav-item" onclick="window.location.href='zero-trust.html'">
         <span class="nav-icon">&#128274;</span>
-        <span>Zero Trust</span>
+        <span>Palisade Zero Trust</span>
       </div>
       <div class="nav-section">Sales</div>
       <div class="nav-item" onclick="window.location.href='demo.html'">
@@ -887,15 +887,15 @@
       <div class="nav-section">Platform</div>
       <div class="nav-item" onclick="window.open('https://soc.palisadeone.com','_blank')">
         <span class="nav-icon">📡</span>
-        <span>Wazuh SIEM</span>
+        <span>P1 SIEM Console</span>
       </div>
       <div class="nav-item" onclick="window.open('https://mesh.palisadeone.com:444','_blank')">
         <span class="nav-icon">🖥️</span>
-        <span>RustDesk RMM</span>
+        <span>P1 Remote Access</span>
       </div>
       <div class="nav-item" onclick="window.open('http://soc.palisadeone.com:5678','_blank')">
         <span class="nav-icon">⚙️</span>
-        <span>n8n Automation</span>
+        <span>P1 Automation</span>
       </div>
     </nav>
     <div class="sidebar-footer">
@@ -967,7 +967,7 @@
                 <div>Rule</div>
               </div>
               <div id="recent-alerts-list">
-                <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Fetching alerts from Wazuh...</div>
+                <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Fetching alerts...</div>
               </div>
             </div>
           </div>
@@ -1031,7 +1031,7 @@
               <div class="panel-action" onclick="showView('devices')">View all →</div>
             </div>
             <div id="overview-devices">
-              <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Fetching from Wazuh...</div>
+              <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Fetching data...</div>
             </div>
           </div>
         </div>
@@ -1264,7 +1264,7 @@
                 <input type="number" id="ac-mrr" placeholder="499" style="width:100%;background:var(--deep);border:1px solid var(--border);padding:10px 14px;color:var(--white);font-family:'Outfit',sans-serif;font-size:13px;outline:none;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
               </div>
               <div style="grid-column:span 2;">
-                <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:7px;">Wazuh Group Name</label>
+                <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:7px;">Agent Group Name</label>
                 <input type="text" id="ac-group" placeholder="Auto-generated from company name" style="width:100%;background:var(--deep);border:1px solid var(--border);padding:10px 14px;color:var(--white);font-family:'Outfit',sans-serif;font-size:13px;outline:none;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
                 <div style="font-size:11px;color:var(--muted);margin-top:5px;">Leave blank to auto-generate. Used to filter this client's agents.</div>
               </div>
@@ -1294,7 +1294,7 @@
           <div class="stat-card blue">
             <div class="stat-label">Installs</div>
             <div class="stat-value blue">2</div>
-            <div class="stat-sub">Wazuh EDR + RustDesk RMM</div>
+            <div class="stat-sub">P1 EDR Agent + P1 Remote Access</div>
           </div>
           <div class="stat-card yellow">
             <div class="stat-label">Target OS</div>
@@ -1382,7 +1382,7 @@
               <div style="display:flex;gap:16px;align-items:flex-start;">
                 <div style="width:36px;height:36px;background:rgba(0,255,209,0.1);border:1px solid rgba(0,255,209,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">🛡️</div>
                 <div>
-                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Wazuh EDR Agent 4.7.5</div>
+                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">P1 EDR Agent</div>
                   <div style="font-size:12px;color:var(--muted);">Endpoint detection & response. Monitors processes, files, network, and security events. Reports live to your SOC dashboard.</div>
                   <div style="margin-top:6px;"><span class="mitre-tag">EDR</span> <span class="mitre-tag">SIEM</span></div>
                 </div>
@@ -1390,7 +1390,7 @@
               <div style="border-top:1px solid var(--border);padding-top:16px;display:flex;gap:16px;align-items:flex-start;">
                 <div style="width:36px;height:36px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">🖥️</div>
                 <div>
-                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">RustDesk Remote Access Agent</div>
+                  <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">P1 Remote Access Agent</div>
                   <div style="font-size:12px;color:var(--muted);">Remote monitoring & management. Enables remote desktop, file access, terminal, and device management from your RMM console.</div>
                   <div style="margin-top:6px;"><span class="mitre-tag">RMM</span> <span class="mitre-tag">REMOTE</span></div>
                 </div>
@@ -1521,11 +1521,11 @@
         </div>
         <div class="panel">
           <div class="panel-header">
-            <div class="panel-title">SCA Compliance — Live from Wazuh</div>
+            <div class="panel-title">SCA Compliance — Live</div>
             <div class="panel-action" onclick="loadCompliance()">&#8635; Refresh</div>
           </div>
           <div id="compliance-list">
-            <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading compliance data from Wazuh...</div>
+            <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading compliance data...</div>
           </div>
         </div>
       </div>
@@ -1574,7 +1574,7 @@
                 <div class="panel-action" onclick="loadAgentVulns()">↻ Refresh</div>
               </div>
             </div>
-            <div id="agent-vuln-loading" style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">Loading vulnerability data from Wazuh agents...</div>
+            <div id="agent-vuln-loading" style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">Loading vulnerability data from agents...</div>
             <div id="agent-vuln-content" style="display:none;">
               <div class="vuln-row-header">
                 <span>Severity</span><span>CVE / Title</span><span>Package</span><span>CVSS</span><span>Agent</span>
@@ -1654,8 +1654,8 @@
                   </select>
                   <select id="results-src-filter" onchange="filterScanResults()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-size:12px;outline:none;">
                     <option value="">All Sources</option>
-                    <option value="nuclei">Nuclei (CVEs)</option>
-                    <option value="nmap">Nmap (Ports)</option>
+                    <option value="nuclei">CVE Scanner</option>
+                    <option value="nmap">Port Scanner</option>
                   </select>
                   <div class="panel-action" onclick="document.getElementById('scan-results-panel').style.display='none'">✕ Close</div>
                 </div>
@@ -2117,7 +2117,7 @@
 <!-- ============================================================ -->
 <div class="view" id="view-assets">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-    <div style="font-size:13px;color:var(--muted);">Hardware, software, and network inventory from Wazuh syscollector. Click an endpoint to drill down.</div>
+    <div style="font-size:13px;color:var(--muted);">Hardware, software, and network inventory from endpoint agents. Click an endpoint to drill down.</div>
     <button onclick="loadAssets()" class="panel-action" style="font-size:11px;">↻ Refresh</button>
   </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;" id="asset-stats"></div>
@@ -2181,7 +2181,7 @@
 <div class="view" id="view-reports">
   <div class="stats-row" style="grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
     <div class="stat-card"><div class="stat-icon" style="background:rgba(0,255,209,0.1);color:var(--accent)">📄</div><div><div class="stat-label">Report Type</div><div class="stat-value" style="font-size:18px;">Monthly Security</div></div></div>
-    <div class="stat-card"><div class="stat-icon" style="background:rgba(59,158,255,0.1);color:var(--accent2)">📊</div><div><div class="stat-label">Data Source</div><div class="stat-value" style="font-size:18px;">Live Wazuh</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:rgba(59,158,255,0.1);color:var(--accent2)">📊</div><div><div class="stat-label">Data Source</div><div class="stat-value" style="font-size:18px;">Live Telemetry</div></div></div>
     <div class="stat-card"><div class="stat-icon" style="background:rgba(245,166,35,0.1);color:var(--warning)">🎨</div><div><div class="stat-label">Format</div><div class="stat-value" style="font-size:18px;">Branded HTML/PDF</div></div></div>
     <div class="stat-card"><div class="stat-icon" style="background:rgba(255,68,102,0.1);color:var(--danger)">⚡</div><div><div class="stat-label">Generation</div><div class="stat-value" style="font-size:18px;">Real-Time</div></div></div>
   </div>
@@ -2231,7 +2231,7 @@
         <div style="text-align:center;">
           <div style="font-size:28px;margin-bottom:8px;">2️⃣</div>
           <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Pull Live Data</div>
-          <div style="font-size:12px;color:var(--muted);">Queries Wazuh for alerts, agents, and SCA compliance data</div>
+          <div style="font-size:12px;color:var(--muted);">Queries P1 SIEM for alerts, agents, and SCA compliance data</div>
         </div>
         <div style="text-align:center;">
           <div style="font-size:28px;margin-bottom:8px;">3️⃣</div>
@@ -2280,7 +2280,7 @@
         <label class="settings-label">Alert Email</label>
         <input class="settings-input" id="cfg-email" type="text" placeholder="alerts@yourcompany.com"/>
       </div>
-      <div style="margin-bottom:12px;font-size:11px;color:var(--muted);">Notifications fire for Level 12+ alerts. Slack is instant — email via n8n workflow (configure separately).</div>
+      <div style="margin-bottom:12px;font-size:11px;color:var(--muted);">Notifications fire for Level 12+ alerts. Slack is instant — email via automation workflow (configure separately).</div>
       <div style="display:flex;gap:8px;">
         <button class="settings-save" onclick="saveSettings('notify')">SAVE NOTIFICATIONS</button>
         <button onclick="testNotification()" style="padding:8px 16px;background:transparent;border:1px solid var(--border2);color:var(--text);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif;">Test Notify</button>
@@ -2337,10 +2337,10 @@
       <div class="settings-row">
         <label class="settings-label">Auto-isolate on level &ge;</label>
         <select class="settings-input" id="cfg-isolate-level" style="margin:0;">
-          <option value="0">Disabled</option>
+          <option value="0" selected>Disabled</option>
           <option value="14">14+ (Severe only)</option>
-          <option value="12" selected>12+ (Critical)</option>
-          <option value="10">10+ (High & Critical)</option>
+          <option value="12">12+ (Critical)</option>
+          <option value="10">10+ (High &amp; Critical)</option>
         </select>
       </div>
       <div class="settings-row">
@@ -2362,7 +2362,7 @@
           <option value="365">1 year</option>
         </select>
       </div>
-      <div style="font-size:10px;color:var(--muted);margin-top:-4px;margin-bottom:12px;">Sets the default lookback window for report generation. Wazuh data retention is managed server-side.</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:-4px;margin-bottom:12px;">Sets the default lookback window for report generation. Data retention is managed server-side.</div>
       <div class="settings-row">
         <label class="settings-label">Report history</label>
         <div style="display:flex;gap:8px;align-items:center;">
@@ -2525,9 +2525,9 @@
             <span class="btn-sub">Block network access</span>
           </button>
           <button class="ep-action-btn reconnect" onclick="reconnectAgent()">
-            <span class="btn-icon">🔄</span>
+            <span class="btn-icon">🔓</span>
             <span class="btn-label">RECONNECT</span>
-            <span class="btn-sub">Restart agent service</span>
+            <span class="btn-sub">Remove network isolation</span>
           </button>
           <button class="ep-action-btn fds" onclick="runFDS()">
             <span class="btn-icon">🔍</span>
@@ -2537,7 +2537,7 @@
           <button class="ep-action-btn rmm" onclick="openRemoteDesktop()">
             <span class="btn-icon">🖥️</span>
             <span class="btn-label">REMOTE DESKTOP</span>
-            <span class="btn-sub">RustDesk — via P1 relay</span>
+            <span class="btn-sub">P1 Remote — Secure Relay</span>
           </button>
           <button class="ep-action-btn" style="border-color:rgba(245,166,35,0.4);color:var(--warning);" onclick="restartEndpoint()">
             <span class="btn-icon">⚡</span>
@@ -2569,22 +2569,22 @@
           </button>
           <button class="ep-action-btn" style="border-color:rgba(0,132,255,0.4);color:var(--accent2);" onclick="deploySysmon()">
             <span class="btn-icon">👁</span>
-            <span class="btn-label">DEPLOY SYSMON</span>
+            <span class="btn-label">DEPLOY TELEMETRY</span>
             <span class="btn-sub">Enable full EDR telemetry</span>
           </button>
         </div>
         <div class="ep-action-title" style="margin-top:8px;">External Links</div>
         <button class="ep-action-full" onclick="openInWazuh()">
-          <span>📡</span> View Full Alert History in Wazuh SIEM
+          <span>📡</span> View Full Alert History in P1 SIEM
         </button>
         <button class="ep-action-full" onclick="openRemoteDesktop()">
-          <span>🖥️</span> Launch Remote Desktop (RustDesk Web)
+          <span>🖥️</span> Launch Remote Desktop (P1 Remote)
         </button>
         <button class="ep-action-full" onclick="openEdrForAgent()">
           <span>🔍</span> Threat Hunt on This Endpoint
         </button>
         <div id="ep-rd-id-box" style="display:none;margin-top:12px;padding:12px 16px;background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.15);border-radius:4px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">RUSTDESK PEER ID</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">P1 REMOTE ID</div>
           <div id="ep-rd-id-value" style="font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--accent);letter-spacing:2px;"></div>
           <div style="font-size:11px;color:var(--muted);margin-top:4px;">Password: <span style="color:var(--white);font-family:'JetBrains Mono',monospace;">P1Remote2026!</span></div>
         </div>
@@ -2776,7 +2776,7 @@ async function generateInstaller() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
-  showToast('Installer downloaded — Wazuh group ready, send to client.', 'success');
+  showToast('Installer downloaded — agent group ready, send to client.', 'success');
 }
 
 function generateCmdContent(clientName, wazuhGroup) {
@@ -2829,28 +2829,28 @@ function generateCmdContent(clientName, wazuhGroup) {
     "    Write-Log 'VC++ installed.' 'SUCCESS'",
     "} else { Write-Log 'VC++ already present.' 'SUCCESS' }",
     "",
-    "# Step 2 — Wazuh EDR Agent",
-    "Write-Log 'Checking Wazuh EDR agent...'",
+    "# Step 2 — P1 EDR Agent",
+    "Write-Log 'Checking P1 EDR agent...'",
     "$ossecConf = 'C:\\Program Files (x86)\\ossec-agent\\ossec.conf'",
     '$agentName = ($ClientName -replace \'[^a-zA-Z0-9-]\',\'-\') + "-" + $env:COMPUTERNAME',
     "if (-not (Get-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue)) {",
-    "    Write-Log 'Downloading Wazuh agent MSI...'",
+    "    Write-Log 'Downloading P1 EDR agent...'",
     '    $msiPath = "$env:TEMP\\wazuh-agent.msi"',
     "    Invoke-WebRequest -Uri $WAZUH_URL -OutFile $msiPath -UseBasicParsing",
-    "    Write-Log \"Registering agent as: $agentName in group: $WazuhGroup\"",
+    "    Write-Log \"Registering P1 agent as: $agentName in group: $WazuhGroup\"",
     '    $msiArgs = "/i `"$msiPath`" /q WAZUH_MANAGER=`"$WAZUH_MANAGER`" WAZUH_AGENT_NAME=`"$agentName`" WAZUH_REGISTRATION_SERVER=`"$WAZUH_MANAGER`" WAZUH_AGENT_GROUP=`"$WazuhGroup`""',
     "    Start-Process 'msiexec.exe' -ArgumentList $msiArgs -Wait",
     "    Start-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue",
     "    if ((Get-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue).Status -eq 'Running') {",
-    "        Write-Log 'Wazuh EDR agent installed and running.' 'SUCCESS'",
-    "    } else { Write-Log 'Wazuh may not have started — check dashboard.' 'WARN' }",
+    "        Write-Log 'P1 EDR agent installed and running.' 'SUCCESS'",
+    "    } else { Write-Log 'P1 EDR agent may not have started — check dashboard.' 'WARN' }",
     "} else {",
     "    $keysContent = Get-Content 'C:\\Program Files (x86)\\ossec-agent\\client.keys' -Raw -ErrorAction SilentlyContinue",
     "    $svcRunning = (Get-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue).Status -eq 'Running'",
     "    if ($svcRunning -and $keysContent -and $keysContent.Trim().Length -gt 10) {",
-    "        Write-Log 'Wazuh already installed and connected.' 'SUCCESS'",
+    "        Write-Log 'P1 EDR agent already installed and connected.' 'SUCCESS'",
     "    } else {",
-    "        Write-Log 'Wazuh installed but not connected — fixing config and re-registering...' 'INFO'",
+    "        Write-Log 'P1 EDR agent installed but not connected — fixing config and re-registering...' 'INFO'",
     "        Stop-Service -Name 'WazuhSvc' -Force -ErrorAction SilentlyContinue",
     "        Start-Sleep -Seconds 2",
     "        $confRaw = Get-Content $ossecConf -Raw -ErrorAction SilentlyContinue",
@@ -2861,40 +2861,40 @@ function generateCmdContent(clientName, wazuhGroup) {
     "        Set-Content 'C:\\Program Files (x86)\\ossec-agent\\client.keys' '' -Force -ErrorAction SilentlyContinue",
     "        Start-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue",
     "        Start-Sleep -Seconds 3",
-    "        Write-Log 'Wazuh reconnecting to manager.' 'SUCCESS'",
+    "        Write-Log 'P1 EDR reconnecting to manager.' 'SUCCESS'",
     "    }",
     "}",
     "",
-    "# Step 2.5 — Switch Wazuh agent to TCP (required for active-response / isolation to work)",
-    "Write-Log 'Configuring Wazuh agent transport: TCP...'",
+    "# Step 2.5 — Configure agent transport",
+    "Write-Log 'Configuring P1 agent transport: TCP...'",
     "if (Test-Path $ossecConf) {",
     "    $raw = Get-Content $ossecConf -Raw",
     "    if ($raw -match '<protocol>udp</protocol>') {",
     "        $raw = $raw -replace '<protocol>udp</protocol>','<protocol>tcp</protocol>'",
     "        Set-Content $ossecConf $raw -Encoding UTF8",
-    "        Write-Log 'Switched Wazuh transport: UDP -> TCP.' 'SUCCESS'",
+    "        Write-Log 'Switched agent transport: UDP -> TCP.' 'SUCCESS'",
     "    } elseif ($raw -notmatch '<protocol>tcp</protocol>') {",
     "        $raw = $raw -replace '(<port>\\d+</port>)','$1`n    <protocol>tcp</protocol>'",
     "        Set-Content $ossecConf $raw -Encoding UTF8",
-    "        Write-Log 'Added TCP protocol to Wazuh ossec.conf.' 'SUCCESS'",
-    "    } else { Write-Log 'Wazuh already configured for TCP.' 'SUCCESS' }",
+    "        Write-Log 'Added TCP protocol to agent config.' 'SUCCESS'",
+    "    } else { Write-Log 'Agent already configured for TCP.' 'SUCCESS' }",
     "} else { Write-Log 'ossec.conf not found — TCP switch skipped.' 'WARN' }",
     "Stop-Service -Name 'WazuhSvc' -Force -ErrorAction SilentlyContinue",
     "Start-Sleep -Seconds 2",
     "Start-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue",
     "Start-Sleep -Seconds 3",
     "if ((Get-Service -Name 'WazuhSvc' -ErrorAction SilentlyContinue).Status -eq 'Running') {",
-    "    Write-Log 'WazuhSvc restarted and running on TCP.' 'SUCCESS'",
-    "} else { Write-Log 'WazuhSvc may not be running — check dashboard.' 'WARN' }",
+    "    Write-Log 'P1 EDR agent restarted and running on TCP.' 'SUCCESS'",
+    "} else { Write-Log 'P1 EDR agent may not be running — check dashboard.' 'WARN' }",
     "",
-    "# Step 3 — RustDesk Remote Access Agent",
-    "Write-Log 'Installing RustDesk remote access agent...'",
+    "# Step 3 — P1 Remote Access Agent",
+    "Write-Log 'Installing P1 Remote Access agent...'",
     '$rdPath = "$env:TEMP\\rustdesk-setup.exe"',
     "try {",
     "    $release = (Invoke-WebRequest -Uri 'https://api.github.com/repos/rustdesk/rustdesk/releases/latest' -UseBasicParsing).Content | ConvertFrom-Json",
     "    $asset = $release.assets | Where-Object { $_.name -match 'x86_64' -and $_.name -match '\\.exe$' -and $_.name -notmatch 'arm' } | Select-Object -First 1",
     "    if (-not $asset) { $asset = $release.assets | Where-Object { $_.name -match '\\.exe$' -and $_.name -notmatch 'arm' } | Select-Object -First 1 }",
-    "    Write-Log \"Downloading RustDesk $($release.tag_name)...\"",
+    "    Write-Log \"Downloading P1 Remote $($release.tag_name)...\"",
     "    Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $rdPath -UseBasicParsing",
     '    $proc = Start-Process -FilePath $rdPath -ArgumentList "--silent-install" -PassThru',
     "    $proc.WaitForExit(30000) | Out-Null",
@@ -2915,13 +2915,13 @@ function generateCmdContent(clientName, wazuhGroup) {
     "        $rdBody = [PSCustomObject]@{ rustdesk_id = $rdId; agent_name = $rdAgentName; hostname = $env:COMPUTERNAME } | ConvertTo-Json -Compress",
     "        try {",
     "            Invoke-WebRequest -Uri 'https://api.palisadeone.com:9443/rmm/register' -Method POST -Body $rdBody -ContentType 'application/json' -Headers @{ Authorization = 'Bearer P1AdminKey2026!' } -UseBasicParsing | Out-Null",
-    "            Write-Log \"RustDesk installed and registered (ID: $rdId).\" 'SUCCESS'",
-    "        } catch { Write-Log 'RustDesk installed — API registration skipped.' 'WARN' }",
-    "    } else { Write-Log 'RustDesk installed. Scheduled task will register ID on next boot.' 'SUCCESS' }",
-    "} catch { Write-Log \"RustDesk install skipped: $($_.Exception.Message)\" 'WARN' }",
+    "            Write-Log \"P1 Remote installed and registered (ID: $rdId).\" 'SUCCESS'",
+    "        } catch { Write-Log 'P1 Remote installed — API registration skipped.' 'WARN' }",
+    "    } else { Write-Log 'P1 Remote installed. Scheduled task will register ID on next boot.' 'SUCCESS' }",
+    "} catch { Write-Log \"P1 Remote install skipped: $($_.Exception.Message)\" 'WARN' }",
     "",
-    "# Step 3.5 — Install P1 RustDesk auto-registration scheduled task",
-    "Write-Log 'Installing RustDesk auto-registration task...'",
+    "# Step 3.5 — Install P1 Remote auto-registration scheduled task",
+    "Write-Log 'Installing P1 Remote auto-registration task...'",
     '$rdRegScript = @\'',
     "Add-Type -TypeDefinition 'using System.Net; using System.Security.Cryptography.X509Certificates; public class P1RR : ICertificatePolicy { public bool CheckValidationResult(ServicePoint s, X509Certificate c, WebRequest r, int p) { return true; } }' -Language CSharp -ErrorAction SilentlyContinue",
     "[System.Net.ServicePointManager]::CertificatePolicy = New-Object P1RR",
@@ -2943,7 +2943,7 @@ function generateCmdContent(clientName, wazuhGroup) {
     '$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 2) -MultipleInstances IgnoreNew',
     "Register-ScheduledTask -TaskName 'P1-RustDesk-Register' -Action $action -Trigger $trigger -Settings $settings -RunLevel Highest -Force | Out-Null",
     "Start-ScheduledTask -TaskName 'P1-RustDesk-Register' -ErrorAction SilentlyContinue",
-    "Write-Log 'RustDesk auto-registration task installed and running.' 'SUCCESS'",
+    "Write-Log 'P1 Remote auto-registration task installed and running.' 'SUCCESS'",
     "",
     "# Step 4 — PalisadeOne Isolation Response Scripts (compiled .exe)",
     "Write-Log 'Compiling and deploying P1 isolation executables...'",
@@ -2955,19 +2955,18 @@ function generateCmdContent(clientName, wazuhGroup) {
     "    static string LF = @\"C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log\";",
     "    static string MGR = \"178.156.234.30\";",
     "    static void Log(string m){try{string t=DateTime.UtcNow.ToString(\"yyyy/MM/dd HH:mm:ss\");File.AppendAllText(LF,t+\" active-response/bin/isolate-win.exe: \"+m+\"\\n\");}catch{}}",
-    "    static void R(string a){var p=new Process();p.StartInfo.FileName=\"netsh\";p.StartInfo.Arguments=a;p.StartInfo.UseShellExecute=false;p.StartInfo.CreateNoWindow=true;p.Start();p.WaitForExit(15000);}",
+    "    static void R(string a){var p=new Process();p.StartInfo.FileName=@\"C:\\Windows\\System32\\netsh.exe\";p.StartInfo.Arguments=a;p.StartInfo.UseShellExecute=false;p.StartInfo.RedirectStandardOutput=true;p.StartInfo.RedirectStandardError=true;p.StartInfo.CreateNoWindow=true;p.Start();p.StandardOutput.ReadToEnd();p.WaitForExit(15000);}",
     "    static void Main(){",
     "        string inp=\"\"; try{inp=Console.In.ReadToEnd();}catch{}",
     "        Log(\"Starting\"); Log(inp.Trim());",
-    "        R(\"advfirewall firewall delete rule name=P1-Wazuh-Out\");",
-    "        R(\"advfirewall firewall delete rule name=P1-Wazuh-In\");",
-    "        R(\"advfirewall firewall delete rule name=P1-Loop-Out\");",
-    "        R(\"advfirewall firewall delete rule name=P1-Loop-In\");",
-    "        R(\"advfirewall firewall add rule name=P1-Wazuh-Out dir=out action=allow remoteip=\"+MGR+\" protocol=any\");",
-    "        R(\"advfirewall firewall add rule name=P1-Wazuh-In dir=in action=allow remoteip=\"+MGR+\" protocol=any\");",
-    "        R(\"advfirewall firewall add rule name=P1-Loop-Out dir=out action=allow remoteip=127.0.0.1 protocol=any\");",
-    "        R(\"advfirewall firewall add rule name=P1-Loop-In dir=in action=allow remoteip=127.0.0.1 protocol=any\");",
     "        R(\"advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound\");",
+    "        R(\"advfirewall firewall delete rule name=P1-Isolate-Allow-Wazuh-Out\");",
+    "        R(\"advfirewall firewall delete rule name=P1-Isolate-Allow-Wazuh-In\");",
+    "        R(\"advfirewall firewall add rule name=P1-Isolate-Allow-Wazuh-Out dir=out action=allow remoteip=\"+MGR+\" protocol=any\");",
+    "        R(\"advfirewall firewall add rule name=P1-Isolate-Allow-Wazuh-In dir=in action=allow remoteip=\"+MGR+\" protocol=any\");",
+    "        R(\"advfirewall firewall add rule name=P1-Isolate-Allow-Loopback-Out dir=out action=allow remoteip=127.0.0.1 protocol=any\");",
+    "        R(\"advfirewall firewall add rule name=P1-Isolate-Allow-Loopback-In dir=in action=allow remoteip=127.0.0.1 protocol=any\");",
+    "        R(\"advfirewall firewall add rule name=P1-Isolate-Allow-DNS dir=out action=allow protocol=UDP remoteport=53\");",
     "        Log(\"Host isolated - all traffic blocked except \"+MGR); Log(\"Ended\");",
     "    }",
     "}",
@@ -2985,15 +2984,16 @@ function generateCmdContent(clientName, wazuhGroup) {
     "public class UnisolateWin {",
     "    static string LF = @\"C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log\";",
     "    static void Log(string m){try{string t=DateTime.UtcNow.ToString(\"yyyy/MM/dd HH:mm:ss\");File.AppendAllText(LF,t+\" active-response/bin/unisolate-win.exe: \"+m+\"\\n\");}catch{}}",
-    "    static void R(string a){var p=new Process();p.StartInfo.FileName=\"netsh\";p.StartInfo.Arguments=a;p.StartInfo.UseShellExecute=false;p.StartInfo.CreateNoWindow=true;p.Start();p.WaitForExit(15000);}",
+    "    static void R(string a){var p=new Process();p.StartInfo.FileName=@\"C:\\Windows\\System32\\netsh.exe\";p.StartInfo.Arguments=a;p.StartInfo.UseShellExecute=false;p.StartInfo.RedirectStandardOutput=true;p.StartInfo.RedirectStandardError=true;p.StartInfo.CreateNoWindow=true;p.Start();p.StandardOutput.ReadToEnd();p.WaitForExit(15000);}",
     "    static void Main(){",
     "        string inp=\"\"; try{inp=Console.In.ReadToEnd();}catch{}",
     "        Log(\"Starting\"); Log(inp.Trim());",
-    "        R(\"advfirewall firewall delete rule name=P1-Wazuh-Out\");",
-    "        R(\"advfirewall firewall delete rule name=P1-Wazuh-In\");",
-    "        R(\"advfirewall firewall delete rule name=P1-Loop-Out\");",
-    "        R(\"advfirewall firewall delete rule name=P1-Loop-In\");",
-    "        R(\"advfirewall set allprofiles firewallpolicy allowinbound,allowoutbound\");",
+    "        R(\"advfirewall firewall delete rule name=P1-Isolate-Allow-Wazuh-Out\");",
+    "        R(\"advfirewall firewall delete rule name=P1-Isolate-Allow-Wazuh-In\");",
+    "        R(\"advfirewall firewall delete rule name=P1-Isolate-Allow-Loopback-Out\");",
+    "        R(\"advfirewall firewall delete rule name=P1-Isolate-Allow-Loopback-In\");",
+    "        R(\"advfirewall firewall delete rule name=P1-Isolate-Allow-DNS\");",
+    "        R(\"advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound\");",
     "        Log(\"Host unisolated - network access restored\"); Log(\"Ended\");",
     "    }",
     "}",
@@ -3007,6 +3007,50 @@ function generateCmdContent(clientName, wazuhGroup) {
     "if ($p1cr2.Errors.Count -gt 0) { Write-Log 'unisolate-win.exe compile failed' 'WARN' } else { Write-Log 'unisolate-win.exe compiled OK' 'SUCCESS' }",
     "Write-Log 'Isolation executables compiled and installed.' 'SUCCESS'",
     "",
+    "# Step 4.1 — Install P1 Agent Action Poller (reliable isolation delivery)",
+    "Write-Log 'Installing PalisadeOne agent action poller...'",
+    "New-Item -ItemType Directory -Path 'C:\\ProgramData\\PalisadeOne' -Force | Out-Null",
+    "$pollerScript = @'",
+    "$url = \"https://api.palisadeone.com:9443\"",
+    "$keysFile = \"C:\\Program Files (x86)\\ossec-agent\\client.keys\"",
+    "$agentId = $null",
+    "if (Test-Path $keysFile) { $line = (Get-Content $keysFile | Select-Object -First 1).Trim(); $agentId = ($line -split '\\s+')[0] }",
+    "if (-not $agentId) { exit }",
+    "$logFile = \"C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log\"",
+    "function Log($msg) { $ts = (Get-Date).ToUniversalTime().ToString('yyyy/MM/dd HH:mm:ss'); Add-Content $logFile \"$ts active-response/bin/isolate-win.exe: $msg\" }",
+    "try {",
+    "    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12",
+    "    [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}",
+    "    $resp = (New-Object Net.WebClient).DownloadString(\"$url/agent-action/$agentId\")",
+    "    $data = $resp | ConvertFrom-Json",
+    "    if ($data.action -eq 'isolate') {",
+    "        Log 'Starting (via polling)'; Log 'Received isolate command from SOC dashboard'",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Wazuh-Out' 2>$null",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Wazuh-In' 2>$null",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall add rule name='P1-Isolate-Allow-Wazuh-Out' dir=out action=allow remoteip=178.156.234.30 protocol=any",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall add rule name='P1-Isolate-Allow-Wazuh-In' dir=in action=allow remoteip=178.156.234.30 protocol=any",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall add rule name='P1-Isolate-Allow-Loopback-Out' dir=out action=allow remoteip=127.0.0.1 protocol=any",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall add rule name='P1-Isolate-Allow-Loopback-In' dir=in action=allow remoteip=127.0.0.1 protocol=any",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall add rule name='P1-Isolate-Allow-DNS' dir=out action=allow protocol=UDP remoteport=53",
+    "        Log 'Isolation applied - all traffic blocked except Wazuh manager'; Log 'Ended'",
+    "    } elseif ($data.action -eq 'unisolate') {",
+    "        Log 'Starting unisolation (via polling)'",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Wazuh-Out' 2>$null",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Wazuh-In' 2>$null",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Loopback-Out' 2>$null",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Loopback-In' 2>$null",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-DNS' 2>$null",
+    "        & C:\\Windows\\System32\\netsh.exe advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound",
+    "        Log 'Isolation removed - network access restored'; Log 'Ended'",
+    "    }",
+    "} catch {}",
+    "'@",
+    "Set-Content 'C:\\ProgramData\\PalisadeOne\\agent-poller.ps1' $pollerScript -Encoding UTF8",
+    "schtasks /delete /tn 'P1-Agent-Poller' /f 2>$null",
+    "schtasks /create /tn 'P1-Agent-Poller' /tr 'powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File C:\\ProgramData\\PalisadeOne\\agent-poller.ps1' /sc minute /mo 1 /ru SYSTEM /rl HIGHEST /f | Out-Null",
+    "Write-Log 'Agent action poller installed (polls every 60s as SYSTEM).' 'SUCCESS'",
+    "",
     "# Step 4.5 — Download kill-suspicious.cmd AR script",
     "Write-Log 'Downloading kill-suspicious active-response script...'",
     "try {",
@@ -3017,8 +3061,8 @@ function generateCmdContent(clientName, wazuhGroup) {
     "    Write-Log 'kill-suspicious.cmd installed.' 'SUCCESS'",
     "} catch { Write-Log \"kill-suspicious.cmd download failed: $($_.Exception.Message)\" 'WARN' }",
     "",
-    "# Step 5 — Sysmon (enhanced process telemetry for EDR)",
-    "Write-Log 'Installing Sysmon for EDR process telemetry...'",
+    "# Step 5 — P1 Telemetry (enhanced process monitoring for EDR)",
+    "Write-Log 'Installing P1 Telemetry for EDR process monitoring...'",
     "try {",
     "    $sysmonExe = 'C:\\Windows\\Sysmon64.exe'",
     "    $sysmonCfg = \"$env:TEMP\\p1-sysmon-config.xml\"",
@@ -3027,7 +3071,7 @@ function generateCmdContent(clientName, wazuhGroup) {
     "    if (Test-Path $sysmonExe) {",
     "        # Already installed — just update config",
     "        Start-Process $sysmonExe -ArgumentList '-c',$sysmonCfg,'-accepteula' -Wait -NoNewWindow -ErrorAction SilentlyContinue",
-    "        Write-Log 'Sysmon config updated.' 'SUCCESS'",
+    "        Write-Log 'P1 Telemetry config updated.' 'SUCCESS'",
     "    } else {",
     "        # Download Sysmon from Sysinternals",
     "        $sysmonZip = \"$env:TEMP\\Sysmon.zip\"",
@@ -3036,7 +3080,7 @@ function generateCmdContent(clientName, wazuhGroup) {
     "        $sysmon64 = Get-Item \"$env:TEMP\\Sysmon\\Sysmon64.exe\" -ErrorAction SilentlyContinue",
     "        if ($sysmon64) {",
     "            Start-Process $sysmon64.FullName -ArgumentList '-i',$sysmonCfg,'-accepteula' -Wait -NoNewWindow",
-    "            Write-Log 'Sysmon installed and configured.' 'SUCCESS'",
+    "            Write-Log 'P1 Telemetry installed and configured.' 'SUCCESS'",
     "        } else { Write-Log 'Sysmon64.exe not found in zip.' 'WARN' }",
     "        Remove-Item $sysmonZip -Force -ErrorAction SilentlyContinue",
     "    }",
@@ -3112,17 +3156,17 @@ function generateUninstaller() {
     "Write-Log 'Firewall restored.' 'SUCCESS'",
     "",
     "# Step 2 — Kill and uninstall Wazuh EDR agent",
-    "Write-Log 'Stopping and removing Wazuh EDR agent...'",
+    "Write-Log 'Stopping and removing P1 EDR agent...'",
     "Stop-Service -Name 'WazuhSvc' -Force -ErrorAction SilentlyContinue; Get-Process -Name 'wazuh-agent','ossec*' -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Seconds 2",
     "$wazuhGuid = (Get-ChildItem 'HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall' -ErrorAction SilentlyContinue | Get-ItemProperty | Where-Object { $_.DisplayName -like '*Wazuh*' } | Select-Object -First 1).PSChildName",
     "if (-not $wazuhGuid) { $wazuhGuid = (Get-ChildItem 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall' -ErrorAction SilentlyContinue | Get-ItemProperty | Where-Object { $_.DisplayName -like '*Wazuh*' } | Select-Object -First 1).PSChildName }",
-    "if ($wazuhGuid) { Start-Process 'msiexec.exe' -ArgumentList \"/x $wazuhGuid /q /norestart\" -Wait; Write-Log 'Wazuh EDR agent removed.' 'SUCCESS' } else { Write-Log 'Wazuh GUID not found — may already be removed.' 'WARN' }",
+    "if ($wazuhGuid) { Start-Process 'msiexec.exe' -ArgumentList \"/x $wazuhGuid /q /norestart\" -Wait; Write-Log 'P1 EDR agent removed.' 'SUCCESS' } else { Write-Log 'P1 EDR agent not found — may already be removed.' 'WARN' }",
     "",
     "# Step 3 — Uninstall RustDesk RMM agent",
-    "Write-Log 'Stopping and removing RustDesk agent...'",
+    "Write-Log 'Stopping and removing P1 Remote agent...'",
     "Get-Process -Name 'RustDesk' -ErrorAction SilentlyContinue | Stop-Process -Force",
     "$rdReg = Get-ChildItem 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall','HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall' -ErrorAction SilentlyContinue | Get-ItemProperty | Where-Object { $_.DisplayName -like '*RustDesk*' } | Select-Object -First 1",
-    "if ($rdReg -and $rdReg.UninstallString) { Start-Process ($rdReg.UninstallString -split ' ')[0].Trim('\"') -ArgumentList '--uninstall' -Wait -NoNewWindow -ErrorAction SilentlyContinue; Write-Log 'RustDesk removed.' 'SUCCESS' } else { Write-Log 'RustDesk not found — may already be removed.' 'WARN' }",
+    "if ($rdReg -and $rdReg.UninstallString) { Start-Process ($rdReg.UninstallString -split ' ')[0].Trim('\"') -ArgumentList '--uninstall' -Wait -NoNewWindow -ErrorAction SilentlyContinue; Write-Log 'P1 Remote removed.' 'SUCCESS' } else { Write-Log 'P1 Remote not found — may already be removed.' 'WARN' }",
     "Remove-Item \"$env:ProgramFiles\\RustDesk\" -Recurse -Force -ErrorAction SilentlyContinue",
     "Remove-Item \"$env:AppData\\RustDesk\" -Recurse -Force -ErrorAction SilentlyContinue",
     "",
@@ -3372,7 +3416,7 @@ let _alertSoundCtx = null;
 function checkAlertThresholds(hits) {
   const prefs = JSON.parse(localStorage.getItem('p1_prefs') || '{}');
   const notifyLevel = parseInt(prefs.notifyLevel) || 7;
-  const isolateLevel = parseInt(prefs.isolateLevel) || 12;
+  const isolateLevel = parseInt(prefs.isolateLevel) || 0;
   const soundEnabled = prefs.alertSound || false;
 
   const newHighAlerts = [];
@@ -3430,13 +3474,13 @@ function checkAlertThresholds(hits) {
       const agentId = hit.agent?.id;
       if (agentName && agentId && !isolatedAgents.has(agentId)) {
         isolatedAgents.add(agentId);
-        // Trigger isolation via active response
-        fetch(`${PROXY_URL}/active-response`, {
+        // Trigger isolation via agent-action polling queue
+        fetch(`${PROXY_URL}/agent-action`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ command: 'isolate-win', agent_id: agentId })
+          body: JSON.stringify({ agent_id: agentId, action: 'isolate' })
         }).then(() => {
-          showToast(`Auto-isolated ${agentName} (Level ${hit.rule?.level} alert)`, 'warn');
+          showToast(`Auto-isolation queued for ${agentName} (Level ${hit.rule?.level} alert)`, 'warn');
         }).catch(() => {});
       }
     });
@@ -3891,14 +3935,15 @@ async function loadRelatedAlerts(hit) {
 }
 
 function isolateFromAlert(agentId, agentName) {
-  showToast('Sending isolation command → ' + agentName + '...', 'info');
-  fetch(`${PROXY_URL}/active-response?agents_list=${agentId}`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ command: 'isolate-win', arguments: [] })
+  if (!confirm(`ISOLATE ${agentName}? This will block all network traffic on the endpoint.`)) return;
+  showToast('Queuing isolation for ' + agentName + '...', 'info');
+  fetch(`${PROXY_URL}/agent-action`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ agent_id: agentId, action: 'isolate' })
   }).then(r => {
-    if (r.ok) showToast('Isolation command sent to ' + agentName, 'success');
-    else showToast('Isolation failed — check agent connectivity', 'error');
-  }).catch(() => showToast('Could not reach manager API', 'error'));
+    if (r.ok) showToast('Isolation queued for ' + agentName + ' — executes within 60s', 'success');
+    else showToast('Isolation failed — check connectivity', 'error');
+  }).catch(() => showToast('Could not reach proxy', 'error'));
 }
 
 function searchAlertInSiem(ruleId) {
@@ -4226,7 +4271,7 @@ async function loadDevices() {
 
 async function loadCompliance() {
   const container = document.getElementById('compliance-list');
-  container.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading compliance data from Wazuh...</div>';
+  container.innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading compliance data...</div>';
 
   try {
     // Query Wazuh SCA results from the indexer
@@ -4805,28 +4850,33 @@ async function runEpAI(btn) {
 // --- AGENT ACTIONS ---
 async function isolateAgent() {
   if (!activeAgentId) return;
-  showToast('Sending isolation command → agent ' + activeAgentId + '...', 'info');
+  const name = agentsData[activeAgentId]?.name || activeAgentId;
+  const ip = agentsData[activeAgentId]?.ip || '';
+  if (!confirm(`ISOLATE ${name} (Agent #${activeAgentId}, IP: ${ip})?\n\nThis will block ALL network traffic on this endpoint except communication with the Wazuh manager.\n\nThe endpoint will be unreachable until you RECONNECT it.`)) return;
+  showToast(`Queuing isolation for ${name} (Agent #${activeAgentId})...`, 'info');
   try {
-    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: 'isolate-win', arguments: [] })
+    const res = await fetch(`${PROXY_URL}/agent-action`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_id: activeAgentId, action: 'isolate' })
     });
     if (!res.ok) throw new Error(res.status);
-    showToast('Isolation command sent. Verify in Wazuh.', 'success');
-  } catch(e) { showToast('Manager API unreachable — proxy /active-response route required.', 'error'); }
+    const data = await res.json();
+    showToast(`Isolation queued for ${name} (Agent #${activeAgentId}) — executes within 60 seconds.`, 'success');
+  } catch(e) { showToast('Failed to queue isolation command: ' + e.message, 'error'); }
 }
 
 async function reconnectAgent() {
   if (!activeAgentId) return;
-  showToast('Sending unisolate command → agent ' + activeAgentId + '...', 'info');
+  const name = agentsData[activeAgentId]?.name || activeAgentId;
+  showToast(`Queuing reconnect for ${name} (Agent #${activeAgentId})...`, 'info');
   try {
-    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: 'unisolate-win', arguments: [] })
+    const res = await fetch(`${PROXY_URL}/agent-action`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_id: activeAgentId, action: 'unisolate' })
     });
     if (!res.ok) throw new Error(res.status);
-    showToast('Unisolate command sent — network access being restored.', 'success');
-  } catch(e) { showToast('Could not send unisolate command.', 'error'); }
+    showToast(`Reconnect queued for ${name} (Agent #${activeAgentId}) — network restored within 60 seconds.`, 'success');
+  } catch(e) { showToast('Failed to queue reconnect command: ' + e.message, 'error'); }
 }
 
 async function runFDS() {
@@ -6955,95 +7005,200 @@ function searchIOC2(type, val) {
 }
 
 // ── ENDPOINT ACTIONS ──────────────────────────────────────────
+
 async function killSuspiciousProcesses() {
-  if (!activeAgentId) { showToast('No endpoint selected — open an endpoint first.', 'warn'); return; }
-  const name = agentsData[activeAgentId]?.name || activeAgentId;
-  if (!confirm(`Kill suspicious processes on ${name}? This sends an active-response command.`)) return;
-  showToast(`Sending process kill command to ${name}...`, 'info');
-  try {
-    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: 'kill-suspicious', arguments: [] })
-    });
-    showToast(res.ok ? 'Kill command sent — check agent for confirmation.' : 'Command sent (verify response in Wazuh).', 'success');
-  } catch(e) { showToast('Active response unavailable — check proxy route.', 'error'); }
-}
-
-async function collectEvidence() {
   if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
-  const name = agentsData[activeAgentId]?.name || activeAgentId;
-  showToast(`Triggering evidence collection on ${name} — logs + syscheck + rootcheck...`, 'info');
-  try {
-    await Promise.all([
-      fetch(`${PROXY_URL}/syscheck?agents_list=${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } }),
-      fetch(`${PROXY_URL}/rootcheck?agents_list=${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } }),
-      fetch(`${PROXY_URL}/logcollector/files?agents_list=${activeAgentId}`, { method: 'GET' })
-    ]);
-    showToast('Evidence collection started — results appear in Wazuh indexer within minutes.', 'success');
-  } catch(e) { showToast('Collection partially started — check agent status.', 'warn'); }
-}
-
-async function runLiveQuery() {
-  if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
-  const cmd = prompt('Enter active-response command to run on agent:\n(e.g. "custom-command" or a registered AR script name)');
-  if (!cmd) return;
-  try {
-    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: cmd.trim(), arguments: [] })
-    });
-    showToast(res.ok ? `Command "${cmd}" dispatched to agent.` : `Dispatch attempted — verify in Wazuh.`, 'info');
-  } catch(e) { showToast('Command dispatch failed.', 'error'); }
-}
-
-function deploySysmon() {
-  if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
-  const name = agentsData[activeAgentId]?.name || activeAgentId;
-  const os = agentsData[activeAgentId]?.os?.name || '';
-  if (os && !os.toLowerCase().includes('windows')) {
-    showToast('Sysmon is Windows-only — this agent is ' + os + '.', 'warn'); return;
-  }
-  const oneliner = `Set-ExecutionPolicy Bypass -Scope Process -Force; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $c="$env:TEMP\\p1s.xml"; (New-Object Net.WebClient).DownloadFile('https://api.palisadeone.com:9443/ar-scripts/sysmon-config.xml',$c); if(Test-Path 'C:\\Windows\\Sysmon64.exe'){ Start-Process 'C:\\Windows\\Sysmon64.exe' -ArgumentList '-c',$c,'-accepteula' -Wait; Write-Host 'Config updated' }else{ $z="$env:TEMP\\Sysmon.zip"; (New-Object Net.WebClient).DownloadFile('https://download.sysinternals.com/files/Sysmon.zip',$z); Expand-Archive $z "$env:TEMP\\SysmonAR" -Force; Start-Process "$env:TEMP\\SysmonAR\\Sysmon64.exe" -ArgumentList '-i',$c,'-accepteula' -Wait; Remove-Item $z,"$env:TEMP\\SysmonAR" -Recurse -Force; Write-Host 'Sysmon installed' }; Remove-Item $c -Force`;
-
-  // Build modal
+  const agentName = agentsData[activeAgentId]?.name || activeAgentId;
   const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:flex;align-items:center;justify-content:center;';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:700;display:flex;align-items:center;justify-content:center;';
   modal.innerHTML = `
-    <div style="background:var(--surface);border:1px solid var(--border2);width:620px;max-width:95vw;padding:24px;position:relative;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);letter-spacing:2px;margin-bottom:6px;">DEPLOY SYSMON — ${escH(name)}</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Run this in an <b style="color:var(--warning)">Admin PowerShell</b> on that machine. Connect via RustDesk first.</div>
-
-      <div style="background:var(--deep);border:1px solid var(--border);padding:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);word-break:break-all;line-height:1.6;margin-bottom:14px;max-height:120px;overflow-y:auto;" id="sysmon-oneliner">${escH(oneliner)}</div>
-
-      <div style="display:flex;gap:10px;">
-        <button onclick="navigator.clipboard.writeText(document.getElementById('sysmon-oneliner').textContent);this.textContent='✓ Copied!';this.style.background='var(--accent)';this.style.color='var(--black)';setTimeout(()=>{this.textContent='📋 Copy Command';this.style.background='';this.style.color='';},2000);"
-          style="flex:1;padding:10px;background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;">
-          📋 Copy Command
-        </button>
-        <button onclick="window.open('rustdesk://${escH(agentsData[activeAgentId]?.name || '')}','_blank')"
-          style="flex:1;padding:10px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;">
-          🖥 Open RustDesk
-        </button>
-        <button onclick="this.closest('div[style*=\"fixed\"]').remove()"
-          style="padding:10px 16px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:12px;cursor:pointer;">✕</button>
+    <div style="background:var(--deep);border:1px solid var(--border2);width:680px;max-width:96vw;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;">
+      <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--danger);">KILL PROCESS — ${escH(agentName)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Select a process to terminate. Suspicious processes flagged in red.</div>
+        </div>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;cursor:pointer;">✕</button>
       </div>
-
-      <div style="margin-top:14px;padding:10px;background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.15);font-size:11px;color:var(--muted);">
-        <b style="color:var(--accent);">Steps:</b> 1. Copy command &nbsp;·&nbsp; 2. Open RustDesk → connect to <b style="color:var(--white)">${escH(name)}</b> &nbsp;·&nbsp; 3. Open PowerShell as Admin &nbsp;·&nbsp; 4. Paste &amp; hit Enter &nbsp;·&nbsp; 5. Full EDR telemetry appears in dashboard within 60s
+      <div style="padding:10px 20px;border-bottom:1px solid var(--border);flex-shrink:0;">
+        <input id="kp-filter" placeholder="Filter by process name..." oninput="filterKpList()" style="width:100%;padding:7px 10px;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-size:12px;font-family:'Outfit',sans-serif;box-sizing:border-box;">
+      </div>
+      <div id="kp-list" style="flex:1;overflow-y:auto;padding:8px 20px;">
+        <div style="color:var(--muted);font-size:12px;padding:20px 0;text-align:center;">Loading processes...</div>
       </div>
     </div>`;
   document.body.appendChild(modal);
   modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  window._kpAgentId = activeAgentId;
+  try {
+    const r = await fetch(`${PROXY_URL}/syscollector/${activeAgentId}/processes?limit=200&sort=name`);
+    const d = await r.json();
+    window._kpProcs = d.data?.affected_items || [];
+    renderKpList(window._kpProcs);
+  } catch(e) {
+    document.getElementById('kp-list').innerHTML = `<div style="color:var(--danger);font-size:12px;padding:16px 0;">Failed to load: ${escH(e.message)}</div>`;
+  }
+}
+
+function renderKpList(procs) {
+  const el = document.getElementById('kp-list');
+  if (!el) return;
+  if (!procs.length) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:16px 0;text-align:center;">No processes found.</div>'; return; }
+  const flagged = ['mimikatz','meterpreter','cobalt','beacon','empire','psexec','procdump','wce.exe','fgdump','pwdump','netcat','nc.exe','lazagne','sharphound','rubeus'];
+  el.innerHTML = `<div style="display:grid;grid-template-columns:1fr 70px 110px 60px;gap:0;padding:4px 0 6px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">
+    <span>PROCESS</span><span>PID</span><span>USER</span><span></span></div>` +
+  procs.map(p => {
+    const plow = (p.name||'').toLowerCase();
+    const isSusp = flagged.some(f => plow.includes(f));
+    return `<div style="display:grid;grid-template-columns:1fr 70px 110px 60px;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);">
+      <span style="color:${isSusp?'var(--danger)':'var(--text)'};font-family:'JetBrains Mono',monospace;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escH(p.name||'')}">${isSusp?'⚠ ':''}${escH(p.name||'?')}</span>
+      <span style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;">${p.pid||'?'}</span>
+      <span style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escH(p.euser||p.ruser||'—')}</span>
+      <button onclick="confirmKillProc('${escH(String(p.name||'')).replace(/'/g,String.fromCharCode(92)+String.fromCharCode(39))}',${p.pid||0})"
+        style="padding:2px 8px;background:transparent;border:1px solid rgba(255,68,102,0.4);color:var(--danger);font-size:9px;cursor:pointer;font-family:'JetBrains Mono',monospace;">KILL</button>
+    </div>`;
+  }).join('');
+}
+
+function filterKpList() {
+  const q = (document.getElementById('kp-filter')?.value||'').toLowerCase();
+  renderKpList((window._kpProcs||[]).filter(p=>(p.name||'').toLowerCase().includes(q)));
+}
+
+async function confirmKillProc(procName, pid) {
+  const agentId = window._kpAgentId || activeAgentId;
+  const agentName = agentsData[agentId]?.name || agentId;
+  if (!confirm(`Kill "${procName}" (PID ${pid}) on ${agentName}?\n\nThis terminates the process immediately.`)) return;
+  try {
+    await fetch(`${PROXY_URL}/active-response?agents_list=${agentId}`, {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ command: 'kill-process', arguments: [procName] })
+    });
+    showToast(`Kill command sent for "${procName}". Note: requires kill-process AR script — re-run installer to enable.`, 'success');
+    document.querySelector('div[style*="z-index:700"]')?.remove();
+  } catch(e) { showToast('Kill command failed: ' + e.message, 'error'); }
+}
+
+async function collectEvidence() {
+  if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
+  const agentName = agentsData[activeAgentId]?.name || activeAgentId;
+  showToast('Building evidence package...', 'info');
+  const [alertsRes, osRes, pkgRes, procRes, portRes, hwRes] = await Promise.allSettled([
+    fetch(`${PROXY_URL}/wazuh-alerts-4.x-*/_search`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ size:200, sort:[{timestamp:{order:'desc'}}],
+        query:{bool:{filter:[{term:{'agent.id':activeAgentId}},{range:{timestamp:{gte:'now-7d'}}}]}} })
+    }).then(r=>r.json()),
+    fetch(`${PROXY_URL}/syscollector/${activeAgentId}/os`).then(r=>r.json()),
+    fetch(`${PROXY_URL}/syscollector/${activeAgentId}/packages?limit=500`).then(r=>r.json()),
+    fetch(`${PROXY_URL}/syscollector/${activeAgentId}/processes?limit=300`).then(r=>r.json()),
+    fetch(`${PROXY_URL}/syscollector/${activeAgentId}/ports?limit=200`).then(r=>r.json()),
+    fetch(`${PROXY_URL}/syscollector/${activeAgentId}/hardware`).then(r=>r.json()),
+  ]);
+  const agent = agentsData[activeAgentId]||{};
+  const alerts = alertsRes.value?.hits?.hits?.map(h=>h._source)||[];
+  const report = {
+    collected_at: new Date().toISOString(),
+    collected_by: JSON.parse(sessionStorage.getItem('p1_user')||'{}').email||'admin',
+    agent: {id:activeAgentId, name:agent.name, ip:agent.ip, status:agent.status, version:agent.version},
+    summary: { alerts:alerts.length, critical:alerts.filter(a=>a.rule?.level>=12).length, high:alerts.filter(a=>a.rule?.level>=7&&a.rule?.level<12).length, medium:alerts.filter(a=>a.rule?.level>=4&&a.rule?.level<7).length },
+    hardware: hwRes.value?.data?.affected_items?.[0]||null,
+    os: osRes.value?.data?.affected_items?.[0]||null,
+    running_processes: procRes.value?.data?.affected_items||[],
+    open_ports: portRes.value?.data?.affected_items||[],
+    installed_packages: pkgRes.value?.data?.affected_items||[],
+    alerts_last_7d: alerts,
+  };
+  const blob = new Blob([JSON.stringify(report,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`evidence-${agentName.replace(/[^a-z0-9]/gi,'-')}-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast(`Downloaded — ${report.summary.alerts} alerts, ${report.running_processes.length} processes, ${report.open_ports.length} ports.`, 'success');
+}
+
+async function runLiveQuery() {
+  if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
+  const agentName = agentsData[activeAgentId]?.name || activeAgentId;
+  const queries = [
+    { label:'Running Processes', url:`/syscollector/${activeAgentId}/processes?limit=200&sort=name`, cols:['name','pid','euser','state'], heads:['Process','PID','User','State'] },
+    { label:'Open Ports', url:`/syscollector/${activeAgentId}/ports?limit=100`, cols:['protocol','local_port','local_ip','remote_ip','state'], heads:['Proto','Port','Local IP','Remote IP','State'] },
+    { label:'Installed Packages', url:`/syscollector/${activeAgentId}/packages?limit=300&sort=-install_time`, cols:['name','version','vendor','architecture'], heads:['Package','Version','Vendor','Arch'] },
+    { label:'Network Interfaces', url:`/syscollector/${activeAgentId}/netiface`, cols:['name','mac','type','state','mtu'], heads:['Interface','MAC','Type','State','MTU'] },
+    { label:'OS Info', url:`/syscollector/${activeAgentId}/os`, cols:['os_name','os_version','hostname','architecture','release'], heads:['OS','Version','Hostname','Arch','Release'] },
+    { label:'Hardware', url:`/syscollector/${activeAgentId}/hardware`, cols:['cpu_name','cpu_cores','ram_total','ram_free'], heads:['CPU','Cores','RAM Total','RAM Free'] },
+  ];
+  window._lqQueries = queries;
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:700;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--deep);border:1px solid var(--border2);width:800px;max-width:96vw;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;">
+      <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--accent2);">LIVE QUERY — ${escH(agentName)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Real-time data from Wazuh syscollector</div>
+        </div>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;cursor:pointer;">✕</button>
+      </div>
+      <div style="padding:10px 20px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;">
+        ${queries.map((q,i)=>`<button id="lq-tab-${i}" onclick="runLiveQueryFetch(${i})"
+          style="padding:5px 12px;background:transparent;border:1px solid var(--border2);color:var(--text);font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;">${q.label}</button>`).join('')}
+      </div>
+      <div id="lq-result" style="flex:1;overflow:auto;padding:12px 20px;">
+        <div style="color:var(--muted);font-size:12px;">Loading...</div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  runLiveQueryFetch(0);
+}
+
+async function runLiveQueryFetch(idx) {
+  const q = (window._lqQueries||[])[idx];
+  const el = document.getElementById('lq-result');
+  if (!el || !q) return;
+  (window._lqQueries||[]).forEach((_,i) => {
+    const t = document.getElementById('lq-tab-'+i);
+    if (!t) return;
+    t.style.background = i===idx ? 'rgba(0,132,255,0.15)' : 'transparent';
+    t.style.borderColor = i===idx ? 'var(--accent2)' : 'var(--border2)';
+    t.style.color = i===idx ? 'var(--accent2)' : 'var(--text)';
+  });
+  el.innerHTML = '<div style="color:var(--muted);font-size:12px;">Querying agent...</div>';
+  try {
+    const r = await fetch(`${PROXY_URL}${q.url}`);
+    const d = await r.json();
+    const items = d.data?.affected_items||(d.data?[d.data]:[]);
+    if (!items.length) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;">No data returned.</div>'; return; }
+    el.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px;">${items.length} result${items.length!==1?'s':''}</div>
+      <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">
+        <thead><tr>${q.heads.map(h=>`<th style="text-align:left;padding:5px 8px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;white-space:nowrap;">${h}</th>`).join('')}</tr></thead>
+        <tbody>${items.map((item,ri)=>`<tr style="border-bottom:1px solid var(--border);${ri%2?'background:rgba(255,255,255,0.02)':''}">
+          ${q.cols.map(col=>{
+            let val=col.split('.').reduce((o,k)=>o?.[k],item);
+            if(col.includes('ram')&&typeof val==='number') val=Math.round(val/1024)+' MB';
+            if(col==='install_time'&&typeof val==='number') val=new Date(val*1000).toLocaleDateString();
+            return `<td style="padding:4px 8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;" title="${escH(String(val??''))}">${escH(String(val??'—'))}</td>`;
+          }).join('')}
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+  } catch(e) { el.innerHTML = `<div style="color:var(--danger);font-size:12px;">Query failed: ${escH(e.message)}</div>`; }
 }
 
 async function pushPolicyUpdate() {
   if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
   const name = agentsData[activeAgentId]?.name || activeAgentId;
-  showToast(`Pushing policy update to ${name} — restarting agent configuration...`, 'info');
+  showToast(`Syncing agent config on ${name}...`, 'info');
   try {
-    const res = await fetch(`${PROXY_URL}/agents/${activeAgentId}/restart`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } });
-    showToast(res.ok ? 'Agent restart triggered — policy will reload on reconnect.' : 'Restart sent — verify connectivity.', 'success');
-  } catch(e) { showToast('Policy push failed — check agent status.', 'error'); }
+    const [restartRes, syschecksRes] = await Promise.allSettled([
+      fetch(`${PROXY_URL}/agents/${activeAgentId}/restart`, { method: 'PUT', headers: {'Content-Type':'application/json'} }),
+      fetch(`${PROXY_URL}/syscheck?agents_list=${activeAgentId}`, { method: 'PUT', headers: {'Content-Type':'application/json'} }),
+    ]);
+    const ok = restartRes.status === 'fulfilled' && restartRes.value?.ok;
+    showToast(ok
+      ? `Agent config synced on ${name} — Wazuh service restarting, syscheck scan queued.`
+      : `Sync attempted on ${name} — verify agent is online.`, ok ? 'success' : 'warn');
+  } catch(e) { showToast('Policy sync failed: ' + e.message, 'error'); }
 }
 
 function openEdrForAgent() {
@@ -7471,7 +7626,7 @@ async function loadSettings() {
   const notifyLevel = document.getElementById('cfg-notify-level');
   if (notifyLevel) notifyLevel.value = prefs.notifyLevel || '7';
   const isolateLevel = document.getElementById('cfg-isolate-level');
-  if (isolateLevel) isolateLevel.value = prefs.isolateLevel || '12';
+  if (isolateLevel) isolateLevel.value = prefs.isolateLevel || '0';
   const alertsPerPage = document.getElementById('cfg-alerts-per-page');
   if (alertsPerPage) alertsPerPage.value = prefs.alertsPerPage || 50;
   const retention = document.getElementById('cfg-retention');
