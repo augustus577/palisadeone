@@ -273,7 +273,8 @@
     .ep-action-section { padding: 20px; }
     .ep-action-title { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 3px; margin-bottom: 12px; text-transform: uppercase; }
     .ep-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-    .ep-action-btn { padding: 14px 10px; border: 1px solid; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; cursor: pointer; text-align: center; transition: all 0.2s; background: transparent; }
+    .ep-action-btn { padding: 14px 10px; border: 1px solid; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; cursor: pointer; text-align: center; transition: all 0.2s; background: transparent; border-color: rgba(74,96,128,0.4); color: var(--text); }
+    .ep-action-btn:hover { background: rgba(74,96,128,0.1); border-color: rgba(74,96,128,0.8); }
     .ep-action-btn.isolate { border-color: rgba(255,59,92,0.4); color: var(--danger); }
     .ep-action-btn.isolate:hover { background: rgba(255,59,92,0.1); border-color: var(--danger); }
     .ep-action-btn.reconnect { border-color: rgba(0,255,209,0.3); color: var(--accent); }
@@ -282,6 +283,18 @@
     .ep-action-btn.fds:hover { background: rgba(0,132,255,0.1); border-color: var(--accent2); }
     .ep-action-btn.rmm { border-color: rgba(245,166,35,0.4); color: var(--warning); }
     .ep-action-btn.rmm:hover { background: rgba(245,166,35,0.1); border-color: var(--warning); }
+    .ep-action-btn.restart { border-color: rgba(245,166,35,0.4); color: var(--warning); }
+    .ep-action-btn.restart:hover { background: rgba(245,166,35,0.1); border-color: var(--warning); }
+    .ep-action-btn.kill { border-color: rgba(255,59,92,0.4); color: var(--danger); }
+    .ep-action-btn.kill:hover { background: rgba(255,59,92,0.1); border-color: var(--danger); }
+    .ep-action-btn.evidence { border-color: rgba(245,166,35,0.4); color: var(--warning); }
+    .ep-action-btn.evidence:hover { background: rgba(245,166,35,0.1); border-color: var(--warning); }
+    .ep-action-btn.livequery { border-color: rgba(0,132,255,0.4); color: var(--accent2); }
+    .ep-action-btn.livequery:hover { background: rgba(0,132,255,0.1); border-color: var(--accent2); }
+    .ep-action-btn.policy { border-color: rgba(0,255,209,0.3); color: var(--accent); }
+    .ep-action-btn.policy:hover { background: rgba(0,255,209,0.08); border-color: var(--accent); }
+    .ep-action-btn.sysmon { border-color: rgba(0,132,255,0.4); color: var(--accent2); }
+    .ep-action-btn.sysmon:hover { background: rgba(0,132,255,0.1); border-color: var(--accent2); }
     .ep-action-btn .btn-icon { font-size: 20px; display: block; margin-bottom: 6px; }
     .ep-action-btn .btn-label { font-size: 10px; display: block; font-weight: 600; }
     .ep-action-btn .btn-sub { font-size: 9px; color: var(--muted); display: block; margin-top: 3px; }
@@ -2783,7 +2796,7 @@ mike@client.com"></textarea>
             <span class="btn-label">REMOTE DESKTOP</span>
             <span class="btn-sub">P1 Remote — Secure Relay</span>
           </button>
-          <button class="ep-action-btn" style="border-color:rgba(245,166,35,0.4);color:var(--warning);" onclick="restartEndpoint()">
+          <button class="ep-action-btn restart" onclick="restartEndpoint()">
             <span class="btn-icon">⚡</span>
             <span class="btn-label">RESTART</span>
             <span class="btn-sub">Reboot endpoint OS</span>
@@ -2791,27 +2804,27 @@ mike@client.com"></textarea>
         </div>
         <div class="ep-action-title" style="margin-top:16px;">Response Actions</div>
         <div class="ep-action-grid">
-          <button class="ep-action-btn" style="border-color:rgba(255,59,92,0.4);color:var(--danger);" onclick="killSuspiciousProcesses()">
+          <button class="ep-action-btn kill" onclick="killSuspiciousProcesses()">
             <span class="btn-icon">💀</span>
             <span class="btn-label">KILL PROCESSES</span>
             <span class="btn-sub">Terminate suspicious procs</span>
           </button>
-          <button class="ep-action-btn" style="border-color:rgba(245,166,35,0.4);color:var(--warning);" onclick="collectEvidence()">
+          <button class="ep-action-btn evidence" onclick="collectEvidence()">
             <span class="btn-icon">🗂</span>
             <span class="btn-label">COLLECT EVIDENCE</span>
             <span class="btn-sub">Export logs & artifacts</span>
           </button>
-          <button class="ep-action-btn" style="border-color:rgba(0,132,255,0.4);color:var(--accent2);" onclick="runLiveQuery()">
+          <button class="ep-action-btn livequery" onclick="runLiveQuery()">
             <span class="btn-icon">⌨</span>
             <span class="btn-label">LIVE QUERY</span>
             <span class="btn-sub">Run custom command</span>
           </button>
-          <button class="ep-action-btn" style="border-color:rgba(0,255,209,0.3);color:var(--accent);" onclick="pushPolicyUpdate()">
+          <button class="ep-action-btn policy" onclick="pushPolicyUpdate()">
             <span class="btn-icon">📋</span>
             <span class="btn-label">PUSH POLICY</span>
             <span class="btn-sub">Update security config</span>
           </button>
-          <button class="ep-action-btn" style="border-color:rgba(0,132,255,0.4);color:var(--accent2);" onclick="deploySysmon()">
+          <button class="ep-action-btn sysmon" onclick="deploySysmon()">
             <span class="btn-icon">👁</span>
             <span class="btn-label">DEPLOY TELEMETRY</span>
             <span class="btn-sub">Enable full EDR telemetry</span>
@@ -5351,16 +5364,19 @@ async function viewFdsResults(agentId) {
     } else {
       threatsHtml = `<div style="text-align:center;padding:30px;color:var(--accent);font-size:14px;">✓ No threats detected</div>`;
     }
+    // Remove any existing FDS modal
+    document.querySelectorAll('.fds-modal-overlay').forEach(el => el.remove());
     const modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(3,5,10,0.85);z-index:10000;display:flex;align-items:center;justify-content:center;';
+    modal.className = 'fds-modal-overlay';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(3,5,10,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;';
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-    modal.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;">
+    modal.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;" onclick="event.stopPropagation()">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);letter-spacing:2px;">DISK SCAN RESULTS</div>
           <div style="font-size:12px;color:var(--muted);">${name} — Agent #${agentId}</div>
         </div>
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;cursor:pointer;font-size:12px;">✕ CLOSE</button>
+        <button onclick="document.querySelector('.fds-modal-overlay').remove()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;cursor:pointer;font-size:12px;">✕ CLOSE</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
         <div style="background:var(--deep);border:1px solid var(--border);padding:12px;border-radius:4px;">
