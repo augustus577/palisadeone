@@ -5467,26 +5467,44 @@ async function runLiveQuery() {
   } catch(e) { showToast('Command dispatch failed.', 'error'); }
 }
 
-async function deploySysmon() {
+function deploySysmon() {
   if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
   const name = agentsData[activeAgentId]?.name || activeAgentId;
   const os = agentsData[activeAgentId]?.os?.name || '';
-  if (!os.toLowerCase().includes('windows')) {
-    showToast('Sysmon is Windows-only — this agent is ' + (os || 'unknown OS') + '.', 'warn');
-    return;
+  if (os && !os.toLowerCase().includes('windows')) {
+    showToast('Sysmon is Windows-only — this agent is ' + os + '.', 'warn'); return;
   }
-  showToast(`Deploying Sysmon to ${name} — downloads from Sysinternals, takes ~30s...`, 'info');
-  try {
-    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: 'install-sysmon', arguments: [] })
-    });
-    if (res.ok) {
-      showToast(`Sysmon deployment sent to ${name}. Full EDR telemetry active within ~60s.`, 'success');
-    } else {
-      showToast('Command sent — verify in Wazuh active-response logs.', 'info');
-    }
-  } catch(e) { showToast('Deploy failed: ' + e.message, 'error'); }
+  const oneliner = `Set-ExecutionPolicy Bypass -Scope Process -Force; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $c="$env:TEMP\\p1s.xml"; (New-Object Net.WebClient).DownloadFile('https://api.palisadeone.com:9443/ar-scripts/sysmon-config.xml',$c); if(Test-Path 'C:\\Windows\\Sysmon64.exe'){ Start-Process 'C:\\Windows\\Sysmon64.exe' -ArgumentList '-c',$c,'-accepteula' -Wait; Write-Host 'Config updated' }else{ $z="$env:TEMP\\Sysmon.zip"; (New-Object Net.WebClient).DownloadFile('https://download.sysinternals.com/files/Sysmon.zip',$z); Expand-Archive $z "$env:TEMP\\SysmonAR" -Force; Start-Process "$env:TEMP\\SysmonAR\\Sysmon64.exe" -ArgumentList '-i',$c,'-accepteula' -Wait; Remove-Item $z,"$env:TEMP\\SysmonAR" -Recurse -Force; Write-Host 'Sysmon installed' }; Remove-Item $c -Force`;
+
+  // Build modal
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border2);width:620px;max-width:95vw;padding:24px;position:relative;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);letter-spacing:2px;margin-bottom:6px;">DEPLOY SYSMON — ${escH(name)}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Run this in an <b style="color:var(--warning)">Admin PowerShell</b> on that machine. Connect via RustDesk first.</div>
+
+      <div style="background:var(--deep);border:1px solid var(--border);padding:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);word-break:break-all;line-height:1.6;margin-bottom:14px;max-height:120px;overflow-y:auto;" id="sysmon-oneliner">${escH(oneliner)}</div>
+
+      <div style="display:flex;gap:10px;">
+        <button onclick="navigator.clipboard.writeText(document.getElementById('sysmon-oneliner').textContent);this.textContent='✓ Copied!';this.style.background='var(--accent)';this.style.color='var(--black)';setTimeout(()=>{this.textContent='📋 Copy Command';this.style.background='';this.style.color='';},2000);"
+          style="flex:1;padding:10px;background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;">
+          📋 Copy Command
+        </button>
+        <button onclick="window.open('rustdesk://${escH(agentsData[activeAgentId]?.name || '')}','_blank')"
+          style="flex:1;padding:10px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;">
+          🖥 Open RustDesk
+        </button>
+        <button onclick="this.closest('div[style*=\"fixed\"]').remove()"
+          style="padding:10px 16px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:12px;cursor:pointer;">✕</button>
+      </div>
+
+      <div style="margin-top:14px;padding:10px;background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.15);font-size:11px;color:var(--muted);">
+        <b style="color:var(--accent);">Steps:</b> 1. Copy command &nbsp;·&nbsp; 2. Open RustDesk → connect to <b style="color:var(--white)">${escH(name)}</b> &nbsp;·&nbsp; 3. Open PowerShell as Admin &nbsp;·&nbsp; 4. Paste &amp; hit Enter &nbsp;·&nbsp; 5. Full EDR telemetry appears in dashboard within 60s
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
 }
 
 async function pushPolicyUpdate() {
