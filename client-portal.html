@@ -521,11 +521,11 @@
     <!-- OVERVIEW -->
     <div class="view active" id="view-overview">
       <div class="stats-grid" id="overviewStats">
-        <div class="stat-card">
-          <div class="stat-label">Security Score</div>
+        <div class="stat-card" style="cursor:pointer;" onclick="showView('vulnscan')">
+          <div class="stat-label">Cyber Exposure Score</div>
           <div class="stat-value" id="secScore">--</div>
-          <div class="stat-sub">out of 100</div>
-          <div class="stat-icon">&#9733;</div>
+          <div class="stat-sub" id="secScoreGrade">out of 100</div>
+          <div class="stat-icon">&#9760;</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Active Alerts</div>
@@ -686,13 +686,67 @@
       </div>
     </div>
 
-    <!-- VULN SCAN -->
+    <!-- VULN SCAN / CES -->
     <div class="view" id="view-vulnscan">
-      <div class="empty-state">
-        <div class="empty-icon">&#9760;</div>
-        <div class="empty-title">VULNERABILITY SCANNING</div>
-        <div class="empty-text">Continuous vulnerability assessment of your external and internal infrastructure. Available on the Dominate tier.</div>
-        <button class="upgrade-btn" onclick="alert('Contact PalisadeOne to schedule a scan.')">Request Scan</button>
+      <!-- CES Score Hero -->
+      <div class="panel" style="margin-bottom:16px;" id="ces-hero-panel">
+        <div style="padding:24px;">
+          <div style="display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
+            <!-- Big Gauge -->
+            <div style="position:relative;width:160px;height:160px;flex-shrink:0;">
+              <svg viewBox="0 0 160 160" style="width:160px;height:160px;transform:rotate(-90deg);">
+                <circle cx="80" cy="80" r="72" fill="none" stroke="var(--border)" stroke-width="8"/>
+                <circle cx="80" cy="80" r="72" fill="none" stroke-width="8" stroke-linecap="round" id="ces-hero-arc"
+                  stroke="var(--muted)" stroke-dasharray="452.4" stroke-dashoffset="452.4"/>
+              </svg>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);text-align:center;">
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:1;" id="ces-hero-score">--</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;" id="ces-hero-grade">--</div>
+              </div>
+            </div>
+            <!-- Details -->
+            <div style="flex:1;min-width:200px;">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--white);margin-bottom:4px;">CYBER EXPOSURE SCORE</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Your organization's vulnerability posture based on the latest scan results. Higher is better.</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="ces-hero-details">
+                <div style="background:var(--deep);border:1px solid var(--border);padding:10px 14px;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">CRITICAL</div>
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--danger);" id="ces-hero-crit">--</div>
+                </div>
+                <div style="background:var(--deep);border:1px solid var(--border);padding:10px 14px;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">HIGH</div>
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#FF6400;" id="ces-hero-high">--</div>
+                </div>
+                <div style="background:var(--deep);border:1px solid var(--border);padding:10px 14px;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">MEDIUM</div>
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--warning);" id="ces-hero-med">--</div>
+                </div>
+                <div style="background:var(--deep);border:1px solid var(--border);padding:10px 14px;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">LOW / INFO</div>
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent2);" id="ces-hero-low">--</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Stats row -->
+          <div style="display:flex;gap:24px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap;" id="ces-hero-meta">
+            <div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">TOTAL FINDINGS</span><br><span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--text);" id="ces-hero-total">--</span></div>
+            <div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">AVG CVSS</span><br><span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--text);" id="ces-hero-cvss">--</span></div>
+            <div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">SCANS</span><br><span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--text);" id="ces-hero-scans">--</span></div>
+            <div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">LAST SCAN</span><br><span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--text);" id="ces-hero-last">--</span></div>
+            <div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">TREND</span><br><span style="font-family:'JetBrains Mono',monospace;font-size:14px;" id="ces-hero-trend">--</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No data state -->
+      <div id="ces-no-data" style="display:none;">
+        <div class="empty-state">
+          <div class="empty-icon">&#9760;</div>
+          <div class="empty-title">NO SCAN DATA YET</div>
+          <div class="empty-text">Your PalisadeOne team will run vulnerability scans against your infrastructure. Once complete, your Cyber Exposure Score will appear here.</div>
+          <button class="upgrade-btn" onclick="alert('Contact PalisadeOne to schedule a vulnerability scan.')">Request Scan</button>
+        </div>
       </div>
     </div>
 
@@ -803,7 +857,7 @@ const VIEW_TITLES = {
   overview: 'SECURITY OVERVIEW', alerts: 'THREAT ALERTS', devices: 'ENDPOINTS',
   assessment: 'CYBER RISK ASSESSMENT', compliance: 'COMPLIANCE DASHBOARD',
   training: 'SECURITY TRAINING', darkweb: 'DARK WEB MONITORING',
-  vulnscan: 'VULNERABILITY SCANNER', zerotrust: 'ZERO TRUST FRAMEWORK',
+  vulnscan: 'CYBER EXPOSURE SCORE', zerotrust: 'ZERO TRUST FRAMEWORK',
   reports: 'EXECUTIVE REPORTS', tickets: 'SUPPORT TICKETS'
 };
 
@@ -857,10 +911,10 @@ function applyTierGating() {
 function navTo(name) {
   const navItem = document.querySelector(`.nav-item[data-view="${name}"]`);
   if (navItem && navItem.classList.contains('locked')) return;
+  if (name === 'vulnscan') { showView('vulnscan'); return; }
   const pages = {
     assessment: 'cyber-assessment.html',
-    training: 'training.html',
-    vulnscan: 'cyber-assessment.html#vulnscan'
+    training: 'training.html'
   };
   if (pages[name]) window.location.href = pages[name];
 }
@@ -881,6 +935,7 @@ function showView(name) {
   if (name === 'darkweb') loadDarkWeb();
   if (name === 'compliance') loadComplianceDetail();
   if (name === 'tickets') loadTickets();
+  if (name === 'vulnscan') loadClientCES();
 }
 
 function apiHeaders() {
@@ -901,9 +956,12 @@ async function loadOverviewData() {
     if (res.status === 401) { logout(); return; }
     clientData = await res.json();
 
-    // Security score from assessment
-    const score = clientData.latestAssessment?.scores?.overall || '--';
-    document.getElementById('secScore').textContent = typeof score === 'number' ? Math.round(score) : score;
+    // CES score is loaded separately via loadOverviewCES()
+    // Fall back to assessment score only if CES not available
+    if (document.getElementById('secScore').textContent === '--') {
+      const score = clientData.latestAssessment?.scores?.overall || '--';
+      document.getElementById('secScore').textContent = typeof score === 'number' ? Math.round(score) : score;
+    }
 
     // Task completion
     const tasks = clientData.taskSummary || {};
@@ -1274,8 +1332,81 @@ async function loadTicketBadge() {
 }
 
 // Init on load
+async function loadClientCES() {
+  const clientInfo = JSON.parse(sessionStorage.getItem('p1_client') || '{}');
+  const clientName = clientInfo.name || '';
+  if (!clientName) {
+    document.getElementById('ces-hero-panel').style.display = 'none';
+    document.getElementById('ces-no-data').style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(API_URL + '/scan/ces/' + encodeURIComponent(clientName));
+    if (!res.ok) {
+      document.getElementById('ces-hero-panel').style.display = 'none';
+      document.getElementById('ces-no-data').style.display = 'block';
+      return;
+    }
+    const ces = await res.json();
+    const b = ces.breakdown;
+    const scoreColor = ces.score >= 85 ? 'var(--accent)' : ces.score >= 70 ? 'var(--accent2)' : ces.score >= 55 ? 'var(--warning)' : 'var(--danger)';
+    const circumference = 2 * Math.PI * 72;
+    const offset = circumference - (ces.score / 100) * circumference;
+
+    document.getElementById('ces-hero-panel').style.display = 'block';
+    document.getElementById('ces-no-data').style.display = 'none';
+
+    const arc = document.getElementById('ces-hero-arc');
+    arc.setAttribute('stroke', scoreColor);
+    arc.setAttribute('stroke-dasharray', circumference);
+    arc.setAttribute('stroke-dashoffset', offset);
+
+    document.getElementById('ces-hero-score').textContent = ces.score;
+    document.getElementById('ces-hero-score').style.color = scoreColor;
+    document.getElementById('ces-hero-grade').textContent = ces.grade;
+    document.getElementById('ces-hero-grade').style.color = scoreColor;
+
+    document.getElementById('ces-hero-crit').textContent = b.critical;
+    document.getElementById('ces-hero-high').textContent = b.high;
+    document.getElementById('ces-hero-med').textContent = b.medium;
+    document.getElementById('ces-hero-low').textContent = (b.low + b.info);
+
+    document.getElementById('ces-hero-total').textContent = b.totalFindings;
+    document.getElementById('ces-hero-cvss').textContent = b.avgCVSS > 0 ? b.avgCVSS.toFixed(1) : '--';
+    document.getElementById('ces-hero-scans').textContent = b.scansAnalyzed;
+    document.getElementById('ces-hero-last').textContent = b.lastScanDate ? new Date(b.lastScanDate).toLocaleDateString() : '--';
+
+    const trendEl = document.getElementById('ces-hero-trend');
+    const trendMap = { improving: ['IMPROVING', 'var(--accent)'], declining: ['DECLINING', 'var(--danger)'], stable: ['STABLE', 'var(--muted)'], new: ['NEW', 'var(--accent2)'] };
+    const [tLabel, tColor] = trendMap[ces.trend] || ['--', 'var(--muted)'];
+    trendEl.textContent = tLabel;
+    trendEl.style.color = tColor;
+  } catch(e) {
+    console.error('CES load error:', e);
+    document.getElementById('ces-hero-panel').style.display = 'none';
+    document.getElementById('ces-no-data').style.display = 'block';
+  }
+}
+
+async function loadOverviewCES() {
+  const clientInfo = JSON.parse(sessionStorage.getItem('p1_client') || '{}');
+  const clientName = clientInfo.name || '';
+  if (!clientName) return;
+
+  try {
+    const res = await fetch(API_URL + '/scan/ces/' + encodeURIComponent(clientName));
+    if (!res.ok) return;
+    const ces = await res.json();
+    document.getElementById('secScore').textContent = ces.score;
+    document.getElementById('secScore').style.color = ces.score >= 85 ? 'var(--accent)' : ces.score >= 70 ? 'var(--accent2)' : ces.score >= 55 ? 'var(--warning)' : 'var(--danger)';
+    document.getElementById('secScoreGrade').textContent = ces.grade + ' — click for details';
+  } catch(e) {}
+}
+
 init();
 loadTicketBadge();
+loadOverviewCES();
 </script>
 </body>
 </html>

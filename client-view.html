@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Palisade One — Client Security Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -188,9 +189,97 @@
     .theme-toggle-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.2s; border-radius: 2px; }
     .theme-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
 
+    /* SMART SEARCH / ALERT CONTROLS */
+    .alert-controls { display:flex; flex-direction:column; gap:10px; padding:14px 18px; border-bottom:1px solid var(--border); }
+    .smart-search-wrap { position:relative; }
+    .smart-search-wrap input { width:100%; background:var(--deep); border:1px solid var(--border); padding:10px 14px 10px 36px; color:var(--white); font-family:'Outfit',sans-serif; font-size:13px; outline:none; transition:border-color 0.2s; }
+    .smart-search-wrap input:focus { border-color:var(--accent); }
+    .smart-search-wrap::before { content:'⌕'; position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:16px; pointer-events:none; }
+    .filter-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .time-btn,.sev-btn { background:transparent; border:1px solid var(--border); color:var(--muted); padding:4px 10px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; cursor:pointer; transition:all 0.15s; }
+    .time-btn:hover,.sev-btn:hover { border-color:var(--accent2); color:var(--accent2); }
+    .time-btn.active,.sev-btn.active { border-color:var(--accent); color:var(--accent); background:rgba(0,255,209,0.06); }
+    .filter-sep { width:1px; height:18px; background:var(--border); margin:0 4px; }
+    .chip-row { display:flex; gap:6px; flex-wrap:wrap; }
+    .quick-chip { background:rgba(0,132,255,0.08); border:1px solid rgba(0,132,255,0.2); color:var(--accent2); font-family:'JetBrains Mono',monospace; font-size:10px; padding:3px 9px; cursor:pointer; transition:all 0.15s; border-radius:2px; }
+    .quick-chip:hover { background:rgba(0,132,255,0.2); }
+    /* ALERT ROWS V2 */
+    .alert-row-v2 { display:grid; grid-template-columns:130px 36px 1fr 100px 90px; gap:10px; padding:10px 18px; border-bottom:1px solid rgba(17,34,64,0.5); align-items:center; cursor:pointer; transition:background 0.15s; }
+    .alert-row-v2:hover { background:rgba(0,255,209,0.03); }
+    .alert-row-v2.header { background:var(--deep); cursor:default; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+    .alert-row-v2.header:hover { background:var(--deep); }
+    .mitre-pill { display:inline-block; padding:1px 6px; background:rgba(0,132,255,0.1); border:1px solid rgba(0,132,255,0.25); font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--accent2); border-radius:2px; }
+    .rule-group-tag { display:inline-block; padding:1px 6px; background:rgba(0,255,209,0.06); border:1px solid rgba(0,255,209,0.15); font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--accent); border-radius:2px; }
+    .src-icon { font-size:14px; }
+    /* ALERT DETAIL PANEL */
+    #cv-alert-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:500; }
+    #cv-alert-panel { position:fixed; top:0; right:0; bottom:0; width:520px; background:var(--surface); border-left:1px solid var(--border2); z-index:501; overflow-y:auto; transform:translateX(100%); transition:transform 0.25s cubic-bezier(0.4,0,0.2,1); }
+    #cv-alert-panel.open { transform:translateX(0); }
+    .ap-header { padding:18px 20px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; justify-content:space-between; gap:12px; background:var(--deep); position:sticky; top:0; z-index:2; }
+    .ap-close { background:transparent; border:1px solid var(--border); color:var(--muted); width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; flex-shrink:0; transition:all 0.15s; }
+    .ap-close:hover { border-color:var(--danger); color:var(--danger); }
+    .ap-title { font-size:14px; color:var(--white); font-weight:500; line-height:1.3; }
+    .ap-meta { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); margin-top:5px; display:flex; gap:10px; flex-wrap:wrap; }
+    .ap-body { padding:18px 20px; }
+    .ap-section { margin-bottom:18px; }
+    .ap-section-title { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+    .ap-triage { background:rgba(0,255,209,0.04); border:1px solid rgba(0,255,209,0.15); padding:12px 14px; font-size:12px; color:var(--text); line-height:1.6; }
+    .ap-kv { display:flex; gap:8px; margin-bottom:6px; font-size:12px; }
+    .ap-k { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); min-width:110px; flex-shrink:0; padding-top:1px; }
+    .ap-v { color:var(--text); word-break:break-all; }
+    .ap-v.mono { font-family:'JetBrains Mono',monospace; font-size:11px; }
+    .ap-v.danger { color:var(--danger); }
+    .ap-v.accent { color:var(--accent); }
+    .risk-badge { display:inline-block; padding:3px 10px; font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:1px; border-radius:2px; }
+    .risk-critical { background:rgba(255,59,92,0.15); color:var(--danger); border:1px solid rgba(255,59,92,0.3); }
+    .risk-high { background:rgba(245,166,35,0.15); color:var(--warning); border:1px solid rgba(245,166,35,0.3); }
+    .risk-medium { background:rgba(0,132,255,0.15); color:var(--accent2); border:1px solid rgba(0,132,255,0.3); }
+    .risk-low { background:rgba(0,255,209,0.05); color:var(--muted); border:1px solid var(--border); }
+    .ap-related-item { padding:8px 0; border-bottom:1px solid rgba(17,34,64,0.5); font-size:12px; color:var(--text); }
+    .ap-related-item:last-child { border-bottom:none; }
+    /* ANALYTICS VIEW */
+    .siem-time-row { display:flex; gap:6px; margin-bottom:18px; }
+    .cv-widget-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .cv-widget { background:var(--surface); border:1px solid var(--border); }
+    .cv-widget-full { grid-column:1/-1; }
+    .cv-widget canvas { max-height:200px; }
+    .cv-list-item { display:flex; justify-content:space-between; padding:7px 14px; border-bottom:1px solid rgba(17,34,64,0.5); font-size:12px; }
+    .cv-list-item:last-child { border-bottom:none; }
+    .cv-list-label { color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:60%; }
+    .cv-list-count { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); }
+    /* CUSTOM DASHBOARD */
+    .dash-empty { padding:40px 20px; text-align:center; color:var(--muted); font-size:13px; }
+    .dash-empty-icon { font-size:48px; margin-bottom:14px; opacity:0.3; }
+    .dash-add-btn { background:var(--accent); color:var(--black); border:none; padding:10px 22px; font-family:'Outfit',sans-serif; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.2s; clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px)); }
+    .dash-add-btn:hover { background:var(--white); }
+    .dash-widget-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+    .dash-widget { background:var(--surface); border:1px solid var(--border); position:relative; }
+    .dash-widget-remove { position:absolute; top:8px; right:8px; background:rgba(255,59,92,0.1); border:1px solid rgba(255,59,92,0.2); color:var(--danger); width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer; z-index:2; opacity:0; transition:opacity 0.15s; }
+    .dash-widget:hover .dash-widget-remove { opacity:1; }
+    /* MODAL */
+    #cv-widget-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:600; align-items:center; justify-content:center; }
+    #cv-widget-modal.open { display:flex; }
+    .modal-box { background:var(--surface); border:1px solid var(--border2); width:560px; max-height:80vh; overflow-y:auto; }
+    .modal-header { padding:18px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--deep); }
+    .modal-title { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; color:var(--white); }
+    .modal-body { padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .widget-option { background:var(--deep); border:1px solid var(--border); padding:14px; cursor:pointer; transition:all 0.15s; }
+    .widget-option:hover { border-color:var(--accent); background:rgba(0,255,209,0.04); }
+    .widget-option-icon { font-size:24px; margin-bottom:8px; }
+    .widget-option-name { font-size:13px; color:var(--white); font-weight:500; margin-bottom:4px; }
+    .widget-option-desc { font-size:11px; color:var(--muted); }
+    /* VULNS */
+    .vuln-row { display:grid; grid-template-columns:80px 1fr 80px 80px; gap:10px; padding:10px 18px; border-bottom:1px solid rgba(17,34,64,0.5); align-items:center; font-size:12px; }
+    .vuln-row.header { background:var(--deep); font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+    .vuln-cve { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent2); }
+    .sev-badge { display:inline-block; padding:2px 8px; font-size:10px; font-weight:600; border-radius:2px; text-transform:uppercase; }
+    .sev-Critical { background:rgba(255,59,92,0.15); color:var(--danger); }
+    .sev-High { background:rgba(245,166,35,0.15); color:var(--warning); }
+    .sev-Medium { background:rgba(0,132,255,0.15); color:var(--accent2); }
+    .sev-Low { background:rgba(0,255,209,0.05); color:var(--muted); border:1px solid var(--border); }
     @media (max-width: 1100px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 900px) { .sidebar { width: 54px; } .sidebar-logo-text, .sidebar-client-badge, .sidebar-footer span, .nav-item span:not(.nav-icon) { display: none; } .nav-item { justify-content: center; } .main { margin-left: 54px; } .grid-2, .grid-3 { grid-template-columns: 1fr; } }
-    @media (max-width: 600px) { .stats-row { grid-template-columns: 1fr; } .content { padding: 14px; } }
+    @media (max-width: 900px) { .sidebar { width: 54px; } .sidebar-logo-text, .sidebar-client-badge, .sidebar-footer span, .nav-item span:not(.nav-icon) { display: none; } .nav-item { justify-content: center; } .main { margin-left: 54px; } .grid-2, .grid-3 { grid-template-columns: 1fr; } #cv-alert-panel { width: 100%; } }
+    @media (max-width: 600px) { .stats-row { grid-template-columns: 1fr; } .content { padding: 14px; } .alert-row-v2 { grid-template-columns: 100px 30px 1fr; } .alert-row-v2 > *:nth-child(4), .alert-row-v2 > *:nth-child(5) { display:none; } }
   </style>
 </head>
 <body>
@@ -245,6 +334,15 @@
       <div class="nav-item" onclick="showView('alerts')">
         <span class="nav-icon">🔴</span><span>Alerts</span>
         <span class="nav-badge" id="alert-badge" style="display:none">0</span>
+      </div>
+      <div class="nav-item" onclick="showView('analytics')">
+        <span class="nav-icon">📊</span><span>Analytics</span>
+      </div>
+      <div class="nav-item" onclick="showView('mydashboard')">
+        <span class="nav-icon">🧩</span><span>My Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="showView('vulns')">
+        <span class="nav-icon">🛡</span><span>Vulnerabilities</span>
       </div>
       <div class="nav-item" onclick="showView('support')">
         <span class="nav-icon">🎫</span><span>Support</span>
@@ -366,17 +464,102 @@
         </div>
       </div>
 
-      <!-- ALERTS -->
+      <!-- ALERTS ENHANCED -->
       <div class="view" id="view-alerts">
         <div class="panel">
           <div class="panel-header">
-            <div class="panel-title">Security Alerts — Last 24 Hours</div>
-            <div class="panel-action" onclick="loadAlerts()">↻ Refresh</div>
+            <div class="panel-title">Security Alerts</div>
+            <div class="panel-action" onclick="runClientAlertSearch()">↻ Refresh</div>
           </div>
-          <div class="alert-row header"><div>Time</div><div>Lvl</div><div>Description</div><div>Device</div><div>Rule</div></div>
-          <div id="full-alerts">
+          <div class="alert-controls">
+            <div class="smart-search-wrap">
+              <input type="text" id="cv-alert-search" placeholder='Search: "failed logon", "powershell", "ransomware", rule:92200...' onkeydown="if(event.key==='Enter')runClientAlertSearch()"/>
+            </div>
+            <div class="filter-row">
+              <button class="time-btn active" onclick="setCvAlertTime('24h',this)">24H</button>
+              <button class="time-btn" onclick="setCvAlertTime('7d',this)">7D</button>
+              <button class="time-btn" onclick="setCvAlertTime('30d',this)">30D</button>
+              <div class="filter-sep"></div>
+              <button class="sev-btn active" onclick="setCvAlertSev(0,this)">All</button>
+              <button class="sev-btn" onclick="setCvAlertSev(12,this)">Critical</button>
+              <button class="sev-btn" onclick="setCvAlertSev(7,this)">High</button>
+              <button class="sev-btn" onclick="setCvAlertSev(4,this)">Medium</button>
+            </div>
+            <div class="chip-row">
+              <span class="quick-chip" onclick="cvQuickSearch('failed logon')">Failed Logon</span>
+              <span class="quick-chip" onclick="cvQuickSearch('powershell')">PowerShell</span>
+              <span class="quick-chip" onclick="cvQuickSearch('malware')">Malware</span>
+              <span class="quick-chip" onclick="cvQuickSearch('brute force')">Brute Force</span>
+              <span class="quick-chip" onclick="cvQuickSearch('file change')">File Change</span>
+              <span class="quick-chip" onclick="cvQuickSearch('ransomware')">Ransomware</span>
+            </div>
+          </div>
+          <div id="cv-alert-stats" style="display:flex;gap:20px;padding:10px 18px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);"></div>
+          <div class="alert-row-v2 header"><div>Time</div><div>Lvl</div><div>Description</div><div>Device</div><div>Tags</div></div>
+          <div id="cv-full-alerts">
             <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div>
           </div>
+          <div id="cv-load-more" style="display:none;padding:12px;text-align:center;">
+            <button class="panel-action" onclick="cvLoadMore()" style="font-size:12px;">Load more alerts ↓</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="view" id="view-analytics">
+        <div class="siem-time-row">
+          <button class="time-btn active" onclick="setCvSiemTime('24h',this)">24H</button>
+          <button class="time-btn" onclick="setCvSiemTime('7d',this)">7D</button>
+          <button class="time-btn" onclick="setCvSiemTime('30d',this)">30D</button>
+        </div>
+        <div class="cv-widget-grid">
+          <div class="cv-widget cv-widget-full">
+            <div class="panel-header"><div class="panel-title">Alert Timeline</div></div>
+            <div style="padding:14px;"><canvas id="cv-chart-timeline" height="140"></canvas></div>
+          </div>
+          <div class="cv-widget">
+            <div class="panel-header"><div class="panel-title">Severity Breakdown</div></div>
+            <div style="padding:14px;display:flex;justify-content:center;"><canvas id="cv-chart-sev" height="160" width="160"></canvas></div>
+          </div>
+          <div class="cv-widget">
+            <div class="panel-header"><div class="panel-title">Top Threats</div></div>
+            <div id="cv-top-rules"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div></div>
+          </div>
+          <div class="cv-widget">
+            <div class="panel-header"><div class="panel-title">Top Devices by Alerts</div></div>
+            <div id="cv-top-agents"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div></div>
+          </div>
+          <div class="cv-widget">
+            <div class="panel-header"><div class="panel-title">Auth Events</div></div>
+            <div style="padding:14px;display:flex;justify-content:center;"><canvas id="cv-chart-auth" height="160" width="160"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MY DASHBOARD -->
+      <div class="view" id="view-mydashboard">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">Customize your personal security dashboard</div>
+          <button class="dash-add-btn" onclick="openWidgetModal()">+ ADD WIDGET</button>
+        </div>
+        <div id="cv-dash-grid" class="dash-widget-grid"></div>
+      </div>
+
+      <!-- VULNERABILITIES -->
+      <div class="view" id="view-vulns">
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card red"><div class="stat-label">Critical CVEs</div><div class="stat-value danger" id="vuln-critical">--</div><div class="stat-sub">Needs immediate action</div></div>
+          <div class="stat-card yellow"><div class="stat-label">High CVEs</div><div class="stat-value" style="color:var(--warning)" id="vuln-high">--</div><div class="stat-sub">Patch soon</div></div>
+          <div class="stat-card blue"><div class="stat-label">Medium CVEs</div><div class="stat-value blue" id="vuln-medium">--</div><div class="stat-sub">Schedule patch</div></div>
+          <div class="stat-card green"><div class="stat-label">Total Found</div><div class="stat-value accent" id="vuln-total">--</div><div class="stat-sub">Across all devices</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Vulnerability Findings</div>
+            <div class="panel-action" onclick="loadVulns()">↻ Refresh</div>
+          </div>
+          <div class="vuln-row header"><div>Severity</div><div>CVE / Package</div><div>Device</div><div>CVSS</div></div>
+          <div id="cv-vuln-list"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div></div>
         </div>
       </div>
 
@@ -462,6 +645,30 @@
   </div><!-- /main -->
 </div><!-- /app -->
 
+<!-- ALERT DETAIL PANEL -->
+<div id="cv-alert-overlay" onclick="closeCvAlertPanel()"></div>
+<div id="cv-alert-panel">
+  <div class="ap-header">
+    <div>
+      <div class="ap-title" id="cv-ap-title">Alert Detail</div>
+      <div class="ap-meta" id="cv-ap-meta"></div>
+    </div>
+    <button class="ap-close" onclick="closeCvAlertPanel()">✕</button>
+  </div>
+  <div class="ap-body" id="cv-ap-body"></div>
+</div>
+
+<!-- WIDGET PICKER MODAL -->
+<div id="cv-widget-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">ADD WIDGET</div>
+      <button class="ap-close" onclick="closeWidgetModal()">✕</button>
+    </div>
+    <div class="modal-body" id="cv-widget-options"></div>
+  </div>
+</div>
+
 <script>
 (function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('p1-theme') || 'dark'); })();
 
@@ -482,6 +689,29 @@ document.addEventListener('DOMContentLoaded', () => {
 const PROXY_URL = 'https://api.palisadeone.com:9443';
 let currentClient = null;
 let clientAgentIds = [];
+
+// Alert state
+let cvAlertTime = '24h';
+let cvAlertMinLevel = 0;
+let cvAlertAllHits = [];
+let cvAlertPage = 0;
+const CV_PAGE_SIZE = 50;
+
+// SIEM state
+let cvSiemTime = '24h';
+let cvChartTimeline = null, cvChartSev = null, cvChartAuth = null;
+
+// Custom dashboard
+const CV_WIDGET_DEFS = [
+  { id:'alert-feed',   icon:'🔴', name:'Alert Feed',       desc:'Live security alerts for your environment' },
+  { id:'device-status',icon:'💻', name:'Device Status',    desc:'Online/offline status of your endpoints' },
+  { id:'sev-donut',    icon:'🎯', name:'Severity Donut',   desc:'Alert breakdown by severity level' },
+  { id:'timeline',     icon:'📈', name:'Alert Timeline',   desc:'Alert volume over time' },
+  { id:'top-threats',  icon:'⚡', name:'Top Threats',      desc:'Most frequent threat rules triggered' },
+  { id:'security-score',icon:'🛡',name:'Security Score',   desc:'Your overall security posture score' },
+  { id:'auth-events',  icon:'🔐', name:'Auth Events',      desc:'Login success vs failure breakdown' },
+  { id:'vuln-summary', icon:'🩹', name:'Vuln Summary',     desc:'CVE counts across your devices' },
+];
 
 // ── AUTH ──────────────────────────────────────────────────────────
 async function doLogin() {
@@ -550,14 +780,18 @@ function loading() {
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────
+const VIEW_TITLES = { overview:'OVERVIEW', devices:'MY DEVICES', alerts:'ALERTS', analytics:'ANALYTICS', mydashboard:'MY DASHBOARD', vulns:'VULNERABILITIES', support:'SUPPORT' };
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  document.getElementById('page-title').textContent = name === 'support' ? 'SUPPORT' : name.toUpperCase();
+  document.getElementById('view-' + name)?.classList.add('active');
+  document.getElementById('page-title').textContent = VIEW_TITLES[name] || name.toUpperCase();
   event?.currentTarget?.classList?.add('active');
-  if (name === 'alerts') loadAlerts();
+  if (name === 'alerts') runClientAlertSearch();
   if (name === 'devices') loadDevices();
+  if (name === 'analytics') initCvSiem();
+  if (name === 'mydashboard') renderCustomDash();
+  if (name === 'vulns') loadVulns();
 }
 
 function updateTime() {
@@ -586,12 +820,62 @@ async function resolveClientAgentIds() {
   return clientAgentIds;
 }
 
+function buildClientFilter(timeRange) {
+  const tr = timeRange || cvAlertTime;
+  const filter = [{ range: { timestamp: { gte: `now-${tr}` } } }];
+  if (clientAgentIds.length > 0) filter.push({ terms: { 'agent.id': clientAgentIds } });
+  return filter;
+}
+
 function buildAlertQuery(size, extra = {}) {
-  const ids = clientAgentIds;
-  const filter = ids.length > 0
-    ? [{ terms: { 'agent.id': ids } }, { range: { timestamp: { gte: 'now-24h' } } }]
-    : [{ range: { timestamp: { gte: 'now-24h' } } }];
+  const filter = buildClientFilter();
   return { size, sort: [{ timestamp: { order: 'desc' } }], query: { bool: { filter } }, ...extra };
+}
+
+// Natural language → Wazuh query
+const CV_KEYWORD_MAP = {
+  'failed logon': ['authentication_failed','win_authentication_failed'],
+  'brute force': ['authentication_failures'],
+  'powershell': ['win_powershell'],
+  'ransomware': ['win_malware_detection','syscheck'],
+  'malware': ['win_malware_detection','rootcheck'],
+  'file change': ['syscheck'],
+  'privilege': ['win_privilege_escalation'],
+  'lateral': ['win_lateral_movement'],
+  'injection': ['win_code_injection'],
+  'network scan': ['network_scan'],
+  'sql': ['web_appsec'],
+  'phishing': ['phishing'],
+  'firewall': ['firewall'],
+  'mimikatz': ['credential_access'],
+};
+
+function buildCvAlertQuery(searchText, size) {
+  const filter = buildClientFilter();
+  if (cvAlertMinLevel >= 4) filter.push({ range: { 'rule.level': { gte: cvAlertMinLevel } } });
+  let must = [];
+
+  if (searchText) {
+    const lower = searchText.toLowerCase().trim();
+    if (lower.startsWith('rule:')) {
+      const rid = lower.replace('rule:','').trim();
+      filter.push({ term: { 'rule.id': rid } });
+    } else {
+      // Check keyword map
+      let mapped = null;
+      for (const [kw, groups] of Object.entries(CV_KEYWORD_MAP)) {
+        if (lower.includes(kw)) { mapped = groups; break; }
+      }
+      if (mapped) {
+        filter.push({ terms: { 'rule.groups': mapped } });
+      } else {
+        must.push({ multi_match: { query: searchText, fields: ['rule.description','rule.groups','agent.name','data.win.eventdata.image','data.srcip'], type: 'phrase_prefix' } });
+      }
+    }
+  }
+
+  const q = { bool: { filter, ...(must.length ? { must } : {}) } };
+  return { size, sort: [{ timestamp: { order: 'desc' } }], query: q };
 }
 
 async function indexerSearch(index, query) {
@@ -605,56 +889,272 @@ async function indexerSearch(index, query) {
 }
 
 // ── LOAD DATA ─────────────────────────────────────────────────────
-async function loadAlerts() {
-  const [fullEl, ovEl, feedEl] = ['full-alerts', 'overview-alerts', 'threat-feed'].map(id => document.getElementById(id));
-  if (fullEl) fullEl.innerHTML = loading();
-  if (ovEl) ovEl.innerHTML = loading();
-  if (feedEl) feedEl.innerHTML = loading();
+function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  const data = await indexerSearch('wazuh-alerts-4.x-*', buildAlertQuery(50));
-  const hits = data?.hits?.hits?.map(h => h._source) || [];
+function setCvAlertTime(t, btn) {
+  cvAlertTime = t;
+  document.querySelectorAll('#view-alerts .time-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  runClientAlertSearch();
+}
+function setCvAlertSev(lvl, btn) {
+  cvAlertMinLevel = lvl;
+  document.querySelectorAll('#view-alerts .sev-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  runClientAlertSearch();
+}
+function cvQuickSearch(kw) {
+  document.getElementById('cv-alert-search').value = kw;
+  runClientAlertSearch();
+}
+
+function renderCvAlertRowV2(hit) {
+  const src = hit._source || hit;
+  const level = src.rule?.level || 0;
+  const desc = src.rule?.description || 'Security event';
+  const mitre = src.rule?.mitre?.id?.[0] || '';
+  const groups = src.rule?.groups || [];
+  const tag = groups.find(g => !['ossec','syslog','syscheck','local','ids'].includes(g)) || groups[0] || '';
+  const icon = level >= 12 ? '🔴' : level >= 7 ? '🟠' : level >= 4 ? '🔵' : '⚪';
+  return `<div class="alert-row-v2" onclick="openCvAlertPanel(${escH(JSON.stringify(src))})">
+    <div class="alert-time">${fmtDateTime(src.timestamp)}</div>
+    <div>${levelBadge(level)}</div>
+    <div><span class="src-icon">${icon}</span> <span style="font-size:13px;color:var(--text)">${escH(desc.substring(0,65))}${desc.length>65?'…':''}</span></div>
+    <div class="alert-agent">${escH(src.agent?.name || '--')}</div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;">${mitre ? `<span class="mitre-pill">${escH(mitre)}</span>` : ''}${tag ? `<span class="rule-group-tag">${escH(tag)}</span>` : ''}</div>
+  </div>`;
+}
+
+async function runClientAlertSearch() {
+  const el = document.getElementById('cv-full-alerts');
+  if (!el) return;
+  el.innerHTML = loading();
+  document.getElementById('cv-load-more').style.display = 'none';
+  cvAlertPage = 0;
+  const q = buildCvAlertQuery(document.getElementById('cv-alert-search')?.value || '', 200);
+  const data = await indexerSearch('wazuh-alerts-4.x-*', q);
+  cvAlertAllHits = data?.hits?.hits || [];
   const total = data?.hits?.total?.value || 0;
-  const critical = hits.filter(h => (h.rule?.level || 0) >= 12).length;
+  const statsEl = document.getElementById('cv-alert-stats');
+  const critical = cvAlertAllHits.filter(h => (h._source?.rule?.level || 0) >= 12).length;
+  if (statsEl) statsEl.innerHTML = `<span style="color:var(--danger)">${critical} critical</span><span style="color:var(--warning)">${cvAlertAllHits.filter(h=>(h._source?.rule?.level||0)>=7&&(h._source?.rule?.level||0)<12).length} high</span><span>Total: ${total.toLocaleString()}</span>`;
 
-  document.getElementById('stat-critical').textContent = critical;
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('val-crit').textContent = critical;
-  const critBadge = document.getElementById('alert-badge');
-  if (critical > 0) { critBadge.textContent = critical; critBadge.style.display = ''; }
+  updateOverviewFromAlerts(cvAlertAllHits, total);
+  renderCvAlertPage(el);
+}
 
-  const renderRow = hit => {
-    const level = hit.rule?.level || 0;
-    const desc = hit.rule?.description || 'Security event';
-    return `<div class="alert-row">
-      <div class="alert-time">${fmtTime(hit.timestamp)}</div>
-      <div>${levelBadge(level)}</div>
-      <div class="alert-desc">${desc.substring(0,70)}${desc.length>70?'…':''}</div>
-      <div class="alert-agent">${hit.agent?.name || '--'}</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${hit.rule?.id || '--'}</div>
-    </div>`;
-  };
-  const noAlerts = '<div style="padding:18px;color:var(--muted);font-size:13px;text-align:center;">No alerts in last 24 hours — all clear ✓</div>';
+function renderCvAlertPage(el) {
+  const slice = cvAlertAllHits.slice(0, (cvAlertPage + 1) * CV_PAGE_SIZE);
+  if (!slice.length) { el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">No alerts match your search — all clear ✓</div>'; return; }
+  el.innerHTML = slice.map(h => renderCvAlertRowV2(h)).join('');
+  document.getElementById('cv-load-more').style.display = cvAlertAllHits.length > slice.length ? '' : 'none';
+}
 
-  if (ovEl) ovEl.innerHTML = hits.length ? hits.slice(0, 6).map(renderRow).join('') : noAlerts;
-  if (fullEl) fullEl.innerHTML = hits.length ? hits.map(renderRow).join('') : noAlerts;
+function cvLoadMore() {
+  cvAlertPage++;
+  renderCvAlertPage(document.getElementById('cv-full-alerts'));
+}
 
-  if (feedEl) feedEl.innerHTML = hits.length ? hits.slice(0, 8).map(hit => {
-    const level = hit.rule?.level || 0;
-    const color = level >= 12 ? 'var(--danger)' : level >= 7 ? 'var(--warning)' : level >= 4 ? 'var(--accent2)' : 'var(--muted)';
-    const mitre = hit.rule?.mitre?.id?.[0];
-    return `<div class="threat-item">
-      <div class="threat-dot" style="background:${color}"></div>
-      <div>
-        <div class="threat-desc">${hit.rule?.description || 'Security event'}</div>
-        <div class="threat-meta">${fmtTime(hit.timestamp)} · ${hit.agent?.name || '--'}${mitre ? ` · <span class="mitre-tag">${mitre}</span>` : ''}</div>
-      </div>
-    </div>`;
-  }).join('') : '<div style="padding:18px;font-size:12px;color:var(--muted);">No recent threats</div>';
-
-  const feedTimeEl = document.getElementById('feed-time');
-  if (feedTimeEl) feedTimeEl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', {hour12:false});
-
+function updateOverviewFromAlerts(hits, total) {
+  const critical = hits.filter(h => (h._source?.rule?.level || 0) >= 12).length;
+  const el = id => document.getElementById(id);
+  if (el('stat-critical')) el('stat-critical').textContent = critical;
+  if (el('stat-total')) el('stat-total').textContent = total;
+  if (el('val-crit')) el('val-crit').textContent = critical;
+  const badge = el('alert-badge');
+  if (badge) { badge.textContent = critical; badge.style.display = critical > 0 ? '' : 'none'; }
   updateScore(critical, total);
+
+  // Overview alert list
+  const ovEl = el('overview-alerts');
+  if (ovEl) {
+    const ovHits = hits.slice(0,6);
+    ovEl.innerHTML = ovHits.length ? ovHits.map(h => {
+      const s = h._source || h;
+      const level = s.rule?.level || 0;
+      const desc = s.rule?.description || 'Security event';
+      return `<div class="alert-row" onclick="openCvAlertPanel(${escH(JSON.stringify(s))})">
+        <div class="alert-time">${fmtTime(s.timestamp)}</div>
+        <div>${levelBadge(level)}</div>
+        <div class="alert-desc">${escH(desc.substring(0,55))}${desc.length>55?'…':''}</div>
+        <div class="alert-agent">${escH(s.agent?.name||'--')}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${s.rule?.id||'--'}</div>
+      </div>`;
+    }).join('') : '<div style="padding:18px;color:var(--muted);font-size:13px;text-align:center;">No alerts — all clear ✓</div>';
+  }
+
+  // Threat feed
+  const feedEl = el('threat-feed');
+  if (feedEl) {
+    feedEl.innerHTML = hits.length ? hits.slice(0,8).map(h => {
+      const s = h._source || h;
+      const level = s.rule?.level || 0;
+      const color = level>=12?'var(--danger)':level>=7?'var(--warning)':level>=4?'var(--accent2)':'var(--muted)';
+      const mitre = s.rule?.mitre?.id?.[0];
+      return `<div class="threat-item">
+        <div class="threat-dot" style="background:${color}"></div>
+        <div>
+          <div class="threat-desc">${escH(s.rule?.description||'Security event')}</div>
+          <div class="threat-meta">${fmtTime(s.timestamp)} · ${escH(s.agent?.name||'--')}${mitre?` · <span class="mitre-tag">${escH(mitre)}</span>`:''}</div>
+        </div>
+      </div>`;
+    }).join('') : '<div style="padding:18px;font-size:12px;color:var(--muted);">No recent threats</div>';
+    const feedTimeEl = el('feed-time');
+    if (feedTimeEl) feedTimeEl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour12:false});
+  }
+}
+
+// ── ALERT DETAIL PANEL ─────────────────────────────────────────────
+const MITRE_KB = {
+  'T1078':['Valid Accounts','Adversary used legitimate credentials to gain access. Review account activity and enforce MFA.'],
+  'T1059':['Command & Scripting Interpreter','Script execution detected. Inspect the command line for malicious payload or encoded content.'],
+  'T1086':['PowerShell','PowerShell abuse detected. Check for encoded commands, download cradles, or unusual parent processes.'],
+  'T1003':['Credential Dumping','Credential access tool activity. Rotate credentials and review privileged account access immediately.'],
+  'T1055':['Process Injection','Code injected into a running process. Isolate endpoint and perform memory forensics.'],
+  'T1021':['Remote Services','Lateral movement via remote service. Review network connections and access logs.'],
+  'T1083':['File & Directory Discovery','Reconnaissance activity. Attacker may be mapping the filesystem.'],
+  'T1082':['System Information Discovery','System enumeration detected. Common in early stages of a breach.'],
+  'T1110':['Brute Force','Multiple authentication failures. Consider account lockout and IP-based blocking.'],
+  'T1566':['Phishing','Phishing indicator detected. Warn users and review email gateway logs.'],
+};
+
+function openCvAlertPanel(src) {
+  if (typeof src === 'string') try { src = JSON.parse(src); } catch(e) { return; }
+  const level = src.rule?.level || 0;
+  document.getElementById('cv-ap-title').textContent = src.rule?.description || 'Security Alert';
+  document.getElementById('cv-ap-meta').innerHTML = `
+    <span>${fmtDateTime(src.timestamp)}</span>
+    <span style="color:var(--accent2)">${escH(src.agent?.name||'--')}</span>
+    <span>Rule ${src.rule?.id||'--'}</span>
+    <span>${levelBadge(level)}</span>
+  `;
+  document.getElementById('cv-ap-body').innerHTML = buildCvAlertPanelBody(src);
+  document.getElementById('cv-alert-overlay').style.display = 'block';
+  document.getElementById('cv-alert-panel').classList.add('open');
+}
+
+function closeCvAlertPanel() {
+  document.getElementById('cv-alert-overlay').style.display = 'none';
+  document.getElementById('cv-alert-panel').classList.remove('open');
+}
+
+function buildCvAlertPanelBody(s) {
+  const level = s.rule?.level || 0;
+  const groups = s.rule?.groups || [];
+  const mitre_ids = s.rule?.mitre?.id || [];
+  const mitre_tactics = s.rule?.mitre?.tactic || [];
+  const mitre_techniques = s.rule?.mitre?.technique || [];
+  const riskClass = level>=12?'risk-critical':level>=7?'risk-high':level>=4?'risk-medium':'risk-low';
+  const riskLabel = level>=12?'CRITICAL':level>=7?'HIGH':level>=4?'MEDIUM':'LOW';
+  const win = s.data?.win?.eventdata || {};
+  const syscheck = s.data?.syscheck || {};
+  const net = s.data || {};
+
+  // Triage text
+  let triage = `Rule level ${level} alert detected on <strong>${escH(s.agent?.name||'unknown')}</strong>. `;
+  if (groups.includes('authentication_failed') || groups.includes('win_authentication_failed')) triage += 'Authentication failure recorded — may indicate brute force or credential stuffing. ';
+  else if (groups.includes('authentication_failures')) triage += 'Multiple authentication failures detected — brute force attack likely. ';
+  else if (groups.includes('win_malware_detection')) triage += 'Malware or suspicious binary detected — endpoint should be investigated immediately. ';
+  else if (groups.includes('syscheck')) triage += 'File integrity change detected — verify this was an authorized modification. ';
+  else if (groups.includes('win_powershell')) triage += 'PowerShell execution logged — review command line for encoded or suspicious content. ';
+  else if (level >= 12) triage += 'Critical severity event requiring immediate investigation. ';
+  else if (level >= 7) triage += 'High severity event — review the context and take action if unexpected. ';
+  else triage += 'Monitor this activity for patterns over time. ';
+  if (mitre_ids.length) { const [mid] = mitre_ids; const kb = MITRE_KB[mid]; if (kb) triage += `<br><br><strong>MITRE ${mid} — ${kb[0]}:</strong> ${kb[1]}`; }
+
+  let html = `
+  <div class="ap-section">
+    <div class="ap-section-title">AI Triage</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span class="risk-badge ${riskClass}">${riskLabel} RISK</span></div>
+    <div class="ap-triage">${triage}</div>
+  </div>
+
+  <div class="ap-section">
+    <div class="ap-section-title">Alert Details</div>
+    <div class="ap-kv"><div class="ap-k">Description</div><div class="ap-v">${escH(s.rule?.description||'--')}</div></div>
+    <div class="ap-kv"><div class="ap-k">Rule ID</div><div class="ap-v mono">${escH(s.rule?.id||'--')}</div></div>
+    <div class="ap-kv"><div class="ap-k">Rule Groups</div><div class="ap-v">${groups.map(g=>`<span class="rule-group-tag">${escH(g)}</span>`).join(' ')}</div></div>
+    <div class="ap-kv"><div class="ap-k">Timestamp</div><div class="ap-v mono">${escH(s.timestamp||'--')}</div></div>
+    <div class="ap-kv"><div class="ap-k">Device</div><div class="ap-v accent">${escH(s.agent?.name||'--')} (ID: ${escH(s.agent?.id||'--')})</div></div>
+    <div class="ap-kv"><div class="ap-k">Agent IP</div><div class="ap-v mono">${escH(s.agent?.ip||s.data?.srcip||'--')}</div></div>
+  </div>`;
+
+  if (mitre_ids.length) {
+    html += `<div class="ap-section">
+      <div class="ap-section-title">MITRE ATT&CK</div>
+      ${mitre_ids.map((id,i) => `
+        <div class="ap-kv"><div class="ap-k">Technique</div><div class="ap-v"><span class="mitre-pill">${escH(id)}</span> ${escH(mitre_techniques[i]||'')}</div></div>
+      `).join('')}
+      ${mitre_tactics.length ? `<div class="ap-kv"><div class="ap-k">Tactic</div><div class="ap-v">${mitre_tactics.map(t=>`<span class="mitre-pill" style="border-color:rgba(245,166,35,0.3);color:var(--warning)">${escH(t)}</span>`).join(' ')}</div></div>` : ''}
+    </div>`;
+  }
+
+  const hasProcess = win.image || win.commandLine || win.parentImage;
+  if (hasProcess) {
+    html += `<div class="ap-section">
+      <div class="ap-section-title">Process Context</div>
+      ${win.image ? `<div class="ap-kv"><div class="ap-k">Image</div><div class="ap-v mono">${escH(win.image)}</div></div>` : ''}
+      ${win.commandLine ? `<div class="ap-kv"><div class="ap-k">Command Line</div><div class="ap-v mono" style="font-size:10px;color:var(--warning)">${escH(win.commandLine.substring(0,300))}</div></div>` : ''}
+      ${win.parentImage ? `<div class="ap-kv"><div class="ap-k">Parent</div><div class="ap-v mono">${escH(win.parentImage)}</div></div>` : ''}
+      ${win.user ? `<div class="ap-kv"><div class="ap-k">User</div><div class="ap-v">${escH(win.user)}</div></div>` : ''}
+      ${win.hashes ? `<div class="ap-kv"><div class="ap-k">Hashes</div><div class="ap-v mono" style="font-size:10px;">${escH(win.hashes.substring(0,120))}</div></div>` : ''}
+    </div>`;
+  }
+
+  if (syscheck.path) {
+    const chg = syscheck.event || (syscheck.sha1_after ? 'modified' : 'detected');
+    html += `<div class="ap-section">
+      <div class="ap-section-title">File Event</div>
+      <div class="ap-kv"><div class="ap-k">Path</div><div class="ap-v mono">${escH(syscheck.path)}</div></div>
+      <div class="ap-kv"><div class="ap-k">Change</div><div class="ap-v ${chg==='deleted'?'danger':'accent'}">${escH(chg.toUpperCase())}</div></div>
+      ${syscheck.md5_after ? `<div class="ap-kv"><div class="ap-k">MD5 (after)</div><div class="ap-v mono">${escH(syscheck.md5_after)}</div></div>` : ''}
+      ${syscheck.sha256_after ? `<div class="ap-kv"><div class="ap-k">SHA256 (after)</div><div class="ap-v mono" style="font-size:10px;">${escH(syscheck.sha256_after)}</div></div>` : ''}
+    </div>`;
+  }
+
+  const hasSrcip = s.data?.srcip || net.srcip;
+  const hasDstip = s.data?.dstip || net.dstip;
+  if (hasSrcip || hasDstip) {
+    html += `<div class="ap-section">
+      <div class="ap-section-title">Network Context</div>
+      ${hasSrcip ? `<div class="ap-kv"><div class="ap-k">Source IP</div><div class="ap-v mono danger">${escH(hasSrcip)}</div></div>` : ''}
+      ${hasDstip ? `<div class="ap-kv"><div class="ap-k">Dest IP</div><div class="ap-v mono">${escH(hasDstip)}</div></div>` : ''}
+      ${s.data?.dstport ? `<div class="ap-kv"><div class="ap-k">Dest Port</div><div class="ap-v mono">${escH(s.data.dstport)}</div></div>` : ''}
+      ${s.data?.protocol ? `<div class="ap-kv"><div class="ap-k">Protocol</div><div class="ap-v mono">${escH(s.data.protocol)}</div></div>` : ''}
+    </div>`;
+  }
+
+  const authUser = win.targetUserName || win.subjectUserName || s.data?.dstuser;
+  if (authUser) {
+    html += `<div class="ap-section">
+      <div class="ap-section-title">Auth Context</div>
+      <div class="ap-kv"><div class="ap-k">User</div><div class="ap-v accent">${escH(authUser)}</div></div>
+      ${win.logonType ? `<div class="ap-kv"><div class="ap-k">Logon Type</div><div class="ap-v">${escH(win.logonType)}</div></div>` : ''}
+      ${win.workstationName ? `<div class="ap-kv"><div class="ap-k">Workstation</div><div class="ap-v mono">${escH(win.workstationName)}</div></div>` : ''}
+      ${win.ipAddress ? `<div class="ap-kv"><div class="ap-k">Source IP</div><div class="ap-v mono">${escH(win.ipAddress)}</div></div>` : ''}
+    </div>`;
+  }
+
+  html += `<div class="ap-section"><div class="ap-section-title">Related Alerts</div><div id="cv-related-alerts"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading...</div></div></div>`;
+  loadCvRelated(s);
+  return html;
+}
+
+async function loadCvRelated(s) {
+  const el = document.getElementById('cv-related-alerts');
+  if (!el) return;
+  const filter = [
+    { term: { 'agent.id': s.agent?.id || '' } },
+    { range: { timestamp: { gte: 'now-1h' } } }
+  ];
+  if (s.rule?.id) filter.push({ bool: { must_not: [{ term: { 'rule.id': s.rule.id } }] } });
+  const data = await indexerSearch('wazuh-alerts-4.x-*', { size:5, sort:[{ timestamp:{ order:'desc' }}], query:{ bool:{ filter } } });
+  const hits = data?.hits?.hits || [];
+  if (!el) return;
+  el.innerHTML = hits.length ? hits.map(h => {
+    const src = h._source;
+    return `<div class="ap-related-item">${levelBadge(src.rule?.level||0)} <span style="margin-left:8px">${escH(src.rule?.description||'--')}</span> <span style="float:right;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${fmtTime(src.timestamp)}</span></div>`;
+  }).join('') : '<div style="color:var(--muted);font-size:12px;">No related alerts in last hour</div>';
 }
 
 async function loadDevices() {
@@ -710,6 +1210,227 @@ function updateScore(critical, total) {
   document.getElementById('stat-score').style.color = color;
 }
 
+// ── ANALYTICS (SIEM) ──────────────────────────────────────────────
+function setCvSiemTime(t, btn) {
+  cvSiemTime = t;
+  document.querySelectorAll('#view-analytics .time-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  initCvSiem();
+}
+
+async function initCvSiem() {
+  const filter = buildClientFilter(cvSiemTime);
+  await Promise.all([
+    loadCvTimeline(filter),
+    loadCvSevDonut(filter),
+    loadCvTopRules(filter),
+    loadCvTopAgents(filter),
+    loadCvAuthChart(filter),
+  ]);
+}
+
+async function loadCvTimeline(filter) {
+  const data = await indexerSearch('wazuh-alerts-4.x-*', {
+    size:0, query:{ bool:{ filter } },
+    aggs:{ over_time:{ date_histogram:{ field:'timestamp', calendar_interval: cvSiemTime==='24h'?'hour':cvSiemTime==='7d'?'day':'week', min_doc_count:0, extended_bounds:{ min:`now-${cvSiemTime}`, max:'now' } } } }
+  });
+  const buckets = data?.aggregations?.over_time?.buckets || [];
+  const labels = buckets.map(b => { const d=new Date(b.key_as_string||b.key); return cvSiemTime==='24h'?d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}):d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
+  const vals = buckets.map(b => b.doc_count);
+  const ctx = document.getElementById('cv-chart-timeline');
+  if (!ctx) return;
+  if (cvChartTimeline) cvChartTimeline.destroy();
+  cvChartTimeline = new Chart(ctx, { type:'line', data:{ labels, datasets:[{ label:'Alerts', data:vals, borderColor:'#00FFD1', backgroundColor:'rgba(0,255,209,0.08)', tension:0.4, fill:true, pointRadius:2 }] }, options:{ responsive:true, plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#4A6080', font:{size:10} }, grid:{ color:'rgba(17,34,64,0.5)' } }, y:{ ticks:{ color:'#4A6080', font:{size:10} }, grid:{ color:'rgba(17,34,64,0.5)' } } } } });
+}
+
+async function loadCvSevDonut(filter) {
+  const data = await indexerSearch('wazuh-alerts-4.x-*', {
+    size:0, query:{ bool:{ filter } },
+    aggs:{ by_level:{ range:{ field:'rule.level', ranges:[{key:'Critical',from:12},{key:'High',from:7,to:12},{key:'Medium',from:4,to:7},{key:'Low',to:4}] } } }
+  });
+  const buckets = data?.aggregations?.by_level?.buckets || [];
+  const ctx = document.getElementById('cv-chart-sev');
+  if (!ctx) return;
+  if (cvChartSev) cvChartSev.destroy();
+  cvChartSev = new Chart(ctx, { type:'doughnut', data:{ labels: buckets.map(b=>b.key), datasets:[{ data: buckets.map(b=>b.doc_count), backgroundColor:['rgba(255,59,92,0.7)','rgba(245,166,35,0.7)','rgba(0,132,255,0.7)','rgba(74,96,128,0.7)'], borderColor:['#FF3B5C','#F5A623','#0084FF','#4A6080'], borderWidth:1 }] }, options:{ responsive:true, cutout:'65%', plugins:{ legend:{ position:'right', labels:{ color:'#C8D8F0', font:{size:11} } } } } });
+}
+
+async function loadCvTopRules(filter) {
+  const el = document.getElementById('cv-top-rules');
+  if (!el) return;
+  const data = await indexerSearch('wazuh-alerts-4.x-*', { size:0, query:{ bool:{ filter } }, aggs:{ top_rules:{ terms:{ field:'rule.description', size:8 } } } });
+  const buckets = data?.aggregations?.top_rules?.buckets || [];
+  el.innerHTML = buckets.length ? buckets.map(b => `<div class="cv-list-item"><span class="cv-list-label">${escH(b.key)}</span><span class="cv-list-count">${b.doc_count}</span></div>`).join('') : '<div class="cv-list-item" style="color:var(--muted)">No data</div>';
+}
+
+async function loadCvTopAgents(filter) {
+  const el = document.getElementById('cv-top-agents');
+  if (!el) return;
+  const data = await indexerSearch('wazuh-alerts-4.x-*', { size:0, query:{ bool:{ filter } }, aggs:{ top_agents:{ terms:{ field:'agent.name', size:8 } } } });
+  const buckets = data?.aggregations?.top_agents?.buckets || [];
+  el.innerHTML = buckets.length ? buckets.map(b => `<div class="cv-list-item"><span class="cv-list-label">${escH(b.key)}</span><span class="cv-list-count">${b.doc_count}</span></div>`).join('') : '<div class="cv-list-item" style="color:var(--muted)">No data</div>';
+}
+
+async function loadCvAuthChart(filter) {
+  const authFilter = [...filter, { terms: { 'rule.groups': ['authentication_success','authentication_failed','win_authentication_failed'] } }];
+  const data = await indexerSearch('wazuh-alerts-4.x-*', { size:0, query:{ bool:{ filter:authFilter } }, aggs:{ by_type:{ terms:{ field:'rule.groups', size:5 } } } });
+  const buckets = data?.aggregations?.by_type?.buckets || [];
+  const ctx = document.getElementById('cv-chart-auth');
+  if (!ctx) return;
+  if (cvChartAuth) cvChartAuth.destroy();
+  const success = buckets.filter(b=>b.key.includes('success')).reduce((a,b)=>a+b.doc_count,0);
+  const fail = buckets.filter(b=>b.key.includes('fail')).reduce((a,b)=>a+b.doc_count,0);
+  cvChartAuth = new Chart(ctx, { type:'doughnut', data:{ labels:['Success','Failed'], datasets:[{ data:[success,fail], backgroundColor:['rgba(0,255,209,0.6)','rgba(255,59,92,0.6)'], borderColor:['#00FFD1','#FF3B5C'], borderWidth:1 }] }, options:{ responsive:true, cutout:'65%', plugins:{ legend:{ position:'right', labels:{ color:'#C8D8F0', font:{size:11} } } } } });
+}
+
+// ── CUSTOM DASHBOARD ──────────────────────────────────────────────
+function getCvDashLayout() {
+  try { return JSON.parse(localStorage.getItem('cv_dash_layout_' + (currentClient?.id||'default')) || '[]'); } catch(e) { return []; }
+}
+function saveCvDashLayout(layout) {
+  localStorage.setItem('cv_dash_layout_' + (currentClient?.id||'default'), JSON.stringify(layout));
+}
+
+function openWidgetModal() {
+  const modal = document.getElementById('cv-widget-modal');
+  const layout = getCvDashLayout();
+  const existing = layout.map(w=>w.id);
+  document.getElementById('cv-widget-options').innerHTML = CV_WIDGET_DEFS.map(def => `
+    <div class="widget-option ${existing.includes(def.id)?'':''}" onclick="addCvWidget('${def.id}')">
+      <div class="widget-option-icon">${def.icon}</div>
+      <div class="widget-option-name">${def.name}</div>
+      <div class="widget-option-desc">${def.desc}</div>
+    </div>
+  `).join('');
+  modal.classList.add('open');
+}
+function closeWidgetModal() { document.getElementById('cv-widget-modal').classList.remove('open'); }
+
+function addCvWidget(widgetId) {
+  const layout = getCvDashLayout();
+  if (!layout.find(w=>w.id===widgetId)) { layout.push({ id:widgetId, addedAt:Date.now() }); saveCvDashLayout(layout); }
+  closeWidgetModal();
+  renderCustomDash();
+}
+function removeCvWidget(widgetId) {
+  saveCvDashLayout(getCvDashLayout().filter(w=>w.id!==widgetId));
+  renderCustomDash();
+}
+
+async function renderCustomDash() {
+  const grid = document.getElementById('cv-dash-grid');
+  if (!grid) return;
+  const layout = getCvDashLayout();
+  if (!layout.length) {
+    grid.innerHTML = `<div class="dash-empty"><div class="dash-empty-icon">🧩</div><div>Your dashboard is empty.</div><div style="margin-top:8px;font-size:12px;color:var(--muted)">Click <strong>+ ADD WIDGET</strong> to build your personal security dashboard.</div></div>`;
+    return;
+  }
+  grid.innerHTML = layout.map(w => {
+    const def = CV_WIDGET_DEFS.find(d=>d.id===w.id) || { icon:'📊', name:w.id };
+    return `<div class="dash-widget" id="dash-widget-${w.id}">
+      <div class="dash-widget-remove" onclick="removeCvWidget('${w.id}')">✕</div>
+      <div class="panel-header"><div class="panel-title">${def.icon} ${def.name}</div></div>
+      <div id="dash-content-${w.id}" style="min-height:80px;">${loading()}</div>
+    </div>`;
+  }).join('');
+  for (const w of layout) await loadDashWidget(w.id);
+}
+
+async function loadDashWidget(id) {
+  const el = document.getElementById(`dash-content-${id}`);
+  if (!el) return;
+  const filter = buildClientFilter('24h');
+  if (id === 'alert-feed') {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', buildCvAlertQuery('', 5));
+    const hits = data?.hits?.hits || [];
+    el.innerHTML = hits.length ? hits.map(h => {
+      const s = h._source;
+      const level = s.rule?.level||0;
+      return `<div class="threat-item" style="cursor:pointer" onclick="openCvAlertPanel(${escH(JSON.stringify(s))})"><div class="threat-dot" style="background:${level>=12?'var(--danger)':level>=7?'var(--warning)':'var(--muted)'}"></div><div><div class="threat-desc">${escH((s.rule?.description||'').substring(0,55))}</div><div class="threat-meta">${fmtTime(s.timestamp)} · ${escH(s.agent?.name||'--')}</div></div></div>`;
+    }).join('') : '<div style="padding:14px;color:var(--muted);font-size:12px;">No recent alerts</div>';
+  } else if (id === 'device-status') {
+    const res = await fetch(`${PROXY_URL}/agents?limit=20${clientAgentIds.length?'&id_list='+clientAgentIds.join(','):''}`).catch(()=>null);
+    const json = res ? await res.json().catch(()=>null) : null;
+    const agents = (json?.data?.affected_items||[]).filter(a=>a.id!=='000').slice(0,8);
+    el.innerHTML = agents.length ? agents.map(a => `<div class="cv-list-item"><span class="cv-list-label">${escH(a.name||'Unknown')}</span><span class="online-badge ${a.status==='active'?'online':'offline'}"><div class="online-dot ${a.status==='active'?'on':'off'}"></div>${a.status==='active'?'ONLINE':'OFFLINE'}</span></div>`).join('') : '<div style="padding:14px;color:var(--muted);font-size:12px">No devices</div>';
+  } else if (id === 'sev-donut') {
+    el.innerHTML = '<div style="padding:14px;display:flex;justify-content:center"><canvas id="dw-sev-donut" height="140" width="140"></canvas></div>';
+    await loadCvSevDonut(filter);
+    // re-render into widget canvas
+    const data = await indexerSearch('wazuh-alerts-4.x-*', { size:0, query:{ bool:{ filter } }, aggs:{ by_level:{ range:{ field:'rule.level', ranges:[{key:'Critical',from:12},{key:'High',from:7,to:12},{key:'Medium',from:4,to:7},{key:'Low',to:4}] } } } });
+    const buckets = data?.aggregations?.by_level?.buckets||[];
+    const ctx2 = document.getElementById('dw-sev-donut');
+    if (ctx2) new Chart(ctx2, { type:'doughnut', data:{ labels:buckets.map(b=>b.key), datasets:[{ data:buckets.map(b=>b.doc_count), backgroundColor:['rgba(255,59,92,0.7)','rgba(245,166,35,0.7)','rgba(0,132,255,0.7)','rgba(74,96,128,0.7)'], borderWidth:1 }] }, options:{ responsive:true, cutout:'65%', plugins:{ legend:{ labels:{ color:'#C8D8F0', font:{size:10} } } } } });
+  } else if (id === 'timeline') {
+    el.innerHTML = '<div style="padding:14px"><canvas id="dw-timeline" height="100"></canvas></div>';
+    const data = await indexerSearch('wazuh-alerts-4.x-*', { size:0, query:{ bool:{ filter } }, aggs:{ over_time:{ date_histogram:{ field:'timestamp', calendar_interval:'hour', min_doc_count:0 } } } });
+    const buckets = data?.aggregations?.over_time?.buckets||[];
+    const ctx2 = document.getElementById('dw-timeline');
+    if (ctx2) new Chart(ctx2, { type:'line', data:{ labels:buckets.map(b=>new Date(b.key_as_string||b.key).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})), datasets:[{ data:buckets.map(b=>b.doc_count), borderColor:'#00FFD1', backgroundColor:'rgba(0,255,209,0.08)', tension:0.4, fill:true, pointRadius:0 }] }, options:{ responsive:true, plugins:{ legend:{display:false} }, scales:{ x:{ ticks:{ color:'#4A6080', font:{size:9}, maxTicksLimit:6 }, grid:{ color:'rgba(17,34,64,0.5)' } }, y:{ ticks:{ color:'#4A6080', font:{size:9} }, grid:{ color:'rgba(17,34,64,0.5)' } } } } });
+  } else if (id === 'top-threats') {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', { size:0, query:{ bool:{ filter } }, aggs:{ top:{ terms:{ field:'rule.description', size:5 } } } });
+    const buckets = data?.aggregations?.top?.buckets||[];
+    el.innerHTML = buckets.length ? buckets.map(b=>`<div class="cv-list-item"><span class="cv-list-label">${escH(b.key)}</span><span class="cv-list-count">${b.doc_count}</span></div>`).join('') : '<div style="padding:14px;color:var(--muted);font-size:12px">No data</div>';
+  } else if (id === 'security-score') {
+    const data = await indexerSearch('wazuh-alerts-4.x-*', buildCvAlertQuery('', 200));
+    const hits = data?.hits?.hits||[];
+    const critical = hits.filter(h=>(h._source?.rule?.level||0)>=12).length;
+    const total = data?.hits?.total?.value||0;
+    let score = 100 - Math.min(30, critical*5) - (total>100?10:0);
+    score = Math.max(0, Math.min(100, score));
+    const color = score>=80?'var(--accent)':score>=60?'var(--warning)':'var(--danger)';
+    el.innerHTML = `<div style="padding:20px;text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:64px;color:${color};line-height:1">${score}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">/ 100</div><div style="margin-top:8px;font-size:12px;color:var(--muted)">${critical} critical alerts</div></div>`;
+  } else if (id === 'auth-events') {
+    el.innerHTML = '<div style="padding:14px;display:flex;justify-content:center"><canvas id="dw-auth" height="140" width="140"></canvas></div>';
+    const authFilter = [...filter, { terms:{ 'rule.groups':['authentication_success','authentication_failed','win_authentication_failed'] } }];
+    const data = await indexerSearch('wazuh-alerts-4.x-*', { size:0, query:{ bool:{ filter:authFilter } }, aggs:{ by_type:{ terms:{ field:'rule.groups', size:5 } } } });
+    const buckets = data?.aggregations?.by_type?.buckets||[];
+    const success = buckets.filter(b=>b.key.includes('success')).reduce((a,b)=>a+b.doc_count,0);
+    const fail = buckets.filter(b=>b.key.includes('fail')).reduce((a,b)=>a+b.doc_count,0);
+    const ctx2 = document.getElementById('dw-auth');
+    if (ctx2) new Chart(ctx2, { type:'doughnut', data:{ labels:['Success','Failed'], datasets:[{ data:[success,fail], backgroundColor:['rgba(0,255,209,0.6)','rgba(255,59,92,0.6)'], borderWidth:1 }] }, options:{ responsive:true, cutout:'65%', plugins:{ legend:{ labels:{ color:'#C8D8F0', font:{size:10} } } } } });
+  } else if (id === 'vuln-summary') {
+    const vdata = await indexerSearch('wazuh-states-vulnerabilities-*', { size:0, query:{ bool:{ filter:[...(clientAgentIds.length?[{terms:{'agent.id':clientAgentIds}}]:[])], } }, aggs:{ by_sev:{ terms:{ field:'vulnerability.severity', size:5 } } } });
+    const vbuckets = vdata?.aggregations?.by_sev?.buckets||[];
+    el.innerHTML = vbuckets.length ? vbuckets.map(b=>`<div class="cv-list-item"><span class="sev-badge sev-${b.key}">${escH(b.key)}</span><span class="cv-list-count">${b.doc_count}</span></div>`).join('') : '<div style="padding:14px;color:var(--muted);font-size:12px">No vulnerability data</div>';
+  }
+}
+
+// ── VULNERABILITIES ────────────────────────────────────────────────
+async function loadVulns() {
+  const el = document.getElementById('cv-vuln-list');
+  if (el) el.innerHTML = loading();
+  const filter = clientAgentIds.length ? [{ terms: { 'agent.id': clientAgentIds } }] : [];
+  const data = await indexerSearch('wazuh-states-vulnerabilities-*', {
+    size: 200,
+    sort: [{ 'vulnerability.cvss.cvss3.base_score': { order: 'desc' } }],
+    query: { bool: { filter } }
+  });
+  const hits = data?.hits?.hits?.map(h => h._source) || [];
+  const total = hits.length;
+  const bySev = { Critical:0, High:0, Medium:0, Low:0 };
+  for (const h of hits) { const sev = h.vulnerability?.severity; if (bySev[sev]!==undefined) bySev[sev]++; }
+  ['Critical','High','Medium'].forEach(s => { const el2 = document.getElementById(`vuln-${s.toLowerCase()}`); if (el2) el2.textContent = bySev[s]; });
+  const totalEl = document.getElementById('vuln-total'); if (totalEl) totalEl.textContent = total;
+  if (!el) return;
+  el.innerHTML = hits.length ? hits.map(h => {
+    const v = h.vulnerability || {};
+    const sev = v.severity || 'Low';
+    const cvss = v.cvss?.cvss3?.base_score || v.cvss?.cvss2?.base_score || '--';
+    const cve = v.cve || v.id || '--';
+    const pkg = v.package?.name || v.affected_packages?.[0]?.name || '--';
+    return `<div class="vuln-row">
+      <div><span class="sev-badge sev-${sev}">${sev}</span></div>
+      <div>
+        <div class="vuln-cve">${escH(cve)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${escH(pkg)}${v.package?.version?' v'+escH(v.package.version):''}</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2)">${escH(h.agent?.name||'--')}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text)">${cvss}</div>
+    </div>`;
+  }).join('') : '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">No vulnerability data found. Ensure Wazuh vulnerability detector is enabled and feeds have synced.</div>';
+}
+
 // ── SUPPORT TICKET ────────────────────────────────────────────────
 async function submitTicket() {
   const subject = document.getElementById('ticket-subject').value.trim();
@@ -727,12 +1448,12 @@ async function submitTicket() {
 // ── INIT ──────────────────────────────────────────────────────────
 async function refreshAll() {
   await resolveClientAgentIds();
-  await Promise.all([loadAlerts(), loadDevices()]);
+  await Promise.all([runClientAlertSearch(), loadDevices()]);
 }
 
 async function initDashboard() {
   await refreshAll();
-  setInterval(refreshAll, 30000);
+  setInterval(refreshAll, 60000);
 }
 </script>
 </body>

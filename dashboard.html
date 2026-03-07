@@ -332,6 +332,40 @@
     .vuln-tab-content { display: none; }
     .vuln-tab-content.active { display: block; }
 
+    /* CES Score Cards */
+    .ces-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .ces-card {
+      background: var(--surface); border: 1px solid var(--border); padding: 20px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .ces-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .ces-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .ces-client-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--white); letter-spacing: 1px; }
+    .ces-trend { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 2px; }
+    .ces-trend.improving { background: rgba(0,255,209,0.1); color: var(--accent); }
+    .ces-trend.declining { background: rgba(255,59,92,0.1); color: var(--danger); }
+    .ces-trend.stable { background: rgba(74,96,128,0.1); color: var(--muted); }
+    .ces-trend.new { background: rgba(0,132,255,0.1); color: var(--accent2); }
+    .ces-gauge-wrap { display: flex; align-items: center; gap: 20px; margin-bottom: 16px; }
+    .ces-gauge { position: relative; width: 90px; height: 90px; }
+    .ces-gauge svg { width: 90px; height: 90px; transform: rotate(-90deg); }
+    .ces-gauge-bg { fill: none; stroke: var(--border); stroke-width: 6; }
+    .ces-gauge-fill { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+    .ces-gauge-text {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-family: 'Bebas Neue', sans-serif; font-size: 28px; line-height: 1;
+    }
+    .ces-gauge-grade {
+      position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px;
+    }
+    .ces-details { flex: 1; }
+    .ces-detail-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; }
+    .ces-detail-label { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.5px; }
+    .ces-detail-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    .ces-bar { height: 4px; background: var(--border); margin-top: 12px; overflow: hidden; }
+    .ces-bar-fill { height: 100%; transition: width 1s ease; }
+
     .sev-badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
     .sev-critical { background: rgba(255,59,92,0.15); color: #FF3B5C; border: 1px solid rgba(255,59,92,0.3); }
     .sev-high { background: rgba(245,100,0,0.15); color: #FF6400; border: 1px solid rgba(245,100,0,0.3); }
@@ -1484,6 +1518,7 @@
         <div class="vuln-tabs">
           <div class="vuln-tab active" onclick="vulnTab('agent')" id="vtab-agent">ENDPOINT CVEs</div>
           <div class="vuln-tab" onclick="vulnTab('scanner')" id="vtab-scanner">EXTERNAL SCANNER</div>
+          <div class="vuln-tab" onclick="vulnTab('ces')" id="vtab-ces">CES SCORES</div>
         </div>
 
         <!-- ENDPOINT CVEs TAB -->
@@ -1589,6 +1624,21 @@
                 <span>Severity</span><span>Title / CVE</span><span>Host</span><span>CVSS</span><span>Source</span>
               </div>
               <div id="scan-results-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CES SCORES TAB -->
+        <div class="vuln-tab-content" id="vt-ces">
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-header">
+              <div class="panel-title">Cyber Exposure Scores</div>
+              <div class="panel-action" onclick="loadCESScores()">↻ Refresh</div>
+            </div>
+            <div style="padding:16px;">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">The CES (Cyber Exposure Score) measures each client's vulnerability posture on a 0-100 scale based on scan results. Higher is better.</div>
+              <div id="ces-loading" style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">Loading CES data...</div>
+              <div id="ces-grid" style="display:none;"></div>
             </div>
           </div>
         </div>
@@ -4705,6 +4755,76 @@ function vulnTab(tab) {
   document.querySelectorAll('.vuln-tab-content').forEach(c => c.classList.remove('active'));
   document.getElementById('vtab-' + tab).classList.add('active');
   document.getElementById('vt-' + tab).classList.add('active');
+  if (tab === 'ces') loadCESScores();
+}
+
+async function loadCESScores() {
+  const loadEl = document.getElementById('ces-loading');
+  const gridEl = document.getElementById('ces-grid');
+  loadEl.style.display = 'block';
+  gridEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`${PROXY_URL}/scan/ces`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    loadEl.style.display = 'none';
+    gridEl.style.display = 'grid';
+    gridEl.className = 'ces-grid';
+
+    const clients = Object.entries(data);
+    if (!clients.length) {
+      gridEl.innerHTML = '<div style="padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--muted);grid-column:1/-1;">// No clients with scan data yet — run a scan with a client tag to generate CES scores</div>';
+      return;
+    }
+
+    gridEl.innerHTML = clients.sort((a,b) => a[1].score - b[1].score).map(([name, ces]) => {
+      const b = ces.breakdown;
+      const scoreColor = ces.score >= 85 ? 'var(--accent)' : ces.score >= 70 ? 'var(--accent2)' : ces.score >= 55 ? 'var(--warning)' : 'var(--danger)';
+      const circumference = 2 * Math.PI * 38;
+      const offset = circumference - (ces.score / 100) * circumference;
+      const trendLabel = { improving: '▲ IMPROVING', declining: '▼ DECLINING', stable: '— STABLE', new: '★ NEW' }[ces.trend] || ces.trend;
+      const lastScan = b.lastScanDate ? new Date(b.lastScanDate).toLocaleDateString() : '--';
+
+      return `<div class="ces-card" onclick="viewClientCES('${escH(name)}')">
+        <div class="ces-card-header">
+          <div class="ces-client-name">${escH(name)}</div>
+          <span class="ces-trend ${ces.trend}">${trendLabel}</span>
+        </div>
+        <div class="ces-gauge-wrap">
+          <div class="ces-gauge">
+            <svg viewBox="0 0 80 80">
+              <circle class="ces-gauge-bg" cx="40" cy="40" r="38"/>
+              <circle class="ces-gauge-fill" cx="40" cy="40" r="38" stroke="${scoreColor}" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+            </svg>
+            <div class="ces-gauge-text" style="color:${scoreColor}">${ces.score}</div>
+            <div class="ces-gauge-grade" style="color:${scoreColor}">${ces.grade}</div>
+          </div>
+          <div class="ces-details">
+            <div class="ces-detail-row"><span class="ces-detail-label">CRITICAL</span><span class="ces-detail-val" style="color:var(--danger)">${b.critical}</span></div>
+            <div class="ces-detail-row"><span class="ces-detail-label">HIGH</span><span class="ces-detail-val" style="color:#FF6400">${b.high}</span></div>
+            <div class="ces-detail-row"><span class="ces-detail-label">MEDIUM</span><span class="ces-detail-val" style="color:var(--warning)">${b.medium}</span></div>
+            <div class="ces-detail-row"><span class="ces-detail-label">LOW</span><span class="ces-detail-val" style="color:var(--accent2)">${b.low}</span></div>
+            <div class="ces-detail-row"><span class="ces-detail-label">AVG CVSS</span><span class="ces-detail-val">${b.avgCVSS > 0 ? b.avgCVSS.toFixed(1) : '--'}</span></div>
+          </div>
+        </div>
+        <div class="ces-bar"><div class="ces-bar-fill" style="width:${ces.score}%;background:${scoreColor}"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">${b.totalFindings} findings | ${b.scansAnalyzed} scan(s)</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">Last: ${lastScan}</span>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    loadEl.textContent = 'Failed to load CES data: ' + e.message;
+  }
+}
+
+function viewClientCES(clientName) {
+  vulnTab('scanner');
+  document.getElementById('scan-client').value = clientName;
+  loadScanHistory();
 }
 
 async function initVulnView() {

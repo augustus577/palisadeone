@@ -334,4 +334,163 @@ function deleteScan(id) {
   try { fs.rmSync(scanDir, { recursive: true, force: true }); } catch(e) {}
 }
 
-module.exports = { startScan, getScan, listScans, deleteScan };
+// ── CYBER EXPOSURE SCORE (CES) ───────────────────────────────────────────────
+
+function getGrade(score) {
+  if (score >= 95) return "A+";
+  if (score >= 90) return "A";
+  if (score >= 85) return "A-";
+  if (score >= 80) return "B+";
+  if (score >= 75) return "B";
+  if (score >= 70) return "B-";
+  if (score >= 65) return "C+";
+  if (score >= 60) return "C";
+  if (score >= 55) return "C-";
+  if (score >= 40) return "D";
+  return "F";
+}
+
+function getClientScans(clientName) {
+  try {
+    const dirs = fs.readdirSync(SCANS_DIR).filter(d =>
+      fs.existsSync(path.join(SCANS_DIR, d, "results.json"))
+    );
+    const clientScans = [];
+    for (const d of dirs) {
+      try {
+        const s = JSON.parse(fs.readFileSync(path.join(SCANS_DIR, d, "results.json"), "utf8"));
+        if (s.status === "completed" && s.clientName && s.clientName.toLowerCase() === clientName.toLowerCase()) {
+          clientScans.push(s);
+        }
+      } catch(e) {}
+    }
+    return clientScans;
+  } catch(e) { return []; }
+}
+
+function calculateCES(clientName) {
+  const clientScans = getClientScans(clientName);
+  if (clientScans.length === 0) return null;
+
+  // Sort scans newest first
+  clientScans.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+
+  // Keep only the most recent scan per unique target set (sorted targets as key)
+  const targetMap = new Map();
+  for (const s of clientScans) {
+    const key = (s.targets || []).slice().sort().join(",");
+    if (!targetMap.has(key)) {
+      targetMap.set(key, s);
+    }
+  }
+  const latestScans = Array.from(targetMap.values());
+
+  // Aggregate findings from the latest scans
+  let critical = 0, high = 0, medium = 0, low = 0, info = 0;
+  let totalCVSS = 0, cvssCount = 0;
+  let lastScanDate = null;
+
+  for (const s of latestScans) {
+    const st = s.stats || {};
+    critical += st.critical || 0;
+    high += st.high || 0;
+    medium += st.medium || 0;
+    low += st.low || 0;
+    info += st.info || 0;
+
+    // Gather CVSS scores from findings
+    if (s.findings) {
+      for (const f of s.findings) {
+        if (f.cvss && f.cvss > 0 && f.severity !== "info") {
+          totalCVSS += f.cvss;
+          cvssCount++;
+        }
+      }
+    }
+
+    // Track most recent scan date
+    if (s.completedAt && (!lastScanDate || new Date(s.completedAt) > new Date(lastScanDate))) {
+      lastScanDate = s.completedAt;
+    }
+  }
+
+  const totalFindings = critical + high + medium + low + info;
+  const avgCVSS = cvssCount > 0 ? Math.round((totalCVSS / cvssCount) * 10) / 10 : 0;
+
+  // Calculate weighted deductions (capped per category)
+  const criticalDeduct = Math.min(critical * 10, 40);
+  const highDeduct = Math.min(high * 5, 25);
+  const mediumDeduct = Math.min(medium * 2, 15);
+  const lowDeduct = Math.min(low * 0.5, 10);
+
+  let score = 100 - criticalDeduct - highDeduct - mediumDeduct - lowDeduct;
+
+  // Secondary CVSS factor: if average CVSS is high, apply additional penalty
+  // Scale: avgCVSS 0-10 maps to 0-10 bonus penalty
+  if (avgCVSS > 0) {
+    const cvssPenalty = Math.min((avgCVSS / 10) * 10, 10);
+    score -= cvssPenalty;
+  }
+
+  // Clamp to 0-100
+  score = Math.max(0, Math.min(100, Math.round(score * 10) / 10));
+
+  // Determine trend by comparing to older scans
+  let trend = "new";
+  if (clientScans.length >= 2) {
+    // Compare latest scan stats to the second-latest
+    const latest = clientScans[0];
+    const previous = clientScans[1];
+    const latestTotal = (latest.stats?.critical || 0) * 10 + (latest.stats?.high || 0) * 5 +
+                        (latest.stats?.medium || 0) * 2 + (latest.stats?.low || 0) * 0.5;
+    const prevTotal = (previous.stats?.critical || 0) * 10 + (previous.stats?.high || 0) * 5 +
+                      (previous.stats?.medium || 0) * 2 + (previous.stats?.low || 0) * 0.5;
+    if (latestTotal < prevTotal) trend = "improving";
+    else if (latestTotal > prevTotal) trend = "declining";
+    else trend = "stable";
+  }
+
+  return {
+    score,
+    grade: getGrade(score),
+    breakdown: {
+      critical,
+      high,
+      medium,
+      low,
+      info,
+      totalFindings,
+      avgCVSS,
+      scansAnalyzed: latestScans.length,
+      lastScanDate
+    },
+    trend
+  };
+}
+
+function getAllCES() {
+  // Collect all unique client names from completed scans
+  const clientNames = new Set();
+  try {
+    const dirs = fs.readdirSync(SCANS_DIR).filter(d =>
+      fs.existsSync(path.join(SCANS_DIR, d, "results.json"))
+    );
+    for (const d of dirs) {
+      try {
+        const s = JSON.parse(fs.readFileSync(path.join(SCANS_DIR, d, "results.json"), "utf8"));
+        if (s.status === "completed" && s.clientName) {
+          clientNames.add(s.clientName);
+        }
+      } catch(e) {}
+    }
+  } catch(e) {}
+
+  const results = {};
+  for (const name of clientNames) {
+    const ces = calculateCES(name);
+    if (ces) results[name] = ces;
+  }
+  return results;
+}
+
+module.exports = { startScan, getScan, listScans, deleteScan, calculateCES, getAllCES };
