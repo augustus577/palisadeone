@@ -5287,29 +5287,23 @@ function startFdsPoll(agentId) {
 
 function updateFdsUI(agentId, scan) {
   const fdsBtn = document.querySelector('.ep-action-btn.fds');
-  if (!fdsBtn) return;
-  if (scan.status === 'running') {
-    fdsBtn.querySelector('.btn-label').textContent = 'SCANNING...';
-    fdsBtn.querySelector('.btn-sub').textContent = 'In progress';
-    fdsBtn.style.borderColor = 'rgba(245,166,35,0.6)';
-    fdsBtn.style.animation = 'pulse 2s infinite';
-  } else if (scan.status === 'completed') {
-    const tc = scan.threatCount || 0;
-    fdsBtn.querySelector('.btn-label').textContent = 'SCAN COMPLETE';
-    fdsBtn.querySelector('.btn-sub').textContent = tc > 0 ? `${tc} threat(s) found` : 'No threats found';
-    fdsBtn.style.borderColor = tc > 0 ? 'rgba(255,59,92,0.6)' : 'rgba(0,255,209,0.4)';
-    fdsBtn.style.animation = '';
-    if (activeAgentId === agentId) {
-      if (tc > 0) showToast(`Scan on ${agentsData[agentId]?.name||agentId}: ${tc} threat(s) detected!`, 'warn');
-      else showToast(`Scan on ${agentsData[agentId]?.name||agentId}: No threats.`, 'success');
-    }
-    // Refresh device list scan badges
-    loadDevices();
-  } else {
+  if (fdsBtn) {
+    // Button always says "FULL DISK SCAN" — only pulse while running
     fdsBtn.querySelector('.btn-label').textContent = 'FULL DISK SCAN';
     fdsBtn.querySelector('.btn-sub').textContent = 'Windows Defender';
-    fdsBtn.style.borderColor = '';
-    fdsBtn.style.animation = '';
+    if (scan.status === 'running') {
+      fdsBtn.style.borderColor = 'rgba(245,166,35,0.6)';
+      fdsBtn.style.animation = 'pulse 2s infinite';
+    } else {
+      fdsBtn.style.borderColor = '';
+      fdsBtn.style.animation = '';
+    }
+    if (scan.status === 'completed' && activeAgentId === agentId) {
+      const tc = scan.threatCount || 0;
+      if (tc > 0) showToast(`Scan on ${agentsData[agentId]?.name||agentId}: ${tc} threat(s) detected!`, 'warn');
+      else showToast(`Scan on ${agentsData[agentId]?.name||agentId}: No threats.`, 'success');
+      loadDevices();
+    }
   }
   const scanEl = document.getElementById('ep-scan-status');
   if (scanEl) {
