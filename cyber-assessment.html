@@ -471,6 +471,64 @@ textarea.scan-input{height:80px;resize:vertical}
 .bb-industry-label{position:absolute;top:12px;font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--muted);transform:translateX(-50%);white-space:nowrap}
 .bb-val{font-family:'JetBrains Mono',monospace;font-size:10px;width:40px;text-align:right;flex-shrink:0}
 
+/* BREACH COST ESTIMATOR */
+.breach-panel{background:linear-gradient(135deg,rgba(255,59,92,0.06),rgba(245,166,35,0.04));border:1px solid rgba(255,59,92,0.2);padding:24px;margin-bottom:24px;position:relative;overflow:hidden}
+.breach-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,var(--danger),var(--warn))}
+.breach-headline{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);letter-spacing:2px;margin-bottom:4px}
+.breach-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.breach-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.breach-stat{text-align:center;padding:16px;background:rgba(0,0,0,0.2);border:1px solid var(--border)}
+.breach-stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1}
+.breach-stat-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1px;margin-top:4px}
+.breach-source{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);margin-top:12px;text-align:right;letter-spacing:1px}
+
+/* AI RISK NARRATIVE */
+.narrative-panel{background:var(--surface);border:1px solid var(--border);padding:24px;margin-bottom:24px;position:relative}
+.narrative-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,var(--accent2),var(--accent))}
+.narrative-icon{font-size:20px;margin-bottom:8px;display:inline-block}
+.narrative-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2);letter-spacing:2px;margin-bottom:12px}
+.narrative-text{font-size:14px;color:var(--text);line-height:1.8}
+.narrative-text strong{color:var(--white);font-weight:600}
+.narrative-text .hl-danger{color:var(--danger);font-weight:600}
+.narrative-text .hl-accent{color:var(--accent);font-weight:600}
+.narrative-text .hl-warn{color:var(--warn);font-weight:600}
+
+/* MATURITY RADAR */
+.radar-wrap{position:relative;width:280px;height:280px;margin:0 auto}
+.radar-wrap canvas{width:100%!important;height:100%!important}
+
+/* QUICK WINS */
+.quickwin-card{background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;transition:border-color .2s}
+.quickwin-card:hover{border-color:var(--accent)}
+.qw-rank{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;flex-shrink:0;border-radius:50%}
+.qw-rank.gold{background:rgba(245,166,35,0.15);color:var(--warn);border:1px solid rgba(245,166,35,0.4)}
+.qw-rank.silver{background:rgba(0,132,255,0.15);color:var(--accent2);border:1px solid rgba(0,132,255,0.4)}
+.qw-rank.bronze{background:rgba(0,255,209,0.1);color:var(--accent);border:1px solid rgba(0,255,209,0.3)}
+.qw-body{flex:1}
+.qw-title{font-size:13px;color:var(--white);font-weight:500;margin-bottom:3px}
+.qw-impact{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:1px;margin-bottom:4px}
+.qw-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.qw-effort{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border:1px solid;letter-spacing:1px;margin-top:6px;display:inline-block}
+
+/* INSURANCE READINESS */
+.insurance-panel{background:var(--surface);border:1px solid var(--border);padding:24px;margin-bottom:24px}
+.insurance-panel::before{content:'';display:block;height:2px;background:linear-gradient(to right,var(--purple),var(--accent2));margin:-24px -24px 20px}
+.ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ins-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);font-size:11px}
+.ins-check{width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px}
+.ins-check.pass{color:var(--accent)}
+.ins-check.fail{color:var(--danger)}
+.ins-check.partial{color:var(--warn)}
+
+/* MATURITY LEVEL */
+.maturity-bar{display:flex;gap:2px;margin-bottom:20px}
+.maturity-level{flex:1;padding:12px 8px;text-align:center;border:1px solid var(--border);transition:all .3s}
+.maturity-level.active{border-color:var(--accent);background:rgba(0,255,209,0.06)}
+.ml-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted);line-height:1}
+.maturity-level.active .ml-num{color:var(--accent)}
+.ml-name{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--muted);letter-spacing:1px;margin-top:2px}
+.maturity-level.active .ml-name{color:var(--accent)}
+
 @media print {
   body{background:#fff!important;color:#1a1a1a!important;overflow:visible!important}
   .topbar,.sidebar,.cursor,.cursor-ring,.portal-bg,.grid-bg,.page-header,.btn{display:none!important}
@@ -2653,6 +2711,126 @@ function getRisk(p){
   return{lvl:'CRITICAL RISK',c:'#FF3B5C',bg:'rgba(255,59,92,0.14)',bc:'rgba(255,59,92,0.5)',i:'💀',d:'Immediate action required. Fundamental controls missing. Urgent remediation needed.'};
 }
 
+// BREACH COST ESTIMATOR (IBM/Ponemon Cost of Data Breach 2024)
+function estimateBreachCost() {
+  const industry = state.currentClient?.industry || 'technology';
+  const size = state.currentClient?.employees || '51-200';
+  // Average breach costs by industry (IBM 2024 report, in millions USD)
+  const industryCosts = {
+    'healthcare': 10.93, 'financial': 6.08, 'technology': 5.45, 'energy': 4.78,
+    'manufacturing': 4.73, 'education': 3.65, 'government': 2.73, 'retail': 3.48,
+    'legal': 5.10, 'professional': 4.20, 'other': 4.45
+  };
+  // Size multiplier
+  const sizeMultipliers = {
+    '1-10': 0.15, '11-50': 0.3, '51-200': 0.55, '201-500': 0.8,
+    '501-1000': 1.0, '1001-5000': 1.3, '5000+': 1.8
+  };
+  const baseCost = industryCosts[industry] || 4.45;
+  const sizeMult = sizeMultipliers[size] || 0.55;
+  const score = state.scores.overall;
+  // Risk multiplier: lower score = higher breach cost
+  const riskMult = score >= 80 ? 0.6 : score >= 65 ? 0.85 : score >= 40 ? 1.2 : 1.6;
+  const estimatedCost = baseCost * sizeMult * riskMult;
+  // Probability of breach within 12 months
+  const breachProb = score >= 80 ? 12 : score >= 65 ? 27 : score >= 40 ? 48 : 72;
+  // Days to identify & contain
+  const daysToIdentify = score >= 80 ? 150 : score >= 65 ? 194 : score >= 40 ? 240 : 287;
+  const daysToContain = score >= 80 ? 52 : score >= 65 ? 68 : score >= 40 ? 85 : 100;
+  // Per-record cost
+  const perRecord = score >= 80 ? 145 : score >= 65 ? 165 : score >= 40 ? 190 : 220;
+  return { cost: estimatedCost, prob: breachProb, identifyDays: daysToIdentify, containDays: daysToContain, perRecord };
+}
+
+// AI RISK NARRATIVE
+function generateNarrative() {
+  const sc = state.scores, risk = getRisk(sc.overall);
+  const breach = estimateBreachCost();
+  const weakest = Object.entries(sc.secs).sort((a,b) => a[1].p - b[1].p).slice(0, 3);
+  const strongest = Object.entries(sc.secs).sort((a,b) => b[1].p - a[1].p).slice(0, 2);
+  const clientName = state.currentClient?.name || 'Your organization';
+  const industry = state.currentClient?.industry || 'technology';
+
+  let narrative = '';
+  if (sc.overall >= 80) {
+    narrative = `<strong>${clientName}</strong> demonstrates a <span class="hl-accent">strong security posture</span> with an overall score of <strong>${sc.overall}/100</strong>. Your organization is performing above the industry average for ${industry}, placing you in approximately the <span class="hl-accent">top 25% of peer organizations</span>. Your strongest areas are <strong>${strongest.map(s => s[1].name).join('</strong> and <strong>')}</strong>. However, continued vigilance is needed in <strong>${weakest[0][1].name}</strong> (${weakest[0][1].p}%) to maintain this posture. Based on your current controls, your estimated annual breach probability is <span class="hl-accent">${breach.prob}%</span> — significantly below the ${industry} industry average of 35%.`;
+  } else if (sc.overall >= 65) {
+    narrative = `<strong>${clientName}</strong> has a <span class="hl-warn">moderate security posture</span> scoring <strong>${sc.overall}/100</strong>. While foundational controls are in place, <span class="hl-danger">${weakest.length} control families require immediate attention</span>: <strong>${weakest.map(s => s[1].name + ' (' + s[1].p + '%)').join('</strong>, <strong>')}</strong>. Your estimated breach cost exposure is <span class="hl-danger">$${breach.cost.toFixed(1)}M</span> with a <span class="hl-warn">${breach.prob}% probability</span> of a material breach within 12 months. The good news: by addressing the top 5 quick wins below, you could improve your score by an estimated <span class="hl-accent">15-20 points</span> within 90 days and reduce your breach probability by roughly half.`;
+  } else if (sc.overall >= 40) {
+    narrative = `<strong>${clientName}</strong> is operating at <span class="hl-danger">high risk</span> with a score of <strong>${sc.overall}/100</strong>. Critical security controls are missing or inadequate across ${weakest.filter(s => s[1].p < 40).length} control families. Your organization faces an estimated <span class="hl-danger">$${breach.cost.toFixed(1)}M</span> breach cost exposure with a <span class="hl-danger">${breach.prob}% probability of breach</span> within 12 months. Most cyber insurance carriers would likely <span class="hl-danger">deny coverage or charge significant premiums</span> at this posture level. Immediate priorities: <strong>${weakest.map(s => s[1].name).join('</strong>, <strong>')}</strong>. A structured 90-day remediation plan focusing on the quick wins below could bring you to a manageable risk level.`;
+  } else {
+    narrative = `<span class="hl-danger">Urgent action required.</span> <strong>${clientName}</strong> scored <strong>${sc.overall}/100</strong>, indicating <span class="hl-danger">fundamental security controls are absent</span>. Your organization is operating without basic protections that are standard across the ${industry} industry. Estimated breach cost exposure: <span class="hl-danger">$${breach.cost.toFixed(1)}M</span>. Probability of material breach within 12 months: <span class="hl-danger">${breach.prob}%</span>. This represents an existential risk to business operations. We recommend engaging PalisadeOne for an emergency security remediation program.`;
+  }
+  return narrative;
+}
+
+// QUICK WINS — highest impact, lowest effort
+function getQuickWins() {
+  const sc = state.scores;
+  const wins = [];
+  const secs = Object.entries(sc.secs).sort((a, b) => a[1].p - b[1].p);
+  // Map weak areas to specific actionable quick wins
+  const quickWinMap = {
+    'AC': { title: 'Enable MFA on All Accounts', desc: 'Deploy multi-factor authentication across all user accounts, starting with admin and privileged access. This single control blocks 99.9% of credential-based attacks.', effort: 'LOW', impact: '+8-12 pts', icon: '🔐' },
+    'AT': { title: 'Launch Security Awareness Training', desc: 'Deploy a managed phishing simulation and training platform (KnowBe4, Proofpoint). Takes 1 day to set up, runs automatically from there.', effort: 'LOW', impact: '+5-8 pts', icon: '🎓' },
+    'CM': { title: 'Deploy Automated Patch Management', desc: 'Enable Windows Update for Business or deploy Automox. Automated patching closes your #1 attack surface with minimal effort.', effort: 'LOW', impact: '+6-10 pts', icon: '🔄' },
+    'AU': { title: 'Enable Centralized Logging', desc: 'Forward all endpoint and server logs to a SIEM (Wazuh). Gives instant visibility into what is happening across your environment.', effort: 'MEDIUM', impact: '+5-8 pts', icon: '📋' },
+    'SI': { title: 'Deploy EDR on All Endpoints', desc: 'Install EDR/XDR agents on every endpoint. Provides real-time threat detection and automated response capabilities.', effort: 'MEDIUM', impact: '+8-12 pts', icon: '🛡️' },
+    'IA': { title: 'Implement Password Policy & PAM', desc: 'Enforce 14+ character passwords, deploy a password manager, and implement privileged access management for admin accounts.', effort: 'LOW', impact: '+5-8 pts', icon: '🔑' },
+    'CP': { title: 'Test Your Backups', desc: 'Verify backup integrity and perform a full restoration test. Many organizations discover their backups are broken only during an incident.', effort: 'LOW', impact: '+4-6 pts', icon: '💾' },
+    'IR': { title: 'Create Incident Response Plan', desc: 'Document a basic IRP with roles, communication procedures, and containment steps. Template available from PalisadeOne.', effort: 'LOW', impact: '+5-8 pts', icon: '🚨' },
+    'SC': { title: 'Enable Encryption Everywhere', desc: 'Enable BitLocker on all Windows endpoints, enforce TLS 1.2+ on all services, and encrypt data at rest in databases.', effort: 'MEDIUM', impact: '+5-8 pts', icon: '🔒' },
+    'RA': { title: 'Conduct Vulnerability Scan', desc: 'Run an automated vulnerability scan of your external and internal infrastructure. PalisadeOne can do this in minutes.', effort: 'LOW', impact: '+4-6 pts', icon: '🔍' },
+    'PE': { title: 'Secure Physical Access', desc: 'Implement badge access, visitor logs, and camera coverage at all entry points. Lock server rooms with separate access controls.', effort: 'MEDIUM', impact: '+3-5 pts', icon: '🏢' },
+    'PL': { title: 'Document Security Policies', desc: 'Create and publish your core security policies (Acceptable Use, Data Classification, Access Control). PalisadeOne generates these for you.', effort: 'LOW', impact: '+4-6 pts', icon: '📝' },
+  };
+  secs.forEach(([id, s]) => {
+    if (s.p < 75 && quickWinMap[id]) {
+      wins.push({ ...quickWinMap[id], family: id, familyName: s.name, score: s.p });
+    }
+  });
+  // Sort by effort (LOW first) then by impact (biggest gap first)
+  wins.sort((a, b) => {
+    const effortOrder = { 'LOW': 0, 'MEDIUM': 1, 'HIGH': 2 };
+    if (effortOrder[a.effort] !== effortOrder[b.effort]) return effortOrder[a.effort] - effortOrder[b.effort];
+    return a.score - b.score;
+  });
+  return wins.slice(0, 5);
+}
+
+// MATURITY LEVEL (1-5 NIST-based)
+function getMaturityLevel(score) {
+  if (score >= 85) return { level: 5, name: 'OPTIMIZING', desc: 'Continuous improvement, advanced automation, proactive threat hunting' };
+  if (score >= 70) return { level: 4, name: 'MANAGED', desc: 'Quantitative risk management, metrics-driven, incident response tested' };
+  if (score >= 50) return { level: 3, name: 'DEFINED', desc: 'Documented policies and procedures, consistent implementation' };
+  if (score >= 25) return { level: 2, name: 'DEVELOPING', desc: 'Some controls in place but inconsistent, reactive approach' };
+  return { level: 1, name: 'INITIAL', desc: 'Ad-hoc security, no formal program, significant gaps' };
+}
+
+// CYBER INSURANCE READINESS
+function getInsuranceReadiness() {
+  const sc = state.scores;
+  const checks = [
+    { q: 'MFA on all remote access', family: 'AC', threshold: 60 },
+    { q: 'EDR on all endpoints', family: 'SI', threshold: 50 },
+    { q: 'Offline backups tested', family: 'CP', threshold: 50 },
+    { q: 'Incident response plan', family: 'IR', threshold: 40 },
+    { q: 'Security awareness training', family: 'AT', threshold: 50 },
+    { q: 'Privileged access management', family: 'IA', threshold: 50 },
+    { q: 'Patch management (<30 days)', family: 'CM', threshold: 50 },
+    { q: 'Email security (DMARC/SPF)', family: 'SC', threshold: 40 },
+    { q: 'Network segmentation', family: 'SC', threshold: 50 },
+    { q: 'Vulnerability scanning', family: 'RA', threshold: 40 },
+    { q: 'Encryption at rest & transit', family: 'SC', threshold: 50 },
+    { q: 'Third-party risk management', family: 'SA', threshold: 40 },
+  ];
+  return checks.map(c => {
+    const s = sc.secs[c.family];
+    const score = s ? s.p : 0;
+    return { ...c, score, status: score >= c.threshold + 20 ? 'pass' : score >= c.threshold ? 'partial' : 'fail' };
+  });
+}
+
 // RENDER DASHBOARD
 function renderDashboard() {
   const sc=state.scores, risk=getRisk(sc.overall);
@@ -2811,7 +2989,111 @@ function renderDashboard() {
           </div>
         </div>
       </div>
+    </div>
+
+    ${renderBreachCostPanel()}
+    ${renderNarrativePanel()}
+
+    <div style="margin-bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px">SECURITY MATURITY LEVEL</div>
+    ${renderMaturityPanel()}
+
+    <div class="two-col">
+      <div>
+        <div style="margin-bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px">TOP 5 QUICK WINS</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Highest impact actions ranked by effort — start here for fastest improvement</div>
+        ${renderQuickWins()}
+      </div>
+      <div>
+        <div style="margin-bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px">CYBER INSURANCE READINESS</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Carrier pre-qualification checklist — controls insurers require for coverage</div>
+        ${renderInsurancePanel()}
+      </div>
     </div>`;
+}
+
+function renderBreachCostPanel() {
+  const b = estimateBreachCost();
+  return `<div class="breach-panel">
+    <div class="breach-headline">ESTIMATED BREACH COST EXPOSURE</div>
+    <div class="breach-sub">Based on industry benchmarks, company size, and your current security posture</div>
+    <div class="breach-grid">
+      <div class="breach-stat"><div class="breach-stat-val" style="color:var(--danger)">$${b.cost.toFixed(1)}M</div><div class="breach-stat-label">ESTIMATED BREACH COST</div></div>
+      <div class="breach-stat"><div class="breach-stat-val" style="color:var(--warn)">${b.prob}%</div><div class="breach-stat-label">BREACH PROBABILITY (12 MO)</div></div>
+      <div class="breach-stat"><div class="breach-stat-val" style="color:var(--accent2)">${b.identifyDays}d</div><div class="breach-stat-label">AVG DAYS TO IDENTIFY</div></div>
+      <div class="breach-stat"><div class="breach-stat-val" style="color:var(--accent2)">${b.containDays}d</div><div class="breach-stat-label">AVG DAYS TO CONTAIN</div></div>
+    </div>
+    <div class="breach-source">Source: IBM/Ponemon Cost of Data Breach Report 2024 + PalisadeOne Risk Model</div>
+  </div>`;
+}
+
+function renderNarrativePanel() {
+  return `<div class="narrative-panel">
+    <div class="narrative-tag">&#x2728; AI-POWERED RISK ANALYSIS</div>
+    <div class="narrative-text">${generateNarrative()}</div>
+  </div>`;
+}
+
+function renderMaturityPanel() {
+  const m = getMaturityLevel(state.scores.overall);
+  return `<div class="maturity-bar">
+    ${[
+      {n:1,name:'INITIAL'},{n:2,name:'DEVELOPING'},{n:3,name:'DEFINED'},{n:4,name:'MANAGED'},{n:5,name:'OPTIMIZING'}
+    ].map(l => `<div class="maturity-level ${l.n === m.level ? 'active' : ''} ${l.n < m.level ? 'active' : ''}">
+      <div class="ml-num">${l.n}</div><div class="ml-name">${l.name}</div>
+    </div>`).join('')}
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:24px;display:flex;align-items:center;gap:14px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent);line-height:1">${m.level}</div>
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px">MATURITY LEVEL ${m.level}: ${m.name}</div>
+      <div style="font-size:12px;color:var(--muted)">${m.desc}</div>
+    </div>
+  </div>`;
+}
+
+function renderQuickWins() {
+  const wins = getQuickWins();
+  if (!wins.length) return '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No quick wins needed — your security posture is excellent!</div>';
+  return wins.map((w, i) => {
+    const rankClass = i === 0 ? 'gold' : i < 3 ? 'silver' : 'bronze';
+    const effortColor = w.effort === 'LOW' ? 'color:var(--accent);border-color:rgba(0,255,209,0.3)' : w.effort === 'MEDIUM' ? 'color:var(--warn);border-color:rgba(245,166,35,0.3)' : 'color:var(--danger);border-color:rgba(255,59,92,0.3)';
+    return `<div class="quickwin-card">
+      <div class="qw-rank ${rankClass}">${i + 1}</div>
+      <div class="qw-body">
+        <div class="qw-title">${w.icon} ${w.title}</div>
+        <div class="qw-impact">IMPACT: ${w.impact} &middot; ${w.familyName} (currently ${w.score}%)</div>
+        <div class="qw-desc">${w.desc}</div>
+        <span class="qw-effort" style="${effortColor}">EFFORT: ${w.effort}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderInsurancePanel() {
+  const checks = getInsuranceReadiness();
+  const passing = checks.filter(c => c.status === 'pass').length;
+  const total = checks.length;
+  const pct = Math.round(passing / total * 100);
+  const color = pct >= 80 ? 'var(--accent)' : pct >= 50 ? 'var(--warn)' : 'var(--danger)';
+  const verdict = pct >= 80 ? 'LIKELY APPROVED' : pct >= 50 ? 'CONDITIONAL — GAPS EXIST' : 'LIKELY DENIED';
+  return `<div class="insurance-panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${color};letter-spacing:2px">${verdict}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">${passing}/${total} carrier requirements met</div>
+      </div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:${color}">${pct}%</div>
+    </div>
+    <div class="ins-grid">
+      ${checks.map(c => {
+        const icon = c.status === 'pass' ? '&#x2713;' : c.status === 'partial' ? '&#x25CB;' : '&#x2717;';
+        return `<div class="ins-item">
+          <span class="ins-check ${c.status}">${icon}</span>
+          <span style="color:${c.status==='fail'?'var(--danger)':c.status==='partial'?'var(--warn)':'var(--text)'}">${c.q}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
 }
 
 // GENERATE TASKS
