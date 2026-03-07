@@ -312,6 +312,116 @@
       transition: width 0.5s;
     }
 
+    /* ===== TICKETS ===== */
+    .ticket-badge {
+      margin-left: auto; background: var(--danger); color: var(--white);
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      padding: 2px 6px; border-radius: 8px; min-width: 18px; text-align: center;
+    }
+    .ticket-list { display: flex; flex-direction: column; gap: 8px; }
+    .ticket-item {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 16px; cursor: pointer; transition: border-color 0.2s;
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .ticket-item:hover { border-color: var(--accent); }
+    .ticket-prio {
+      width: 4px; min-height: 40px; border-radius: 2px; flex-shrink: 0;
+    }
+    .prio-critical { background: var(--danger); }
+    .prio-high { background: var(--warning); }
+    .prio-medium { background: var(--accent2); }
+    .prio-low { background: var(--muted); }
+    .ticket-info { flex: 1; }
+    .ticket-subject { font-weight: 600; color: var(--white); font-size: 14px; margin-bottom: 4px; }
+    .ticket-meta {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap;
+    }
+    .ticket-status-badge {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      padding: 3px 8px; border-radius: 2px; letter-spacing: 1px;
+      flex-shrink: 0; align-self: center;
+    }
+    .ts-open { background: rgba(0,132,255,0.15); color: var(--accent2); }
+    .ts-in_progress { background: rgba(245,166,35,0.15); color: var(--warning); }
+    .ts-waiting { background: rgba(75,0,130,0.15); color: #7B61FF; }
+    .ts-resolved { background: rgba(0,255,209,0.1); color: var(--accent); }
+    .ts-closed { background: rgba(74,96,128,0.15); color: var(--muted); }
+    .new-ticket-form {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 24px; margin-bottom: 16px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .form-col { display: flex; flex-direction: column; gap: 6px; }
+    .form-col.full { grid-column: span 2; }
+    .ticket-input {
+      background: var(--deep); border: 1px solid var(--border); color: var(--white);
+      padding: 10px 14px; font-family: 'Outfit', sans-serif; font-size: 13px;
+      outline: none; width: 100%; transition: border-color 0.2s;
+    }
+    .ticket-input:focus { border-color: var(--accent); }
+    .ticket-input::placeholder { color: var(--muted); }
+    textarea.ticket-input { min-height: 100px; resize: vertical; }
+    .ticket-select {
+      background: var(--deep); border: 1px solid var(--border); color: var(--white);
+      padding: 10px 14px; font-family: 'Outfit', sans-serif; font-size: 13px;
+      outline: none; width: 100%;
+    }
+    .ticket-btn {
+      background: var(--accent); color: var(--black); border: none;
+      padding: 10px 24px; font-family: 'Outfit', sans-serif; font-size: 12px;
+      font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .ticket-btn:hover { background: var(--white); }
+    .ticket-btn.secondary {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .ticket-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+    /* Thread view */
+    .thread-header {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 20px; margin-bottom: 16px;
+    }
+    .thread-subject {
+      font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+      color: var(--white); letter-spacing: 1px; margin-bottom: 8px;
+    }
+    .thread-details {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap;
+    }
+    .message-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .msg-bubble {
+      padding: 14px 18px; max-width: 80%; border-radius: 2px;
+      font-size: 13px; line-height: 1.6;
+    }
+    .msg-client {
+      background: var(--surface); border: 1px solid var(--border);
+      align-self: flex-start;
+    }
+    .msg-admin {
+      background: rgba(0,255,209,0.06); border: 1px solid rgba(0,255,209,0.15);
+      align-self: flex-end;
+    }
+    .msg-sender {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--accent); margin-bottom: 4px; letter-spacing: 1px;
+    }
+    .msg-admin .msg-sender { color: var(--accent); }
+    .msg-client .msg-sender { color: var(--accent2); }
+    .msg-time {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      color: var(--muted); margin-top: 6px;
+    }
+    .reply-box {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 16px; display: flex; gap: 12px;
+    }
+    .reply-box textarea { flex: 1; }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .sidebar { position: fixed; left: -260px; z-index: 100; transition: left 0.3s; }
@@ -349,6 +459,12 @@
   </div>
   <div class="nav-item" data-view="devices" onclick="showView('devices')">
     <span class="nav-icon">&#9881;</span> <span>Endpoints</span>
+  </div>
+
+  <div class="nav-section">Support</div>
+  <div class="nav-item" data-view="tickets" onclick="showView('tickets')">
+    <span class="nav-icon">&#9993;</span> <span>Support Tickets</span>
+    <span class="ticket-badge" id="ticketBadge" style="display:none"></span>
   </div>
 
   <div class="nav-section">Compliance</div>
@@ -598,6 +714,85 @@
       </div>
     </div>
 
+    <!-- TICKETS -->
+    <div class="view" id="view-tickets">
+      <!-- Ticket list (default) -->
+      <div id="ticketListView">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select class="ticket-select" id="ticketFilter" onchange="loadTickets()" style="width:150px;padding:8px 12px;">
+              <option value="all">All Tickets</option>
+              <option value="open">Open</option>
+              <option value="in_progress">In Progress</option>
+              <option value="waiting">Waiting</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <button class="ticket-btn" onclick="showNewTicketForm()">+ NEW TICKET</button>
+        </div>
+
+        <!-- New ticket form (hidden by default) -->
+        <div class="new-ticket-form" id="newTicketForm" style="display:none;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:2px;margin-bottom:16px;">SUBMIT SUPPORT REQUEST</div>
+          <div class="form-row">
+            <div class="form-col full">
+              <label class="stat-label">Subject</label>
+              <input type="text" class="ticket-input" id="tkSubject" placeholder="Brief description of your issue">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-col">
+              <label class="stat-label">Category</label>
+              <select class="ticket-select" id="tkCategory">
+                <option value="general">General Support</option>
+                <option value="incident">Security Incident</option>
+                <option value="access">Access / Login Issue</option>
+                <option value="billing">Billing</option>
+                <option value="vulnerability">Vulnerability Report</option>
+                <option value="compliance">Compliance Question</option>
+              </select>
+            </div>
+            <div class="form-col">
+              <label class="stat-label">Priority</label>
+              <select class="ticket-select" id="tkPriority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical - Security Incident</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-col full">
+              <label class="stat-label">Description</label>
+              <textarea class="ticket-input" id="tkDescription" placeholder="Describe your issue in detail..."></textarea>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button class="ticket-btn secondary" onclick="hideNewTicketForm()">CANCEL</button>
+            <button class="ticket-btn" onclick="submitTicket()">SUBMIT TICKET</button>
+          </div>
+          <div id="tkStatus" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-top:10px;min-height:16px;"></div>
+        </div>
+
+        <div class="ticket-list" id="ticketList">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+
+      <!-- Single ticket thread (hidden by default) -->
+      <div id="ticketThreadView" style="display:none;">
+        <button class="ticket-btn secondary" onclick="backToTickets()" style="margin-bottom:16px;">&larr; BACK TO TICKETS</button>
+        <div class="thread-header" id="threadHeader"></div>
+        <div class="message-list" id="threadMessages"></div>
+        <div class="reply-box">
+          <textarea class="ticket-input" id="replyMsg" placeholder="Type your reply..." style="min-height:60px;"></textarea>
+          <button class="ticket-btn" onclick="sendReply()" style="align-self:flex-end;">SEND</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -609,7 +804,7 @@ const VIEW_TITLES = {
   assessment: 'CYBER RISK ASSESSMENT', compliance: 'COMPLIANCE DASHBOARD',
   training: 'SECURITY TRAINING', darkweb: 'DARK WEB MONITORING',
   vulnscan: 'VULNERABILITY SCANNER', zerotrust: 'ZERO TRUST FRAMEWORK',
-  reports: 'EXECUTIVE REPORTS'
+  reports: 'EXECUTIVE REPORTS', tickets: 'SUPPORT TICKETS'
 };
 
 let authToken = null;
@@ -685,6 +880,7 @@ function showView(name) {
   if (name === 'devices') loadDevices();
   if (name === 'darkweb') loadDarkWeb();
   if (name === 'compliance') loadComplianceDetail();
+  if (name === 'tickets') loadTickets();
 }
 
 function apiHeaders() {
@@ -911,8 +1107,175 @@ async function loadDarkWeb() {
   }
 }
 
+// ===== TICKETING SYSTEM =====
+let currentTicketId = null;
+
+async function loadTickets() {
+  const list = document.getElementById('ticketList');
+  list.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+  const filter = document.getElementById('ticketFilter').value;
+  try {
+    const res = await fetch(API_URL + '/auth/tickets?status=' + filter, { headers: apiHeaders() });
+    if (res.status === 401) { logout(); return; }
+    const data = await res.json();
+    const tickets = data.tickets || [];
+    updateTicketBadge(tickets);
+    if (tickets.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-family:JetBrains Mono,monospace;font-size:12px;letter-spacing:1px;">No tickets found. Click + NEW TICKET to create one.</div>';
+      return;
+    }
+    list.innerHTML = tickets.map(t => {
+      const statusLabels = { open: 'OPEN', in_progress: 'IN PROGRESS', waiting: 'WAITING', resolved: 'RESOLVED', closed: 'CLOSED' };
+      const catLabels = { general: 'General', incident: 'Incident', access: 'Access', billing: 'Billing', vulnerability: 'Vulnerability', compliance: 'Compliance' };
+      const time = t.created_at ? new Date(t.created_at + 'Z').toLocaleDateString() : '--';
+      return `<div class="ticket-item" onclick="openTicket('${t.id}')">
+        <div class="ticket-prio prio-${t.priority}"></div>
+        <div class="ticket-info">
+          <div class="ticket-subject">${escHtml(t.subject)}</div>
+          <div class="ticket-meta">
+            <span>#${t.id.slice(0,8)}</span>
+            <span>${catLabels[t.category] || t.category}</span>
+            <span>${time}</span>
+            <span>${t.messageCount || 0} messages</span>
+          </div>
+        </div>
+        <span class="ticket-status-badge ts-${t.status}">${statusLabels[t.status] || t.status}</span>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="padding:20px;color:var(--muted);">Unable to load tickets.</div>';
+  }
+}
+
+function updateTicketBadge(tickets) {
+  const openCount = (tickets || []).filter(t => t.status === 'open' || t.status === 'in_progress').length;
+  const badge = document.getElementById('ticketBadge');
+  if (openCount > 0) {
+    badge.textContent = openCount;
+    badge.style.display = 'inline';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function showNewTicketForm() {
+  document.getElementById('newTicketForm').style.display = 'block';
+  document.getElementById('tkSubject').focus();
+}
+
+function hideNewTicketForm() {
+  document.getElementById('newTicketForm').style.display = 'none';
+  ['tkSubject', 'tkDescription'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('tkCategory').value = 'general';
+  document.getElementById('tkPriority').value = 'medium';
+  document.getElementById('tkStatus').textContent = '';
+}
+
+async function submitTicket() {
+  const subject = document.getElementById('tkSubject').value.trim();
+  const description = document.getElementById('tkDescription').value.trim();
+  const category = document.getElementById('tkCategory').value;
+  const priority = document.getElementById('tkPriority').value;
+  const status = document.getElementById('tkStatus');
+
+  if (!subject) { status.textContent = 'Subject is required'; status.style.color = 'var(--danger)'; return; }
+
+  status.textContent = 'Submitting...'; status.style.color = 'var(--muted)';
+  try {
+    const res = await fetch(API_URL + '/auth/tickets', {
+      method: 'POST', headers: apiHeaders(),
+      body: JSON.stringify({ subject, description, category, priority })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to create ticket');
+    status.textContent = 'Ticket submitted!'; status.style.color = 'var(--accent)';
+    setTimeout(() => { hideNewTicketForm(); loadTickets(); }, 1000);
+  } catch(e) {
+    status.textContent = 'Error: ' + e.message; status.style.color = 'var(--danger)';
+  }
+}
+
+async function openTicket(ticketId) {
+  currentTicketId = ticketId;
+  document.getElementById('ticketListView').style.display = 'none';
+  document.getElementById('ticketThreadView').style.display = 'block';
+  const header = document.getElementById('threadHeader');
+  const msgList = document.getElementById('threadMessages');
+  header.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+  msgList.innerHTML = '';
+
+  try {
+    const res = await fetch(API_URL + '/auth/tickets/' + ticketId, { headers: apiHeaders() });
+    const data = await res.json();
+    const t = data.ticket;
+    const statusLabels = { open: 'OPEN', in_progress: 'IN PROGRESS', waiting: 'WAITING', resolved: 'RESOLVED', closed: 'CLOSED' };
+    header.innerHTML = `
+      <div class="thread-subject">${escHtml(t.subject)}</div>
+      <div class="thread-details">
+        <span>ID: #${t.id.slice(0,8)}</span>
+        <span>Priority: ${t.priority.toUpperCase()}</span>
+        <span>Category: ${t.category}</span>
+        <span class="ticket-status-badge ts-${t.status}">${statusLabels[t.status] || t.status}</span>
+        <span>Created: ${new Date(t.created_at + 'Z').toLocaleString()}</span>
+      </div>`;
+
+    const messages = data.messages || [];
+    if (messages.length === 0) {
+      msgList.innerHTML = '<div style="padding:20px;color:var(--muted);text-align:center;font-size:13px;">No messages yet. Send a reply below.</div>';
+    } else {
+      msgList.innerHTML = messages.map(m => {
+        const isAdmin = m.role === 'admin' || m.is_admin;
+        return `<div class="msg-bubble ${isAdmin ? 'msg-admin' : 'msg-client'}">
+          <div class="msg-sender">${isAdmin ? 'PALISADEONE SUPPORT' : escHtml(m.user_name || m.email)}</div>
+          <div>${escHtml(m.message)}</div>
+          <div class="msg-time">${new Date(m.created_at + 'Z').toLocaleString()}</div>
+        </div>`;
+      }).join('');
+    }
+  } catch(e) {
+    header.innerHTML = '<div style="color:var(--danger);">Unable to load ticket.</div>';
+  }
+}
+
+function backToTickets() {
+  currentTicketId = null;
+  document.getElementById('ticketThreadView').style.display = 'none';
+  document.getElementById('ticketListView').style.display = 'block';
+  loadTickets();
+}
+
+async function sendReply() {
+  const msg = document.getElementById('replyMsg').value.trim();
+  if (!msg || !currentTicketId) return;
+  try {
+    const res = await fetch(API_URL + '/auth/tickets/' + currentTicketId + '/messages', {
+      method: 'POST', headers: apiHeaders(),
+      body: JSON.stringify({ message: msg })
+    });
+    if (!res.ok) throw new Error('Failed to send');
+    document.getElementById('replyMsg').value = '';
+    openTicket(currentTicketId);
+  } catch(e) { alert('Failed to send reply: ' + e.message); }
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// Load ticket badge on init
+async function loadTicketBadge() {
+  try {
+    const res = await fetch(API_URL + '/auth/tickets?status=all', { headers: apiHeaders() });
+    const data = await res.json();
+    updateTicketBadge(data.tickets || []);
+  } catch(e) {}
+}
+
 // Init on load
 init();
+loadTicketBadge();
 </script>
 </body>
 </html>

@@ -685,6 +685,11 @@
         <span>SIEM Analytics</span>
       </div>
       <div class="nav-section">Management</div>
+      <div class="nav-item" onclick="showView('tickets')">
+        <span class="nav-icon">🎫</span>
+        <span>Support Tickets</span>
+        <span class="nav-badge" id="ticket-nav-badge" style="display:none;background:var(--danger)">0</span>
+      </div>
       <div class="nav-item" onclick="showView('clients')">
         <span class="nav-icon">👥</span>
         <span>Clients</span>
@@ -958,6 +963,77 @@
             </div>
             <div id="devices-list">
               <div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Loading devices...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TICKETS VIEW -->
+      <div class="view" id="view-tickets">
+        <div class="stats-row">
+          <div class="stat-card green">
+            <div class="stat-label">Open Tickets</div>
+            <div class="stat-value accent" id="tk-open-count">--</div>
+            <div class="stat-sub">Awaiting response</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-value blue" id="tk-progress-count">--</div>
+            <div class="stat-sub">Being worked on</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-label">Critical</div>
+            <div class="stat-value" style="color:var(--danger)" id="tk-critical-count">--</div>
+            <div class="stat-sub">High priority</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-label">Total</div>
+            <div class="stat-value danger" id="tk-total-count">--</div>
+            <div class="stat-sub">All time</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Support Tickets</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <select id="admin-tk-filter" onchange="loadAdminTickets()" style="background:var(--deep);border:1px solid var(--border);color:var(--text);padding:6px 10px;font-family:'Outfit',sans-serif;font-size:12px;">
+                <option value="all">All</option>
+                <option value="open" selected>Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="waiting">Waiting</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+              </select>
+              <div class="panel-action" onclick="loadAdminTickets()">↻ Refresh</div>
+            </div>
+          </div>
+          <div id="admin-ticket-list" style="padding:0;">
+            <div class="loading" style="padding:20px;"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div></div>
+          </div>
+        </div>
+
+        <!-- Ticket detail panel (shows when clicking a ticket) -->
+        <div id="admin-ticket-detail" style="display:none;">
+          <div class="panel" style="margin-top:16px;">
+            <div class="panel-header">
+              <div class="panel-title" id="admin-tk-title">Ticket</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="admin-tk-status" onchange="updateAdminTicketStatus()" style="background:var(--deep);border:1px solid var(--border);color:var(--text);padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;">
+                  <option value="open">OPEN</option>
+                  <option value="in_progress">IN PROGRESS</option>
+                  <option value="waiting">WAITING</option>
+                  <option value="resolved">RESOLVED</option>
+                  <option value="closed">CLOSED</option>
+                </select>
+                <button onclick="closeAdminTicketDetail()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;font-size:11px;cursor:pointer;">CLOSE</button>
+              </div>
+            </div>
+            <div id="admin-tk-meta" style="padding:12px 20px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:20px;flex-wrap:wrap;"></div>
+            <div id="admin-tk-messages" style="padding:20px;max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;"></div>
+            <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:10px;">
+              <input type="text" id="admin-tk-reply" placeholder="Type a reply..." style="flex:1;background:var(--deep);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;" onkeydown="if(event.key==='Enter')sendAdminReply()">
+              <button onclick="sendAdminReply()" style="background:var(--accent);color:var(--black);border:none;padding:10px 20px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;">SEND</button>
             </div>
           </div>
         </div>
@@ -2058,6 +2134,7 @@ function showView(name) {
   }
   if (name === 'compliance') loadCompliance();
   if (name === 'clients') loadClients();
+  if (name === 'tickets') loadAdminTickets();
   if (name === 'darkweb') initDarkWeb();
   if (name === 'vulnerabilities') initVulnView();
   if (name === 'edr') initEdrView();
@@ -3473,6 +3550,7 @@ async function initDashboard() {
   await Promise.all([refreshAll(), loadRmmPeers()]);
   setInterval(refreshAll, 30000);
   setInterval(loadRmmPeers, 60000);
+  loadTicketNavBadge();
 }
 
 // ============================================================
@@ -3885,6 +3963,175 @@ async function deleteClient(clientId) {
 
 function copyClientToken(token) {
   navigator.clipboard.writeText(token).then(() => showToast('Token copied to clipboard!', 'success'));
+}
+
+// ============================================================
+// SUPPORT TICKETS (Admin)
+// ============================================================
+let adminCurrentTicketId = null;
+
+async function loadAdminTickets() {
+  const list = document.getElementById('admin-ticket-list');
+  const filter = document.getElementById('admin-tk-filter').value;
+  list.innerHTML = '<div class="loading" style="padding:20px;"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div></div>';
+
+  const token = sessionStorage.getItem('p1_token');
+  if (!token) return;
+  const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+
+  try {
+    // Load stats
+    const statsRes = await fetch(PROXY_URL + '/auth/tickets/stats', { headers });
+    if (statsRes.ok) {
+      const stats = await statsRes.json();
+      document.getElementById('tk-open-count').textContent = stats.open || 0;
+      document.getElementById('tk-progress-count').textContent = stats.in_progress || 0;
+      document.getElementById('tk-critical-count').textContent = stats.critical || 0;
+      document.getElementById('tk-total-count').textContent = stats.total || 0;
+      // Update nav badge
+      const openTotal = (stats.open || 0) + (stats.critical || 0);
+      const badge = document.getElementById('ticket-nav-badge');
+      if (openTotal > 0) { badge.textContent = openTotal; badge.style.display = 'inline'; }
+      else { badge.style.display = 'none'; }
+    }
+
+    // Load tickets
+    const res = await fetch(PROXY_URL + '/auth/tickets?status=' + filter, { headers });
+    const data = await res.json();
+    const tickets = data.tickets || [];
+
+    if (tickets.length === 0) {
+      list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:1px;">No tickets found</div>';
+      return;
+    }
+
+    const statusColors = { open: 'var(--accent2)', in_progress: 'var(--warning)', waiting: '#7B61FF', resolved: 'var(--accent)', closed: 'var(--muted)' };
+    const prioColors = { critical: 'var(--danger)', high: 'var(--warning)', medium: 'var(--accent2)', low: 'var(--muted)' };
+    list.innerHTML = '<table style="width:100%;border-collapse:collapse;">' +
+      '<thead><tr>' +
+      '<th style="font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);">PRIORITY</th>' +
+      '<th style="font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);">SUBJECT</th>' +
+      '<th style="font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);">CLIENT</th>' +
+      '<th style="font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);">STATUS</th>' +
+      '<th style="font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);">CREATED</th>' +
+      '<th style="font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);">MSGS</th>' +
+      '</tr></thead><tbody>' +
+      tickets.map(t => {
+        const time = t.created_at ? new Date(t.created_at + 'Z').toLocaleDateString() : '--';
+        const pColor = prioColors[t.priority] || 'var(--muted)';
+        const sColor = statusColors[t.status] || 'var(--muted)';
+        const statusLabel = (t.status || '').replace('_', ' ').toUpperCase();
+        return `<tr style="cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(0,255,209,0.03)'" onmouseout="this.style.background=''" onclick="openAdminTicket('${t.id}')">
+          <td style="padding:10px 16px;border-bottom:1px solid rgba(17,34,64,0.4);"><span style="color:${pColor};font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:1px;font-weight:600;">${(t.priority||'').toUpperCase()}</span></td>
+          <td style="padding:10px 16px;border-bottom:1px solid rgba(17,34,64,0.4);color:var(--white);font-size:13px;font-weight:500;">${escapeHtml(t.subject)}</td>
+          <td style="padding:10px 16px;border-bottom:1px solid rgba(17,34,64,0.4);font-size:12px;color:var(--text);">${escapeHtml(t.client_name || t.creator_email || '--')}</td>
+          <td style="padding:10px 16px;border-bottom:1px solid rgba(17,34,64,0.4);"><span style="color:${sColor};font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:1px;">${statusLabel}</span></td>
+          <td style="padding:10px 16px;border-bottom:1px solid rgba(17,34,64,0.4);font-family:JetBrains Mono,monospace;font-size:10px;color:var(--muted);">${time}</td>
+          <td style="padding:10px 16px;border-bottom:1px solid rgba(17,34,64,0.4);font-family:JetBrains Mono,monospace;font-size:11px;color:var(--text);text-align:center;">${t.messageCount || 0}</td>
+        </tr>`;
+      }).join('') + '</tbody></table>';
+  } catch(e) {
+    list.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:13px;">Error loading tickets: ' + e.message + '</div>';
+  }
+}
+
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+async function openAdminTicket(ticketId) {
+  adminCurrentTicketId = ticketId;
+  document.getElementById('admin-ticket-detail').style.display = 'block';
+  const token = sessionStorage.getItem('p1_token');
+  const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+
+  try {
+    const res = await fetch(PROXY_URL + '/auth/tickets/' + ticketId, { headers });
+    const data = await res.json();
+    const t = data.ticket;
+
+    document.getElementById('admin-tk-title').textContent = t.subject;
+    document.getElementById('admin-tk-status').value = t.status;
+    document.getElementById('admin-tk-meta').innerHTML = `
+      <span>ID: #${t.id.slice(0,8)}</span>
+      <span>Client: ${escapeHtml(t.client_name || '--')}</span>
+      <span>Priority: <strong style="color:${t.priority === 'critical' ? 'var(--danger)' : t.priority === 'high' ? 'var(--warning)' : 'var(--text)'}">${(t.priority||'').toUpperCase()}</strong></span>
+      <span>Category: ${t.category}</span>
+      <span>Created: ${new Date(t.created_at + 'Z').toLocaleString()}</span>
+    `;
+
+    const msgs = data.messages || [];
+    const msgEl = document.getElementById('admin-tk-messages');
+    if (msgs.length === 0) {
+      msgEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:12px;">No messages yet</div>';
+    } else {
+      msgEl.innerHTML = msgs.map(m => {
+        const isAdmin = m.role === 'admin' || m.is_admin;
+        return `<div style="padding:12px 16px;border-radius:4px;max-width:85%;${isAdmin ? 'align-self:flex-end;background:rgba(0,255,209,0.06);border:1px solid rgba(0,255,209,0.15);' : 'align-self:flex-start;background:var(--surface);border:1px solid var(--border);'}">
+          <div style="font-family:JetBrains Mono,monospace;font-size:9px;color:${isAdmin ? 'var(--accent)' : 'var(--accent2)'};letter-spacing:1px;margin-bottom:4px;">${isAdmin ? 'YOU' : escapeHtml(m.user_name || m.email)}</div>
+          <div style="font-size:13px;line-height:1.6;color:var(--text);">${escapeHtml(m.message)}</div>
+          <div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--muted);margin-top:6px;">${new Date(m.created_at + 'Z').toLocaleString()}</div>
+        </div>`;
+      }).join('');
+      msgEl.scrollTop = msgEl.scrollHeight;
+    }
+
+    // Scroll detail into view
+    document.getElementById('admin-ticket-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch(e) {
+    showToast('Failed to load ticket', 'error');
+  }
+}
+
+function closeAdminTicketDetail() {
+  adminCurrentTicketId = null;
+  document.getElementById('admin-ticket-detail').style.display = 'none';
+}
+
+async function updateAdminTicketStatus() {
+  if (!adminCurrentTicketId) return;
+  const status = document.getElementById('admin-tk-status').value;
+  const token = sessionStorage.getItem('p1_token');
+  try {
+    await fetch(PROXY_URL + '/auth/tickets/' + adminCurrentTicketId, {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    showToast('Ticket status updated to ' + status.replace('_', ' ').toUpperCase(), 'success');
+    loadAdminTickets();
+  } catch(e) { showToast('Failed to update status', 'error'); }
+}
+
+async function sendAdminReply() {
+  const msg = document.getElementById('admin-tk-reply').value.trim();
+  if (!msg || !adminCurrentTicketId) return;
+  const token = sessionStorage.getItem('p1_token');
+  try {
+    const res = await fetch(PROXY_URL + '/auth/tickets/' + adminCurrentTicketId + '/messages', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg })
+    });
+    if (!res.ok) throw new Error('Send failed');
+    document.getElementById('admin-tk-reply').value = '';
+    openAdminTicket(adminCurrentTicketId);
+    showToast('Reply sent', 'success');
+  } catch(e) { showToast('Failed to send reply', 'error'); }
+}
+
+// Load ticket badge count on dashboard init
+async function loadTicketNavBadge() {
+  const token = sessionStorage.getItem('p1_token');
+  if (!token) return;
+  try {
+    const res = await fetch(PROXY_URL + '/auth/tickets/stats', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const stats = await res.json();
+    const openTotal = (stats.open || 0) + (stats.critical || 0);
+    const badge = document.getElementById('ticket-nav-badge');
+    if (openTotal > 0) { badge.textContent = openTotal; badge.style.display = 'inline'; }
+  } catch(e) {}
 }
 
 // ============================================================

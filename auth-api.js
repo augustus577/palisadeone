@@ -100,6 +100,33 @@ function initDB() {
       published_at TEXT,
       FOREIGN KEY (client_id) REFERENCES clients(id)
     );
+
+    CREATE TABLE IF NOT EXISTS tickets (
+      id TEXT PRIMARY KEY,
+      client_id TEXT,
+      user_id TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      description TEXT,
+      category TEXT DEFAULT 'general' CHECK(category IN ('general','incident','access','billing','vulnerability','compliance')),
+      priority TEXT DEFAULT 'medium' CHECK(priority IN ('low','medium','high','critical')),
+      status TEXT DEFAULT 'open' CHECK(status IN ('open','in_progress','waiting','resolved','closed')),
+      assigned_to TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      resolved_at TEXT,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS ticket_messages (
+      id TEXT PRIMARY KEY,
+      ticket_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      message TEXT NOT NULL,
+      is_admin INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (ticket_id) REFERENCES tickets(id),
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
   `);
 
   // Seed admin user if not exists
@@ -417,8 +444,213 @@ function handleAuthRoutes(req, res) {
     });
   }
 
+  // ---- CREATE TICKET ----
+  if (path === '/auth/tickets' && method === 'POST') {
+    const session = requireAuth(req);
+    if (!session) return jsonResponse(res, { error: 'Not authenticated' }, 401);
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { subject, description, category, priority } = JSON.parse(body);
+        if (!subject) return jsonResponse(res, { error: 'Subject required' }, 400);
+        const clientId = session.client_id;
+        if (!clientId && session.role !== 'admin') return jsonResponse(res, { error: 'No client assigned' }, 400);
+        const id = genId();
+        const cid = clientId || null;
+        db.prepare(`INSERT INTO tickets (id, client_id, user_id, subject, description, category, priority) VALUES (?, ?, ?, ?, ?, ?, ?)`).run(
+          id, cid, session.user_id, subject, description || '', category || 'general', priority || 'medium'
+        );
+        // Add initial message if description provided
+        if (description) {
+          db.prepare(`INSERT INTO ticket_messages (id, ticket_id, user_id, message, is_admin) VALUES (?, ?, ?, ?, ?)`).run(
+            genId(), id, session.user_id, description, session.role === 'admin' ? 1 : 0
+          );
+        }
+        // Send email notification
+        sendTicketEmail(id, subject, cid, session.email, priority || 'medium');
+        return jsonResponse(res, { id, subject }, 201);
+      } catch(e) { console.error('[AUTH] Ticket create error:', e); jsonResponse(res, { error: e.message }, 500); }
+    });
+    return;
+  }
+
+  // ---- LIST TICKETS ----
+  if (path === '/auth/tickets' && method === 'GET') {
+    const session = requireAuth(req);
+    if (!session) return jsonResponse(res, { error: 'Not authenticated' }, 401);
+    const url2 = new URL(req.url, 'http://localhost');
+    const statusFilter = url2.searchParams.get('status');
+    let tickets;
+    if (session.role === 'admin') {
+      // Admin sees all tickets
+      let sql = `SELECT t.*, u.email as creator_email, u.name as creator_name, c.name as client_name
+        FROM tickets t JOIN users u ON t.user_id = u.id LEFT JOIN clients c ON t.client_id = c.id`;
+      if (statusFilter && statusFilter !== 'all') sql += ` WHERE t.status = '${statusFilter.replace(/'/g, '')}'`;
+      sql += ' ORDER BY t.created_at DESC';
+      tickets = db.prepare(sql).all();
+    } else {
+      // Client sees only their tickets
+      let sql = `SELECT t.*, u.email as creator_email, u.name as creator_name
+        FROM tickets t JOIN users u ON t.user_id = u.id WHERE t.client_id = ?`;
+      if (statusFilter && statusFilter !== 'all') sql += ` AND t.status = '${statusFilter.replace(/'/g, '')}'`;
+      sql += ' ORDER BY t.created_at DESC';
+      tickets = db.prepare(sql).all(session.client_id);
+    }
+    // Get message count per ticket
+    tickets.forEach(t => {
+      t.messageCount = db.prepare('SELECT COUNT(*) as cnt FROM ticket_messages WHERE ticket_id = ?').get(t.id).cnt;
+    });
+    return jsonResponse(res, { tickets });
+  }
+
+  // ---- TICKET STATS (admin) ----
+  if (path === '/auth/tickets/stats' && method === 'GET') {
+    const session = requireAdmin(req);
+    if (!session) return jsonResponse(res, { error: 'Admin required' }, 403);
+    const stats = {
+      open: db.prepare("SELECT COUNT(*) as cnt FROM tickets WHERE status = 'open'").get().cnt,
+      in_progress: db.prepare("SELECT COUNT(*) as cnt FROM tickets WHERE status = 'in_progress'").get().cnt,
+      waiting: db.prepare("SELECT COUNT(*) as cnt FROM tickets WHERE status = 'waiting'").get().cnt,
+      resolved: db.prepare("SELECT COUNT(*) as cnt FROM tickets WHERE status = 'resolved'").get().cnt,
+      closed: db.prepare("SELECT COUNT(*) as cnt FROM tickets WHERE status = 'closed'").get().cnt,
+      total: db.prepare("SELECT COUNT(*) as cnt FROM tickets").get().cnt,
+      critical: db.prepare("SELECT COUNT(*) as cnt FROM tickets WHERE priority = 'critical' AND status NOT IN ('resolved','closed')").get().cnt
+    };
+    return jsonResponse(res, stats);
+  }
+
+  // ---- GET SINGLE TICKET + MESSAGES ----
+  if (path.match(/^\/auth\/tickets\/[a-f0-9]+$/) && method === 'GET') {
+    const session = requireAuth(req);
+    if (!session) return jsonResponse(res, { error: 'Not authenticated' }, 401);
+    const ticketId = path.split('/').pop();
+    const ticket = db.prepare('SELECT t.*, c.name as client_name FROM tickets t LEFT JOIN clients c ON t.client_id = c.id WHERE t.id = ?').get(ticketId);
+    if (!ticket) return jsonResponse(res, { error: 'Ticket not found' }, 404);
+    // Access check
+    if (session.role !== 'admin' && ticket.client_id !== session.client_id) {
+      return jsonResponse(res, { error: 'Access denied' }, 403);
+    }
+    const messages = db.prepare(`SELECT m.*, u.email, u.name as user_name, u.role
+      FROM ticket_messages m JOIN users u ON m.user_id = u.id
+      WHERE m.ticket_id = ? ORDER BY m.created_at ASC`).all(ticketId);
+    return jsonResponse(res, { ticket, messages });
+  }
+
+  // ---- ADD MESSAGE TO TICKET ----
+  if (path.match(/^\/auth\/tickets\/[a-f0-9]+\/messages$/) && method === 'POST') {
+    const session = requireAuth(req);
+    if (!session) return jsonResponse(res, { error: 'Not authenticated' }, 401);
+    const ticketId = path.split('/')[3];
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { message } = JSON.parse(body);
+        if (!message) return jsonResponse(res, { error: 'Message required' }, 400);
+        const ticket = db.prepare('SELECT * FROM tickets WHERE id = ?').get(ticketId);
+        if (!ticket) return jsonResponse(res, { error: 'Ticket not found' }, 404);
+        if (session.role !== 'admin' && ticket.client_id !== session.client_id) {
+          return jsonResponse(res, { error: 'Access denied' }, 403);
+        }
+        const id = genId();
+        db.prepare(`INSERT INTO ticket_messages (id, ticket_id, user_id, message, is_admin) VALUES (?, ?, ?, ?, ?)`).run(
+          id, ticketId, session.user_id, message, session.role === 'admin' ? 1 : 0
+        );
+        db.prepare(`UPDATE tickets SET updated_at = datetime('now') WHERE id = ?`).run(ticketId);
+        // Email notify the other side
+        if (session.role === 'admin') {
+          const creator = db.prepare('SELECT email FROM users WHERE id = ?').get(ticket.user_id);
+          if (creator) sendReplyEmail(ticketId, ticket.subject, creator.email, 'PalisadeOne Team');
+        } else {
+          sendReplyEmail(ticketId, ticket.subject, 'camatta@palisadecg.com', session.email);
+        }
+        return jsonResponse(res, { id }, 201);
+      } catch(e) { console.error('[AUTH] Message error:', e); jsonResponse(res, { error: e.message }, 500); }
+    });
+    return;
+  }
+
+  // ---- UPDATE TICKET STATUS (admin) ----
+  if (path.match(/^\/auth\/tickets\/[a-f0-9]+$/) && method === 'PUT') {
+    const session = requireAuth(req);
+    if (!session) return jsonResponse(res, { error: 'Not authenticated' }, 401);
+    const ticketId = path.split('/').pop();
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const data = JSON.parse(body);
+        const ticket = db.prepare('SELECT * FROM tickets WHERE id = ?').get(ticketId);
+        if (!ticket) return jsonResponse(res, { error: 'Ticket not found' }, 404);
+        // Only admin or ticket owner can update
+        if (session.role !== 'admin' && ticket.client_id !== session.client_id) {
+          return jsonResponse(res, { error: 'Access denied' }, 403);
+        }
+        const fields = [];
+        const values = [];
+        ['status', 'priority', 'assigned_to', 'category'].forEach(f => {
+          if (data[f] !== undefined) { fields.push(f + ' = ?'); values.push(data[f]); }
+        });
+        if (data.status === 'resolved' || data.status === 'closed') {
+          fields.push("resolved_at = datetime('now')");
+        }
+        if (fields.length) {
+          fields.push("updated_at = datetime('now')");
+          values.push(ticketId);
+          db.prepare(`UPDATE tickets SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+        }
+        return jsonResponse(res, { ok: true });
+      } catch(e) { jsonResponse(res, { error: e.message }, 500); }
+    });
+    return;
+  }
+
   // No matching route
   return false;
+}
+
+// ============ EMAIL NOTIFICATIONS ============
+function sendTicketEmail(ticketId, subject, clientId, fromEmail, priority) {
+  try {
+    const client = clientId !== 'admin' ? db.prepare('SELECT name FROM clients WHERE id = ?').get(clientId) : null;
+    const clientName = client ? client.name : 'Admin';
+    const prioLabel = priority === 'critical' ? '[CRITICAL] ' : priority === 'high' ? '[HIGH] ' : '';
+    const body = JSON.stringify({
+      to: 'camatta@palisadecg.com',
+      subject: `${prioLabel}New Ticket: ${subject} — ${clientName}`,
+      text: `New support ticket from ${fromEmail} (${clientName}):\n\nSubject: ${subject}\nPriority: ${priority}\nTicket ID: ${ticketId}\n\nView in dashboard: https://palisadeone.com/dashboard.html`
+    });
+    const req = require('https').request({
+      hostname: 'soc.palisadeone.com', port: 5678,
+      path: '/webhook/ticket-notify', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+      rejectUnauthorized: false
+    });
+    req.on('error', () => {}); // silent fail
+    req.write(body);
+    req.end();
+    console.log('[AUTH] Ticket email sent for', ticketId);
+  } catch(e) { console.error('[AUTH] Email error:', e.message); }
+}
+
+function sendReplyEmail(ticketId, subject, toEmail, fromName) {
+  try {
+    const body = JSON.stringify({
+      to: toEmail,
+      subject: `Re: ${subject} — PalisadeOne Support`,
+      text: `${fromName} replied to your ticket:\n\nSubject: ${subject}\nTicket ID: ${ticketId}\n\nView: https://palisadeone.com/portal.html`
+    });
+    const req = require('https').request({
+      hostname: 'soc.palisadeone.com', port: 5678,
+      path: '/webhook/ticket-notify', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+      rejectUnauthorized: false
+    });
+    req.on('error', () => {});
+    req.write(body);
+    req.end();
+  } catch(e) { console.error('[AUTH] Reply email error:', e.message); }
 }
 
 // Init on load
