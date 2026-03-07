@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Palisade One — Zero Trust Application Control</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #03050A; --deep: #070C14; --surface: #0B1220; --surface2: #0F1A2E;
+      --border: #112240; --border2: #1A3060;
+      --accent: #00FFD1; --accent2: #0084FF;
+      --danger: #FF3B5C; --warning: #F5A623; --success: #00FFD1;
+      --text: #C8D8F0; --muted: #4A6080; --white: #F0F6FF;
+      --purple: #A855F7; --orange: #FB923C;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; overflow-x: hidden; min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,255,209,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,209,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; background: var(--deep); border-right: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; }
+    .sidebar-logo { padding: 20px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .sidebar-logo-icon { width: 32px; height: 32px; background: rgba(0,255,209,0.1); border: 1px solid rgba(0,255,209,0.3); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .sidebar-logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: var(--white); letter-spacing: 3px; }
+    .sidebar-logo-text span { color: var(--accent); }
+    .sidebar-logo-sub { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--purple); letter-spacing: 2px; margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+    .nav-section { padding: 12px 16px 4px; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; transition: all 0.2s; border-left: 2px solid transparent; color: var(--muted); font-size: 13px; font-weight: 400; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+    .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,255,209,0.04); }
+    .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
+    .nav-badge.warn { background: var(--warning); }
+    .sidebar-footer { padding: 12px 16px; border-top: 1px solid var(--border); }
+    .sidebar-footer a { font-size: 12px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+    .sidebar-footer a:hover { color: var(--accent); }
+
+    .main { margin-left: 220px; min-height: 100vh; position: relative; z-index: 1; }
+    .topbar { padding: 0 24px; height: 56px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(7,12,20,0.85); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 50; }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--white); letter-spacing: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; font-size: 11px; cursor: pointer; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    .topbar-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .topbar-btn.primary { background: var(--accent); color: var(--black); border-color: var(--accent); font-weight: 600; }
+    .topbar-btn.primary:hover { background: var(--white); }
+    .topbar-time { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+    .content { padding: 24px; }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+    @media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(3, 1fr); } }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 18px; position: relative; overflow: hidden; transition: border-color 0.3s; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .stat-card.red::before { background: linear-gradient(to right, transparent, var(--danger), transparent); }
+    .stat-card.green::before { background: linear-gradient(to right, transparent, var(--accent), transparent); }
+    .stat-card.blue::before { background: linear-gradient(to right, transparent, var(--accent2), transparent); }
+    .stat-card.yellow::before { background: linear-gradient(to right, transparent, var(--warning), transparent); }
+    .stat-card.purple::before { background: linear-gradient(to right, transparent, var(--purple), transparent); }
+    .stat-card:hover { border-color: var(--border2); }
+    .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1; color: var(--white); letter-spacing: 2px; }
+    .stat-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+    .panel { background: var(--surface); border: 1px solid var(--border); margin-bottom: 16px; }
+    .panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .panel-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .panel-title::before { content: '//'; color: var(--muted); }
+    .panel-actions { display: flex; gap: 8px; align-items: center; }
+    .panel-btn { font-size: 10px; color: var(--muted); cursor: pointer; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; background: none; border: 1px solid var(--border); padding: 4px 10px; letter-spacing: 1px; }
+    .panel-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .panel-btn.primary { background: var(--accent); color: var(--black); border-color: var(--accent); font-weight: 600; }
+    .panel-btn.primary:hover { background: var(--white); }
+    .panel-btn.danger { border-color: rgba(255,59,92,0.4); color: var(--danger); }
+    .panel-btn.danger:hover { background: rgba(255,59,92,0.1); }
+
+    .filter-bar { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: var(--deep); }
+    .filter-select, .filter-input { background: var(--surface); border: 1px solid var(--border); padding: 6px 10px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 12px; outline: none; transition: border-color 0.2s; }
+    .filter-select:focus, .filter-input:focus { border-color: var(--accent); }
+    .filter-select { min-width: 120px; }
+    .filter-input { min-width: 180px; flex: 1; max-width: 300px; }
+
+    .tbl { width: 100%; border-collapse: collapse; }
+    .tbl th { background: var(--deep); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .tbl td { padding: 10px 12px; border-bottom: 1px solid rgba(17,34,64,0.5); font-size: 12px; vertical-align: middle; }
+    .tbl tr:hover td { background: rgba(255,255,255,0.015); }
+    .tbl tr { cursor: pointer; transition: background 0.15s; }
+
+    .tag { display: inline-block; padding: 2px 7px; font-family: 'JetBrains Mono', monospace; font-size: 9px; border-radius: 2px; margin-right: 4px; margin-bottom: 2px; }
+    .tag-allow { background: rgba(0,255,209,0.08); border: 1px solid rgba(0,255,209,0.2); color: var(--accent); }
+    .tag-deny { background: rgba(255,59,92,0.08); border: 1px solid rgba(255,59,92,0.2); color: var(--danger); }
+    .tag-ring { background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.2); color: var(--purple); }
+    .tag-storage { background: rgba(0,132,255,0.1); border: 1px solid rgba(0,132,255,0.2); color: var(--accent2); }
+    .tag-elev { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.2); color: var(--warning); }
+    .tag-net { background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.2); color: var(--orange); }
+    .tag-learn { background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.25); color: var(--purple); }
+    .tag-secured { background: rgba(0,255,209,0.08); border: 1px solid rgba(0,255,209,0.2); color: var(--accent); }
+    .tag-monitor { background: rgba(0,132,255,0.1); border: 1px solid rgba(0,132,255,0.2); color: var(--accent2); }
+
+    .mode-badge { display: inline-flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; padding: 3px 10px; border: 1px solid; border-radius: 2px; }
+    .mode-learning { border-color: rgba(168,85,247,0.5); color: var(--purple); background: rgba(168,85,247,0.08); }
+    .mode-secured { border-color: rgba(0,255,209,0.4); color: var(--accent); background: rgba(0,255,209,0.06); }
+    .mode-monitor { border-color: rgba(0,132,255,0.4); color: var(--accent2); background: rgba(0,132,255,0.06); }
+    .mode-disabled { border-color: var(--border2); color: var(--muted); background: rgba(74,96,128,0.08); }
+
+    .action-badge { display: inline-flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; padding: 2px 8px; border: 1px solid; border-radius: 2px; }
+    .action-allowed { border-color: rgba(0,255,209,0.3); color: var(--accent); }
+    .action-blocked { border-color: rgba(255,59,92,0.3); color: var(--danger); }
+    .action-pending { border-color: rgba(245,166,35,0.3); color: var(--warning); }
+    .action-elevated { border-color: rgba(168,85,247,0.3); color: var(--purple); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+
+    /* APPROVAL CARD */
+    .approval-card { padding: 16px; border-bottom: 1px solid rgba(17,34,64,0.5); transition: background 0.2s; }
+    .approval-card:hover { background: rgba(255,255,255,0.015); }
+    .approval-card:last-child { border-bottom: none; }
+    .approval-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+    .approval-app { font-size: 14px; color: var(--white); font-weight: 500; }
+    .approval-path { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; word-break: break-all; }
+    .approval-meta { display: flex; gap: 16px; margin: 8px 0; font-size: 11px; color: var(--muted); }
+    .approval-meta span { display: flex; align-items: center; gap: 4px; }
+    .approval-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .approve-btn { padding: 6px 16px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; cursor: pointer; border: 1px solid; transition: all 0.2s; }
+    .approve-btn.allow { background: rgba(0,255,209,0.1); border-color: rgba(0,255,209,0.4); color: var(--accent); }
+    .approve-btn.allow:hover { background: var(--accent); color: var(--black); }
+    .approve-btn.deny { background: rgba(255,59,92,0.08); border-color: rgba(255,59,92,0.3); color: var(--danger); }
+    .approve-btn.deny:hover { background: var(--danger); color: var(--white); }
+    .approve-btn.temp { background: transparent; border-color: var(--border2); color: var(--muted); }
+    .approve-btn.temp:hover { border-color: var(--warning); color: var(--warning); }
+    .approve-btn.ring { background: transparent; border-color: rgba(168,85,247,0.3); color: var(--purple); }
+    .approve-btn.ring:hover { background: rgba(168,85,247,0.1); }
+
+    /* POLICY ROW */
+    .policy-row { padding: 14px 16px; border-bottom: 1px solid rgba(17,34,64,0.5); display: flex; align-items: center; gap: 12px; transition: background 0.2s; cursor: pointer; }
+    .policy-row:hover { background: rgba(255,255,255,0.015); }
+    .policy-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--surface2); border: 1px solid var(--border); flex-shrink: 0; }
+    .policy-info { flex: 1; }
+    .policy-name { font-size: 13px; color: var(--white); font-weight: 500; }
+    .policy-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .policy-count { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--white); text-align: center; min-width: 40px; }
+    .policy-toggle { position: relative; width: 36px; height: 20px; background: var(--border2); border-radius: 10px; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
+    .policy-toggle.on { background: var(--accent); }
+    .policy-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: var(--white); border-radius: 50%; transition: transform 0.3s; }
+    .policy-toggle.on::after { transform: translateX(16px); }
+
+    /* RINGFENCE VISUAL */
+    .ring-visual { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ring-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px; border-radius: 2px; border: 1px solid; }
+    .ring-chip.block { border-color: rgba(255,59,92,0.3); color: var(--danger); background: rgba(255,59,92,0.06); }
+    .ring-chip.allow { border-color: rgba(0,255,209,0.3); color: var(--accent); background: rgba(0,255,209,0.06); }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3,5,10,0.7); z-index: 300; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal-overlay.show { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border2); width: 560px; max-width: 95vw; max-height: 85vh; overflow-y: auto; position: relative; }
+    .modal::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, transparent, var(--accent), transparent); }
+    .modal-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--white); letter-spacing: 2px; }
+    .modal-close { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 28px; height: 28px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { border-color: var(--danger); color: var(--danger); }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+    .form-input, .form-select, .form-textarea { width: 100%; background: var(--deep); border: 1px solid var(--border); padding: 10px 12px; color: var(--white); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+    .form-textarea { min-height: 80px; resize: vertical; }
+    .form-check { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer; font-size: 12px; color: var(--text); }
+    .form-check input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; }
+
+    /* TOAST */
+    #zt-toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; background: var(--surface2); border: 1px solid var(--border2); font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 1px; z-index: 500; transform: translateY(80px); opacity: 0; transition: all 0.3s; max-width: 420px; pointer-events: none; }
+    #zt-toast.show { transform: translateY(0); opacity: 1; }
+    #zt-toast.success { border-color: rgba(0,255,209,0.5); color: var(--accent); }
+    #zt-toast.error { border-color: rgba(255,59,92,0.5); color: var(--danger); }
+    #zt-toast.info { border-color: rgba(0,132,255,0.4); color: var(--accent2); }
+
+    .loading { display: flex; align-items: center; gap: 8px; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+    .loading-dots { display: flex; gap: 4px; }
+    .loading-dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; animation: loadingDot 1.4s infinite; }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes loadingDot { 0%,80%,100%{opacity:0.2}40%{opacity:1} }
+
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: var(--deep); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    /* TIMELINE */
+    .timeline { padding: 0 16px; }
+    .timeline-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(17,34,64,0.3); }
+    .timeline-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .timeline-content { flex: 1; }
+    .timeline-title { font-size: 12px; color: var(--text); }
+    .timeline-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+    /* DEVICE MODE SELECTOR */
+    .mode-selector { display: flex; gap: 6px; }
+    .mode-opt { padding: 4px 10px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; transition: all 0.2s; background: transparent; }
+    .mode-opt:hover { border-color: var(--border2); color: var(--text); }
+    .mode-opt.active-learn { border-color: var(--purple); color: var(--purple); background: rgba(168,85,247,0.08); }
+    .mode-opt.active-secure { border-color: var(--accent); color: var(--accent); background: rgba(0,255,209,0.06); }
+    .mode-opt.active-monitor { border-color: var(--accent2); color: var(--accent2); background: rgba(0,132,255,0.06); }
+
+    /* LIGHT MODE */
+    html[data-theme="light"] {
+      --black: #EEF2F7; --deep: #E3EAF2; --surface: #FFFFFF; --surface2: #F5F8FC;
+      --border: #CBD8E8; --border2: #ADC0D4;
+      --accent: #008F7E; --accent2: #0070CC;
+      --danger: #D42B47; --warning: #C47800; --success: #008F7E;
+      --text: #1E2E3D; --muted: #5A7A9A; --white: #0A1828;
+      --purple: #7C3AED; --orange: #EA580C;
+    }
+    html[data-theme="light"] body::before { background-image: linear-gradient(rgba(0,143,126,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,143,126,0.04) 1px, transparent 1px); }
+
+    /* AI RISK SCORE */
+    .risk-score { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; font-family: 'Bebas Neue', sans-serif; font-size: 14px; font-weight: 700; border: 2px solid; }
+    .risk-critical { border-color: var(--danger); color: var(--danger); background: rgba(255,59,92,0.1); }
+    .risk-high { border-color: var(--warning); color: var(--warning); background: rgba(245,166,35,0.1); }
+    .risk-medium { border-color: var(--accent2); color: var(--accent2); background: rgba(0,132,255,0.1); }
+    .risk-low { border-color: var(--accent); color: var(--accent); background: rgba(0,255,209,0.08); }
+    .risk-safe { border-color: var(--accent); color: var(--accent); background: rgba(0,255,209,0.08); }
+
+    /* AI ANALYSIS CARD */
+    .ai-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 12px; position: relative; overflow: hidden; }
+    .ai-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, transparent, var(--purple), transparent); }
+    .ai-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .ai-card-title { font-size: 14px; color: var(--white); font-weight: 500; }
+    .ai-badge { padding: 3px 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px; border-radius: 2px; background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3); color: var(--purple); }
+    .ai-analysis { font-size: 12px; color: var(--text); line-height: 1.6; padding: 12px; background: var(--deep); border: 1px solid var(--border); margin-top: 8px; }
+    .ai-factors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+    .ai-factor { padding: 8px; background: var(--deep); border: 1px solid var(--border); text-align: center; }
+    .ai-factor-label { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+    .ai-factor-value { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--white); }
+
+    /* SANDBOX */
+    .sandbox-env { background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 12px; }
+    .sandbox-status { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .sandbox-indicator { width: 10px; height: 10px; border-radius: 50%; }
+    .sandbox-indicator.running { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
+    .sandbox-indicator.idle { background: var(--muted); }
+    .sandbox-output { background: var(--black); border: 1px solid var(--border); padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); max-height: 200px; overflow-y: auto; line-height: 1.8; }
+    .sandbox-output .line-warn { color: var(--warning); }
+    .sandbox-output .line-danger { color: var(--danger); }
+    .sandbox-output .line-info { color: var(--accent2); }
+
+    /* HEALTH GAUGE */
+    .gauge-container { display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    .gauge-ring { position: relative; width: 140px; height: 140px; }
+    .gauge-ring svg { transform: rotate(-90deg); }
+    .gauge-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .gauge-score { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--white); line-height: 1; }
+    .gauge-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 1px; }
+    .health-bar { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(17,34,64,0.3); }
+    .health-bar:last-child { border-bottom: none; }
+    .health-bar-label { font-size: 12px; color: var(--text); min-width: 140px; }
+    .health-bar-track { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .health-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+    .health-bar-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 35px; text-align: right; }
+
+    /* TEMPLATE CARD */
+    .template-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; transition: border-color 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+    .template-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, transparent, var(--accent2), transparent); opacity: 0; transition: opacity 0.2s; }
+    .template-card:hover { border-color: var(--border2); }
+    .template-card:hover::before { opacity: 1; }
+    .template-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--white); letter-spacing: 1px; margin-bottom: 4px; }
+    .template-desc { font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+    .template-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+    .template-stat { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 4px 0; border-top: 1px solid rgba(17,34,64,0.3); }
+    .template-stat span:last-child { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+    /* COMPLIANCE MAP */
+    .compliance-framework { background: var(--surface); border: 1px solid var(--border); margin-bottom: 12px; }
+    .compliance-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+    .compliance-header:hover { background: rgba(255,255,255,0.015); }
+    .compliance-fw-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--white); letter-spacing: 1px; }
+    .compliance-coverage { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .compliance-controls { padding: 0 16px 12px; }
+    .compliance-ctrl { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(17,34,64,0.2); font-size: 12px; }
+    .compliance-ctrl:last-child { border-bottom: none; }
+    .ctrl-id { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent2); min-width: 80px; }
+    .ctrl-name { flex: 1; color: var(--text); }
+    .ctrl-status { font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 8px; border: 1px solid; border-radius: 2px; }
+    .ctrl-met { border-color: rgba(0,255,209,0.3); color: var(--accent); background: rgba(0,255,209,0.06); }
+    .ctrl-partial { border-color: rgba(245,166,35,0.3); color: var(--warning); background: rgba(245,166,35,0.06); }
+    .ctrl-gap { border-color: rgba(255,59,92,0.3); color: var(--danger); background: rgba(255,59,92,0.06); }
+
+    /* LIVE THREAT TICKER */
+    .threat-ticker { background: rgba(255,59,92,0.04); border: 1px solid rgba(255,59,92,0.15); padding: 8px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; overflow: hidden; }
+    .ticker-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--danger); letter-spacing: 2px; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+    .ticker-dot { width: 6px; height: 6px; background: var(--danger); border-radius: 50%; animation: pulse 1.5s infinite; }
+    .ticker-scroll { flex: 1; overflow: hidden; white-space: nowrap; }
+    .ticker-content { display: inline-block; animation: tickerScroll 30s linear infinite; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+    .ticker-content span { margin-right: 40px; }
+    .ticker-content .t-block { color: var(--danger); }
+    .ticker-content .t-allow { color: var(--accent); }
+    .ticker-content .t-elev { color: var(--purple); }
+    @keyframes tickerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    /* READINESS METER */
+    .readiness { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+    .readiness-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; position: relative; }
+    .readiness-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+    .readiness-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; min-width: 60px; text-align: right; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo" onclick="window.location.href='dashboard.html'">
+    <div class="sidebar-logo-icon">&#x1f6e1;</div>
+    <div>
+      <div class="sidebar-logo-text">PALISADE<span>ONE</span></div>
+      <div class="sidebar-logo-sub">ZERO TRUST</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Zero Trust</div>
+    <div class="nav-item active" onclick="showView('overview')">
+      <span class="nav-icon">&#9632;</span>
+      <span>Overview</span>
+    </div>
+    <div class="nav-item" onclick="showView('approvals')">
+      <span class="nav-icon">&#9888;</span>
+      <span>Approval Center</span>
+      <span class="nav-badge warn" id="approval-badge">0</span>
+    </div>
+    <div class="nav-item" onclick="showView('policies')">
+      <span class="nav-icon">&#128274;</span>
+      <span>Policies</span>
+    </div>
+    <div class="nav-item" onclick="showView('devices')">
+      <span class="nav-icon">&#128187;</span>
+      <span>Devices</span>
+    </div>
+    <div class="nav-item" onclick="showView('applications')">
+      <span class="nav-icon">&#128230;</span>
+      <span>Application Catalog</span>
+    </div>
+    <div class="nav-section">Controls</div>
+    <div class="nav-item" onclick="showView('ringfencing')">
+      <span class="nav-icon">&#128737;</span>
+      <span>Ringfencing</span>
+    </div>
+    <div class="nav-item" onclick="showView('storage')">
+      <span class="nav-icon">&#128190;</span>
+      <span>Storage Control</span>
+    </div>
+    <div class="nav-item" onclick="showView('elevation')">
+      <span class="nav-icon">&#128272;</span>
+      <span>Elevation Control</span>
+    </div>
+    <div class="nav-item" onclick="showView('network')">
+      <span class="nav-icon">&#127760;</span>
+      <span>Network Control</span>
+    </div>
+    <div class="nav-section">Intelligence</div>
+    <div class="nav-item" onclick="showView('ai')">
+      <span class="nav-icon">&#129302;</span>
+      <span>AI Threat Analysis</span>
+    </div>
+    <div class="nav-item" onclick="showView('sandbox')">
+      <span class="nav-icon">&#128300;</span>
+      <span>Sandbox Testing</span>
+    </div>
+    <div class="nav-item" onclick="showView('health')">
+      <span class="nav-icon">&#128200;</span>
+      <span>Health Report</span>
+    </div>
+    <div class="nav-section">Activity</div>
+    <div class="nav-item" onclick="showView('audit')">
+      <span class="nav-icon">&#128203;</span>
+      <span>Audit Log</span>
+    </div>
+    <div class="nav-item" onclick="showView('templates')">
+      <span class="nav-icon">&#128218;</span>
+      <span>Policy Templates</span>
+    </div>
+    <div class="nav-item" onclick="showView('compliance')">
+      <span class="nav-icon">&#9989;</span>
+      <span>Compliance Map</span>
+    </div>
+    <div class="nav-section">Navigation</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'">
+      <span class="nav-icon">&#8592;</span>
+      <span>Back to Dashboard</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="dashboard.html">&#8592; Main Dashboard</a>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">OVERVIEW</div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="toggleTheme()">&#9790; THEME</button>
+      <span class="topbar-time" id="clock"></span>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- ============ OVERVIEW ============ -->
+    <div class="view active" id="view-overview">
+      <!-- LIVE THREAT TICKER -->
+      <div class="threat-ticker">
+        <div class="ticker-label"><div class="ticker-dot"></div> LIVE FEED</div>
+        <div class="ticker-scroll">
+          <div class="ticker-content" id="ticker-content"></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card green">
+          <div class="stat-label">Secured Devices</div>
+          <div class="stat-value" id="stat-secured">0</div>
+          <div class="stat-sub">Fully protected</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Learning Mode</div>
+          <div class="stat-value" style="color:var(--purple)" id="stat-learning">0</div>
+          <div class="stat-sub">Baselining apps</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">Pending Approvals</div>
+          <div class="stat-value" style="color:var(--warning)" id="stat-pending">0</div>
+          <div class="stat-sub">Awaiting decision</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Blocked Today</div>
+          <div class="stat-value" style="color:var(--danger)" id="stat-blocked">0</div>
+          <div class="stat-sub">Unauthorized attempts</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Active Policies</div>
+          <div class="stat-value" style="color:var(--accent2)" id="stat-policies">0</div>
+          <div class="stat-sub">Rules enforced</div>
+        </div>
+      </div>
+
+      <div class="grid-3-1">
+        <div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Recent Approval Requests</div>
+              <div class="panel-actions">
+                <button class="panel-btn" onclick="showView('approvals')">View All &#8594;</button>
+              </div>
+            </div>
+            <div id="overview-approvals"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Recent Blocks</div>
+            </div>
+            <div id="overview-blocks"></div>
+          </div>
+        </div>
+        <div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Device Modes</div>
+            </div>
+            <div id="overview-device-modes" style="padding:16px;"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Policy Coverage</div>
+            </div>
+            <div id="overview-policy-coverage" style="padding:16px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ APPROVAL CENTER ============ -->
+    <div class="view" id="view-approvals">
+      <div class="stats-row" style="grid-template-columns: repeat(4,1fr);">
+        <div class="stat-card yellow">
+          <div class="stat-label">Pending</div>
+          <div class="stat-value" style="color:var(--warning)" id="appr-pending">0</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Approved Today</div>
+          <div class="stat-value" style="color:var(--accent)" id="appr-approved">0</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Denied Today</div>
+          <div class="stat-value" style="color:var(--danger)" id="appr-denied">0</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Auto-Approved</div>
+          <div class="stat-value" style="color:var(--accent2)" id="appr-auto">0</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Pending Approval Requests</div>
+          <div class="panel-actions">
+            <select class="filter-select" id="appr-filter" onchange="renderApprovals()">
+              <option value="all">All Requests</option>
+              <option value="pending">Pending Only</option>
+              <option value="approved">Approved</option>
+              <option value="denied">Denied</option>
+            </select>
+          </div>
+        </div>
+        <div id="approval-list"></div>
+      </div>
+    </div>
+
+    <!-- ============ POLICIES ============ -->
+    <div class="view" id="view-policies">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Application Control Policies</div>
+          <div class="panel-actions">
+            <button class="panel-btn primary" onclick="openPolicyModal()">+ NEW POLICY</button>
+          </div>
+        </div>
+        <div id="policy-list"></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Global Settings</div>
+          </div>
+          <div style="padding:16px;">
+            <div class="policy-row" style="border:none;padding:10px 0;">
+              <div class="policy-info">
+                <div class="policy-name">Default Deny Mode</div>
+                <div class="policy-desc">Block all applications not explicitly whitelisted</div>
+              </div>
+              <div class="policy-toggle on" onclick="this.classList.toggle('on');toast('Default deny '+( this.classList.contains('on')?'enabled':'disabled'),'info')"></div>
+            </div>
+            <div class="policy-row" style="border:none;padding:10px 0;">
+              <div class="policy-info">
+                <div class="policy-name">Auto-Approve Microsoft Signed</div>
+                <div class="policy-desc">Automatically allow Microsoft-signed binaries</div>
+              </div>
+              <div class="policy-toggle on" onclick="this.classList.toggle('on');toast('MS auto-approve '+(this.classList.contains('on')?'enabled':'disabled'),'info')"></div>
+            </div>
+            <div class="policy-row" style="border:none;padding:10px 0;">
+              <div class="policy-info">
+                <div class="policy-name">Learning Mode Duration</div>
+                <div class="policy-desc">Default learning period for new devices</div>
+              </div>
+              <select class="filter-select" style="min-width:100px;">
+                <option>7 days</option>
+                <option>14 days</option>
+                <option selected>30 days</option>
+                <option>60 days</option>
+                <option>Custom</option>
+              </select>
+            </div>
+            <div class="policy-row" style="border:none;padding:10px 0;">
+              <div class="policy-info">
+                <div class="policy-name">Self-Service Approvals</div>
+                <div class="policy-desc">Allow end users to request application approval</div>
+              </div>
+              <div class="policy-toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Quick Actions</div>
+          </div>
+          <div style="padding:16px; display:flex; flex-direction:column; gap:8px;">
+            <button class="panel-btn" style="width:100%;text-align:left;padding:10px 14px;" onclick="toast('Generating application baseline report...','info')">&#128202; Generate Baseline Report</button>
+            <button class="panel-btn" style="width:100%;text-align:left;padding:10px 14px;" onclick="toast('Exporting policy set...','info')">&#128229; Export All Policies</button>
+            <button class="panel-btn" style="width:100%;text-align:left;padding:10px 14px;" onclick="toast('Importing policy template...','info')">&#128228; Import Policy Template</button>
+            <button class="panel-btn danger" style="width:100%;text-align:left;padding:10px 14px;" onclick="if(confirm('Switch ALL devices to Secured mode?')){toast('All devices switched to Secured mode','success');}">&#128274; Lock Down All Devices</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DEVICES ============ -->
+    <div class="view" id="view-devices">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Managed Devices</div>
+          <div class="panel-actions">
+            <select class="filter-select" id="dev-mode-filter" onchange="renderDevices()">
+              <option value="all">All Modes</option>
+              <option value="learning">Learning</option>
+              <option value="secured">Secured</option>
+              <option value="monitor">Monitor</option>
+            </select>
+            <input class="filter-input" placeholder="Search devices..." id="dev-search" oninput="renderDevices()" style="max-width:200px;"/>
+          </div>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Device</th>
+              <th>Mode</th>
+              <th>Apps Discovered</th>
+              <th>Blocked (24h)</th>
+              <th>Readiness</th>
+              <th>Learning Since</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="device-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ APPLICATION CATALOG ============ -->
+    <div class="view" id="view-applications">
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card green">
+          <div class="stat-label">Whitelisted</div>
+          <div class="stat-value" style="color:var(--accent)" id="app-whitelisted">0</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Blacklisted</div>
+          <div class="stat-value" style="color:var(--danger)" id="app-blacklisted">0</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Uncategorized</div>
+          <div class="stat-value" style="color:var(--purple)" id="app-uncat">0</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Total Discovered</div>
+          <div class="stat-value" style="color:var(--accent2)" id="app-total">0</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Discovered Applications</div>
+          <div class="panel-actions">
+            <select class="filter-select" id="app-status-filter" onchange="renderApplications()">
+              <option value="all">All</option>
+              <option value="whitelisted">Whitelisted</option>
+              <option value="blacklisted">Blacklisted</option>
+              <option value="uncategorized">Uncategorized</option>
+            </select>
+            <input class="filter-input" placeholder="Search applications..." id="app-search" oninput="renderApplications()" style="max-width:200px;"/>
+          </div>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Application</th>
+              <th>Publisher</th>
+              <th>AI Risk</th>
+              <th>Hash</th>
+              <th>Devices</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="app-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ RINGFENCING ============ -->
+    <div class="view" id="view-ringfencing">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Ringfencing Rules</div>
+          <div class="panel-actions">
+            <button class="panel-btn primary" onclick="openRingfenceModal()">+ NEW RULE</button>
+          </div>
+        </div>
+        <div class="panel" style="margin:0;border:none;border-bottom:1px solid var(--border);padding:12px 16px;background:rgba(168,85,247,0.04);">
+          <div style="font-size:12px;color:var(--text);">Ringfencing controls what applications can do — restrict network access, file system access, inter-process communication, and registry access per application.</div>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Application</th>
+              <th>Network</th>
+              <th>File System</th>
+              <th>Registry</th>
+              <th>Inter-Process</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="ring-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ STORAGE CONTROL ============ -->
+    <div class="view" id="view-storage">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Storage Control Policies</div>
+          <div class="panel-actions">
+            <button class="panel-btn primary" onclick="toast('Storage policy creator coming soon','info')">+ NEW POLICY</button>
+          </div>
+        </div>
+        <div id="storage-list"></div>
+      </div>
+    </div>
+
+    <!-- ============ ELEVATION CONTROL ============ -->
+    <div class="view" id="view-elevation">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Elevation Control</div>
+          <div class="panel-actions">
+            <button class="panel-btn primary" onclick="toast('Elevation rule creator coming soon','info')">+ NEW RULE</button>
+          </div>
+        </div>
+        <div style="padding:12px 16px;background:rgba(245,166,35,0.04);border-bottom:1px solid var(--border);">
+          <div style="font-size:12px;color:var(--text);">Grant applications admin privileges without giving users full admin rights. Control exactly which apps can elevate and under what conditions.</div>
+        </div>
+        <div id="elevation-list"></div>
+      </div>
+    </div>
+
+    <!-- ============ NETWORK CONTROL ============ -->
+    <div class="view" id="view-network">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Network Access Control</div>
+          <div class="panel-actions">
+            <button class="panel-btn primary" onclick="toast('Network rule creator coming soon','info')">+ NEW RULE</button>
+          </div>
+        </div>
+        <div style="padding:12px 16px;background:rgba(251,146,60,0.04);border-bottom:1px solid var(--border);">
+          <div style="font-size:12px;color:var(--text);">Control which applications can access the network, which ports and IPs they can reach, and enforce per-app firewall rules.</div>
+        </div>
+        <div id="network-list"></div>
+      </div>
+    </div>
+
+    <!-- ============ AUDIT LOG ============ -->
+    <div class="view" id="view-audit">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Audit Log</div>
+          <div class="panel-actions">
+            <select class="filter-select" id="audit-type-filter" onchange="renderAudit()">
+              <option value="all">All Events</option>
+              <option value="block">Blocks</option>
+              <option value="allow">Allows</option>
+              <option value="approve">Approvals</option>
+              <option value="policy">Policy Changes</option>
+              <option value="elevation">Elevations</option>
+            </select>
+            <input class="filter-input" placeholder="Search audit log..." id="audit-search" oninput="renderAudit()" style="max-width:200px;"/>
+            <button class="panel-btn" onclick="toast('Exporting audit log...','info')">EXPORT</button>
+          </div>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Event</th>
+              <th>Application</th>
+              <th>Device</th>
+              <th>User</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="audit-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ AI THREAT ANALYSIS ============ -->
+    <div class="view" id="view-ai">
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card purple">
+          <div class="stat-label">AI Scans Today</div>
+          <div class="stat-value" style="color:var(--purple)" id="ai-scans">0</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Threats Detected</div>
+          <div class="stat-value" style="color:var(--danger)" id="ai-threats">0</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Safe Verdicts</div>
+          <div class="stat-value" style="color:var(--accent)" id="ai-safe">0</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">Avg Risk Score</div>
+          <div class="stat-value" style="color:var(--warning)" id="ai-avg">0</div>
+        </div>
+      </div>
+      <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(168,85,247,0.04);border-color:rgba(168,85,247,0.15);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span class="ai-badge">AI-POWERED</span>
+          <span style="font-size:13px;color:var(--white);font-weight:500;">Palisade AI Threat Engine</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Every application is analyzed by our AI engine for behavioral patterns, known threat signatures, reputation scoring, code signing verification, and anomaly detection. Unlike ThreatLocker's manual-only approach, Palisade One uses AI to auto-classify applications and provide risk scores in real-time.</div>
+      </div>
+      <div id="ai-results"></div>
+    </div>
+
+    <!-- ============ SANDBOX TESTING ============ -->
+    <div class="view" id="view-sandbox">
+      <div class="grid-3-1">
+        <div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Sandbox Test Environment</div>
+              <div class="panel-actions">
+                <button class="panel-btn primary" onclick="openSandboxTest()">+ NEW TEST</button>
+              </div>
+            </div>
+            <div style="padding:12px 16px;background:rgba(0,132,255,0.04);border-bottom:1px solid var(--border);">
+              <div style="font-size:12px;color:var(--text);line-height:1.5;">Test unknown applications in an isolated virtual environment before approving. The sandbox monitors file system changes, registry modifications, network connections, and process behavior.</div>
+            </div>
+            <div id="sandbox-history"></div>
+          </div>
+        </div>
+        <div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Live Sandbox</div>
+            </div>
+            <div style="padding:16px;">
+              <div class="sandbox-status">
+                <div class="sandbox-indicator" id="sandbox-dot"></div>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);" id="sandbox-status-text">IDLE</span>
+              </div>
+              <div class="sandbox-output" id="sandbox-output">
+                <div style="color:var(--muted);">// Sandbox ready. Submit an application to begin analysis.</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Sandbox Verdicts</div>
+            </div>
+            <div style="padding:16px;" id="sandbox-verdicts"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ HEALTH REPORT ============ -->
+    <div class="view" id="view-health">
+      <div class="grid-3-1">
+        <div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Zero Trust Health Score</div>
+              <div class="panel-actions">
+                <button class="panel-btn" onclick="toast('Generating PDF report...','info')">EXPORT PDF</button>
+                <button class="panel-btn primary" onclick="renderHealth()">REFRESH</button>
+              </div>
+            </div>
+            <div style="padding:20px;" id="health-bars"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Recommendations</div>
+            </div>
+            <div id="health-recommendations"></div>
+          </div>
+        </div>
+        <div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Overall Score</div>
+            </div>
+            <div style="padding:24px;" id="health-gauge"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Device Readiness</div>
+            </div>
+            <div style="padding:16px;" id="health-readiness"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ POLICY TEMPLATES ============ -->
+    <div class="view" id="view-templates">
+      <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(0,132,255,0.04);border-color:rgba(0,132,255,0.15);">
+        <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Industry-Specific Policy Templates</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Pre-built Zero Trust policy sets tailored for specific industries. One-click deploy gives you instant best-practice protection. Each template includes application whitelists, ringfencing rules, storage controls, elevation policies, and network rules.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;" id="template-grid"></div>
+    </div>
+
+    <!-- ============ COMPLIANCE MAPPING ============ -->
+    <div class="view" id="view-compliance">
+      <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(0,255,209,0.04);border-color:rgba(0,255,209,0.15);">
+        <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Zero Trust &#8594; Compliance Framework Mapping</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">See exactly how your Zero Trust policies map to regulatory compliance requirements. Each control shows whether your current policies satisfy the requirement, partially meet it, or have a gap.</div>
+      </div>
+      <div id="compliance-map"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- POLICY MODAL -->
+<div class="modal-overlay" id="policy-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">CREATE POLICY</div>
+      <button class="modal-close" onclick="closePolicyModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Policy Name</label>
+        <input class="form-input" id="pol-name" placeholder="e.g., Allow Adobe Creative Suite"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Policy Type</label>
+        <select class="form-select" id="pol-type">
+          <option value="whitelist">Application Whitelist</option>
+          <option value="blacklist">Application Blacklist</option>
+          <option value="path">Path-based Rule</option>
+          <option value="publisher">Publisher-based Rule</option>
+          <option value="hash">Hash-based Rule</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Match Value</label>
+        <input class="form-input" id="pol-match" placeholder="e.g., C:\Program Files\Adobe\*"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apply To</label>
+        <select class="form-select" id="pol-scope">
+          <option value="all">All Devices</option>
+          <option value="group">Device Group</option>
+          <option value="device">Specific Device</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Action</label>
+        <select class="form-select" id="pol-action">
+          <option value="allow">Allow</option>
+          <option value="deny">Deny</option>
+          <option value="audit">Audit Only</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Options</label>
+        <label class="form-check"><input type="checkbox" checked/> Log all executions</label>
+        <label class="form-check"><input type="checkbox"/> Require approval for first run</label>
+        <label class="form-check"><input type="checkbox"/> Apply ringfencing restrictions</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="panel-btn" onclick="closePolicyModal()">CANCEL</button>
+      <button class="panel-btn primary" onclick="savePolicy()">CREATE POLICY</button>
+    </div>
+  </div>
+</div>
+
+<!-- RINGFENCE MODAL -->
+<div class="modal-overlay" id="ringfence-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">CREATE RINGFENCE RULE</div>
+      <button class="modal-close" onclick="closeRingfenceModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Application</label>
+        <input class="form-input" id="rf-app" placeholder="e.g., powershell.exe"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Network Access</label>
+        <select class="form-select" id="rf-network">
+          <option value="full">Full Access</option>
+          <option value="restricted">Restricted (specify IPs/ports)</option>
+          <option value="none">No Network Access</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">File System Access</label>
+        <select class="form-select" id="rf-filesystem">
+          <option value="full">Full Access</option>
+          <option value="restricted">Restricted (specify paths)</option>
+          <option value="readonly">Read Only</option>
+          <option value="none">No File Access</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Registry Access</label>
+        <select class="form-select" id="rf-registry">
+          <option value="full">Full Access</option>
+          <option value="restricted">Restricted</option>
+          <option value="none">No Registry Access</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Inter-Process Communication</label>
+        <label class="form-check"><input type="checkbox" id="rf-ipc-block"/> Block interaction with other processes</label>
+        <label class="form-check"><input type="checkbox" id="rf-inject-block" checked/> Block DLL injection</label>
+        <label class="form-check"><input type="checkbox" id="rf-child-block"/> Block child process spawning</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="panel-btn" onclick="closeRingfenceModal()">CANCEL</button>
+      <button class="panel-btn primary" onclick="saveRingfence()">CREATE RULE</button>
+    </div>
+  </div>
+</div>
+
+<!-- SANDBOX TEST MODAL -->
+<div class="modal-overlay" id="sandbox-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">SANDBOX TEST</div>
+      <button class="modal-close" onclick="closeSandboxModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Application Path or Hash</label>
+        <input class="form-input" id="sb-app" placeholder="e.g., C:\Users\john\Downloads\tool.exe or paste SHA256"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Test Duration</label>
+        <select class="form-select" id="sb-duration">
+          <option value="30">30 seconds (Quick Scan)</option>
+          <option value="120" selected>2 minutes (Standard)</option>
+          <option value="300">5 minutes (Deep Analysis)</option>
+          <option value="600">10 minutes (Full Behavioral)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Monitoring Options</label>
+        <label class="form-check"><input type="checkbox" checked/> Monitor file system changes</label>
+        <label class="form-check"><input type="checkbox" checked/> Monitor network connections</label>
+        <label class="form-check"><input type="checkbox" checked/> Monitor registry changes</label>
+        <label class="form-check"><input type="checkbox" checked/> Monitor process creation</label>
+        <label class="form-check"><input type="checkbox" checked/> Capture memory dumps</label>
+        <label class="form-check"><input type="checkbox"/> Allow internet access (restricted)</label>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Submitted By</label>
+        <input class="form-input" id="sb-user" value="admin@palisadeone.com" readonly/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="panel-btn" onclick="closeSandboxModal()">CANCEL</button>
+      <button class="panel-btn primary" onclick="runSandboxTest()">START SANDBOX TEST</button>
+    </div>
+  </div>
+</div>
+
+<div id="zt-toast"></div>
+
+<script>
+// ========== MOCK DATA ==========
+const DEVICES = [
+  { id: 'd1', name: 'DESKTOP-CASEY01', os: 'Windows 11 Pro', ip: '192.168.1.105', mode: 'secured', appsDiscovered: 187, blocked24h: 3, learningSince: '2026-01-15', user: 'casey.m', group: 'HQ', readiness: 100, newApps7d: 0 },
+  { id: 'd2', name: 'LAPTOP-SALES02', os: 'Windows 11 Home', ip: '192.168.1.112', mode: 'learning', appsDiscovered: 94, blocked24h: 0, learningSince: '2026-02-28', user: 'john.d', group: 'Sales', readiness: 42, newApps7d: 12 },
+  { id: 'd3', name: 'SRV-DC01', os: 'Windows Server 2022', ip: '10.0.0.5', mode: 'secured', appsDiscovered: 312, blocked24h: 12, learningSince: '2025-12-01', user: 'SYSTEM', group: 'Servers', readiness: 100, newApps7d: 0 },
+  { id: 'd4', name: 'DESKTOP-ACCT03', os: 'Windows 10 Pro', ip: '192.168.1.118', mode: 'learning', appsDiscovered: 56, blocked24h: 0, learningSince: '2026-03-01', user: 'maria.l', group: 'Accounting', readiness: 28, newApps7d: 8 },
+  { id: 'd5', name: 'LAPTOP-EXEC01', os: 'Windows 11 Pro', ip: '192.168.1.200', mode: 'monitor', appsDiscovered: 142, blocked24h: 1, learningSince: '2026-01-20', user: 'augustus.c', group: 'Executive', readiness: 95, newApps7d: 1 },
+  { id: 'd6', name: 'DESKTOP-DEV04', os: 'Windows 11 Pro', ip: '192.168.1.130', mode: 'secured', appsDiscovered: 267, blocked24h: 5, learningSince: '2025-11-15', user: 'alex.k', group: 'Engineering', readiness: 100, newApps7d: 0 },
+  { id: 'd7', name: 'SRV-FILE01', os: 'Windows Server 2019', ip: '10.0.0.10', mode: 'secured', appsDiscovered: 89, blocked24h: 0, learningSince: '2025-12-10', user: 'SYSTEM', group: 'Servers', readiness: 100, newApps7d: 0 },
+  { id: 'd8', name: 'LAPTOP-HR01', os: 'Windows 11 Home', ip: '192.168.1.155', mode: 'learning', appsDiscovered: 41, blocked24h: 0, learningSince: '2026-03-04', user: 'sarah.w', group: 'HR', readiness: 15, newApps7d: 19 },
+];
+
+const APPLICATIONS = [
+  { id: 'a1', name: 'Google Chrome', publisher: 'Google LLC', hash: 'a3f2e8...b91c', devices: 8, status: 'whitelisted', category: 'Browser', path: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', riskScore: 5, signed: true, aiVerdict: 'Trusted browser. Valid Google code signature. No behavioral anomalies.' },
+  { id: 'a2', name: 'Microsoft Edge', publisher: 'Microsoft Corporation', hash: 'c7d1a4...e28f', devices: 8, status: 'whitelisted', category: 'Browser', path: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', riskScore: 3, signed: true, aiVerdict: 'Microsoft-signed system browser. Pre-approved.' },
+  { id: 'a3', name: 'Microsoft Office', publisher: 'Microsoft Corporation', hash: 'b9e4f2...1a3c', devices: 6, status: 'whitelisted', category: 'Productivity', path: 'C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE', riskScore: 8, signed: true, aiVerdict: 'Trusted but supports macros. Ringfencing recommended to block macro-spawned processes.' },
+  { id: 'a4', name: 'Slack', publisher: 'Slack Technologies', hash: 'd2a7c1...f45e', devices: 5, status: 'whitelisted', category: 'Communication', path: 'C:\\Users\\*\\AppData\\Local\\slack\\slack.exe', riskScore: 12, signed: true, aiVerdict: 'Electron-based app installed in user AppData. Legitimate but runs with broad permissions.' },
+  { id: 'a5', name: 'TeamViewer', publisher: 'TeamViewer AG', hash: 'e8b3d6...c72a', devices: 1, status: 'blacklisted', category: 'Remote Access', path: 'C:\\Program Files\\TeamViewer\\TeamViewer.exe', riskScore: 72, signed: true, aiVerdict: 'HIGH RISK: Remote access tool commonly abused by threat actors. Legitimate software but frequently used in attacks. Recommend blocking.' },
+  { id: 'a6', name: 'AnyDesk', publisher: 'AnyDesk Software GmbH', hash: 'f1c9a5...d83b', devices: 0, status: 'blacklisted', category: 'Remote Access', path: 'C:\\Program Files (x86)\\AnyDesk\\AnyDesk.exe', riskScore: 75, signed: true, aiVerdict: 'HIGH RISK: Remote desktop tool. Top 5 most abused LOLBin for lateral movement. Block unless explicitly required.' },
+  { id: 'a7', name: 'unknown_tool.exe', publisher: 'Unknown', hash: '7a2b8e...9f1d', devices: 1, status: 'uncategorized', category: 'Unknown', path: 'C:\\Users\\john.d\\Downloads\\unknown_tool.exe', riskScore: 89, signed: false, aiVerdict: 'CRITICAL: Unsigned binary downloaded to user Downloads folder. No known publisher. Attempts outbound connection to 185.220.101.x (known C2 range). RECOMMEND IMMEDIATE BLOCK.' },
+  { id: 'a8', name: 'PowerShell 7', publisher: 'Microsoft Corporation', hash: '4e6f2c...a85d', devices: 4, status: 'whitelisted', category: 'System Tool', path: 'C:\\Program Files\\PowerShell\\7\\pwsh.exe', riskScore: 35, signed: true, aiVerdict: 'Powerful system tool. Signed by Microsoft. Heavily used in attacks but essential for IT. Ringfencing strongly recommended.' },
+  { id: 'a9', name: 'Python 3.12', publisher: 'Python Software Foundation', hash: '2d8c1e...b47f', devices: 2, status: 'whitelisted', category: 'Development', path: 'C:\\Python312\\python.exe', riskScore: 30, signed: true, aiVerdict: 'Script interpreter. Can execute arbitrary code. Restrict to developer machines only.' },
+  { id: 'a10', name: 'crypto_miner.exe', publisher: 'Unknown', hash: '9f3a7b...c26e', devices: 1, status: 'blacklisted', category: 'Malware', path: 'C:\\Users\\john.d\\AppData\\Temp\\crypto_miner.exe', riskScore: 98, signed: false, aiVerdict: 'CRITICAL THREAT: Unsigned. Runs from Temp folder. Hash matches known XMRig cryptominer variant. Exhibits high CPU usage, connects to mining pool. BLOCKED.' },
+  { id: 'a11', name: 'Wireshark', publisher: 'Wireshark Foundation', hash: '5b1d9c...e73a', devices: 1, status: 'uncategorized', category: 'Network Tool', path: 'C:\\Program Files\\Wireshark\\Wireshark.exe', riskScore: 25, signed: true, aiVerdict: 'Legitimate network analysis tool. Signed. Low risk but can capture sensitive data. Restrict to IT/Security personnel.' },
+  { id: 'a12', name: 'Zoom', publisher: 'Zoom Video Communications', hash: '8c4e2a...d91f', devices: 4, status: 'whitelisted', category: 'Communication', path: 'C:\\Users\\*\\AppData\\Roaming\\Zoom\\bin\\Zoom.exe', riskScore: 15, signed: true, aiVerdict: 'Signed video conferencing tool. Installs in user AppData. History of vulnerabilities but currently patched.' },
+  { id: 'a13', name: 'nmap.exe', publisher: 'Nmap Project', hash: '3f7a1c...b48e', devices: 1, status: 'uncategorized', category: 'Network Tool', path: 'C:\\Program Files (x86)\\Nmap\\nmap.exe', riskScore: 45, signed: true, aiVerdict: 'Network scanner. Used legitimately for security audits but also for reconnaissance. Restrict to authorized security personnel only.' },
+  { id: 'a14', name: 'mimikatz.exe', publisher: 'Unknown', hash: '6d2e9f...a15c', devices: 0, status: 'blacklisted', category: 'Hacking Tool', path: 'C:\\Users\\*\\Downloads\\mimikatz.exe', riskScore: 99, signed: false, aiVerdict: 'CRITICAL THREAT: Known credential harvesting tool. Used in 90%+ of ransomware attacks. Extracts passwords from memory. MUST BE BLOCKED on all endpoints. Alert SOC immediately if detected.' },
+];
+
+const APPROVALS = [
+  { id: 'r1', app: 'Wireshark', path: 'C:\\Program Files\\Wireshark\\Wireshark.exe', device: 'DESKTOP-DEV04', user: 'alex.k', time: '2026-03-06T09:42:00', reason: 'Network debugging for client issue', status: 'pending', hash: '5b1d9c...e73a', publisher: 'Wireshark Foundation' },
+  { id: 'r2', app: 'nmap.exe', path: 'C:\\Program Files (x86)\\Nmap\\nmap.exe', device: 'DESKTOP-DEV04', user: 'alex.k', time: '2026-03-06T09:15:00', reason: 'Security audit scan', status: 'pending', hash: '3f7a1c...b48e', publisher: 'Nmap Project' },
+  { id: 'r3', app: 'unknown_tool.exe', path: 'C:\\Users\\john.d\\Downloads\\unknown_tool.exe', device: 'LAPTOP-SALES02', user: 'john.d', time: '2026-03-06T08:30:00', reason: 'Client sent this tool for demo', status: 'pending', hash: '7a2b8e...9f1d', publisher: 'Unknown' },
+  { id: 'r4', app: 'Postman', path: 'C:\\Users\\alex.k\\AppData\\Local\\Postman\\Postman.exe', device: 'DESKTOP-DEV04', user: 'alex.k', time: '2026-03-06T07:55:00', reason: 'API testing tool needed for project', status: 'pending', hash: 'b2c4e8...f91a', publisher: 'Postman Inc.' },
+  { id: 'r5', app: 'Google Chrome', path: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', device: 'DESKTOP-ACCT03', user: 'maria.l', time: '2026-03-05T16:20:00', reason: 'Auto-approved: whitelisted publisher', status: 'approved', hash: 'a3f2e8...b91c', publisher: 'Google LLC' },
+  { id: 'r6', app: 'TeamViewer', path: 'C:\\Program Files\\TeamViewer\\TeamViewer.exe', device: 'SRV-DC01', user: 'SYSTEM', time: '2026-03-05T14:10:00', reason: 'Blocked: blacklisted application', status: 'denied', hash: 'e8b3d6...c72a', publisher: 'TeamViewer AG' },
+  { id: 'r7', app: 'crypto_miner.exe', path: 'C:\\Users\\john.d\\AppData\\Temp\\crypto_miner.exe', device: 'LAPTOP-SALES02', user: 'john.d', time: '2026-03-05T11:45:00', reason: 'Blocked: known malware hash', status: 'denied', hash: '9f3a7b...c26e', publisher: 'Unknown' },
+];
+
+const POLICIES = [
+  { id: 'p1', name: 'Microsoft Signed Applications', type: 'publisher', match: 'Microsoft Corporation', action: 'allow', scope: 'All Devices', enabled: true, rules: 47 },
+  { id: 'p2', name: 'Google Signed Applications', type: 'publisher', match: 'Google LLC', action: 'allow', scope: 'All Devices', enabled: true, rules: 12 },
+  { id: 'p3', name: 'Block Remote Access Tools', type: 'blacklist', match: 'TeamViewer, AnyDesk, LogMeIn', action: 'deny', scope: 'All Devices', enabled: true, rules: 5 },
+  { id: 'p4', name: 'Block Known Malware Hashes', type: 'hash', match: '156 hashes', action: 'deny', scope: 'All Devices', enabled: true, rules: 156 },
+  { id: 'p5', name: 'Allow Development Tools', type: 'path', match: 'C:\\Program Files\\*\\{VS Code, Python, Node, Git}*', action: 'allow', scope: 'Engineering', enabled: true, rules: 23 },
+  { id: 'p6', name: 'Block Script Interpreters (Non-IT)', type: 'blacklist', match: 'python.exe, ruby.exe, perl.exe', action: 'deny', scope: 'Sales, Accounting, HR', enabled: true, rules: 8 },
+  { id: 'p7', name: 'Allow Accounting Software', type: 'publisher', match: 'Intuit, Sage Group', action: 'allow', scope: 'Accounting', enabled: true, rules: 9 },
+  { id: 'p8', name: 'Temp: Allow Zoom (Expiring)', type: 'path', match: 'C:\\Users\\*\\AppData\\Roaming\\Zoom\\*', action: 'allow', scope: 'All Devices', enabled: true, rules: 1 },
+];
+
+const RINGFENCES = [
+  { app: 'PowerShell 7', network: 'Restricted', filesystem: 'Restricted', registry: 'Restricted', ipc: 'Blocked', enabled: true },
+  { app: 'cmd.exe', network: 'None', filesystem: 'Restricted', registry: 'None', ipc: 'Blocked', enabled: true },
+  { app: 'Google Chrome', network: 'Full', filesystem: 'Restricted', registry: 'None', ipc: 'Blocked', enabled: true },
+  { app: 'Microsoft Office', network: 'Restricted', filesystem: 'Full', registry: 'None', ipc: 'Blocked', enabled: true },
+  { app: 'Python 3.12', network: 'None', filesystem: 'Restricted', registry: 'None', ipc: 'Blocked', enabled: true },
+  { app: 'wscript.exe', network: 'None', filesystem: 'None', registry: 'None', ipc: 'Blocked', enabled: true },
+];
+
+const STORAGE_POLICIES = [
+  { name: 'Block USB Storage', desc: 'Prevent all USB mass storage devices', scope: 'All except IT', enabled: true },
+  { name: 'Read-Only USB (Accounting)', desc: 'Allow reading but not writing to USB drives', scope: 'Accounting', enabled: true },
+  { name: 'Block External HDD', desc: 'Prevent external hard drive connections', scope: 'All Devices', enabled: true },
+  { name: 'Allow Encrypted USB Only', desc: 'Only permit BitLocker-encrypted USB devices', scope: 'Executive, Engineering', enabled: false },
+  { name: 'Block CD/DVD Write', desc: 'Prevent writing to optical media', scope: 'All Devices', enabled: true },
+];
+
+const ELEVATION_RULES = [
+  { app: 'Software Installer (MSI)', desc: 'Allow MSI installers to run elevated when approved', scope: 'IT Staff', approval: 'Auto', enabled: true },
+  { app: 'Printer Drivers', desc: 'Elevate printer driver installations', scope: 'All Users', approval: 'Auto', enabled: true },
+  { app: 'Windows Update', desc: 'Allow Windows Update components to elevate', scope: 'All Devices', approval: 'Auto', enabled: true },
+  { app: 'QuickBooks Update', desc: 'Allow QuickBooks updater to run elevated', scope: 'Accounting', approval: 'Pre-Approved', enabled: true },
+  { app: 'VS Code Extensions', desc: 'Elevate VS Code extension installations', scope: 'Engineering', approval: 'Request', enabled: false },
+];
+
+const NETWORK_RULES = [
+  { app: 'cmd.exe', rule: 'Block all outbound', ports: 'ALL', direction: 'Outbound', enabled: true },
+  { app: 'PowerShell', rule: 'Block internet, allow internal', ports: '80, 443', direction: 'Outbound', enabled: true },
+  { app: 'wscript.exe', rule: 'Block all network', ports: 'ALL', direction: 'Both', enabled: true },
+  { app: 'python.exe', rule: 'Block outbound (non-IT)', ports: 'ALL', direction: 'Outbound', enabled: true },
+  { app: 'Chrome', rule: 'Allow all (whitelisted)', ports: 'ALL', direction: 'Both', enabled: true },
+];
+
+const AUDIT_LOG = [
+  { time: '2026-03-06T09:42:12', event: 'block', app: 'Wireshark', device: 'DESKTOP-DEV04', user: 'alex.k', detail: 'Blocked — not whitelisted. Approval requested.' },
+  { time: '2026-03-06T09:38:05', event: 'allow', app: 'Google Chrome', device: 'DESKTOP-CASEY01', user: 'casey.m', detail: 'Allowed — publisher whitelisted (Google LLC)' },
+  { time: '2026-03-06T09:15:33', event: 'block', app: 'nmap.exe', device: 'DESKTOP-DEV04', user: 'alex.k', detail: 'Blocked — uncategorized application' },
+  { time: '2026-03-06T08:30:11', event: 'block', app: 'unknown_tool.exe', device: 'LAPTOP-SALES02', user: 'john.d', detail: 'Blocked — unknown publisher, approval requested' },
+  { time: '2026-03-06T08:22:47', event: 'policy', app: '--', device: '--', user: 'admin', detail: 'Policy updated: "Block Remote Access Tools" — added LogMeIn' },
+  { time: '2026-03-06T07:55:18', event: 'block', app: 'Postman', device: 'DESKTOP-DEV04', user: 'alex.k', detail: 'Blocked — not in application catalog' },
+  { time: '2026-03-05T16:20:44', event: 'approve', app: 'Google Chrome', device: 'DESKTOP-ACCT03', user: 'maria.l', detail: 'Auto-approved — publisher match (Google LLC)' },
+  { time: '2026-03-05T14:10:22', event: 'block', app: 'TeamViewer', device: 'SRV-DC01', user: 'SYSTEM', detail: 'Blocked and denied — blacklisted application' },
+  { time: '2026-03-05T11:45:09', event: 'block', app: 'crypto_miner.exe', device: 'LAPTOP-SALES02', user: 'john.d', detail: 'Blocked — known malware hash match' },
+  { time: '2026-03-05T10:30:00', event: 'elevation', app: 'QuickBooks Update', device: 'DESKTOP-ACCT03', user: 'maria.l', detail: 'Elevation granted — pre-approved rule' },
+  { time: '2026-03-05T09:15:00', event: 'policy', app: '--', device: '--', user: 'admin', detail: 'Device LAPTOP-HR01 set to Learning mode' },
+  { time: '2026-03-04T17:00:00', event: 'allow', app: 'Microsoft Office', device: 'LAPTOP-EXEC01', user: 'augustus.c', detail: 'Allowed — publisher whitelisted (Microsoft Corporation)' },
+];
+
+// ========== STATE ==========
+let currentView = 'overview';
+
+// ========== NAVIGATION ==========
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById('view-' + name);
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = name.replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase();
+  currentView = name;
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(n => { if (n.textContent.trim().toLowerCase().includes(name) || n.getAttribute('onclick')?.includes(name)) n.classList.add('active'); });
+  if (name === 'overview') renderOverview();
+  if (name === 'approvals') renderApprovals();
+  if (name === 'policies') renderPolicies();
+  if (name === 'devices') renderDevices();
+  if (name === 'applications') renderApplications();
+  if (name === 'ringfencing') renderRingfencing();
+  if (name === 'storage') renderStorage();
+  if (name === 'elevation') renderElevation();
+  if (name === 'network') renderNetwork();
+  if (name === 'audit') renderAudit();
+  if (name === 'ai') renderAI();
+  if (name === 'sandbox') renderSandbox();
+  if (name === 'health') renderHealth();
+  if (name === 'templates') renderTemplates();
+  if (name === 'compliance') renderCompliance();
+}
+
+// ========== OVERVIEW ==========
+function renderOverview() {
+  const secured = DEVICES.filter(d => d.mode === 'secured').length;
+  const learning = DEVICES.filter(d => d.mode === 'learning').length;
+  const pending = APPROVALS.filter(a => a.status === 'pending').length;
+  const blocked = AUDIT_LOG.filter(a => a.event === 'block' && a.time.startsWith('2026-03-06')).length;
+  document.getElementById('stat-secured').textContent = secured;
+  document.getElementById('stat-learning').textContent = learning;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-blocked').textContent = blocked;
+  document.getElementById('stat-policies').textContent = POLICIES.filter(p => p.enabled).length;
+  document.getElementById('approval-badge').textContent = pending;
+
+  // Live threat ticker
+  const tickerItems = AUDIT_LOG.map(a => {
+    const cls = a.event === 'block' ? 't-block' : a.event === 'allow' ? 't-allow' : a.event === 'elevation' ? 't-elev' : '';
+    return `<span class="${cls}">${fmtTime(a.time)} ${a.event.toUpperCase()} ${a.app} on ${a.device}</span>`;
+  }).join('');
+  document.getElementById('ticker-content').innerHTML = tickerItems + tickerItems;
+
+  // Recent approvals
+  const recentAppr = APPROVALS.filter(a => a.status === 'pending').slice(0, 3);
+  document.getElementById('overview-approvals').innerHTML = recentAppr.length === 0
+    ? '<div style="padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--accent);">// No pending approvals</div>'
+    : recentAppr.map(a => `<div class="approval-card">
+        <div class="approval-top"><div class="approval-app">${esc(a.app)}</div><span class="action-badge action-pending">PENDING</span></div>
+        <div class="approval-path">${esc(a.path)}</div>
+        <div class="approval-meta"><span>&#128187; ${esc(a.device)}</span><span>&#128100; ${esc(a.user)}</span><span>&#128336; ${fmtTime(a.time)}</span></div>
+        <div class="approval-actions">
+          <button class="approve-btn allow" onclick="approveRequest('${a.id}','approved')">&#10003; APPROVE</button>
+          <button class="approve-btn deny" onclick="approveRequest('${a.id}','denied')">&#10007; DENY</button>
+          <button class="approve-btn temp" onclick="approveRequest('${a.id}','temp')">&#9202; 1HR TEMP</button>
+        </div>
+      </div>`).join('');
+
+  // Recent blocks
+  const recentBlocks = AUDIT_LOG.filter(a => a.event === 'block').slice(0, 5);
+  document.getElementById('overview-blocks').innerHTML = recentBlocks.map(b => `
+    <div class="timeline-item" style="padding:10px 16px;border-bottom:1px solid rgba(17,34,64,0.3);">
+      <div class="timeline-dot" style="background:var(--danger);"></div>
+      <div class="timeline-content">
+        <div class="timeline-title"><span style="color:var(--white);font-weight:500;">${esc(b.app)}</span> &#8212; ${esc(b.detail)}</div>
+        <div class="timeline-meta">${esc(b.device)} &middot; ${esc(b.user)} &middot; ${fmtTime(b.time)}</div>
+      </div>
+    </div>`).join('');
+
+  // Device mode chart
+  const monitor = DEVICES.filter(d => d.mode === 'monitor').length;
+  const total = DEVICES.length;
+  document.getElementById('overview-device-modes').innerHTML = `
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--accent);">Secured</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${secured}/${total}</span></div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${(secured/total*100)}%;background:var(--accent);border-radius:4px;transition:width 0.5s;"></div></div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--purple);">Learning</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${learning}/${total}</span></div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${(learning/total*100)}%;background:var(--purple);border-radius:4px;transition:width 0.5s;"></div></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--accent2);">Monitor</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${monitor}/${total}</span></div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${(monitor/total*100)}%;background:var(--accent2);border-radius:4px;transition:width 0.5s;"></div></div>
+    </div>`;
+
+  // Policy coverage
+  const policyTypes = [{label:'App Whitelist',count:POLICIES.filter(p=>p.action==='allow').length,color:'var(--accent)'},{label:'App Blacklist',count:POLICIES.filter(p=>p.action==='deny').length,color:'var(--danger)'},{label:'Ringfencing',count:RINGFENCES.length,color:'var(--purple)'},{label:'Storage',count:STORAGE_POLICIES.filter(p=>p.enabled).length,color:'var(--accent2)'},{label:'Elevation',count:ELEVATION_RULES.filter(p=>p.enabled).length,color:'var(--warning)'}];
+  document.getElementById('overview-policy-coverage').innerHTML = policyTypes.map(p => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(17,34,64,0.3);">
+      <span style="font-size:12px;color:var(--text);">${p.label}</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${p.color};">${p.count}</span>
+    </div>`).join('');
+}
+
+// ========== APPROVALS ==========
+function renderApprovals() {
+  const filter = document.getElementById('appr-filter')?.value || 'all';
+  let list = APPROVALS;
+  if (filter !== 'all') list = list.filter(a => a.status === filter);
+
+  document.getElementById('appr-pending').textContent = APPROVALS.filter(a => a.status === 'pending').length;
+  document.getElementById('appr-approved').textContent = APPROVALS.filter(a => a.status === 'approved').length;
+  document.getElementById('appr-denied').textContent = APPROVALS.filter(a => a.status === 'denied').length;
+  document.getElementById('appr-auto').textContent = APPROVALS.filter(a => a.status === 'approved' && a.reason?.includes('Auto')).length;
+
+  document.getElementById('approval-list').innerHTML = list.length === 0
+    ? '<div style="padding:32px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--accent);">// No matching requests</div>'
+    : list.map(a => {
+      const statusBadge = a.status === 'pending' ? '<span class="action-badge action-pending">PENDING</span>'
+        : a.status === 'approved' ? '<span class="action-badge action-allowed">APPROVED</span>'
+        : '<span class="action-badge action-blocked">DENIED</span>';
+      const actions = a.status === 'pending' ? `
+        <div class="approval-actions">
+          <button class="approve-btn allow" onclick="approveRequest('${a.id}','approved')">&#10003; APPROVE</button>
+          <button class="approve-btn deny" onclick="approveRequest('${a.id}','denied')">&#10007; DENY</button>
+          <button class="approve-btn temp" onclick="approveRequest('${a.id}','temp')">&#9202; 1HR TEMP</button>
+          <button class="approve-btn ring" onclick="approveRequest('${a.id}','ringfence')">&#128737; APPROVE + RINGFENCE</button>
+        </div>` : '';
+      return `<div class="approval-card">
+        <div class="approval-top"><div><div class="approval-app">${esc(a.app)}</div><div class="approval-path">${esc(a.path)}</div></div>${statusBadge}</div>
+        <div class="approval-meta">
+          <span>&#128187; ${esc(a.device)}</span>
+          <span>&#128100; ${esc(a.user)}</span>
+          <span>&#128336; ${fmtTime(a.time)}</span>
+          <span>&#128270; ${esc(a.hash)}</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Publisher: <span style="color:var(--text)">${esc(a.publisher)}</span> &middot; Reason: <span style="color:var(--text)">${esc(a.reason)}</span></div>
+        ${actions}
+      </div>`;
+    }).join('');
+}
+
+function approveRequest(id, action) {
+  const req = APPROVALS.find(a => a.id === id);
+  if (!req) return;
+  if (action === 'temp') {
+    req.status = 'approved';
+    toast(`${req.app} temporarily approved for 1 hour`, 'success');
+  } else if (action === 'ringfence') {
+    req.status = 'approved';
+    toast(`${req.app} approved with ringfencing restrictions`, 'success');
+  } else {
+    req.status = action;
+    toast(`${req.app} ${action}`, action === 'approved' ? 'success' : 'error');
+  }
+  renderApprovals();
+  renderOverview();
+}
+
+// ========== POLICIES ==========
+function renderPolicies() {
+  const typeIcons = { publisher: '&#128272;', blacklist: '&#128683;', hash: '&#128275;', path: '&#128193;', whitelist: '&#9989;' };
+  document.getElementById('policy-list').innerHTML = POLICIES.map(p => `
+    <div class="policy-row">
+      <div class="policy-icon">${typeIcons[p.type] || '&#128274;'}</div>
+      <div class="policy-info">
+        <div class="policy-name">${esc(p.name)}</div>
+        <div class="policy-desc"><span class="tag tag-${p.action === 'allow' ? 'allow' : 'deny'}">${p.action.toUpperCase()}</span> ${esc(p.type)} &middot; ${esc(p.match)} &middot; Scope: ${esc(p.scope)}</div>
+      </div>
+      <div class="policy-count">${p.rules}</div>
+      <div class="policy-toggle ${p.enabled ? 'on' : ''}" onclick="this.classList.toggle('on');toast('Policy '+(this.classList.contains('on')?'enabled':'disabled'),'info')"></div>
+    </div>`).join('');
+}
+
+function openPolicyModal() { document.getElementById('policy-modal').classList.add('show'); }
+function closePolicyModal() { document.getElementById('policy-modal').classList.remove('show'); }
+function savePolicy() {
+  const name = document.getElementById('pol-name').value.trim();
+  if (!name) { toast('Policy name is required', 'error'); return; }
+  POLICIES.push({
+    id: 'p' + Date.now(), name,
+    type: document.getElementById('pol-type').value,
+    match: document.getElementById('pol-match').value,
+    action: document.getElementById('pol-action').value,
+    scope: document.getElementById('pol-scope').value === 'all' ? 'All Devices' : document.getElementById('pol-scope').value,
+    enabled: true, rules: 1
+  });
+  closePolicyModal();
+  renderPolicies();
+  toast('Policy "' + name + '" created', 'success');
+}
+
+// ========== DEVICES ==========
+function renderDevices() {
+  const modeFilter = document.getElementById('dev-mode-filter')?.value || 'all';
+  const search = (document.getElementById('dev-search')?.value || '').toLowerCase();
+  let list = DEVICES;
+  if (modeFilter !== 'all') list = list.filter(d => d.mode === modeFilter);
+  if (search) list = list.filter(d => d.name.toLowerCase().includes(search) || d.user.toLowerCase().includes(search));
+
+  document.getElementById('device-tbody').innerHTML = list.map(d => {
+    const modeClass = d.mode === 'learning' ? 'mode-learning' : d.mode === 'secured' ? 'mode-secured' : 'mode-monitor';
+    return `<tr>
+      <td>
+        <div style="font-weight:500;color:var(--white);">${esc(d.name)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${esc(d.ip)} &middot; ${esc(d.os)} &middot; ${esc(d.user)}</div>
+      </td>
+      <td><span class="mode-badge ${modeClass}">${d.mode.toUpperCase()}</span></td>
+      <td style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);">${d.appsDiscovered}</td>
+      <td style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${d.blocked24h > 0 ? 'var(--danger)' : 'var(--muted)'};">${d.blocked24h}</td>
+      <td>
+        <div class="readiness">
+          <div class="readiness-track"><div class="readiness-fill" style="width:${d.readiness}%;background:${d.readiness>=90?'var(--accent)':d.readiness>=60?'var(--warning)':'var(--danger)'};"></div></div>
+          <span class="readiness-label" style="color:${d.readiness>=90?'var(--accent)':d.readiness>=60?'var(--warning)':'var(--danger)'}">${d.readiness}%</span>
+        </div>
+        ${d.mode==='learning'?`<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;">${d.newApps7d} new apps this week</div>`:''}
+      </td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${d.learningSince}</td>
+      <td>
+        <div class="mode-selector">
+          <button class="mode-opt ${d.mode==='learning'?'active-learn':''}" onclick="setDeviceMode('${d.id}','learning')">LEARN</button>
+          <button class="mode-opt ${d.mode==='secured'?'active-secure':''}" onclick="setDeviceMode('${d.id}','secured')">SECURE</button>
+          <button class="mode-opt ${d.mode==='monitor'?'active-monitor':''}" onclick="setDeviceMode('${d.id}','monitor')">MONITOR</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setDeviceMode(id, mode) {
+  const dev = DEVICES.find(d => d.id === id);
+  if (!dev) return;
+  if (mode === 'secured' && dev.mode === 'learning') {
+    if (!confirm(`Switch ${dev.name} from Learning to Secured mode? Only whitelisted applications will be allowed to run.`)) return;
+  }
+  dev.mode = mode;
+  renderDevices();
+  renderOverview();
+  toast(`${dev.name} set to ${mode.toUpperCase()} mode`, 'success');
+}
+
+// ========== APPLICATIONS ==========
+function renderApplications() {
+  const statusFilter = document.getElementById('app-status-filter')?.value || 'all';
+  const search = (document.getElementById('app-search')?.value || '').toLowerCase();
+  let list = APPLICATIONS;
+  if (statusFilter !== 'all') list = list.filter(a => a.status === statusFilter);
+  if (search) list = list.filter(a => a.name.toLowerCase().includes(search) || a.publisher.toLowerCase().includes(search));
+
+  document.getElementById('app-whitelisted').textContent = APPLICATIONS.filter(a => a.status === 'whitelisted').length;
+  document.getElementById('app-blacklisted').textContent = APPLICATIONS.filter(a => a.status === 'blacklisted').length;
+  document.getElementById('app-uncat').textContent = APPLICATIONS.filter(a => a.status === 'uncategorized').length;
+  document.getElementById('app-total').textContent = APPLICATIONS.length;
+
+  document.getElementById('app-tbody').innerHTML = list.map(a => {
+    const statusTag = a.status === 'whitelisted' ? '<span class="tag tag-allow">WHITELISTED</span>'
+      : a.status === 'blacklisted' ? '<span class="tag tag-deny">BLACKLISTED</span>'
+      : '<span class="tag tag-learn">UNCATEGORIZED</span>';
+    return `<tr>
+      <td>
+        <div style="font-weight:500;color:var(--white);">${esc(a.name)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${esc(a.path)}</div>
+      </td>
+      <td style="font-size:11px;color:var(--text);">${esc(a.publisher)}${a.signed?'<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--accent);margin-top:2px;">&#10003; SIGNED</div>':'<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--danger);margin-top:2px;">&#10007; UNSIGNED</div>'}</td>
+      <td><div class="risk-score ${a.riskScore>=80?'risk-critical':a.riskScore>=50?'risk-high':a.riskScore>=25?'risk-medium':'risk-low'}">${a.riskScore}</div></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);">${esc(a.hash)}</td>
+      <td style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);">${a.devices}</td>
+      <td>${statusTag}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="panel-btn" style="padding:3px 8px;font-size:9px;" onclick="setAppStatus('${a.id}','whitelisted')">&#10003;</button>
+          <button class="panel-btn danger" style="padding:3px 8px;font-size:9px;" onclick="setAppStatus('${a.id}','blacklisted')">&#10007;</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setAppStatus(id, status) {
+  const app = APPLICATIONS.find(a => a.id === id);
+  if (!app) return;
+  app.status = status;
+  renderApplications();
+  toast(`${app.name} ${status}`, status === 'whitelisted' ? 'success' : 'error');
+}
+
+// ========== RINGFENCING ==========
+function renderRingfencing() {
+  const chipHtml = (val) => {
+    if (val === 'Full') return '<span class="ring-chip allow">FULL</span>';
+    if (val === 'None' || val === 'Blocked') return '<span class="ring-chip block">BLOCKED</span>';
+    return '<span class="ring-chip" style="border-color:var(--warning);color:var(--warning);background:rgba(245,166,35,0.06);">RESTRICTED</span>';
+  };
+  document.getElementById('ring-tbody').innerHTML = RINGFENCES.map(r => `<tr>
+    <td style="font-weight:500;color:var(--white);">${esc(r.app)}</td>
+    <td>${chipHtml(r.network)}</td>
+    <td>${chipHtml(r.filesystem)}</td>
+    <td>${chipHtml(r.registry)}</td>
+    <td>${chipHtml(r.ipc)}</td>
+    <td><div class="policy-toggle ${r.enabled?'on':''}" onclick="this.classList.toggle('on')"></div></td>
+  </tr>`).join('');
+}
+
+function openRingfenceModal() { document.getElementById('ringfence-modal').classList.add('show'); }
+function closeRingfenceModal() { document.getElementById('ringfence-modal').classList.remove('show'); }
+function saveRingfence() {
+  const app = document.getElementById('rf-app').value.trim();
+  if (!app) { toast('Application name required', 'error'); return; }
+  RINGFENCES.push({
+    app,
+    network: document.getElementById('rf-network').value === 'none' ? 'None' : document.getElementById('rf-network').value === 'restricted' ? 'Restricted' : 'Full',
+    filesystem: document.getElementById('rf-filesystem').value === 'none' ? 'None' : document.getElementById('rf-filesystem').value === 'restricted' ? 'Restricted' : document.getElementById('rf-filesystem').value === 'readonly' ? 'Restricted' : 'Full',
+    registry: document.getElementById('rf-registry').value === 'none' ? 'None' : document.getElementById('rf-registry').value === 'restricted' ? 'Restricted' : 'Full',
+    ipc: document.getElementById('rf-ipc-block').checked ? 'Blocked' : 'Full',
+    enabled: true
+  });
+  closeRingfenceModal();
+  renderRingfencing();
+  toast('Ringfence rule created for ' + app, 'success');
+}
+
+// ========== STORAGE ==========
+function renderStorage() {
+  document.getElementById('storage-list').innerHTML = STORAGE_POLICIES.map(s => `
+    <div class="policy-row">
+      <div class="policy-icon">&#128190;</div>
+      <div class="policy-info">
+        <div class="policy-name">${esc(s.name)}</div>
+        <div class="policy-desc">${esc(s.desc)} &middot; Scope: ${esc(s.scope)}</div>
+      </div>
+      <div class="policy-toggle ${s.enabled?'on':''}" onclick="this.classList.toggle('on');toast('Storage policy '+(this.classList.contains('on')?'enabled':'disabled'),'info')"></div>
+    </div>`).join('');
+}
+
+// ========== ELEVATION ==========
+function renderElevation() {
+  const approvalColors = { Auto: 'var(--accent)', 'Pre-Approved': 'var(--accent2)', Request: 'var(--warning)' };
+  document.getElementById('elevation-list').innerHTML = ELEVATION_RULES.map(e => `
+    <div class="policy-row">
+      <div class="policy-icon">&#128272;</div>
+      <div class="policy-info">
+        <div class="policy-name">${esc(e.app)}</div>
+        <div class="policy-desc">${esc(e.desc)} &middot; Scope: ${esc(e.scope)} &middot; <span style="color:${approvalColors[e.approval] || 'var(--muted)'}">${esc(e.approval)}</span></div>
+      </div>
+      <div class="policy-toggle ${e.enabled?'on':''}" onclick="this.classList.toggle('on');toast('Elevation rule '+(this.classList.contains('on')?'enabled':'disabled'),'info')"></div>
+    </div>`).join('');
+}
+
+// ========== NETWORK ==========
+function renderNetwork() {
+  document.getElementById('network-list').innerHTML = NETWORK_RULES.map(n => `
+    <div class="policy-row">
+      <div class="policy-icon">&#127760;</div>
+      <div class="policy-info">
+        <div class="policy-name">${esc(n.app)}</div>
+        <div class="policy-desc">${esc(n.rule)} &middot; Ports: ${esc(n.ports)} &middot; ${esc(n.direction)}</div>
+      </div>
+      <div class="policy-toggle ${n.enabled?'on':''}" onclick="this.classList.toggle('on');toast('Network rule '+(this.classList.contains('on')?'enabled':'disabled'),'info')"></div>
+    </div>`).join('');
+}
+
+// ========== AUDIT LOG ==========
+function renderAudit() {
+  const typeFilter = document.getElementById('audit-type-filter')?.value || 'all';
+  const search = (document.getElementById('audit-search')?.value || '').toLowerCase();
+  let list = AUDIT_LOG;
+  if (typeFilter !== 'all') list = list.filter(a => a.event === typeFilter);
+  if (search) list = list.filter(a => a.app.toLowerCase().includes(search) || a.device.toLowerCase().includes(search) || a.detail.toLowerCase().includes(search));
+
+  const eventColors = { block: 'var(--danger)', allow: 'var(--accent)', approve: 'var(--accent2)', policy: 'var(--warning)', elevation: 'var(--purple)' };
+  const eventLabels = { block: 'BLOCKED', allow: 'ALLOWED', approve: 'APPROVAL', policy: 'POLICY', elevation: 'ELEVATED' };
+
+  document.getElementById('audit-tbody').innerHTML = list.map(a => `<tr>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;">${fmtTime(a.time)}</td>
+    <td><span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;color:${eventColors[a.event]||'var(--muted)'};">${eventLabels[a.event]||a.event.toUpperCase()}</span></td>
+    <td style="font-weight:500;color:var(--white);">${esc(a.app)}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);">${esc(a.device)}</td>
+    <td style="font-size:11px;color:var(--text);">${esc(a.user)}</td>
+    <td style="font-size:11px;color:var(--muted);max-width:300px;">${esc(a.detail)}</td>
+  </tr>`).join('');
+}
+
+// ========== HELPERS ==========
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+function fmtTime(iso) {
+  const d = new Date(iso);
+  const mon = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  const hr = String(d.getHours()).padStart(2,'0');
+  const min = String(d.getMinutes()).padStart(2,'0');
+  return `${mon}/${day} ${hr}:${min}`;
+}
+
+function toast(msg, type = 'info') {
+  const el = document.getElementById('zt-toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  setTimeout(() => el.className = '', 3000);
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  html.dataset.theme = html.dataset.theme === 'light' ? '' : 'light';
+}
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { hour12: false }) + ' UTC' + (now.getTimezoneOffset() > 0 ? '-' : '+') + Math.abs(now.getTimezoneOffset()/60);
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ========== AI THREAT ANALYSIS ==========
+function renderAI() {
+  document.getElementById('ai-scans').textContent = APPLICATIONS.length;
+  document.getElementById('ai-threats').textContent = APPLICATIONS.filter(a => a.riskScore >= 70).length;
+  document.getElementById('ai-safe').textContent = APPLICATIONS.filter(a => a.riskScore < 25).length;
+  const avg = Math.round(APPLICATIONS.reduce((s,a) => s + a.riskScore, 0) / APPLICATIONS.length);
+  document.getElementById('ai-avg').textContent = avg;
+
+  const sorted = [...APPLICATIONS].sort((a,b) => b.riskScore - a.riskScore);
+  document.getElementById('ai-results').innerHTML = sorted.map(a => {
+    const riskClass = a.riskScore >= 80 ? 'risk-critical' : a.riskScore >= 50 ? 'risk-high' : a.riskScore >= 25 ? 'risk-medium' : 'risk-low';
+    const riskLabel = a.riskScore >= 80 ? 'CRITICAL' : a.riskScore >= 50 ? 'HIGH' : a.riskScore >= 25 ? 'MEDIUM' : 'LOW';
+    const riskColor = a.riskScore >= 80 ? 'var(--danger)' : a.riskScore >= 50 ? 'var(--warning)' : a.riskScore >= 25 ? 'var(--accent2)' : 'var(--accent)';
+    return `<div class="ai-card">
+      <div class="ai-card-header">
+        <div>
+          <div class="ai-card-title">${esc(a.name)}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">${esc(a.path)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="risk-score ${riskClass}">${a.riskScore}</div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${riskColor};letter-spacing:1px;">${riskLabel} RISK</span>
+        </div>
+      </div>
+      <div class="ai-factors">
+        <div class="ai-factor"><div class="ai-factor-label">Publisher</div><div class="ai-factor-value" style="font-size:12px;font-family:'JetBrains Mono',monospace;color:${a.signed?'var(--accent)':'var(--danger)'};">${a.signed?'VERIFIED':'UNKNOWN'}</div></div>
+        <div class="ai-factor"><div class="ai-factor-label">Category</div><div class="ai-factor-value" style="font-size:12px;font-family:'JetBrains Mono',monospace;">${esc(a.category)}</div></div>
+        <div class="ai-factor"><div class="ai-factor-label">Endpoints</div><div class="ai-factor-value">${a.devices}</div></div>
+      </div>
+      <div class="ai-analysis">${esc(a.aiVerdict)}</div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="approve-btn allow" onclick="setAppStatus('${a.id}','whitelisted');renderAI();">&#10003; WHITELIST</button>
+        <button class="approve-btn deny" onclick="setAppStatus('${a.id}','blacklisted');renderAI();">&#10007; BLACKLIST</button>
+        <button class="approve-btn ring" onclick="toast('Ringfence rule created for ${esc(a.name)}','success')">&#128737; RINGFENCE</button>
+        <button class="approve-btn temp" onclick="openSandboxTestFor('${esc(a.name)}','${esc(a.path)}')">&#128300; SANDBOX</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ========== SANDBOX ==========
+const SANDBOX_HISTORY = [
+  { app: 'unknown_tool.exe', time: '2026-03-06T08:35:00', duration: '2 min', verdict: 'malicious', findings: 'Outbound C2 connection detected, attempted registry persistence, dropped payload in %TEMP%' },
+  { app: 'custom_installer.msi', time: '2026-03-05T14:20:00', duration: '5 min', verdict: 'clean', findings: 'Standard MSI installer behavior. Writes to Program Files. No suspicious activity.' },
+  { app: 'update_patch.exe', time: '2026-03-04T10:15:00', duration: '2 min', verdict: 'suspicious', findings: 'Valid signature but attempts to disable Windows Defender. Elevated network activity to unknown IPs.' },
+];
+
+function renderSandbox() {
+  document.getElementById('sandbox-history').innerHTML = SANDBOX_HISTORY.length === 0
+    ? '<div style="padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">// No sandbox tests yet</div>'
+    : SANDBOX_HISTORY.map(s => {
+      const vColor = s.verdict === 'malicious' ? 'var(--danger)' : s.verdict === 'suspicious' ? 'var(--warning)' : 'var(--accent)';
+      return `<div class="policy-row">
+        <div class="policy-icon" style="font-size:14px;">${s.verdict==='malicious'?'&#9888;':s.verdict==='suspicious'?'&#128270;':'&#10003;'}</div>
+        <div class="policy-info">
+          <div class="policy-name">${esc(s.app)}</div>
+          <div class="policy-desc">${esc(s.findings)}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;">${fmtTime(s.time)} &middot; Duration: ${s.duration}</div>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;color:${vColor};">${s.verdict.toUpperCase()}</span>
+      </div>`;
+    }).join('');
+
+  document.getElementById('sandbox-verdicts').innerHTML = `
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(17,34,64,0.3);"><span style="font-size:11px;">Malicious</span><span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--danger);">${SANDBOX_HISTORY.filter(s=>s.verdict==='malicious').length}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(17,34,64,0.3);"><span style="font-size:11px;">Suspicious</span><span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--warning);">${SANDBOX_HISTORY.filter(s=>s.verdict==='suspicious').length}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;"><span style="font-size:11px;">Clean</span><span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);">${SANDBOX_HISTORY.filter(s=>s.verdict==='clean').length}</span></div>`;
+}
+
+function openSandboxTest() { document.getElementById('sandbox-modal').classList.add('show'); }
+function closeSandboxModal() { document.getElementById('sandbox-modal').classList.remove('show'); }
+function openSandboxTestFor(name, path) {
+  document.getElementById('sb-app').value = path || name;
+  openSandboxTest();
+}
+
+function runSandboxTest() {
+  const app = document.getElementById('sb-app').value.trim();
+  if (!app) { toast('Application path required', 'error'); return; }
+  closeSandboxModal();
+  showView('sandbox');
+
+  const dot = document.getElementById('sandbox-dot');
+  const statusText = document.getElementById('sandbox-status-text');
+  const output = document.getElementById('sandbox-output');
+  dot.className = 'sandbox-indicator running';
+  statusText.textContent = 'ANALYZING...';
+  statusText.style.color = 'var(--accent)';
+
+  const lines = [
+    { text: `[INIT] Starting sandbox environment...`, cls: 'line-info', delay: 300 },
+    { text: `[INIT] Loading application: ${app}`, cls: 'line-info', delay: 800 },
+    { text: `[FS] Monitoring file system changes...`, cls: '', delay: 1200 },
+    { text: `[NET] Monitoring network connections...`, cls: '', delay: 1500 },
+    { text: `[REG] Monitoring registry access...`, cls: '', delay: 1800 },
+    { text: `[PROC] Monitoring child processes...`, cls: '', delay: 2100 },
+    { text: `[EXEC] Application started (PID: ${Math.floor(Math.random()*9000)+1000})`, cls: 'line-info', delay: 2800 },
+    { text: `[FS] Write: C:\\Users\\sandbox\\AppData\\Local\\Temp\\~tmp${Math.floor(Math.random()*999)}.dat`, cls: 'line-warn', delay: 3500 },
+    { text: `[NET] DNS query: update.suspicious-domain.com`, cls: 'line-danger', delay: 4200 },
+    { text: `[NET] Outbound TCP 443 -> 185.220.101.${Math.floor(Math.random()*255)}`, cls: 'line-danger', delay: 4800 },
+    { text: `[REG] Read: HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run`, cls: 'line-warn', delay: 5400 },
+    { text: `[PROC] Child process: cmd.exe /c whoami`, cls: 'line-warn', delay: 6000 },
+    { text: `[AI] Behavioral analysis complete. Risk Score: 87/100`, cls: 'line-danger', delay: 7000 },
+    { text: `[VERDICT] SUSPICIOUS — Recommend DENY. Outbound C2 pattern detected.`, cls: 'line-danger', delay: 7800 },
+  ];
+
+  output.innerHTML = '';
+  lines.forEach(l => {
+    setTimeout(() => {
+      output.innerHTML += `<div class="${l.cls}">${l.text}</div>`;
+      output.scrollTop = output.scrollHeight;
+    }, l.delay);
+  });
+
+  setTimeout(() => {
+    dot.className = 'sandbox-indicator idle';
+    statusText.textContent = 'COMPLETE';
+    statusText.style.color = 'var(--warning)';
+    toast('Sandbox analysis complete: SUSPICIOUS', 'error');
+  }, 8500);
+}
+
+// ========== HEALTH REPORT ==========
+function renderHealth() {
+  const securedPct = Math.round(DEVICES.filter(d=>d.mode==='secured').length / DEVICES.length * 100);
+  const policyCoverage = Math.round(POLICIES.filter(p=>p.enabled).length / POLICIES.length * 100);
+  const ringfencePct = Math.round(RINGFENCES.filter(r=>r.enabled).length / 6 * 100);
+  const storagePct = Math.round(STORAGE_POLICIES.filter(s=>s.enabled).length / STORAGE_POLICIES.length * 100);
+  const elevPct = Math.round(ELEVATION_RULES.filter(e=>e.enabled).length / ELEVATION_RULES.length * 100);
+  const appCategorizePct = Math.round(APPLICATIONS.filter(a=>a.status!=='uncategorized').length / APPLICATIONS.length * 100);
+  const overallScore = Math.round((securedPct + policyCoverage + ringfencePct + storagePct + appCategorizePct) / 5);
+
+  const bars = [
+    { label: 'Devices Secured', pct: securedPct, color: 'var(--accent)' },
+    { label: 'Policy Coverage', pct: policyCoverage, color: 'var(--accent2)' },
+    { label: 'Ringfencing Active', pct: ringfencePct, color: 'var(--purple)' },
+    { label: 'Storage Control', pct: storagePct, color: 'var(--warning)' },
+    { label: 'Elevation Control', pct: elevPct, color: 'var(--orange)' },
+    { label: 'Apps Categorized', pct: appCategorizePct, color: 'var(--accent)' },
+    { label: 'Network Rules', pct: 100, color: 'var(--accent2)' },
+  ];
+  document.getElementById('health-bars').innerHTML = bars.map(b => `
+    <div class="health-bar">
+      <div class="health-bar-label">${b.label}</div>
+      <div class="health-bar-track"><div class="health-bar-fill" style="width:${b.pct}%;background:${b.color};"></div></div>
+      <div class="health-bar-val" style="color:${b.pct>=80?'var(--accent)':b.pct>=50?'var(--warning)':'var(--danger)'}">${b.pct}%</div>
+    </div>`).join('');
+
+  // Gauge
+  const circumference = 2 * Math.PI * 60;
+  const offset = circumference - (overallScore / 100) * circumference;
+  const gaugeColor = overallScore >= 80 ? 'var(--accent)' : overallScore >= 60 ? 'var(--warning)' : 'var(--danger)';
+  document.getElementById('health-gauge').innerHTML = `
+    <div class="gauge-container">
+      <div class="gauge-ring">
+        <svg width="140" height="140"><circle cx="70" cy="70" r="60" stroke="var(--border)" stroke-width="8" fill="none"/><circle cx="70" cy="70" r="60" stroke="${gaugeColor}" stroke-width="8" fill="none" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" style="transition:stroke-dashoffset 1s ease;"/></svg>
+        <div class="gauge-center"><div class="gauge-score">${overallScore}</div><div class="gauge-label">HEALTH SCORE</div></div>
+      </div>
+      <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:${gaugeColor};letter-spacing:1px;">${overallScore>=80?'STRONG':'NEEDS IMPROVEMENT'}</div>
+    </div>`;
+
+  // Readiness
+  document.getElementById('health-readiness').innerHTML = DEVICES.filter(d => d.mode === 'learning').map(d => `
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:12px;color:var(--white);font-weight:500;">${esc(d.name)}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${d.readiness>=90?'var(--accent)':d.readiness>=60?'var(--warning)':'var(--muted)'};">${d.readiness}% ready</span>
+      </div>
+      <div class="readiness"><div class="readiness-track"><div class="readiness-fill" style="width:${d.readiness}%;background:${d.readiness>=90?'var(--accent)':d.readiness>=60?'var(--warning)':'var(--purple)'};"></div></div></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px;">${d.newApps7d} new apps discovered this week &middot; ${d.appsDiscovered} total</div>
+    </div>`).join('') || '<div style="text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--accent);padding:16px;">// All devices are in Secured mode</div>';
+
+  // Recommendations
+  const recs = [];
+  if (securedPct < 100) recs.push({ priority: 'HIGH', text: `${DEVICES.filter(d=>d.mode==='learning').length} devices still in Learning mode. Review readiness scores and switch to Secured when ready.`, color: 'var(--warning)' });
+  if (APPLICATIONS.filter(a=>a.status==='uncategorized').length > 0) recs.push({ priority: 'MED', text: `${APPLICATIONS.filter(a=>a.status==='uncategorized').length} applications uncategorized. Review and whitelist or blacklist each.`, color: 'var(--accent2)' });
+  if (APPROVALS.filter(a=>a.status==='pending').length > 0) recs.push({ priority: 'HIGH', text: `${APPROVALS.filter(a=>a.status==='pending').length} pending approval requests. Process these to avoid user disruption.`, color: 'var(--warning)' });
+  const unsignedApps = APPLICATIONS.filter(a => !a.signed && a.status !== 'blacklisted');
+  if (unsignedApps.length > 0) recs.push({ priority: 'CRITICAL', text: `${unsignedApps.length} unsigned applications detected that are not blacklisted. Investigate immediately.`, color: 'var(--danger)' });
+  recs.push({ priority: 'INFO', text: 'Enable ringfencing on all script interpreters (PowerShell, cmd, wscript, Python) for maximum protection.', color: 'var(--accent2)' });
+
+  document.getElementById('health-recommendations').innerHTML = recs.map(r => `
+    <div class="policy-row">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:${r.color};min-width:60px;">${r.priority}</span>
+      <div class="policy-info"><div class="policy-desc" style="color:var(--text);">${r.text}</div></div>
+    </div>`).join('');
+}
+
+// ========== POLICY TEMPLATES ==========
+const TEMPLATES = [
+  { name: 'Dental Practice', desc: 'Pre-configured for dental offices. Whitelists Dentrix, Eaglesoft, Open Dental, imaging software. Blocks all remote access tools and script interpreters.', industry: 'Healthcare', policies: 34, ringfences: 8, storage: 3, tags: ['HIPAA', 'Healthcare', 'Dental'] },
+  { name: 'Law Firm', desc: 'Tailored for legal practices. Allows legal research tools, document management (iManage, NetDocuments), e-discovery software. Strict USB controls for client data protection.', industry: 'Legal', policies: 28, ringfences: 6, storage: 4, tags: ['Legal', 'Confidential', 'PII'] },
+  { name: 'Accounting Firm', desc: 'Optimized for CPA firms. Whitelists QuickBooks, Sage, Drake Tax, ProConnect. Blocks crypto and mining. Strict file transfer controls during tax season.', industry: 'Finance', policies: 31, ringfences: 5, storage: 5, tags: ['PCI-DSS', 'SOX', 'Financial'] },
+  { name: 'Medical Practice', desc: 'HIPAA-compliant template. Whitelists EHR/EMR systems (Epic, Cerner, eClinicalWorks), medical imaging (DICOM). Blocks all unauthorized data transfer.', industry: 'Healthcare', policies: 42, ringfences: 10, storage: 6, tags: ['HIPAA', 'Healthcare', 'PHI'] },
+  { name: 'Manufacturing', desc: 'Protects OT/IT convergence. Allows CAD/CAM software, SCADA interfaces, ERP systems. Network segmentation rules for production floor devices.', industry: 'Manufacturing', policies: 25, ringfences: 12, storage: 3, tags: ['NIST', 'OT/ICS', 'CMMC'] },
+  { name: 'Financial Services', desc: 'SOC 2 and PCI-DSS aligned. Strict controls on trading platforms, Bloomberg terminals, payment processing. Full audit trail on all financial applications.', industry: 'Finance', policies: 48, ringfences: 15, storage: 7, tags: ['PCI-DSS', 'SOC2', 'FINRA'] },
+  { name: 'Education (K-12)', desc: 'Student safety focused. Blocks gaming, social media executables, restricts browser access. Allows educational software, LMS platforms, Google Workspace.', industry: 'Education', policies: 22, ringfences: 4, storage: 2, tags: ['FERPA', 'CIPA', 'Education'] },
+  { name: 'Government / CMMC', desc: 'CMMC Level 2 ready. Meets all 110 practices for CUI protection. FIPS-validated controls, full logging, strict access controls on all endpoints.', industry: 'Government', policies: 56, ringfences: 18, storage: 8, tags: ['CMMC', 'NIST 800-171', 'CUI'] },
+  { name: 'MSP / IT Services', desc: 'For managed service providers. Allows RMM tools (only your approved ones), PSA software, monitoring agents. Blocks competitor RMM and unauthorized remote access.', industry: 'Technology', policies: 38, ringfences: 9, storage: 4, tags: ['MSP', 'RMM', 'SOC2'] },
+];
+
+function renderTemplates() {
+  document.getElementById('template-grid').innerHTML = TEMPLATES.map(t => `
+    <div class="template-card" onclick="deployTemplate('${esc(t.name)}')">
+      <div class="template-name">${esc(t.name)}</div>
+      <div class="template-desc">${esc(t.desc)}</div>
+      <div class="template-tags">${t.tags.map(tag => `<span class="tag tag-allow">${tag}</span>`).join('')}</div>
+      <div class="template-stat"><span>Policies</span><span>${t.policies}</span></div>
+      <div class="template-stat"><span>Ringfence Rules</span><span>${t.ringfences}</span></div>
+      <div class="template-stat"><span>Storage Rules</span><span>${t.storage}</span></div>
+      <div class="template-stat"><span>Industry</span><span>${t.industry}</span></div>
+    </div>`).join('');
+}
+
+function deployTemplate(name) {
+  if (confirm(`Deploy the "${name}" policy template? This will add pre-configured policies for this industry.`)) {
+    toast(`"${name}" template deployed successfully!`, 'success');
+  }
+}
+
+// ========== COMPLIANCE MAPPING ==========
+const COMPLIANCE_MAP = [
+  { framework: 'NIST 800-53 Rev 5', coverage: 87, controls: [
+    { id: 'AC-3', name: 'Access Enforcement', status: 'met', ztFeature: 'Application Whitelisting + Default Deny' },
+    { id: 'AC-6', name: 'Least Privilege', status: 'met', ztFeature: 'Elevation Control' },
+    { id: 'CM-7', name: 'Least Functionality', status: 'met', ztFeature: 'Application Whitelisting' },
+    { id: 'CM-11', name: 'User-Installed Software', status: 'met', ztFeature: 'Default Deny + Approval Center' },
+    { id: 'MP-7', name: 'Media Use', status: 'met', ztFeature: 'Storage Control' },
+    { id: 'SC-7', name: 'Boundary Protection', status: 'met', ztFeature: 'Network Control + Ringfencing' },
+    { id: 'SI-3', name: 'Malicious Code Protection', status: 'met', ztFeature: 'AI Threat Analysis + Sandbox' },
+    { id: 'AU-2', name: 'Audit Events', status: 'met', ztFeature: 'Unified Audit Log' },
+    { id: 'SI-4', name: 'Information System Monitoring', status: 'partial', ztFeature: 'Learning Mode + Audit (needs SIEM integration)' },
+    { id: 'IR-4', name: 'Incident Handling', status: 'partial', ztFeature: 'Blocks + Alerts (needs response playbooks)' },
+  ]},
+  { framework: 'HIPAA Security Rule', coverage: 92, controls: [
+    { id: '164.312(a)', name: 'Access Control', status: 'met', ztFeature: 'Application Whitelisting + Elevation Control' },
+    { id: '164.312(b)', name: 'Audit Controls', status: 'met', ztFeature: 'Unified Audit Log' },
+    { id: '164.312(c)', name: 'Integrity Controls', status: 'met', ztFeature: 'Hash-based Whitelisting' },
+    { id: '164.312(d)', name: 'Authentication', status: 'met', ztFeature: 'Code Signing Verification' },
+    { id: '164.312(e)', name: 'Transmission Security', status: 'met', ztFeature: 'Network Control + Ringfencing' },
+    { id: '164.310(d)', name: 'Device & Media Controls', status: 'met', ztFeature: 'Storage Control' },
+    { id: '164.308(a)(5)', name: 'Security Awareness Training', status: 'gap', ztFeature: 'Requires separate training module' },
+  ]},
+  { framework: 'PCI-DSS v4.0', coverage: 85, controls: [
+    { id: 'Req 1', name: 'Network Security Controls', status: 'met', ztFeature: 'Network Control + Ringfencing' },
+    { id: 'Req 5', name: 'Malware Protection', status: 'met', ztFeature: 'Application Whitelisting + AI Analysis' },
+    { id: 'Req 6', name: 'Secure Development', status: 'partial', ztFeature: 'Ringfencing on dev tools' },
+    { id: 'Req 7', name: 'Restrict Access', status: 'met', ztFeature: 'Default Deny + Approval Center' },
+    { id: 'Req 8', name: 'Identity & Access', status: 'met', ztFeature: 'Elevation Control' },
+    { id: 'Req 10', name: 'Log & Monitor', status: 'met', ztFeature: 'Unified Audit Log' },
+    { id: 'Req 12', name: 'Security Policy', status: 'partial', ztFeature: 'Policy Templates (needs org policy docs)' },
+  ]},
+  { framework: 'CMMC Level 2', coverage: 78, controls: [
+    { id: 'AC.L2-3.1.7', name: 'Privileged Functions', status: 'met', ztFeature: 'Elevation Control' },
+    { id: 'CM.L2-3.4.6', name: 'Least Functionality', status: 'met', ztFeature: 'Application Whitelisting' },
+    { id: 'CM.L2-3.4.7', name: 'Nonessential Programs', status: 'met', ztFeature: 'Default Deny' },
+    { id: 'CM.L2-3.4.8', name: 'Application Whitelisting', status: 'met', ztFeature: 'Core Application Control' },
+    { id: 'MP.L2-3.8.7', name: 'Removable Media', status: 'met', ztFeature: 'Storage Control' },
+    { id: 'SC.L2-3.13.6', name: 'Network Communication by Exception', status: 'met', ztFeature: 'Network Control' },
+    { id: 'SI.L2-3.14.2', name: 'Malicious Code Protection', status: 'met', ztFeature: 'AI Threat Analysis + Sandbox' },
+    { id: 'AU.L2-3.3.1', name: 'System Auditing', status: 'met', ztFeature: 'Unified Audit Log' },
+    { id: 'RA.L2-3.11.2', name: 'Vulnerability Scanning', status: 'gap', ztFeature: 'Requires vuln scanner integration' },
+  ]},
+];
+
+function renderCompliance() {
+  document.getElementById('compliance-map').innerHTML = COMPLIANCE_MAP.map(fw => {
+    const metCount = fw.controls.filter(c => c.status === 'met').length;
+    const totalCount = fw.controls.length;
+    const coverageColor = fw.coverage >= 85 ? 'var(--accent)' : fw.coverage >= 70 ? 'var(--warning)' : 'var(--danger)';
+    return `<div class="compliance-framework">
+      <div class="compliance-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';">
+        <div>
+          <div class="compliance-fw-name">${esc(fw.framework)}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">${metCount}/${totalCount} controls met</div>
+        </div>
+        <div>
+          <span class="compliance-coverage" style="color:${coverageColor}">${fw.coverage}%</span>
+          <div style="width:100px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:4px;"><div style="height:100%;width:${fw.coverage}%;background:${coverageColor};border-radius:3px;"></div></div>
+        </div>
+      </div>
+      <div class="compliance-controls">
+        ${fw.controls.map(c => `<div class="compliance-ctrl">
+          <span class="ctrl-id">${esc(c.id)}</span>
+          <span class="ctrl-name">${esc(c.name)}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);min-width:200px;">${esc(c.ztFeature)}</span>
+          <span class="ctrl-status ${c.status==='met'?'ctrl-met':c.status==='partial'?'ctrl-partial':'ctrl-gap'}">${c.status.toUpperCase()}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// INIT
+renderOverview();
+</script>
+</body>
+</html>
