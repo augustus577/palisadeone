@@ -378,6 +378,65 @@ html[data-theme="light"] .ob-course-check{cursor:pointer}
 .ob-course-check.checked{border-color:var(--accent);background:rgba(0,255,209,0.04)}
 .ob-course-check .check-box{width:16px;height:16px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s;flex-shrink:0}
 .ob-course-check.checked .check-box{background:var(--accent);border-color:var(--accent);color:var(--black)}
+/* ANIMATED VIDEO VIEWER */
+#video-viewer{position:fixed;inset:0;background:var(--black);z-index:2000;display:none;flex-direction:column}
+#video-viewer.open{display:flex}
+.vv-stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.vv-scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;opacity:0;transition:all 0.8s ease;pointer-events:none}
+.vv-scene.active{opacity:1;pointer-events:auto}
+.vv-scene.exit-left{opacity:0;transform:translateX(-100px)}
+.vv-scene.exit-right{opacity:0;transform:translateX(100px)}
+.vv-scene.enter-zoom{opacity:0;transform:scale(0.8)}
+.vv-visual{width:100%;max-width:600px;height:280px;margin-bottom:32px;position:relative;display:flex;align-items:center;justify-content:center}
+.vv-narration{max-width:700px;text-align:center;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.vv-narrator-text{font-size:18px;color:var(--white);line-height:1.8;font-weight:300;letter-spacing:0.5px}
+.vv-narrator-text .vv-em{color:var(--accent);font-weight:500}
+.vv-narrator-text .vv-danger{color:var(--danger);font-weight:500}
+.vv-narrator-text .vv-blue{color:var(--accent2);font-weight:500}
+.vv-sub-text{font-size:13px;color:var(--muted);margin-top:12px;font-style:italic}
+.vv-typing-cursor{display:inline-block;width:2px;height:18px;background:var(--accent);animation:vvCursorBlink 1s infinite;vertical-align:text-bottom;margin-left:2px}
+@keyframes vvCursorBlink{0%,100%{opacity:1}50%{opacity:0}}
+.vv-big-number{font-family:'Bebas Neue',sans-serif;font-size:120px;line-height:1;letter-spacing:4px;margin-bottom:16px;opacity:0}
+.vv-big-number.animate{animation:numberCount 1s ease forwards,glowPulse 2s ease infinite 1s}
+.vv-big-label{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);letter-spacing:3px}
+.vv-choices{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px;width:100%;margin-top:24px}
+.vv-choice{background:var(--surface);border:1px solid var(--border);padding:20px;cursor:pointer;transition:all 0.3s;text-align:left;position:relative;overflow:hidden}
+.vv-choice:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,255,209,0.1)}
+.vv-choice-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:8px}
+.vv-choice-text{font-size:14px;color:var(--text);line-height:1.6}
+.vv-choice.correct{border-color:var(--accent);background:rgba(0,255,209,0.08)}
+.vv-choice.correct::after{content:'✓ CORRECT';position:absolute;top:8px;right:12px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:1px}
+.vv-choice.wrong{border-color:var(--danger);background:rgba(255,59,92,0.08);opacity:0.6}
+.vv-choice.wrong::after{content:'✗';position:absolute;top:8px;right:12px;font-size:14px;color:var(--danger)}
+.vv-choice.disabled{pointer-events:none}
+.vv-result-box{max-width:600px;width:100%;margin-top:20px;padding:20px;border-left:3px solid;font-size:14px;line-height:1.7}
+.vv-result-box.good{border-color:var(--accent);background:rgba(0,255,209,0.05);color:var(--text)}
+.vv-result-box.bad{border-color:var(--danger);background:rgba(255,59,92,0.05);color:var(--text)}
+.vv-svg-scene{width:100%;height:100%}
+.vv-svg-float{animation:svgFloat 4s ease-in-out infinite}
+@keyframes svgFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.vv-svg-pulse{animation:svgPulse 2s ease-in-out infinite}
+@keyframes svgPulse{0%,100%{opacity:0.6}50%{opacity:1}}
+.vv-svg-blink{animation:svgBlink 3s ease-in-out infinite}
+@keyframes svgBlink{0%,48%,52%,100%{transform:scaleY(1)}50%{transform:scaleY(0.1)}}
+.vv-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.vv-particle{position:absolute;width:3px;height:3px;background:var(--accent);border-radius:50%;opacity:0.15;animation:particleFloat linear infinite}
+@keyframes particleFloat{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:0.15}90%{opacity:0.15}100%{transform:translateY(-100px) rotate(360deg);opacity:0}}
+.vv-controls{height:64px;background:rgba(7,12,20,0.95);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.vv-ctrl-btn{background:transparent;border:1px solid var(--border);color:var(--muted);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all 0.2s}
+.vv-ctrl-btn:hover{border-color:var(--accent);color:var(--accent)}
+.vv-ctrl-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,209,0.1)}
+.vv-progress{flex:1;height:4px;background:var(--border);cursor:pointer;position:relative;border-radius:2px}
+.vv-progress-fill{height:100%;background:linear-gradient(to right,var(--accent),var(--accent2));border-radius:2px;transition:width 0.3s}
+.vv-progress:hover .vv-progress-fill{height:6px;margin-top:-1px}
+.vv-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;min-width:80px}
+.vv-scene-title{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--white);letter-spacing:2px}
+.vv-close{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s}
+.vv-close:hover{border-color:var(--danger);color:var(--danger)}
+.vv-chapter-dot{position:absolute;top:-3px;width:10px;height:10px;border-radius:50%;background:var(--border);transform:translateX(-50%);cursor:pointer;z-index:1;transition:background 0.2s}
+.vv-chapter-dot.passed{background:var(--accent)}
+.vv-chapter-dot:hover::after{content:attr(data-title);position:absolute;bottom:16px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);background:var(--surface);padding:4px 8px;border:1px solid var(--border)}
+.badge-animated{color:var(--purple);border:1px solid rgba(123,97,255,0.3);animation:vvCursorBlink 2s ease infinite}
 </style>
 </head>
 <body>
@@ -559,6 +618,20 @@ html[data-theme="light"] .ob-course-check{cursor:pointer}
 <div class="cv-h"><div class="cv-t" id="cv-t"></div><div class="cv-pb"><div class="cv-pbb"><div class="cv-pbf" id="cv-pbf"></div></div></div><button class="cv-x" onclick="closeCourseViewer()">CLOSE &times;</button></div>
 <div class="cv-b"><div class="cv-sl" id="cv-sl"></div></div>
 <div class="cv-f" style="position:relative"><button class="btn btn-s btn-sm" id="cv-prev" onclick="prevSlide()">PREVIOUS</button><button class="cv-play-btn" onclick="toggleAutoPlay()">&#9654; AUTO-PLAY</button><div class="cv-cnt" id="cv-cnt"></div><button class="btn btn-p btn-sm" id="cv-next" onclick="nextSlide()">NEXT</button><div class="cv-autoplay-bar" id="cv-apbar"></div></div>
+</div>
+<!-- ANIMATED VIDEO VIEWER -->
+<div id="video-viewer">
+  <div class="vv-particles" id="vv-particles"></div>
+  <div class="vv-stage" id="vv-stage"></div>
+  <div class="vv-controls">
+    <button class="vv-ctrl-btn" id="vv-play" onclick="toggleVideoPlay()">&#9654;</button>
+    <div class="vv-time" id="vv-time">Scene 1 / 1</div>
+    <div class="vv-progress" id="vv-progress" onclick="seekVideo(event)">
+      <div class="vv-progress-fill" id="vv-progress-fill"></div>
+    </div>
+    <div class="vv-scene-title" id="vv-scene-title">INTRO</div>
+    <button class="vv-close" onclick="closeVideoViewer()">EXIT</button>
+  </div>
 </div>
 <script>
 
@@ -922,7 +995,8 @@ const COURSES=[
 {q:'What happened when Samsung engineers pasted code into ChatGPT?',opts:['Nothing \u2014 AI tools are secure','Proprietary source code was potentially exposed','ChatGPT crashed','The code was improved'],ans:1,exp:'Proprietary code was potentially exposed and could become part of AI training data. Samsung subsequently banned generative AI use.'},
 {q:'What is the MOST important access control for cloud admin accounts?',opts:['Complex passwords','IP allowlisting','Multi-factor authentication','VPN requirement'],ans:2,exp:'MFA on admin accounts prevents compromised passwords from granting full cloud control.'},
 {q:'What is shadow IT?',opts:['Dark web services','Unauthorized cloud services used by employees','Backup data centers','Encrypted communications'],ans:1,exp:'Shadow IT is unauthorized services used for work, creating unmanaged data sprawl and security blind spots.'}
-]}
+]},
+{id:16,icon:'🎬',title:'Cyber Awareness: The Animated Experience',desc:'An immersive animated training experience with interactive scenarios — our most engaging course yet',cat:'compliance',dur:'30 min',animated:true,scenes:[]}
 
 ];
 
@@ -1059,10 +1133,10 @@ function renderResults(){var d=getD();var completed=d.campaigns.filter(function(
 
 var CRS_CATS=['All','Phishing','Passwords','Social Engineering','Compliance','Data Security','Remote Work'];
 var catMap={phishing:'Phishing',passwords:'Passwords',social:'Social Engineering',compliance:'Compliance',data:'Data Security',remote:'Remote Work'};
-function renderCourses(filter){document.getElementById('crs-filt').innerHTML=CRS_CATS.map(function(c,i){return '<button class="fbtn'+((filter==='all'&&i===0)||(c===filter)?' active':'')+'" onclick="renderCourses(\''+c+'\')">'+c.toUpperCase()+'</button>';}).join('');var filtered=filter==='All'||filter==='all'?COURSES:COURSES.filter(function(c){return catMap[c.cat]===filter;});var d=getD();document.getElementById('crs-grid').innerHTML=filtered.map(function(c){var pr=d.courseProgress&&d.courseProgress[c.id]?d.courseProgress[c.id]:0;var dn=d.users.some(function(u){return u.courses.includes(c.id);});return '<div class="cc" onclick="openCourse('+c.id+')"><div class="cc-i">'+c.icon+'</div><div class="cc-t">'+c.title+'</div><div class="cc-d">'+c.desc+'</div><div class="cc-m"><span class="badge bb">'+catMap[c.cat].toUpperCase()+'</span><span class="cc-mi">'+c.dur+'</span></div>'+(pr>0||dn?'<div style="margin-top:10px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:10px">Progress</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--accent)">'+(dn?100:pr)+'%</span></div><div class="pb"><div class="pbf" style="width:'+(dn?100:pr)+'%;background:var(--accent)"></div></div></div>':'')+'</div>';}).join('');}
+function renderCourses(filter){document.getElementById('crs-filt').innerHTML=CRS_CATS.map(function(c,i){return '<button class="fbtn'+((filter==='all'&&i===0)||(c===filter)?' active':'')+'" onclick="renderCourses(\''+c+'\')">'+c.toUpperCase()+'</button>';}).join('');var filtered=filter==='All'||filter==='all'?COURSES:COURSES.filter(function(c){return catMap[c.cat]===filter;});var d=getD();document.getElementById('crs-grid').innerHTML=filtered.map(function(c){var pr=d.courseProgress&&d.courseProgress[c.id]?d.courseProgress[c.id]:0;var dn=d.users.some(function(u){return u.courses.includes(c.id);});return '<div class="cc" onclick="openCourse('+c.id+')"><div class="cc-i">'+c.icon+'</div><div class="cc-t">'+c.title+'</div><div class="cc-d">'+c.desc+'</div><div class="cc-m"><span class="badge bb">'+catMap[c.cat].toUpperCase()+'</span>'+(c.animated?'<span class="badge badge-animated">ANIMATED</span>':'')+'<span class="cc-mi">'+c.dur+'</span></div>'+(pr>0||dn?'<div style="margin-top:10px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:10px">Progress</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--accent)">'+(dn?100:pr)+'%</span></div><div class="pb"><div class="pbf" style="width:'+(dn?100:pr)+'%;background:var(--accent)"></div></div></div>':'')+'</div>';}).join('');}
 
 var currentCourse=null,currentSlideIdx=0,quizAnswered={};
-function openCourse(id){currentCourse=COURSES.find(function(c){return c.id===id;});if(!currentCourse)return;currentSlideIdx=0;quizAnswered={};stopAutoPlay();document.getElementById('cv-t').textContent=currentCourse.title;document.getElementById('course-viewer').classList.add('open');renderSlide();}
+function openCourse(id){currentCourse=COURSES.find(function(c){return c.id===id;});if(!currentCourse)return;if(currentCourse.animated){openVideoViewer();return;}currentSlideIdx=0;quizAnswered={};stopAutoPlay();document.getElementById('cv-t').textContent=currentCourse.title;document.getElementById('course-viewer').classList.add('open');renderSlide();}
 function closeCourseViewer(){stopAutoPlay();document.getElementById('course-viewer').classList.remove('open');currentCourse=null;}
 var autoPlayTimer=null;var autoPlayProgress=0;var AUTO_PLAY_DELAY=8000;
 function toggleAutoPlay(){if(autoPlayTimer){stopAutoPlay();}else{startAutoPlay();}}
@@ -1262,6 +1336,518 @@ toast('Client onboarded successfully!','success');
 btn.disabled=false;btn.textContent='ONBOARD CLIENT';
 toast('Onboarding failed: '+(result&&result.error?result.error:'Server error'),'error');
 }
+}
+
+// =============================================
+// ANIMATED VIDEO TRAINING ENGINE
+// =============================================
+
+var VIDEO_SCENES = [
+  {
+    id: 'intro',
+    title: 'WELCOME',
+    type: 'narration',
+    svg: 'shield',
+    narration: 'Welcome to <span class="vv-em">Cyber Awareness Training</span>. In the next 30 minutes, you will learn how to protect yourself and your organization from the most common cyber threats facing businesses today.',
+    subtext: 'This training is required annually for all employees',
+    duration: 8000
+  },
+  {
+    id: 'why-it-matters',
+    title: 'WHY IT MATTERS',
+    type: 'stat',
+    stat: { number: '$4.45M', color: 'var(--danger)', label: 'AVERAGE COST OF A DATA BREACH IN 2023' },
+    narration: 'Cybercrime is now the <span class="vv-danger">fastest growing criminal enterprise</span> in the world. The average data breach costs organizations $4.45 million — and 60% of small businesses that suffer a breach <span class="vv-danger">go out of business within 6 months</span>.',
+    duration: 10000
+  },
+  {
+    id: 'threat-landscape',
+    title: 'THE THREAT LANDSCAPE',
+    type: 'narration',
+    svg: 'threats',
+    narration: 'Attackers use many methods to breach organizations: <span class="vv-em">phishing emails</span>, <span class="vv-em">social engineering</span>, <span class="vv-em">malware</span>, <span class="vv-em">weak passwords</span>, and <span class="vv-em">insider threats</span>. But here is the most important thing to know...',
+    duration: 8000
+  },
+  {
+    id: 'human-factor',
+    title: 'THE HUMAN FACTOR',
+    type: 'stat',
+    stat: { number: '95%', color: 'var(--accent)', label: 'OF BREACHES INVOLVE HUMAN ERROR' },
+    narration: 'That means <span class="vv-em">you</span> are the most important line of defense. Technology alone cannot stop attacks — it takes <span class="vv-em">trained, aware employees</span> to keep your organization safe.',
+    duration: 9000
+  },
+  {
+    id: 'chapter-phishing',
+    title: 'CHAPTER 1: PHISHING',
+    type: 'narration',
+    svg: 'email',
+    chapter: true,
+    narration: '<span class="vv-em">Phishing</span> is the #1 attack method. Attackers send emails, texts, or messages that look legitimate — but are designed to steal your credentials, install malware, or trick you into transferring money.',
+    duration: 9000
+  },
+  {
+    id: 'phishing-red-flags',
+    title: 'RED FLAGS',
+    type: 'narration',
+    svg: 'redflags',
+    narration: 'Watch for these warning signs: <span class="vv-danger">urgent language</span> demanding immediate action, <span class="vv-danger">suspicious sender addresses</span> that look almost right but are slightly off, <span class="vv-danger">generic greetings</span> like "Dear Customer," and <span class="vv-danger">unexpected attachments</span> you were not expecting.',
+    duration: 10000
+  },
+  {
+    id: 'phishing-scenario',
+    title: 'SCENARIO: THE EMAIL',
+    type: 'scenario',
+    svg: 'inbox',
+    narration: 'You receive this email at 9:47 AM on a Monday morning:',
+    scenario: {
+      from: 'IT Security Team <security@microsoft-365-support.com>',
+      subject: 'URGENT: Your account will be suspended in 2 hours',
+      body: 'Dear Employee, We have detected unusual sign-in activity on your Microsoft 365 account. Your account will be suspended within 2 hours unless you verify your identity immediately. Click below to verify now.',
+      redflags: ['Domain is microsoft-365-support.com, not microsoft.com', 'Creates false urgency with 2-hour deadline', 'Generic greeting "Dear Employee"', 'Threatening language about suspension']
+    },
+    duration: 12000
+  },
+  {
+    id: 'phishing-choice',
+    title: 'WHAT WOULD YOU DO?',
+    type: 'choice',
+    narration: 'You have just read this suspicious email. What is the <span class="vv-em">best</span> course of action?',
+    choices: [
+      { label: 'OPTION A', text: 'Click the link to verify your account — you cannot risk losing access to your email', correct: false },
+      { label: 'OPTION B', text: 'Reply to the email asking if it is legitimate', correct: false },
+      { label: 'OPTION C', text: 'Forward it to your IT security team, then delete the email', correct: true },
+      { label: 'OPTION D', text: 'Ignore it and hope it goes away', correct: false }
+    ],
+    correctExplain: 'Always report suspicious emails to your security team and then delete them. Never click links, reply, or ignore — reporting helps protect your entire organization.',
+    wrongExplain: 'That could put your account and organization at risk. The safest response is to report the email to your IT security team, then delete it.',
+    duration: 0
+  },
+  {
+    id: 'chapter-passwords',
+    title: 'CHAPTER 2: PASSWORDS',
+    type: 'narration',
+    svg: 'lock',
+    chapter: true,
+    narration: '<span class="vv-em">81%</span> of data breaches involve weak or stolen passwords. Your password is the key to your digital life — and attackers have tools that can try <span class="vv-danger">billions of combinations per second</span>.',
+    duration: 9000
+  },
+  {
+    id: 'password-crack',
+    title: 'CRACK TIMES',
+    type: 'stat',
+    stat: { number: '0.2s', color: 'var(--danger)', label: 'TO CRACK A 6-CHARACTER PASSWORD' },
+    narration: 'A 6-character password can be cracked in under a second. An 8-character password takes about 8 hours. But a <span class="vv-em">16-character passphrase</span> would take <span class="vv-em">trillions of years</span>. Length beats complexity every time.',
+    duration: 10000
+  },
+  {
+    id: 'password-choice',
+    title: 'WHICH IS STRONGER?',
+    type: 'choice',
+    narration: 'Which of these passwords provides the <span class="vv-em">strongest protection</span>?',
+    choices: [
+      { label: 'OPTION A', text: 'P@ssw0rd!2024', correct: false },
+      { label: 'OPTION B', text: 'correct-horse-battery-staple', correct: true },
+      { label: 'OPTION C', text: 'MyDogFido123', correct: false },
+      { label: 'OPTION D', text: 'qwerty!@#$%', correct: false }
+    ],
+    correctExplain: 'Long passphrases like "correct-horse-battery-staple" have far more entropy than short complex passwords. They are harder to crack and easier to remember.',
+    wrongExplain: 'Short passwords with substitutions (@ for a, 0 for o) are easily cracked by modern tools. Long passphrases are much stronger.',
+    duration: 0
+  },
+  {
+    id: 'mfa',
+    title: 'MULTI-FACTOR AUTHENTICATION',
+    type: 'stat',
+    stat: { number: '99.9%', color: 'var(--accent)', label: 'OF ATTACKS BLOCKED BY MFA' },
+    narration: 'Multi-factor authentication blocks <span class="vv-em">99.9%</span> of automated attacks. Even if an attacker steals your password, MFA stops them. <span class="vv-em">Enable MFA on every account</span> — especially email, banking, and work systems.',
+    duration: 9000
+  },
+  {
+    id: 'chapter-social',
+    title: 'CHAPTER 3: SOCIAL ENGINEERING',
+    type: 'narration',
+    svg: 'person',
+    chapter: true,
+    narration: 'Social engineering is the art of <span class="vv-danger">manipulating people</span> into giving up information or taking actions that compromise security. It works because it exploits <span class="vv-em">trust, fear, urgency, and helpfulness</span>.',
+    duration: 9000
+  },
+  {
+    id: 'vishing-scenario',
+    title: 'SCENARIO: THE PHONE CALL',
+    type: 'scenario',
+    svg: 'phone',
+    narration: 'Your phone rings. The caller says:',
+    scenario: {
+      from: 'INCOMING CALL: +1 (800) 555-0189',
+      subject: '"Hi, this is Mike from IT Support"',
+      body: '"We are seeing some unusual activity on your account and I need to verify your identity. Can you confirm your username and password so I can check the logs? This is urgent — we think your account may have been compromised and I need to lock it down right away."',
+      redflags: ['Legitimate IT will never ask for your password', 'Creating urgency to rush your decision', 'Unsolicited call — you did not contact them', 'Requesting credentials over the phone']
+    },
+    duration: 12000
+  },
+  {
+    id: 'vishing-choice',
+    title: 'WHAT WOULD YOU DO?',
+    type: 'choice',
+    narration: 'Someone claiming to be from IT Support is asking for your password over the phone. What do you do?',
+    choices: [
+      { label: 'OPTION A', text: 'Give them your password — they said it was urgent and they are from IT', correct: false },
+      { label: 'OPTION B', text: 'Hang up and call IT directly using the number on your company intranet', correct: true },
+      { label: 'OPTION C', text: 'Give them a fake password to test if they are legitimate', correct: false },
+      { label: 'OPTION D', text: 'Ask them to email you instead', correct: false }
+    ],
+    correctExplain: 'Always hang up and call back using a known, verified number. Legitimate IT staff will never ask for your password. This is the only safe response to an unsolicited call requesting credentials.',
+    wrongExplain: 'Never share credentials over the phone, even with someone claiming to be IT. Hang up and call IT directly using a known number.',
+    duration: 0
+  },
+  {
+    id: 'chapter-data',
+    title: 'CHAPTER 4: PROTECTING DATA',
+    type: 'narration',
+    svg: 'data',
+    chapter: true,
+    narration: 'Every day you handle sensitive data — customer information, financial records, intellectual property. Protecting this data is not just good practice, it is often <span class="vv-danger">required by law</span>.',
+    duration: 8000
+  },
+  {
+    id: 'data-rules',
+    title: 'THE RULES',
+    type: 'narration',
+    svg: 'checklist',
+    narration: 'Follow these rules: <span class="vv-em">Lock your screen</span> when you step away. <span class="vv-em">Encrypt sensitive files</span> before sharing. <span class="vv-em">Use only approved tools</span> — no personal email or Dropbox for work data. <span class="vv-em">Shred documents</span> with sensitive information. <span class="vv-em">Report lost devices</span> immediately.',
+    duration: 10000
+  },
+  {
+    id: 'data-choice',
+    title: 'SCENARIO: THE USB DRIVE',
+    type: 'choice',
+    narration: 'You find a USB drive in the parking lot with a label that says <span class="vv-danger">"Salary Data 2026 — Confidential"</span>. What do you do?',
+    choices: [
+      { label: 'OPTION A', text: 'Plug it into your computer to see whose it is and return it', correct: false },
+      { label: 'OPTION B', text: 'Give it to a coworker to check', correct: false },
+      { label: 'OPTION C', text: 'Turn it in to IT security without plugging it in', correct: true },
+      { label: 'OPTION D', text: 'Throw it away — it is probably nothing', correct: false }
+    ],
+    correctExplain: 'Unknown USB drives may contain malware that activates the moment you plug them in. This is called a "baiting" attack. Always turn unknown devices over to IT security.',
+    wrongExplain: 'Never plug unknown USB drives into any computer. Attackers deliberately drop infected drives — this is a well-known attack called "baiting."',
+    duration: 0
+  },
+  {
+    id: 'chapter-incident',
+    title: 'CHAPTER 5: REPORTING INCIDENTS',
+    type: 'narration',
+    svg: 'alert',
+    chapter: true,
+    narration: 'When something suspicious happens, <span class="vv-em">speed matters</span>. The average time to identify a breach is <span class="vv-danger">204 days</span>. The sooner you report, the sooner the security team can respond and limit the damage.',
+    duration: 9000
+  },
+  {
+    id: 'reporting-what',
+    title: 'WHAT TO REPORT',
+    type: 'narration',
+    svg: 'report',
+    narration: 'Report these immediately: <span class="vv-danger">suspicious emails</span> you received, <span class="vv-danger">unusual computer behavior</span>, <span class="vv-danger">unauthorized access attempts</span>, <span class="vv-danger">lost or stolen devices</span>, <span class="vv-danger">requests for sensitive information</span>, or <span class="vv-danger">anything that just feels wrong</span>. Trust your instincts.',
+    duration: 10000
+  },
+  {
+    id: 'final-stat',
+    title: 'YOU ARE THE FIREWALL',
+    type: 'stat',
+    stat: { number: 'YOU', color: 'var(--accent)', label: 'ARE THE MOST IMPORTANT SECURITY CONTROL' },
+    narration: 'Technology is important, but <span class="vv-em">you</span> are the ultimate defense. Every suspicious email you report, every strong password you create, every time you question something that does not feel right — you are protecting your organization.',
+    duration: 10000
+  },
+  {
+    id: 'summary',
+    title: 'KEY TAKEAWAYS',
+    type: 'summary',
+    narration: 'Remember these five critical behaviors:',
+    points: [
+      'THINK before you click — verify suspicious emails and links',
+      'USE strong, unique passwords and enable MFA everywhere',
+      'NEVER share credentials — not by email, phone, or chat',
+      'LOCK your screen and protect sensitive data',
+      'REPORT anything suspicious immediately — speed saves'
+    ],
+    duration: 12000
+  },
+  {
+    id: 'complete',
+    title: 'TRAINING COMPLETE',
+    type: 'complete',
+    narration: 'Congratulations — you have completed the <span class="vv-em">Cyber Awareness Animated Training</span>. Your awareness is our strongest defense.',
+    duration: 0
+  }
+];
+
+function getSVG(type) {
+  var w = 400, h = 250;
+  var svgs = {
+    shield: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g class="vv-svg-float" transform="translate(160,30)"><path d="M40,0 L80,15 L80,55 C80,90 40,110 40,110 C40,110 0,90 0,55 L0,15 Z" fill="none" stroke="var(--accent)" stroke-width="2" opacity="0.8"/><path d="M40,10 L70,22 L70,52 C70,80 40,98 40,98 C40,98 10,80 10,52 L10,22 Z" fill="rgba(0,255,209,0.08)"/><text x="40" y="62" text-anchor="middle" fill="var(--accent)" font-family="Bebas Neue" font-size="28">P1</text></g><circle cx="60" cy="200" r="3" fill="var(--accent)" class="vv-svg-pulse"/><circle cx="340" cy="180" r="2" fill="var(--accent2)" class="vv-svg-pulse" style="animation-delay:1s"/><circle cx="120" cy="50" r="2" fill="var(--accent)" class="vv-svg-pulse" style="animation-delay:0.5s"/><circle cx="300" cy="80" r="3" fill="var(--accent2)" class="vv-svg-pulse" style="animation-delay:1.5s"/></svg>',
+
+    threats: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g transform="translate(50,60)"><rect x="0" y="40" width="80" height="55" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/><rect x="15" y="30" width="50" height="10" rx="2" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/><circle cx="40" cy="67" r="12" fill="none" stroke="var(--accent)" stroke-width="1.5" class="vv-svg-pulse"/><text x="40" y="72" text-anchor="middle" fill="var(--accent)" font-size="12">@</text></g><g transform="translate(160,50)" class="vv-svg-float"><rect x="0" y="0" width="80" height="100" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/><rect x="5" y="5" width="70" height="50" rx="2" fill="var(--deep)"/><text x="40" y="35" text-anchor="middle" fill="var(--danger)" font-family="JetBrains Mono" font-size="10">MALWARE</text><rect x="10" y="65" width="25" height="4" rx="1" fill="var(--border)"/><rect x="10" y="75" width="40" height="4" rx="1" fill="var(--border)"/></g><g transform="translate(280,70)"><circle cx="30" cy="30" r="25" fill="none" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="4 3" class="vv-svg-pulse"/><text x="30" y="28" text-anchor="middle" fill="var(--danger)" font-size="20">!</text><text x="30" y="42" text-anchor="middle" fill="var(--danger)" font-family="JetBrains Mono" font-size="7">THREAT</text></g></svg>',
+
+    email: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g transform="translate(100,40)" class="vv-svg-float"><rect x="0" y="0" width="200" height="150" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/><polyline points="0,0 100,60 200,0" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/><rect x="15" y="75" width="120" height="5" rx="2" fill="var(--border)"/><rect x="15" y="90" width="170" height="5" rx="2" fill="var(--border)"/><rect x="15" y="105" width="80" height="5" rx="2" fill="var(--border)"/><circle cx="170" cy="125" r="10" fill="rgba(255,59,92,0.2)" stroke="var(--danger)" stroke-width="1"/><text x="170" y="129" text-anchor="middle" fill="var(--danger)" font-size="12">!</text></g></svg>',
+
+    lock: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g transform="translate(150,30)" class="vv-svg-float"><path d="M25,60 L25,35 C25,15 50,0 75,0 C100,0 75,15 75,35 L75,60" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/><rect x="10" y="60" width="80" height="65" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/><circle cx="50" cy="88" r="8" fill="none" stroke="var(--accent)" stroke-width="2"/><rect x="47" y="95" width="6" height="15" rx="2" fill="var(--accent)"/></g></svg>',
+
+    person: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g transform="translate(160,30)"><circle cx="40" cy="30" r="22" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><g class="vv-svg-blink" transform-origin="40 28"><ellipse cx="30" cy="28" rx="3" ry="4" fill="var(--accent)"/><ellipse cx="50" cy="28" rx="3" ry="4" fill="var(--accent)"/></g><path d="M30,38 Q40,46 50,38" fill="none" stroke="var(--accent)" stroke-width="1.5"/><path d="M0,120 C0,80 20,60 40,55 C60,60 80,80 80,120" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/></g><g transform="translate(60,80)"><circle cx="15" cy="15" r="8" fill="none" stroke="var(--danger)" stroke-width="1" stroke-dasharray="3 2" class="vv-svg-pulse"/><text x="15" y="19" text-anchor="middle" fill="var(--danger)" font-size="10">?</text></g><g transform="translate(300,70)"><circle cx="15" cy="15" r="8" fill="none" stroke="var(--accent2)" stroke-width="1" stroke-dasharray="3 2" class="vv-svg-pulse" style="animation-delay:1s"/><text x="15" y="19" text-anchor="middle" fill="var(--accent2)" font-size="10">!</text></g></svg>',
+
+    phone: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g transform="translate(155,20)" class="vv-svg-float"><rect x="0" y="0" width="90" height="170" rx="10" fill="var(--surface)" stroke="var(--border)" stroke-width="2"/><rect x="5" y="25" width="80" height="115" fill="var(--deep)"/><circle cx="45" cy="155" r="8" fill="none" stroke="var(--border)" stroke-width="1.5"/><circle cx="45" cy="70" r="20" fill="none" stroke="var(--danger)" stroke-width="2" class="vv-svg-pulse"/><text x="45" y="64" text-anchor="middle" fill="var(--danger)" font-size="14">&#128222;</text><text x="45" y="82" text-anchor="middle" fill="var(--white)" font-family="JetBrains Mono" font-size="8">INCOMING</text></g></svg>',
+
+    data: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g transform="translate(130,30)"><ellipse cx="70" cy="15" rx="60" ry="15" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><rect x="10" y="15" width="120" height="40" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><ellipse cx="70" cy="55" rx="60" ry="15" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><rect x="10" y="55" width="120" height="40" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><ellipse cx="70" cy="95" rx="60" ry="15" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><rect x="10" y="95" width="120" height="40" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><ellipse cx="70" cy="135" rx="60" ry="15" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><circle cx="25" cy="35" r="3" fill="var(--accent)" class="vv-svg-pulse"/><circle cx="25" cy="75" r="3" fill="var(--accent)" class="vv-svg-pulse" style="animation-delay:0.5s"/><circle cx="25" cy="115" r="3" fill="var(--accent2)" class="vv-svg-pulse" style="animation-delay:1s"/></g></svg>',
+
+    checklist: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g transform="translate(120,20)" class="vv-svg-float"><rect x="0" y="0" width="160" height="200" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/><rect x="40" y="-8" width="80" height="16" rx="3" fill="var(--accent)" opacity="0.3"/><g transform="translate(15,30)"><rect x="0" y="0" width="16" height="16" rx="2" fill="none" stroke="var(--accent)" stroke-width="1.5"/><polyline points="3,8 7,13 14,3" fill="none" stroke="var(--accent)" stroke-width="2"/><rect x="25" y="4" width="90" height="6" rx="2" fill="var(--border)"/></g><g transform="translate(15,60)"><rect x="0" y="0" width="16" height="16" rx="2" fill="none" stroke="var(--accent)" stroke-width="1.5"/><polyline points="3,8 7,13 14,3" fill="none" stroke="var(--accent)" stroke-width="2"/><rect x="25" y="4" width="70" height="6" rx="2" fill="var(--border)"/></g><g transform="translate(15,90)"><rect x="0" y="0" width="16" height="16" rx="2" fill="none" stroke="var(--accent)" stroke-width="1.5"/><polyline points="3,8 7,13 14,3" fill="none" stroke="var(--accent)" stroke-width="2"/><rect x="25" y="4" width="100" height="6" rx="2" fill="var(--border)"/></g><g transform="translate(15,120)"><rect x="0" y="0" width="16" height="16" rx="2" fill="none" stroke="var(--accent)" stroke-width="1.5"/><rect x="25" y="4" width="60" height="6" rx="2" fill="var(--border)"/></g><g transform="translate(15,150)"><rect x="0" y="0" width="16" height="16" rx="2" fill="none" stroke="var(--border)" stroke-width="1.5"/><rect x="25" y="4" width="80" height="6" rx="2" fill="var(--border)"/></g></g></svg>',
+
+    alert: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g transform="translate(140,20)"><polygon points="60,0 120,110 0,110" fill="none" stroke="var(--danger)" stroke-width="2.5" class="vv-svg-pulse"/><text x="60" y="80" text-anchor="middle" fill="var(--danger)" font-family="Bebas Neue" font-size="50">!</text><circle cx="-30" cy="130" r="4" fill="var(--danger)" opacity="0.3" class="vv-svg-pulse" style="animation-delay:0.3s"/><circle cx="150" cy="140" r="3" fill="var(--danger)" opacity="0.3" class="vv-svg-pulse" style="animation-delay:0.7s"/><circle cx="60" cy="140" r="5" fill="var(--danger)" opacity="0.2" class="vv-svg-pulse" style="animation-delay:1s"/></g></svg>',
+
+    report: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g transform="translate(100,20)"><rect x="30" y="20" width="140" height="100" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5" class="vv-svg-float"/><rect x="40" y="50" width="50" height="6" rx="2" fill="var(--accent)"/><rect x="40" y="65" width="80" height="6" rx="2" fill="var(--border)"/><rect x="40" y="80" width="60" height="6" rx="2" fill="var(--border)"/><rect x="40" y="95" width="90" height="6" rx="2" fill="var(--border)"/><g transform="translate(80,130)"><circle cx="20" cy="20" r="18" fill="var(--accent)" opacity="0.15"/><polyline points="10,20 18,28 32,12" fill="none" stroke="var(--accent)" stroke-width="2.5"/></g></g></svg>',
+
+    inbox: '<svg viewBox="0 0 '+w+' '+h+'" class="vv-svg-scene"><rect width="'+w+'" height="'+h+'" fill="none"/><g transform="translate(50,10)"><rect x="0" y="0" width="300" height="220" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/><rect x="0" y="0" width="300" height="30" rx="4" fill="var(--deep)"/><circle cx="15" cy="15" r="5" fill="var(--danger)" opacity="0.8"/><circle cx="30" cy="15" r="5" fill="var(--warning)" opacity="0.8"/><circle cx="45" cy="15" r="5" fill="var(--accent)" opacity="0.8"/><g transform="translate(10,40)"><rect x="0" y="0" width="280" height="35" fill="rgba(255,59,92,0.05)" stroke="rgba(255,59,92,0.2)" stroke-width="1"/><circle cx="12" cy="17" r="5" fill="var(--danger)" opacity="0.5"/><rect x="25" y="8" width="80" height="5" rx="1" fill="var(--danger)" opacity="0.4"/><rect x="25" y="18" width="200" height="4" rx="1" fill="var(--border)"/></g><g transform="translate(10,85)"><rect x="0" y="0" width="280" height="35" fill="transparent"/><circle cx="12" cy="17" r="5" fill="var(--accent2)" opacity="0.3"/><rect x="25" y="8" width="60" height="5" rx="1" fill="var(--border)"/><rect x="25" y="18" width="180" height="4" rx="1" fill="var(--border)"/></g><g transform="translate(10,130)"><rect x="0" y="0" width="280" height="35" fill="transparent"/><circle cx="12" cy="17" r="5" fill="var(--accent2)" opacity="0.3"/><rect x="25" y="8" width="100" height="5" rx="1" fill="var(--border)"/><rect x="25" y="18" width="150" height="4" rx="1" fill="var(--border)"/></g></g></svg>'
+  };
+  return svgs[type] || svgs.shield;
+}
+
+var vvPlaying = false;
+var vvTimer = null;
+var vvTypeTimer = null;
+var vvCurrentScene = 0;
+var vvScoreCorrect = 0;
+var vvScoreTotal = 0;
+
+function openVideoViewer() {
+  vvCurrentScene = 0;
+  vvScoreCorrect = 0;
+  vvScoreTotal = 0;
+  vvPlaying = true;
+  document.getElementById('video-viewer').classList.add('open');
+
+  var particles = document.getElementById('vv-particles');
+  particles.innerHTML = '';
+  for (var i = 0; i < 20; i++) {
+    var p = document.createElement('div');
+    p.className = 'vv-particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = Math.random() * 10 + 's';
+    particles.appendChild(p);
+  }
+
+  renderVideoScene();
+}
+
+function closeVideoViewer() {
+  document.getElementById('video-viewer').classList.remove('open');
+  vvPlaying = false;
+  if (vvTimer) { clearTimeout(vvTimer); vvTimer = null; }
+  if (vvTypeTimer) { clearInterval(vvTypeTimer); vvTypeTimer = null; }
+}
+
+function renderVideoScene() {
+  var scene = VIDEO_SCENES[vvCurrentScene];
+  var total = VIDEO_SCENES.length;
+  var pct = ((vvCurrentScene + 1) / total) * 100;
+
+  document.getElementById('vv-progress-fill').style.width = pct + '%';
+  document.getElementById('vv-time').textContent = 'Scene ' + (vvCurrentScene + 1) + ' / ' + total;
+  document.getElementById('vv-scene-title').textContent = scene.title;
+  document.getElementById('vv-play').innerHTML = vvPlaying ? '&#9208;' : '&#9654;';
+
+  var stage = document.getElementById('vv-stage');
+
+  var html = '<div class="vv-scene active">';
+
+  html += '<div class="vv-visual">';
+  if (scene.type === 'stat' && scene.stat) {
+    html += '<div style="text-align:center"><div class="vv-big-number" id="vv-stat" style="color:' + scene.stat.color + '">' + scene.stat.number + '</div><div class="vv-big-label">' + scene.stat.label + '</div></div>';
+  } else if (scene.svg) {
+    html += getSVG(scene.svg);
+  }
+  html += '</div>';
+
+  html += '<div class="vv-narration">';
+  html += '<div class="vv-narrator-text" id="vv-narr"></div>';
+  if (scene.subtext) html += '<div class="vv-sub-text">' + scene.subtext + '</div>';
+  html += '</div>';
+
+  if (scene.type === 'scenario' && scene.scenario) {
+    html += '<div style="max-width:600px;width:100%;margin-top:16px">';
+    html += '<div class="cv-email-mock" style="animation-delay:2s">';
+    html += '<div class="cv-email-mock-header">From: ' + scene.scenario.from + '<br>Subject: ' + scene.scenario.subject + '</div>';
+    html += '<div class="cv-email-mock-body">' + scene.scenario.body + '</div>';
+    html += '</div>';
+    if (scene.scenario.redflags) {
+      html += '<div style="margin-top:12px">';
+      scene.scenario.redflags.forEach(function(rf, i) {
+        html += '<div class="cv-warn" style="animation:slideInUp 0.5s ease ' + (3 + i * 0.5) + 's forwards;opacity:0;margin:6px 0;font-size:12px">&#9888; ' + rf + '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+
+  if (scene.type === 'choice' && scene.choices) {
+    html += '<div class="vv-choices" id="vv-choices">';
+    scene.choices.forEach(function(c, i) {
+      html += '<div class="vv-choice" onclick="videoChoice(' + vvCurrentScene + ',' + i + ')" id="vv-c-' + i + '">';
+      html += '<div class="vv-choice-label">' + c.label + '</div>';
+      html += '<div class="vv-choice-text">' + c.text + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '<div id="vv-result"></div>';
+  }
+
+  if (scene.type === 'summary' && scene.points) {
+    html += '<div style="max-width:600px;width:100%;margin-top:20px" id="vv-summary">';
+    scene.points.forEach(function(p, i) {
+      html += '<div class="cv-tip" style="opacity:0;animation:slideFromLeft 0.5s ease ' + (3 + i * 1.2) + 's forwards;margin:8px 0;font-size:14px"><strong>' + (i+1) + '.</strong> ' + p + '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (scene.type === 'complete') {
+    var accuracy = vvScoreTotal > 0 ? Math.round((vvScoreCorrect / vvScoreTotal) * 100) : 100;
+    html += '<div style="text-align:center;margin-top:24px">';
+    html += '<div style="font-family:Bebas Neue;font-size:48px;color:var(--accent);letter-spacing:3px;margin-bottom:8px">TRAINING COMPLETE</div>';
+    html += '<div style="font-family:JetBrains Mono;font-size:12px;color:var(--muted);letter-spacing:2px;margin-bottom:24px">SCORE: ' + vvScoreCorrect + '/' + vvScoreTotal + ' (' + accuracy + '%)</div>';
+    html += '<button class="btn btn-p" onclick="completeVideoTraining()" style="padding:14px 32px;font-size:14px">CLAIM CERTIFICATE</button>';
+    html += '</div>';
+  }
+
+  html += '</div>';
+  stage.innerHTML = html;
+
+  typeNarration(scene.narration, function() {
+    var stat = document.getElementById('vv-stat');
+    if (stat) stat.classList.add('animate');
+
+    if (vvPlaying && scene.duration > 0) {
+      vvTimer = setTimeout(function() { nextVideoScene(); }, scene.duration > 3000 ? scene.duration - 3000 : scene.duration);
+    }
+  });
+}
+
+function typeNarration(html, callback) {
+  var el = document.getElementById('vv-narr');
+  if (!el || !html) { if (callback) callback(); return; }
+
+  el.innerHTML = '';
+  var temp = document.createElement('div');
+  temp.innerHTML = html;
+  var fullText = temp.textContent;
+  var charIndex = 0;
+  var speed = 30;
+
+  if (vvTypeTimer) clearInterval(vvTypeTimer);
+  vvTypeTimer = setInterval(function() {
+    charIndex++;
+    el.innerHTML = '<span>' + html.substring(0, findHTMLIndex(html, charIndex)) + '</span><span class="vv-typing-cursor"></span>';
+
+    if (charIndex >= fullText.length) {
+      clearInterval(vvTypeTimer);
+      vvTypeTimer = null;
+      el.innerHTML = html;
+      if (callback) setTimeout(callback, 500);
+    }
+  }, speed);
+}
+
+function findHTMLIndex(html, textIdx) {
+  var inTag = false;
+  var textCount = 0;
+  for (var i = 0; i < html.length; i++) {
+    if (html[i] === '<') { inTag = true; continue; }
+    if (html[i] === '>') { inTag = false; continue; }
+    if (!inTag) {
+      textCount++;
+      if (textCount >= textIdx) return i + 1;
+    }
+  }
+  return html.length;
+}
+
+function nextVideoScene() {
+  if (vvTimer) { clearTimeout(vvTimer); vvTimer = null; }
+  if (vvTypeTimer) { clearInterval(vvTypeTimer); vvTypeTimer = null; }
+  if (vvCurrentScene < VIDEO_SCENES.length - 1) {
+    vvCurrentScene++;
+    renderVideoScene();
+  }
+}
+
+function prevVideoScene() {
+  if (vvTimer) { clearTimeout(vvTimer); vvTimer = null; }
+  if (vvTypeTimer) { clearInterval(vvTypeTimer); vvTypeTimer = null; }
+  if (vvCurrentScene > 0) {
+    vvCurrentScene--;
+    renderVideoScene();
+  }
+}
+
+function toggleVideoPlay() {
+  vvPlaying = !vvPlaying;
+  document.getElementById('vv-play').innerHTML = vvPlaying ? '&#9208;' : '&#9654;';
+  if (vvPlaying) {
+    var scene = VIDEO_SCENES[vvCurrentScene];
+    if (scene.duration > 0) {
+      vvTimer = setTimeout(function() { nextVideoScene(); }, scene.duration);
+    }
+  } else {
+    if (vvTimer) { clearTimeout(vvTimer); vvTimer = null; }
+  }
+}
+
+function seekVideo(e) {
+  var bar = document.getElementById('vv-progress');
+  var pct = (e.clientX - bar.getBoundingClientRect().left) / bar.offsetWidth;
+  var targetScene = Math.floor(pct * VIDEO_SCENES.length);
+  targetScene = Math.max(0, Math.min(VIDEO_SCENES.length - 1, targetScene));
+  if (vvTimer) { clearTimeout(vvTimer); vvTimer = null; }
+  if (vvTypeTimer) { clearInterval(vvTypeTimer); vvTypeTimer = null; }
+  vvCurrentScene = targetScene;
+  renderVideoScene();
+}
+
+function videoChoice(sceneIdx, choiceIdx) {
+  var scene = VIDEO_SCENES[sceneIdx];
+  if (!scene || !scene.choices) return;
+  var correct = scene.choices[choiceIdx].correct;
+
+  vvScoreTotal++;
+  if (correct) vvScoreCorrect++;
+
+  scene.choices.forEach(function(c, i) {
+    var el = document.getElementById('vv-c-' + i);
+    if (el) {
+      el.classList.add('disabled');
+      if (i === choiceIdx) el.classList.add(correct ? 'correct' : 'wrong');
+      if (c.correct) el.classList.add('correct');
+    }
+  });
+
+  var resultEl = document.getElementById('vv-result');
+  if (resultEl) {
+    resultEl.innerHTML = '<div class="vv-result-box ' + (correct ? 'good' : 'bad') + '">' + (correct ? '&#10003; ' + scene.correctExplain : '&#10007; ' + scene.wrongExplain) + '</div>';
+  }
+
+  if (vvPlaying) {
+    vvTimer = setTimeout(function() { nextVideoScene(); }, 6000);
+  } else {
+    vvTimer = setTimeout(function() { nextVideoScene(); }, 8000);
+  }
+}
+
+function completeVideoTraining() {
+  closeVideoViewer();
+  var d = getD();
+  if (!d.courseProgress) d.courseProgress = {};
+  d.courseProgress[16] = 100;
+  if (!d.certificates) d.certificates = [];
+  d.certificates.push({user:'You',course:'Cyber Awareness: The Animated Experience',date:new Date().toISOString().split('T')[0]});
+  saveD(d);
+  toast('Cyber Awareness Animated Training completed!', 'success');
+  renderCourses('All');
 }
 
 document.addEventListener('DOMContentLoaded',function(){initDashboard();});

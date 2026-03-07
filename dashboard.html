@@ -3007,49 +3007,131 @@ function generateCmdContent(clientName, wazuhGroup) {
     "if ($p1cr2.Errors.Count -gt 0) { Write-Log 'unisolate-win.exe compile failed' 'WARN' } else { Write-Log 'unisolate-win.exe compiled OK' 'SUCCESS' }",
     "Write-Log 'Isolation executables compiled and installed.' 'SUCCESS'",
     "",
-    "# Step 4.1 — Install P1 Agent Action Poller (reliable isolation delivery)",
-    "Write-Log 'Installing PalisadeOne agent action poller...'",
+    "# Step 4.1 — Install P1 Agent Action Poller v4 (all actions via polling)",
+    "Write-Log 'Installing PalisadeOne agent action poller v4...'",
     "New-Item -ItemType Directory -Path 'C:\\ProgramData\\PalisadeOne' -Force | Out-Null",
     "$pollerScript = @'",
+    "# PalisadeOne Agent Action Poller v4",
     "$url = \"https://api.palisadeone.com:9443\"",
     "$keysFile = \"C:\\Program Files (x86)\\ossec-agent\\client.keys\"",
+    "$pollerLog = \"C:\\ProgramData\\PalisadeOne\\poller.log\"",
     "$agentId = $null",
     "if (Test-Path $keysFile) { $line = (Get-Content $keysFile | Select-Object -First 1).Trim(); $agentId = ($line -split '\\s+')[0] }",
     "if (-not $agentId) { exit }",
     "$logFile = \"C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log\"",
-    "function Log($msg) { $ts = (Get-Date).ToUniversalTime().ToString('yyyy/MM/dd HH:mm:ss'); Add-Content $logFile \"$ts active-response/bin/isolate-win.exe: $msg\" }",
+    "function Log($msg) { try { Add-Content $logFile \"$(([DateTime]::UtcNow).ToString('yyyy/MM/dd HH:mm:ss')) active-response/bin/isolate-win.exe: $msg\" } catch {} }",
+    "function PLog($msg) { try { Add-Content $pollerLog \"$(Get-Date -F 'yyyy-MM-dd HH:mm:ss') $msg\" } catch {} }",
+    "function RunNetsh($arguments) {",
+    "    try {",
+    "        $psi = New-Object System.Diagnostics.ProcessStartInfo",
+    "        $psi.FileName = 'C:\\Windows\\System32\\netsh.exe'",
+    "        $psi.Arguments = $arguments",
+    "        $psi.UseShellExecute = $false",
+    "        $psi.RedirectStandardOutput = $true",
+    "        $psi.RedirectStandardError = $true",
+    "        $psi.CreateNoWindow = $true",
+    "        $proc = [System.Diagnostics.Process]::Start($psi)",
+    "        $proc.StandardOutput.ReadToEnd() | Out-Null",
+    "        $proc.WaitForExit(15000)",
+    "        return $proc.ExitCode",
+    "    } catch { return -1 }",
+    "}",
     "try {",
     "    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12",
     "    [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}",
-    "    $resp = (New-Object Net.WebClient).DownloadString(\"$url/agent-action/$agentId\")",
+    "    $wc = New-Object Net.WebClient",
+    "    $resp = $wc.DownloadString(\"$url/agent-action/$agentId\")",
     "    $data = $resp | ConvertFrom-Json",
     "    if ($data.action -eq 'isolate') {",
-    "        Log 'Starting (via polling)'; Log 'Received isolate command from SOC dashboard'",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Wazuh-Out' 2>$null",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Wazuh-In' 2>$null",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall add rule name='P1-Isolate-Allow-Wazuh-Out' dir=out action=allow remoteip=178.156.234.30 protocol=any",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall add rule name='P1-Isolate-Allow-Wazuh-In' dir=in action=allow remoteip=178.156.234.30 protocol=any",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall add rule name='P1-Isolate-Allow-Loopback-Out' dir=out action=allow remoteip=127.0.0.1 protocol=any",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall add rule name='P1-Isolate-Allow-Loopback-In' dir=in action=allow remoteip=127.0.0.1 protocol=any",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall add rule name='P1-Isolate-Allow-DNS' dir=out action=allow protocol=UDP remoteport=53",
-    "        Log 'Isolation applied - all traffic blocked except P1 manager'; Log 'Ended'",
+    "        PLog '[RECV] Isolate command'; Log 'Starting (via polling)'",
+    "        RunNetsh 'advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound'",
+    "        RunNetsh 'advfirewall firewall delete rule name=\"P1-Isolate-Allow-Wazuh-Out\"'",
+    "        RunNetsh 'advfirewall firewall delete rule name=\"P1-Isolate-Allow-Wazuh-In\"'",
+    "        RunNetsh 'advfirewall firewall add rule name=\"P1-Isolate-Allow-Wazuh-Out\" dir=out action=allow remoteip=178.156.234.30 protocol=any'",
+    "        RunNetsh 'advfirewall firewall add rule name=\"P1-Isolate-Allow-Wazuh-In\" dir=in action=allow remoteip=178.156.234.30 protocol=any'",
+    "        RunNetsh 'advfirewall firewall add rule name=\"P1-Isolate-Allow-Loopback-Out\" dir=out action=allow remoteip=127.0.0.1 protocol=any'",
+    "        RunNetsh 'advfirewall firewall add rule name=\"P1-Isolate-Allow-Loopback-In\" dir=in action=allow remoteip=127.0.0.1 protocol=any'",
+    "        RunNetsh 'advfirewall firewall add rule name=\"P1-Isolate-Allow-DNS\" dir=out action=allow protocol=UDP remoteport=53'",
+    "        Log 'Isolation applied - all traffic blocked except Wazuh manager'",
+    "        PLog '[ISOLATE] Complete'",
     "    } elseif ($data.action -eq 'unisolate') {",
-    "        Log 'Starting unisolation (via polling)'",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Wazuh-Out' 2>$null",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Wazuh-In' 2>$null",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Loopback-Out' 2>$null",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-Loopback-In' 2>$null",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall firewall delete rule name='P1-Isolate-Allow-DNS' 2>$null",
-    "        & C:\\Windows\\System32\\netsh.exe advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound",
-    "        Log 'Isolation removed - network access restored'; Log 'Ended'",
+    "        PLog '[RECV] Unisolate command'; Log 'Starting unisolation (via polling)'",
+    "        RunNetsh 'advfirewall firewall delete rule name=\"P1-Isolate-Allow-Wazuh-Out\"'",
+    "        RunNetsh 'advfirewall firewall delete rule name=\"P1-Isolate-Allow-Wazuh-In\"'",
+    "        RunNetsh 'advfirewall firewall delete rule name=\"P1-Isolate-Allow-Loopback-Out\"'",
+    "        RunNetsh 'advfirewall firewall delete rule name=\"P1-Isolate-Allow-Loopback-In\"'",
+    "        RunNetsh 'advfirewall firewall delete rule name=\"P1-Isolate-Allow-DNS\"'",
+    "        RunNetsh 'advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound'",
+    "        Log 'Isolation removed - network access restored'",
+    "        PLog '[UNISOLATE] Complete'",
+    "    } elseif ($data.action -eq 'restart') {",
+    "        PLog '[RESTART] Scheduling system restart in 60 seconds'",
+    "        Log 'Restart command received from SOC dashboard'",
+    "        $psi = New-Object System.Diagnostics.ProcessStartInfo",
+    "        $psi.FileName = 'C:\\Windows\\System32\\shutdown.exe'",
+    "        $psi.Arguments = '/r /t 60 /c \"PalisadeOne SOC-initiated restart\"'",
+    "        $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true",
+    "        [System.Diagnostics.Process]::Start($psi) | Out-Null",
+    "        PLog '[RESTART] Restart scheduled'",
+    "    } elseif ($data.action -eq 'kill') {",
+    "        $procName = $data.params.processName",
+    "        if ($procName) {",
+    "            PLog \"[KILL] Killing process: $procName\"",
+    "            $psi = New-Object System.Diagnostics.ProcessStartInfo",
+    "            $psi.FileName = 'C:\\Windows\\System32\\taskkill.exe'",
+    "            $psi.Arguments = \"/F /IM `\"$procName`\" /T\"",
+    "            $psi.UseShellExecute = $false; $psi.RedirectStandardOutput = $true; $psi.CreateNoWindow = $true",
+    "            $proc = [System.Diagnostics.Process]::Start($psi)",
+    "            $out = $proc.StandardOutput.ReadToEnd()",
+    "            $proc.WaitForExit(10000)",
+    "            PLog \"[KILL] Result: $($out.Trim())\"",
+    "        }",
+    "    } elseif ($data.action -eq 'fds') {",
+    "        $flagFile = 'C:\\ProgramData\\PalisadeOne\\fds-running.flag'",
+    "        if (Test-Path $flagFile) { PLog '[FDS] Scan already in progress' } else {",
+    "            PLog '[FDS] Starting Windows Defender Full Scan'",
+    "            Log 'Full Disk Scan initiated from SOC dashboard'",
+    "            $fdsScript = \"try {`n  Set-Content '$flagFile' 'running'`n  `$wc = New-Object Net.WebClient`n  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12`n  [Net.ServicePointManager]::ServerCertificateValidationCallback = {`$true}`n  `$body = @{status='running';startedAt=(Get-Date).ToUniversalTime().ToString('o')} | ConvertTo-Json`n  `$wc.Headers.Add('Content-Type','application/json')`n  `$wc.UploadString('$url/scan-status/$agentId', `$body) | Out-Null`n  Start-MpScan -ScanType FullScan`n  `$threats = @(Get-MpThreatDetection -ErrorAction SilentlyContinue | Select-Object -First 20 @{N='name';E={`$_.ThreatName}},@{N='severity';E={`$_.SeverityID}},@{N='process';E={`$_.ProcessName}},@{N='path';E={`$_.Resources -join ';'}})`n  `$body2 = @{status='completed';completedAt=(Get-Date).ToUniversalTime().ToString('o');threatCount=`$threats.Count;threats=`$threats} | ConvertTo-Json -Depth 5`n  `$wc2 = New-Object Net.WebClient`n  [Net.ServicePointManager]::ServerCertificateValidationCallback = {`$true}`n  `$wc2.Headers.Add('Content-Type','application/json')`n  `$wc2.UploadString('$url/scan-status/$agentId', `$body2) | Out-Null`n} catch {`n  try { `$wc3 = New-Object Net.WebClient; [Net.ServicePointManager]::ServerCertificateValidationCallback = {`$true}; `$wc3.Headers.Add('Content-Type','application/json'); `$wc3.UploadString('$url/scan-status/$agentId', (@{status='error';error=`$_.Exception.Message} | ConvertTo-Json)) | Out-Null } catch {}`n} finally { Remove-Item '$flagFile' -Force -ErrorAction SilentlyContinue }\"",
+    "            Set-Content 'C:\\ProgramData\\PalisadeOne\\run-fds.ps1' $fdsScript -Force",
+    "            Start-Process powershell.exe -ArgumentList \"-ExecutionPolicy Bypass -WindowStyle Hidden -File `\"C:\\ProgramData\\PalisadeOne\\run-fds.ps1`\"\" -WindowStyle Hidden",
+    "            PLog '[FDS] Background scan process started'",
+    "        }",
+    "    } elseif ($data.action -eq 'deploy-sysmon') {",
+    "        PLog '[SYSMON] Deployment requested'; Log 'Sysmon deployment from SOC dashboard'",
+    "        try {",
+    "            $sysmonDir = 'C:\\ProgramData\\PalisadeOne\\Sysmon'",
+    "            New-Item -ItemType Directory -Path $sysmonDir -Force | Out-Null",
+    "            if (-not (Test-Path \"$sysmonDir\\Sysmon64.exe\")) {",
+    "                $wc2 = New-Object Net.WebClient",
+    "                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12",
+    "                [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}",
+    "                $wc2.DownloadFile('https://live.sysinternals.com/Sysmon64.exe', \"$sysmonDir\\Sysmon64.exe\")",
+    "                PLog '[SYSMON] Downloaded Sysmon64.exe'",
+    "            }",
+    "            $cfg = '<Sysmon schemaversion=\"4.90\"><EventFiltering><ProcessCreate onmatch=\"exclude\"/><NetworkConnect onmatch=\"exclude\"/><ProcessTerminate onmatch=\"exclude\"/><FileCreate onmatch=\"exclude\"/><RegistryEvent onmatch=\"exclude\"/><DnsQuery onmatch=\"exclude\"/></EventFiltering></Sysmon>'",
+    "            Set-Content \"$sysmonDir\\sysmonconfig.xml\" $cfg -Force",
+    "            $psi = New-Object System.Diagnostics.ProcessStartInfo",
+    "            $psi.FileName = \"$sysmonDir\\Sysmon64.exe\"",
+    "            $psi.Arguments = \"-accepteula -i `\"$sysmonDir\\sysmonconfig.xml`\"\"",
+    "            $psi.UseShellExecute = $false; $psi.RedirectStandardOutput = $true; $psi.CreateNoWindow = $true",
+    "            $proc = [System.Diagnostics.Process]::Start($psi)",
+    "            $out = $proc.StandardOutput.ReadToEnd()",
+    "            $proc.WaitForExit(60000)",
+    "            PLog \"[SYSMON] Done: $($out.Trim().Substring(0, [Math]::Min($out.Trim().Length, 200)))\"",
+    "        } catch { PLog \"[SYSMON] Error: $_\" }",
     "    }",
-    "} catch {}",
+    "} catch { PLog \"[ERROR] $($_.Exception.Message)\" }",
     "'@",
     "Set-Content 'C:\\ProgramData\\PalisadeOne\\agent-poller.ps1' $pollerScript -Encoding UTF8",
+    "# Use Register-ScheduledTask for reliable SYSTEM execution",
+    "Unregister-ScheduledTask -TaskName 'P1-Agent-Poller' -Confirm:$false -ErrorAction SilentlyContinue",
     "schtasks /delete /tn 'P1-Agent-Poller' /f 2>$null",
-    "schtasks /create /tn 'P1-Agent-Poller' /tr 'powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File C:\\ProgramData\\PalisadeOne\\agent-poller.ps1' /sc minute /mo 1 /ru SYSTEM /rl HIGHEST /f | Out-Null",
-    "Write-Log 'Agent action poller installed (polls every 60s as SYSTEM).' 'SUCCESS'",
+    "$p1Action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-ExecutionPolicy Bypass -WindowStyle Hidden -File \"C:\\ProgramData\\PalisadeOne\\agent-poller.ps1\"'",
+    "$p1Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1)",
+    "$p1Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 5)",
+    "$p1Principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest",
+    "Register-ScheduledTask -TaskName 'P1-Agent-Poller' -Action $p1Action -Trigger $p1Trigger -Settings $p1Settings -Principal $p1Principal -Force | Out-Null",
+    "Write-Log 'Agent action poller v4 installed (isolate, unisolate, restart, kill, FDS, sysmon).' 'SUCCESS'",
     "",
     "# Step 4.5 — Download kill-suspicious.cmd AR script",
     "Write-Log 'Downloading kill-suspicious active-response script...'",
@@ -4690,11 +4772,16 @@ function openEndpointPanel(agentId) {
     <div class="ep-info-cell" style="grid-column:span 2;">
       <div class="ep-info-label">Last Seen</div>
       <div class="ep-info-value">${fmtDateTime(lastSeen)}</div>
+    </div>
+    <div class="ep-info-cell" style="grid-column:span 2;">
+      <div class="ep-info-label">Disk Scan</div>
+      <div class="ep-info-value" id="ep-scan-status"><span style="color:var(--muted);">--</span></div>
     </div>`;
 
   // Reset to overview tab and load data
   epTab('overview');
   loadEpMiniAlerts(agentId);
+  loadFdsStatus(agentId);
 
   document.getElementById('ep-overlay').style.display = 'block';
   document.getElementById('ep-panel').classList.add('open');
@@ -4882,16 +4969,75 @@ async function reconnectAgent() {
 async function runFDS() {
   if (!activeAgentId) return;
   const name = agentsData[activeAgentId]?.name || activeAgentId;
-  showToast('Triggering Full Disk Scan on ' + name + '...', 'info');
+  if (!confirm(`Start Full Disk Scan on ${name} (Agent #${activeAgentId})?\n\nThis runs Windows Defender FullScan and may take 30-60 minutes.`)) return;
+  showToast(`Queuing Full Disk Scan on ${name}...`, 'info');
   try {
-    // Trigger syscheck (FIM) scan + rootcheck scan via Wazuh Manager API
-    const [r1, r2] = await Promise.all([
-      fetch(`${PROXY_URL}/syscheck?agents_list=${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } }),
-      fetch(`${PROXY_URL}/rootcheck?agents_list=${activeAgentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } })
-    ]);
-    if (!r1.ok && !r2.ok) throw new Error('Both endpoints failed');
-    showToast('Full Disk Scan triggered — results appear in Wazuh within minutes.', 'success');
-  } catch(e) { showToast('FDS command failed — check agent connectivity.', 'error'); }
+    const res = await fetch(`${PROXY_URL}/agent-action`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_id: activeAgentId, action: 'fds' })
+    });
+    if (!res.ok) throw new Error(res.status);
+    showToast(`Full Disk Scan queued for ${name} — starts within 60 seconds.`, 'success');
+    startFdsPoll(activeAgentId);
+  } catch(e) { showToast('Failed to queue scan: ' + e.message, 'error'); }
+}
+
+let _fdsPollTimers = {};
+function startFdsPoll(agentId) {
+  if (_fdsPollTimers[agentId]) clearInterval(_fdsPollTimers[agentId]);
+  _fdsPollTimers[agentId] = setInterval(async () => {
+    try {
+      const r = await fetch(`${PROXY_URL}/scan-status/${agentId}`);
+      const d = await r.json();
+      updateFdsUI(agentId, d);
+      if (d.status === 'completed' || d.status === 'error' || d.status === 'none') {
+        clearInterval(_fdsPollTimers[agentId]);
+        delete _fdsPollTimers[agentId];
+      }
+    } catch(e) {}
+  }, 10000);
+}
+
+function updateFdsUI(agentId, scan) {
+  const fdsBtn = document.querySelector('.ep-action-btn.fds');
+  if (!fdsBtn) return;
+  if (scan.status === 'running') {
+    fdsBtn.querySelector('.btn-label').textContent = 'SCANNING...';
+    fdsBtn.querySelector('.btn-sub').textContent = 'In progress';
+    fdsBtn.style.borderColor = 'rgba(245,166,35,0.6)';
+    fdsBtn.style.animation = 'pulse 2s infinite';
+  } else if (scan.status === 'completed') {
+    const tc = scan.threatCount || 0;
+    fdsBtn.querySelector('.btn-label').textContent = 'SCAN COMPLETE';
+    fdsBtn.querySelector('.btn-sub').textContent = tc > 0 ? `${tc} threat(s) found` : 'No threats found';
+    fdsBtn.style.borderColor = tc > 0 ? 'rgba(255,59,92,0.6)' : 'rgba(0,255,209,0.4)';
+    fdsBtn.style.animation = '';
+    if (activeAgentId === agentId) {
+      if (tc > 0) showToast(`Scan on ${agentsData[agentId]?.name||agentId}: ${tc} threat(s) detected!`, 'warn');
+      else showToast(`Scan on ${agentsData[agentId]?.name||agentId}: No threats.`, 'success');
+    }
+  } else {
+    fdsBtn.querySelector('.btn-label').textContent = 'FULL DISK SCAN';
+    fdsBtn.querySelector('.btn-sub').textContent = 'Windows Defender';
+    fdsBtn.style.borderColor = '';
+    fdsBtn.style.animation = '';
+  }
+  const scanEl = document.getElementById('ep-scan-status');
+  if (scanEl) {
+    if (scan.status === 'running') scanEl.innerHTML = '<span style="color:var(--warning);">Scanning...</span> Started ' + (scan.startedAt ? new Date(scan.startedAt).toLocaleTimeString() : '--');
+    else if (scan.status === 'completed') scanEl.innerHTML = '<span style="color:var(--accent);">Complete</span> ' + (scan.completedAt ? new Date(scan.completedAt).toLocaleTimeString() : '') + ' &mdash; ' + (scan.threatCount||0) + ' threats';
+    else if (scan.status === 'error') scanEl.innerHTML = '<span style="color:var(--danger);">Error</span> ' + (scan.error || '');
+    else scanEl.innerHTML = '<span style="color:var(--muted);">No recent scan</span>';
+  }
+}
+
+async function loadFdsStatus(agentId) {
+  try {
+    const r = await fetch(`${PROXY_URL}/scan-status/${agentId}`);
+    const d = await r.json();
+    updateFdsUI(agentId, d);
+    if (d.status === 'running') startFdsPoll(agentId);
+  } catch(e) {}
 }
 
 let rmmPeers = [];
@@ -4951,7 +5097,7 @@ async function loadSessionHistory(agentId) {
       el.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:6px 0;">No remote sessions recorded yet.</div>';
       return;
     }
-    const actionLabels = { remote_desktop: '🖥 Remote Desktop', restart: '⚡ Restart Endpoint', isolate: '🔒 Isolated', reconnect: '🔄 Reconnected' };
+    const actionLabels = { remote_desktop: '🖥 Remote Desktop', restart: '⚡ Restart Endpoint', isolate: '🔒 Isolated', reconnect: '🔄 Reconnected', full_disk_scan: '🔍 Full Disk Scan', kill: '💀 Kill Process', 'deploy-sysmon': '👁 Deploy Sysmon' };
     el.innerHTML = sessions.slice(0, 10).map(s => {
       const dt = new Date(s.timestamp);
       const dateStr = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -4979,14 +5125,14 @@ async function restartEndpoint() {
   const name = agent?.name || activeAgentId;
   if (!confirm(`Restart ${name}?\n\nThis will reboot the endpoint in 60 seconds. Any unsaved work on that machine will be lost.`)) return;
 
-  showToast(`Sending restart command to ${name}...`, 'info');
+  showToast(`Queuing restart for ${name} (Agent #${activeAgentId})...`, 'info');
   try {
-    const res = await fetch(`${PROXY_URL}/active-response?agents_list=${activeAgentId}`, {
-      method: 'PUT',
+    const res = await fetch(`${PROXY_URL}/agent-action`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: 'restart-win', arguments: [] })
+      body: JSON.stringify({ agent_id: activeAgentId, action: 'restart' })
     });
-    if (!res.ok) throw new Error('AR returned ' + res.status);
+    if (!res.ok) throw new Error('Queue failed: ' + res.status);
     // Log the action
     const userInfo = JSON.parse(sessionStorage.getItem('p1_user') || '{}');
     fetch(`${PROXY_URL}/rmm/session-log`, {
@@ -4999,10 +5145,10 @@ async function restartEndpoint() {
         technician: userInfo.email || userInfo.username || 'admin'
       })
     }).catch(() => {});
-    showToast(`Restart command sent — ${name} will reboot in 60s.`, 'success');
+    showToast(`Restart queued for ${name} — reboots within 2 minutes.`, 'success');
     setTimeout(() => loadSessionHistory(activeAgentId), 1000);
   } catch(e) {
-    showToast('Restart failed — ensure P1 agent v2+ is installed on this endpoint.', 'error');
+    showToast('Restart failed: ' + e.message, 'error');
   }
 }
 
@@ -7070,11 +7216,11 @@ async function confirmKillProc(procName, pid) {
   const agentName = agentsData[agentId]?.name || agentId;
   if (!confirm(`Kill "${procName}" (PID ${pid}) on ${agentName}?\n\nThis terminates the process immediately.`)) return;
   try {
-    await fetch(`${PROXY_URL}/active-response?agents_list=${agentId}`, {
-      method: 'PUT', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ command: 'kill-process', arguments: [procName] })
+    await fetch(`${PROXY_URL}/agent-action`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ agent_id: agentId, action: 'kill', params: { processName: procName } })
     });
-    showToast(`Kill command sent for "${procName}". Note: requires kill-process AR script — re-run installer to enable.`, 'success');
+    showToast(`Kill queued for "${procName}" on ${agentName} — executes within 60 seconds.`, 'success');
     document.querySelector('div[style*="z-index:700"]')?.remove();
   } catch(e) { showToast('Kill command failed: ' + e.message, 'error'); }
 }
@@ -7199,6 +7345,21 @@ async function pushPolicyUpdate() {
       ? `Agent config synced on ${name} — Wazuh service restarting, syscheck scan queued.`
       : `Sync attempted on ${name} — verify agent is online.`, ok ? 'success' : 'warn');
   } catch(e) { showToast('Policy sync failed: ' + e.message, 'error'); }
+}
+
+async function deploySysmon() {
+  if (!activeAgentId) { showToast('No endpoint selected.', 'warn'); return; }
+  const name = agentsData[activeAgentId]?.name || activeAgentId;
+  if (!confirm(`Deploy Sysmon EDR telemetry to ${name}?\n\nThis installs Sysmon with comprehensive monitoring for process, network, and file telemetry.`)) return;
+  showToast(`Queuing Sysmon deployment for ${name}...`, 'info');
+  try {
+    const res = await fetch(`${PROXY_URL}/agent-action`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_id: activeAgentId, action: 'deploy-sysmon' })
+    });
+    if (!res.ok) throw new Error(res.status);
+    showToast(`Sysmon deployment queued for ${name} — installs within 60 seconds.`, 'success');
+  } catch(e) { showToast('Sysmon deployment failed: ' + e.message, 'error'); }
 }
 
 function openEdrForAgent() {
