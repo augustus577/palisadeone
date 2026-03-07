@@ -577,7 +577,7 @@ textarea.scan-input{height:80px;resize:vertical}
   <div class="topbar-right">
     <div class="topbar-client">CLIENT: <span id="clientName">Demo Client</span></div>
     <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span id="theme-icon">☀</span></button>
-    <a href="dashboard.html" class="topbar-back">← BACK TO DASHBOARD</a>
+    <a href="#" onclick="goBack()" class="topbar-back">← BACK TO DASHBOARD</a>
   </div>
 </div>
 
@@ -4123,6 +4123,20 @@ loadScanHistory();
 // URL params for client name
 const params = new URLSearchParams(window.location.search);
 if(params.get('client')) document.getElementById('clientName').textContent = params.get('client');
+
+function goBack(){
+  try{
+    var u=JSON.parse(sessionStorage.getItem('p1_user')||'{}');
+    window.location.href=u.role==='admin'?'dashboard.html':'client-portal.html';
+  }catch(e){window.location.href='dashboard.html';}
+}
+(function(){
+  try{
+    var u=JSON.parse(sessionStorage.getItem('p1_user')||'{}');
+    var l=document.getElementById('backLink');
+    if(l)l.innerHTML=u.role==='admin'?'&larr; BACK TO DASHBOARD':'&larr; BACK TO PORTAL';
+  }catch(e){}
+})();
 </script>
 </body>
 </html>

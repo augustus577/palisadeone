@@ -305,6 +305,28 @@ html[data-theme="light"] .lab-nav-btn{cursor:pointer}
 .lab-reveal-4{animation-delay:.4s}
 .lab-reveal-5{animation-delay:.5s}
 .lab-reveal-6{animation-delay:.6s}
+.ob-steps{display:flex;gap:0;justify-content:center;margin-bottom:32px}
+.ob-step{display:flex;align-items:center;gap:0}
+.ob-dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--muted);transition:all .3s}
+.ob-dot.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,209,0.1)}
+.ob-dot.done{border-color:var(--accent);background:var(--accent);color:var(--black)}
+.ob-line{width:60px;height:2px;background:var(--border);margin:0 8px}
+.ob-line.done{background:var(--accent)}
+.ob-card{background:var(--surface);border:1px solid var(--border);padding:20px;cursor:none;transition:all .2s;text-align:center}
+html[data-theme="light"] .ob-card{cursor:pointer}
+.ob-card:hover{border-color:var(--accent2)}
+.ob-card.selected{border-color:var(--accent);background:rgba(0,255,209,0.04)}
+.ob-input{width:100%;background:var(--surface);border:1px solid var(--border);padding:10px 14px;color:var(--white);font-family:Outfit,sans-serif;font-size:13px;outline:none;transition:border-color .2s;margin-bottom:12px}
+.ob-input:focus{border-color:var(--accent)}
+.ob-select{width:100%;background:var(--surface);border:1px solid var(--border);padding:10px 14px;color:var(--white);font-family:Outfit,sans-serif;font-size:13px;outline:none;margin-bottom:12px}
+.ob-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:8px;display:block}
+.ob-user-row{display:grid;grid-template-columns:1fr 1fr 120px 40px;gap:8px;margin-bottom:8px;align-items:center}
+.ob-course-check{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--border);margin-bottom:6px;cursor:none;transition:all .15s}
+html[data-theme="light"] .ob-course-check{cursor:pointer}
+.ob-course-check:hover{border-color:var(--accent2)}
+.ob-course-check.checked{border-color:var(--accent);background:rgba(0,255,209,0.04)}
+.ob-course-check .check-box{width:16px;height:16px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s;flex-shrink:0}
+.ob-course-check.checked .check-box{background:var(--accent);border-color:var(--accent);color:var(--black)}
 </style>
 </head>
 <body>
@@ -317,7 +339,7 @@ html[data-theme="light"] .lab-nav-btn{cursor:pointer}
   <div class="topbar-module">SECURITY TRAINING</div>
   <div class="topbar-right">
     <button class="theme-toggle-btn" onclick="toggleTheme()"><span id="theme-icon">&#9788;</span></button>
-    <a href="dashboard.html" class="topbar-back">&larr; BACK TO DASHBOARD</a>
+    <a href="#" class="topbar-back" id="backLink" onclick="goBack()">&larr; BACK TO PORTAL</a>
   </div>
 </div>
 <div class="app-body">
@@ -341,7 +363,8 @@ html[data-theme="light"] .lab-nav-btn{cursor:pointer}
     <a class="nav-item" onclick="showView('attack-lab')"><span class="ni">&#9876;</span><span>Attack Lab</span></a></div>
   <div class="sidebar-section"><div class="sidebar-label">SETTINGS</div>
     <a class="nav-item" onclick="showView('users')"><span class="ni">&#9823;</span><span>Users &amp; Groups</span></a>
-    <a class="nav-item" onclick="showView('certificates')"><span class="ni">&#9900;</span><span>Certificates</span></a></div>
+    <a class="nav-item" onclick="showView('certificates')"><span class="ni">&#9900;</span><span>Certificates</span></a>
+    <a class="nav-item" onclick="showView('onboard')"><span class="ni">&#128640;</span><span>Onboard Client</span></a></div>
 </div>
 <div class="main">
 <div class="view active" id="v-dashboard"><div class="ph"><div class="ph-e">OVERVIEW</div><div class="ph-t">TRAINING DASHBOARD</div><div class="ph-s">Security awareness training and phishing simulation overview</div></div>
@@ -386,6 +409,10 @@ html[data-theme="light"] .lab-nav-btn{cursor:pointer}
 <div class="pn"><div class="tw"><table><thead><tr><th>NAME</th><th>EMAIL</th><th>DEPARTMENT</th><th>COURSES DONE</th><th>RISK SCORE</th><th>STATUS</th></tr></thead><tbody id="usr-tb"></tbody></table></div></div></div>
 <div class="view" id="v-certificates"><div class="ph"><div class="ph-e">SETTINGS</div><div class="ph-t">CERTIFICATES</div><div class="ph-s">Training completion certificates</div></div>
 <div class="pn"><div class="tw"><table><thead><tr><th>COURSE</th><th>USER</th><th>DATE EARNED</th><th>ACTIONS</th></tr></thead><tbody id="cert-tb"></tbody></table></div></div></div>
+<div class="view" id="v-onboard">
+<div class="ph"><div class="ph-e">SETTINGS</div><div class="ph-t">ONBOARD CLIENT</div><div class="ph-s">Multi-step client onboarding wizard</div></div>
+<div id="ob-content"></div>
+</div>
 <div class="view" id="v-inbox-sim">
 <div class="ph"><div class="ph-e">INTERACTIVE</div><div class="ph-t">PHISHING INBOX SIMULATOR</div><div class="ph-s">Can you spot the phishing emails? Test your skills against increasingly difficult rounds.</div></div>
 <div id="sim-start">
@@ -483,6 +510,46 @@ html[data-theme="light"] .lab-nav-btn{cursor:pointer}
 <div class="cv-f" style="position:relative"><button class="btn btn-s btn-sm" id="cv-prev" onclick="prevSlide()">PREVIOUS</button><button class="cv-play-btn" onclick="toggleAutoPlay()">&#9654; AUTO-PLAY</button><div class="cv-cnt" id="cv-cnt"></div><button class="btn btn-p btn-sm" id="cv-next" onclick="nextSlide()">NEXT</button><div class="cv-autoplay-bar" id="cv-apbar"></div></div>
 </div>
 <script>
+
+const API_BASE = 'https://api.palisadeone.com:9443/training';
+const API_TOKEN = 'P1AdminKey2026!';
+
+async function api(path, method, body) {
+  var opts = {
+    method: method || 'GET',
+    headers: { 'Authorization': 'Bearer ' + API_TOKEN, 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    var r = await fetch(API_BASE + path, opts);
+    return await r.json();
+  } catch(e) {
+    console.error('API error:', e);
+    return null;
+  }
+}
+
+var serverData = null;
+
+async function loadServerData() {
+  try {
+    var results = await Promise.all([
+      api('/clients'),
+      api('/campaigns'),
+      api('/assignments'),
+      api('/certificates'),
+      api('/reports/overview')
+    ]);
+    var clients = results[0], campaigns = results[1], assignments = results[2], certs = results[3], overview = results[4];
+    serverData = { clients: clients || [], campaigns: campaigns || [], assignments: assignments || [], certificates: certs || [], overview: overview || {} };
+    localStorage.setItem('p1-training-cache', JSON.stringify(serverData));
+    return serverData;
+  } catch(e) {
+    console.error('Failed to load server data:', e);
+    toast('Could not reach server, using cached data', 'info');
+    return null;
+  }
+}
 
 const TEMPLATES=[
 {id:1,cat:'Corporate',brand:'\ud83d\udce7',name:'HR Payroll Update',subject:'Action Required: Update Your Direct Deposit Information',diff:'Medium',from:'hr-payroll@company-portal.com',brandColor:'#2E7D32',brandName:'HR Portal',cta:'Verify Banking Info',body:'<div class="em-brand-bar" style="background:#2E7D32">\u2699 HR Portal &mdash; Employee Self-Service</div><div class="em-content"><p class="em-greeting">Dear Valued Employee,</p><p>We are writing to inform you that our payroll processing system has been upgraded to a new platform as of March 1, 2026. As part of this transition, <span class="em-urgent">all employees are required to re-verify their direct deposit banking information within 24 hours</span> to ensure uninterrupted payroll processing.</p><p>During the migration, some account details may not have transferred correctly. To prevent any delays in your next pay cycle (March 15, 2026), please take a moment to confirm your information.</p><div class="em-detail"><div class="em-detail-row"><span class="em-detail-label">Action Required</span><span class="em-detail-val">Verify Direct Deposit</span></div><div class="em-detail-row"><span class="em-detail-label">Deadline</span><span class="em-detail-val">March 7, 2026 5:00 PM EST</span></div><div class="em-detail-row"><span class="em-detail-label">Affected</span><span class="em-detail-val">All salaried employees</span></div></div><p>Failure to verify your information may result in your paycheck being issued via physical check, which could take an additional 5-7 business days to process.</p></div>'},
@@ -855,7 +922,19 @@ certificates:[
 courseProgress:{}
 };}
 
-function getD(){let d=localStorage.getItem('p1-training-data');if(d){try{return JSON.parse(d)}catch(e){}}let nd=defaultData();saveD(nd);return nd;}
+function getD(){
+if(serverData){
+var merged=defaultData();
+if(serverData.clients&&serverData.clients.length){var allUsers=[];serverData.clients.forEach(function(cl){if(cl.users)cl.users.forEach(function(u){u.clientName=cl.name;allUsers.push(u);});});if(allUsers.length)merged.users=allUsers;}
+if(serverData.campaigns&&serverData.campaigns.length)merged.campaigns=serverData.campaigns;
+if(serverData.assignments&&serverData.assignments.length)merged.assignments=serverData.assignments;
+if(serverData.certificates&&serverData.certificates.length)merged.certificates=serverData.certificates;
+return merged;
+}
+try{var cached=localStorage.getItem('p1-training-cache');if(cached){var parsed=JSON.parse(cached);var m2=defaultData();if(parsed.clients&&parsed.clients.length){var au2=[];parsed.clients.forEach(function(cl){if(cl.users)cl.users.forEach(function(u){u.clientName=cl.name;au2.push(u);});});if(au2.length)m2.users=au2;}if(parsed.campaigns&&parsed.campaigns.length)m2.campaigns=parsed.campaigns;if(parsed.assignments&&parsed.assignments.length)m2.assignments=parsed.assignments;if(parsed.certificates&&parsed.certificates.length)m2.certificates=parsed.certificates;return m2;}}catch(e){}
+var d=localStorage.getItem('p1-training-data');if(d){try{return JSON.parse(d)}catch(e){}}
+var nd=defaultData();saveD(nd);return nd;
+}
 function saveD(d){localStorage.setItem('p1-training-data',JSON.stringify(d));}
 
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('p1-theme',t);const i=document.getElementById('theme-icon');if(i)i.innerHTML=t==='light'?'&#9789;':'&#9788;';}
@@ -871,15 +950,19 @@ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
 document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
 const v=document.getElementById('v-'+name);if(v)v.classList.add('active');
 const items=document.querySelectorAll('.nav-item');
-const map={dashboard:0,campaigns:1,templates:2,results:3,courses:4,paths:5,assignments:6,risk:7,leaderboard:8,reports:9,'inbox-sim':10,'attack-lab':11,users:12,certificates:13};
+const map={dashboard:0,campaigns:1,templates:2,results:3,courses:4,paths:5,assignments:6,risk:7,leaderboard:8,reports:9,'inbox-sim':10,'attack-lab':11,users:12,certificates:13,onboard:14};
 if(map[name]!==undefined&&items[map[name]])items[map[name]].classList.add('active');
-const init={dashboard:initDashboard,campaigns:renderCampaigns,templates:renderTemplates,results:renderResults,courses:function(){renderCourses('all')},paths:renderPaths,assignments:renderAssignments,risk:renderRisk,leaderboard:function(){renderLeaderboard('all')},reports:renderReports,users:renderUsers,certificates:renderCertificates,'inbox-sim':initInboxSim,'attack-lab':initAttackLab};
+const init={dashboard:initDashboard,campaigns:renderCampaigns,templates:renderTemplates,results:renderResults,courses:function(){renderCourses('all')},paths:renderPaths,assignments:renderAssignments,risk:renderRisk,leaderboard:function(){renderLeaderboard('all')},reports:renderReports,users:renderUsers,certificates:renderCertificates,'inbox-sim':initInboxSim,'attack-lab':initAttackLab,onboard:initOnboard};
 if(init[name])init[name]();
 }
 
 function initDashboard(){
+renderDashboardData();
+if(!serverData){loadServerData().then(function(){renderDashboardData();}).catch(function(){});}
+}
+function renderDashboardData(){
 const d=getD();
-const totalCoursesDone=d.users.reduce((s,u)=>s+u.courses.length,0);
+const totalCoursesDone=d.users.reduce((s,u)=>s+(u.courses?u.courses.length:0),0);
 const activeCamps=d.campaigns.filter(c=>c.status==='active').length;
 const completedCamps=d.campaigns.filter(c=>c.status==='completed').length;
 const totalSent=d.campaigns.reduce((s,c)=>s+c.sent,0);
@@ -911,7 +994,7 @@ function renderCampaigns(){var d=getD();document.getElementById('camp-list').inn
 function openCampaignBuilder(){selectedCbTemplate=null;document.getElementById('cb-name').value='';document.getElementById('camp-modal').classList.add('open');document.getElementById('cb-tpl').innerHTML=TEMPLATES.slice(0,12).map(function(t){return '<div class="tpc" onclick="selectCbTemplate('+t.id+',this)"><div class="tpb">'+t.brand+'</div><div class="tpn">'+t.name+'</div><div style="font-size:9px;color:var(--muted)">'+t.diff+'</div></div>';}).join('');}
 function selectCbTemplate(id,el){selectedCbTemplate=id;document.querySelectorAll('#cb-tpl .tpc').forEach(function(e){e.classList.remove('selected');});el.classList.add('selected');}
 function closeCampaignBuilder(){document.getElementById('camp-modal').classList.remove('open');}
-function saveCampaign(status){var name=document.getElementById('cb-name').value.trim();if(!name){toast('Please enter a campaign name','error');return;}if(!selectedCbTemplate){toast('Please select a template','error');return;}var d=getD();var newId=d.campaigns.length?Math.max.apply(null,d.campaigns.map(function(c){return c.id;}))+1:1;d.campaigns.push({id:newId,name:name,template:selectedCbTemplate,status:status,start:document.getElementById('cb-start').value||'2026-03-06',end:document.getElementById('cb-end').value||'2026-03-20',sent:0,opened:0,clicked:0,submitted:0,reported:0,noAction:0});saveD(d);closeCampaignBuilder();renderCampaigns();toast(status==='active'?'Campaign launched!':'Campaign saved as draft','success');}
+function saveCampaign(status){var name=document.getElementById('cb-name').value.trim();if(!name){toast('Please enter a campaign name','error');return;}if(!selectedCbTemplate){toast('Please select a template','error');return;}var d=getD();var newId=d.campaigns.length?Math.max.apply(null,d.campaigns.map(function(c){return c.id;}))+1:1;var campaignData={id:newId,name:name,template:selectedCbTemplate,status:status,start:document.getElementById('cb-start').value||'2026-03-06',end:document.getElementById('cb-end').value||'2026-03-20',sent:0,opened:0,clicked:0,submitted:0,reported:0,noAction:0};d.campaigns.push(campaignData);saveD(d);api('/campaigns','POST',campaignData).then(function(r){if(r)console.log('Campaign synced to server');}).catch(function(){});closeCampaignBuilder();renderCampaigns();toast(status==='active'?'Campaign launched!':'Campaign saved as draft','success');}
 function launchCampaign(id){var d=getD();var c=d.campaigns.find(function(x){return x.id===id;});if(c){c.status='active';c.sent=d.users.length;saveD(d);renderCampaigns();toast('Campaign launched!','success');}}
 function deleteCampaign(id){var d=getD();d.campaigns=d.campaigns.filter(function(c){return c.id!==id;});saveD(d);renderCampaigns();toast('Campaign deleted','info');}
 
@@ -945,7 +1028,7 @@ function completeCourse(){if(!currentCourse)return;var d=getD();if(!d.courseProg
 function renderPaths(){var d=getD();document.getElementById('paths-list').innerHTML=PATHS.map(function(p){var done=p.courses.filter(function(cid){return d.users[0].courses.includes(cid);}).length;var pct=Math.round(done/p.courses.length*100);return '<div class="cc"><div class="cc-t">'+p.name+'</div><div class="cc-d">'+p.desc+'</div><div class="cc-m" style="margin-bottom:12px"><span class="cc-mi">'+p.courses.length+' COURSES</span><span class="cc-mi">'+p.dur+'</span></div><div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:10px">Progress</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--accent)">'+pct+'%</span></div><div class="pb"><div class="pbf" style="width:'+pct+'%;background:var(--accent)"></div></div></div><div>'+p.courses.map(function(cid){var c=COURSES.find(function(x){return x.id===cid;});var isDone=d.users[0].courses.includes(cid);return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:'+(isDone?'var(--success)':'var(--muted)')+'">'+(isDone?'&#10003;':'&#9675;')+'</span><span style="font-size:12px;color:'+(isDone?'var(--text)':'var(--muted)')+'">'+(c?c.title:'Unknown')+'</span><span style="font-family:JetBrains Mono;font-size:9px;color:var(--muted);margin-left:auto">'+(c?c.dur:'')+'</span></div>';}).join('')+'</div></div>';}).join('');}
 
 function renderAssignments(){var d=getD();document.getElementById('asgn-tb').innerHTML=d.assignments.map(function(a){var u=d.users.find(function(x){return x.id===a.userId;});var sc={Pending:'var(--muted)','In Progress':'var(--accent2)',Completed:'var(--success)',Overdue:'var(--danger)'};return '<tr><td style="color:var(--white)">'+(u?u.name:'Unknown')+'</td><td>'+a.course+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+a.due+'</td><td><span class="badge" style="color:'+sc[a.status]+';border:1px solid '+sc[a.status]+'">'+a.status.toUpperCase()+'</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="pb" style="width:80px"><div class="pbf" style="width:'+a.progress+'%;background:'+(a.progress===100?'var(--success)':'var(--accent)')+'"></div></div><span style="font-family:JetBrains Mono;font-size:9px;color:var(--muted)">'+a.progress+'%</span></div></td></tr>';}).join('');}
-function assignTraining(){var d=getD();var uid=d.users[Math.floor(Math.random()*d.users.length)].id;var course=COURSES[Math.floor(Math.random()*COURSES.length)];var due=new Date();due.setDate(due.getDate()+14);d.assignments.push({userId:uid,course:course.title,due:due.toISOString().split('T')[0],status:'Pending',progress:0});saveD(d);renderAssignments();toast('Training assigned!','success');}
+function assignTraining(){var d=getD();var uid=d.users[Math.floor(Math.random()*d.users.length)].id;var course=COURSES[Math.floor(Math.random()*COURSES.length)];var due=new Date();due.setDate(due.getDate()+14);var asgn={userId:uid,course:course.title,courseId:course.id,due:due.toISOString().split('T')[0],status:'Pending',progress:0};d.assignments.push(asgn);saveD(d);api('/assignments','POST',{userId:uid,courseId:course.id,courseName:course.title,dueDate:asgn.due}).then(function(r){if(r)console.log('Assignment synced');}).catch(function(){});renderAssignments();toast('Training assigned!','success');}
 
 function renderRisk(){var d=getD();document.getElementById('risk-tb').innerHTML=d.users.sort(function(a,b){return b.risk-a.risk;}).map(function(u){var color=u.risk<=25?'var(--success)':u.risk<=50?'var(--warning)':'var(--danger)';return '<tr><td style="color:var(--white)">'+u.name+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+u.email+'</td><td>'+u.dept+'</td><td><div style="display:flex;align-items:center;gap:8px"><div class="rb" style="width:60px"><div class="rbf" style="width:'+u.risk+'%;background:'+color+'"></div></div><span style="font-family:JetBrains Mono;font-size:10px;color:'+color+'">'+u.risk+'</span></div></td><td style="color:'+(u.phishFails>2?'var(--danger)':'var(--text)')+'">'+u.phishFails+'</td><td><span style="font-family:JetBrains Mono;font-size:10px;color:var(--accent)">'+u.training+'%</span></td><td style="font-family:JetBrains Mono;font-size:10px;color:var(--muted)">'+u.lastActive+'</td></tr>';}).join('');}
 
@@ -953,7 +1036,12 @@ function renderLeaderboard(period){document.querySelectorAll('#v-leaderboard .fb
 
 function renderReports(){var d=getD();var avgT=Math.round(d.users.reduce(function(s,u){return s+u.training;},0)/d.users.length);var ts=d.campaigns.reduce(function(s,c){return s+c.sent;},0);var tc=d.campaigns.reduce(function(s,c){return s+c.clicked;},0);var cr=ts?Math.round(tc/ts*100):0;var ar=Math.round(d.users.reduce(function(s,u){return s+u.risk;},0)/d.users.length);document.getElementById('rpt-stats').innerHTML=[['TRAINING COMPLETION',avgT+'%','var(--accent)'],['PHISH CLICK RATE',cr+'%','var(--warning)'],['AVG RISK SCORE',ar,'var(--danger)'],['TOTAL CERTIFICATES',d.certificates.length,'var(--accent2)']].map(function(x){return '<div class="sc"><div class="sc-l">'+x[0]+'</div><div class="sc-v" style="color:'+x[2]+'">'+x[1]+'</div></div>';}).join('');var months=['Oct','Nov','Dec','Jan','Feb','Mar'];var tv=[55,62,68,72,78,avgT];var pv=[28,22,25,18,15,cr];document.getElementById('rpt-trend').innerHTML=months.map(function(m,i){return '<div style="display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-family:JetBrains Mono;font-size:10px;color:var(--muted);width:30px">'+m+'</span><div class="pb" style="flex:1"><div class="pbf" style="width:'+tv[i]+'%;background:var(--accent)"></div></div><span style="font-family:JetBrains Mono;font-size:10px;color:var(--accent)">'+tv[i]+'%</span></div>';}).join('');document.getElementById('rpt-phish').innerHTML=months.map(function(m,i){return '<div style="display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-family:JetBrains Mono;font-size:10px;color:var(--muted);width:30px">'+m+'</span><div class="pb" style="flex:1"><div class="pbf" style="width:'+pv[i]+'%;background:var(--warning)"></div></div><span style="font-family:JetBrains Mono;font-size:10px;color:var(--warning)">'+pv[i]+'%</span></div>';}).join('');var depts=[];d.users.forEach(function(u){if(depts.indexOf(u.dept)===-1)depts.push(u.dept);});document.getElementById('dept-cmp').innerHTML='<div class="tw"><table><thead><tr><th>DEPARTMENT</th><th>AVG TRAINING</th><th>AVG RISK</th><th>PHISH FAILS</th></tr></thead><tbody>'+depts.map(function(dept){var du=d.users.filter(function(u){return u.dept===dept;});var at=Math.round(du.reduce(function(s,u){return s+u.training;},0)/du.length);var ar2=Math.round(du.reduce(function(s,u){return s+u.risk;},0)/du.length);var pf=du.reduce(function(s,u){return s+u.phishFails;},0);return '<tr><td style="color:var(--white)">'+dept+'</td><td><div style="display:flex;align-items:center;gap:8px"><div class="pb" style="width:60px"><div class="pbf" style="width:'+at+'%;background:var(--accent)"></div></div><span style="font-family:JetBrains Mono;font-size:10px">'+at+'%</span></div></td><td><span style="color:'+(ar2<=25?'var(--success)':ar2<=50?'var(--warning)':'var(--danger)')+'">'+ar2+'</span></td><td>'+pf+'</td></tr>';}).join('')+'</tbody></table></div>';}
 
-function renderUsers(){var d=getD();document.getElementById('usr-tb').innerHTML=d.users.map(function(u){return '<tr><td style="color:var(--white)">'+u.name+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+u.email+'</td><td>'+u.dept+'</td><td>'+u.courses.length+'</td><td><span style="color:'+(u.risk<=25?'var(--success)':u.risk<=50?'var(--warning)':'var(--danger)')+'">'+u.risk+'</span></td><td><span class="badge bg">ACTIVE</span></td></tr>';}).join('');}
+var usersClientFilter='all';
+function renderUsers(){var d=getD();
+var clients=[];if(serverData&&serverData.clients)serverData.clients.forEach(function(c){if(clients.indexOf(c.name)===-1)clients.push(c.name);});
+var filterEl=document.getElementById('usr-client-filter');if(!filterEl){var container=document.querySelector('#v-users .ph');if(container){var fd=document.createElement('div');fd.style.cssText='margin-bottom:16px';fd.innerHTML='<label class="ob-label">FILTER BY CLIENT</label><select id="usr-client-filter" class="ob-select" style="width:220px" onchange="usersClientFilter=this.value;renderUsers()"><option value="all">All Clients</option>'+clients.map(function(c){return '<option value="'+c+'"'+(usersClientFilter===c?' selected':'')+'>'+c+'</option>';}).join('')+'</select>';container.parentNode.insertBefore(fd,container.nextSibling);}}else{filterEl.innerHTML='<option value="all">All Clients</option>'+clients.map(function(c){return '<option value="'+c+'"'+(usersClientFilter===c?' selected':'')+'>'+c+'</option>';}).join('');}
+var users=d.users;if(usersClientFilter!=='all')users=users.filter(function(u){return u.clientName===usersClientFilter;});
+document.getElementById('usr-tb').innerHTML=users.map(function(u){return '<tr><td style="color:var(--white)">'+u.name+(u.clientName?'<div style="font-size:9px;color:var(--muted)">'+u.clientName+'</div>':'')+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+u.email+'</td><td>'+(u.dept||'')+'</td><td>'+(u.courses?u.courses.length:0)+'</td><td><span style="color:'+((u.risk||0)<=25?'var(--success)':(u.risk||0)<=50?'var(--warning)':'var(--danger)')+'">'+(u.risk||0)+'</span></td><td><span class="badge bg">ACTIVE</span></td></tr>';}).join('');}
 function addUser(){var d=getD();var names=['Alex Johnson','Maria Garcia','Chris Lee','Priya Patel','Jordan Smith'];var depts=['Security','Finance','HR','Engineering','Marketing','Operations','Sales'];var name=names[Math.floor(Math.random()*names.length)];var dept=depts[Math.floor(Math.random()*depts.length)];var email=name.toLowerCase().replace(' ','.')+'@company.com';var newId=d.users.length?Math.max.apply(null,d.users.map(function(u){return u.id;}))+1:1;d.users.push({id:newId,name:name,email:email,dept:dept,risk:Math.floor(Math.random()*50),phishFails:0,training:0,score:0,courses:[],lastActive:new Date().toISOString().split('T')[0]});saveD(d);renderUsers();toast('User added!','success');}
 
 function renderCertificates(){var d=getD();document.getElementById('cert-tb').innerHTML=d.certificates.map(function(c){return '<tr><td style="color:var(--white)">'+c.course+'</td><td>'+c.user+'</td><td style="font-family:JetBrains Mono;font-size:10px">'+c.date+'</td><td><button class="btn btn-s btn-sm" onclick="toast(\'Download coming soon\',\'info\')">DOWNLOAD</button></td></tr>';}).join('');}
@@ -1599,6 +1687,20 @@ toast('Attack Lab complete! +500 XP earned','success');
 initAttackLab();
 }
 
+
+function goBack(){
+  try{
+    var u=JSON.parse(sessionStorage.getItem('p1_user')||'{}');
+    window.location.href=u.role==='admin'?'dashboard.html':'client-portal.html';
+  }catch(e){window.location.href='dashboard.html';}
+}
+(function(){
+  try{
+    var u=JSON.parse(sessionStorage.getItem('p1_user')||'{}');
+    var l=document.getElementById('backLink');
+    if(l)l.innerHTML=u.role==='admin'?'&larr; BACK TO DASHBOARD':'&larr; BACK TO PORTAL';
+  }catch(e){}
+})();
 </script>
 </body>
 </html>

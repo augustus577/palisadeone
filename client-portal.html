@@ -352,7 +352,7 @@
   </div>
 
   <div class="nav-section">Compliance</div>
-  <div class="nav-item" data-view="assessment" data-min-tier="defend" onclick="showView('assessment')">
+  <div class="nav-item" data-view="assessment" data-min-tier="defend" onclick="navTo('assessment')">
     <span class="nav-icon">&#9733;</span> <span>Cyber Assessment</span>
   </div>
   <div class="nav-item" data-view="compliance" data-min-tier="defend" onclick="showView('compliance')">
@@ -360,13 +360,13 @@
   </div>
 
   <div class="nav-section">Tools</div>
-  <div class="nav-item" data-view="training" data-min-tier="defend" onclick="showView('training')">
+  <div class="nav-item" data-view="training" data-min-tier="defend" onclick="navTo('training')">
     <span class="nav-icon">&#9998;</span> <span>Security Training</span>
   </div>
   <div class="nav-item" data-view="darkweb" data-min-tier="defend" onclick="showView('darkweb')">
     <span class="nav-icon">&#9775;</span> <span>Dark Web Monitor</span>
   </div>
-  <div class="nav-item" data-view="vulnscan" data-min-tier="dominate" onclick="showView('vulnscan')">
+  <div class="nav-item" data-view="vulnscan" data-min-tier="dominate" onclick="navTo('vulnscan')">
     <span class="nav-icon">&#9760;</span> <span>Vulnerability Scanner</span>
   </div>
   <div class="nav-item" data-view="zerotrust" data-min-tier="dominate" onclick="showView('zerotrust')">
@@ -656,6 +656,18 @@ function applyTierGating() {
       item.classList.add('locked');
     }
   });
+}
+
+// Navigate to a dedicated page (opens in same tab, auth persists via sessionStorage)
+function navTo(name) {
+  const navItem = document.querySelector(`.nav-item[data-view="${name}"]`);
+  if (navItem && navItem.classList.contains('locked')) return;
+  const pages = {
+    assessment: 'cyber-assessment.html',
+    training: 'training.html',
+    vulnscan: 'cyber-assessment.html#vulnscan'
+  };
+  if (pages[name]) window.location.href = pages[name];
 }
 
 function showView(name) {
