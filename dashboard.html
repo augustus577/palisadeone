@@ -2353,7 +2353,7 @@
     <div class="settings-section">
       <div class="settings-title">DATA & RETENTION</div>
       <div class="settings-row">
-        <label class="settings-label">Alert retention period</label>
+        <label class="settings-label">Default report time window</label>
         <select class="settings-input" id="cfg-retention" style="margin:0;">
           <option value="30">30 days</option>
           <option value="60">60 days</option>
@@ -2362,6 +2362,7 @@
           <option value="365">1 year</option>
         </select>
       </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:-4px;margin-bottom:12px;">Sets the default lookback window for report generation. Wazuh data retention is managed server-side.</div>
       <div class="settings-row">
         <label class="settings-label">Report history</label>
         <div style="display:flex;gap:8px;align-items:center;">
@@ -2710,7 +2711,10 @@ function showView(name) {
   if (name === 'siem') initSiem();
   if (name === 'devices') {
     loadDevices();
-    if (!deviceRefreshTimer) deviceRefreshTimer = setInterval(loadDevices, 30000);
+    if (!deviceRefreshTimer) {
+      const devRefreshMs = (parseInt((JSON.parse(localStorage.getItem('p1_prefs') || '{}')).refreshInterval) || 30) * 1000;
+      deviceRefreshTimer = setInterval(loadDevices, devRefreshMs);
+    }
   }
   if (name === 'compliance') loadCompliance();
   if (name === 'clients') loadClients();
@@ -3187,7 +3191,10 @@ let alertMinLevel = 0;
 let alertSearchQuery = '';
 let alertsAllHits = [];
 let alertsOffset = 0;
-const ALERTS_PAGE = 50;
+function getAlertsPageSize() {
+  try { return parseInt(JSON.parse(localStorage.getItem('p1_prefs') || '{}').alertsPerPage) || 50; } catch(e) { return 50; }
+}
+let ALERTS_PAGE = getAlertsPageSize();
 
 function populateAlertAgentFilter() {
   const sel = document.getElementById('alerts-agent-filter');
@@ -3313,6 +3320,8 @@ async function runAlertSearch() {
     }
 
     alertsHitsCache = alertsAllHits;
+    // Check notification & auto-isolate thresholds
+    checkAlertThresholds(alertsAllHits);
     const hasMore = alertsAllHits.length > ALERTS_PAGE;
     const displayHits = hasMore ? alertsAllHits.slice(0, ALERTS_PAGE) : alertsAllHits;
 
@@ -3340,6 +3349,117 @@ function loadMoreAlerts() {
   if (alertsOffset + ALERTS_PAGE >= alertsAllHits.length) {
     document.getElementById('alert-load-more').style.display = 'none';
   }
+}
+
+// ============================================================
+// ALERT THRESHOLD CHECKS — Notifications, Sound, Auto-Isolate
+// ============================================================
+let _lastNotifiedAlerts = new Set();
+let _alertSoundCtx = null;
+
+function checkAlertThresholds(hits) {
+  const prefs = JSON.parse(localStorage.getItem('p1_prefs') || '{}');
+  const notifyLevel = parseInt(prefs.notifyLevel) || 7;
+  const isolateLevel = parseInt(prefs.isolateLevel) || 12;
+  const soundEnabled = prefs.alertSound || false;
+
+  const newHighAlerts = [];
+  const toIsolate = [];
+
+  hits.forEach(hit => {
+    const level = hit.rule?.level || 0;
+    const alertKey = (hit.timestamp || '') + ':' + (hit.rule?.id || '') + ':' + (hit.agent?.name || '');
+
+    // Skip already-notified alerts
+    if (_lastNotifiedAlerts.has(alertKey)) return;
+
+    // Check notification threshold
+    if (level >= notifyLevel) {
+      newHighAlerts.push(hit);
+      _lastNotifiedAlerts.add(alertKey);
+    }
+
+    // Check auto-isolate threshold
+    if (isolateLevel > 0 && level >= isolateLevel) {
+      toIsolate.push(hit);
+    }
+  });
+
+  // Keep set from growing unbounded
+  if (_lastNotifiedAlerts.size > 500) {
+    const arr = [..._lastNotifiedAlerts];
+    _lastNotifiedAlerts = new Set(arr.slice(-200));
+  }
+
+  // Browser notifications for new high-priority alerts
+  if (newHighAlerts.length > 0 && document.hidden) {
+    if (Notification.permission === 'granted') {
+      const top = newHighAlerts[0];
+      new Notification('PalisadeOne Alert', {
+        body: `[Level ${top.rule?.level}] ${top.rule?.description || 'Security event'} on ${top.agent?.name || 'unknown'}`,
+        icon: '🛡️',
+        tag: 'p1-alert'
+      });
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission();
+    }
+  }
+
+  // Play alert sound for critical alerts
+  if (soundEnabled && newHighAlerts.some(h => (h.rule?.level || 0) >= 12)) {
+    playAlertSound();
+  }
+
+  // Auto-isolate endpoints if enabled
+  if (isolateLevel > 0 && toIsolate.length > 0) {
+    const isolatedAgents = new Set();
+    toIsolate.forEach(hit => {
+      const agentName = hit.agent?.name;
+      const agentId = hit.agent?.id;
+      if (agentName && agentId && !isolatedAgents.has(agentId)) {
+        isolatedAgents.add(agentId);
+        // Trigger isolation via active response
+        fetch(`${PROXY_URL}/active-response`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: 'isolate-win', agent_id: agentId })
+        }).then(() => {
+          showToast(`Auto-isolated ${agentName} (Level ${hit.rule?.level} alert)`, 'warn');
+        }).catch(() => {});
+      }
+    });
+  }
+}
+
+function playAlertSound() {
+  try {
+    // Generate alert tone using Web Audio API (no external file needed)
+    const ctx = _alertSoundCtx || new (window.AudioContext || window.webkitAudioContext)();
+    _alertSoundCtx = ctx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+    // Second beep
+    setTimeout(() => {
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.frequency.value = 1100;
+      osc2.type = 'sine';
+      gain2.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      osc2.start(ctx.currentTime);
+      osc2.stop(ctx.currentTime + 0.5);
+    }, 300);
+  } catch(e) { /* Audio not available */ }
 }
 
 function renderAlertRowV2(hit, idx) {
@@ -7335,7 +7455,9 @@ function saveAlertThresholds() {
   prefs.alertsPerPage = parseInt(document.getElementById('cfg-alerts-per-page').value) || 50;
   prefs.retention = document.getElementById('cfg-retention').value;
   localStorage.setItem('p1_prefs', JSON.stringify(prefs));
-  showToast('Alert thresholds saved', 'success');
+  // Apply immediately
+  ALERTS_PAGE = prefs.alertsPerPage;
+  showToast('Alert thresholds saved — applied immediately', 'success');
 }
 
 function clearReportHistory() {

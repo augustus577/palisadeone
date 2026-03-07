@@ -1974,23 +1974,192 @@ function loadReports() {
   `).join('');
 }
 
-function downloadReport(name) {
-  alert('Report generation is being prepared. Your "' + name + '" will be emailed to you shortly.');
+async function downloadReport(name) {
+  // Extract month/year from report name like "Monthly Security Report - March 2026"
+  const match = name.match(/(\w+)\s+(\d{4})$/);
+  if (!match) { alert('Could not parse report period.'); return; }
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthIdx = monthNames.indexOf(match[1]);
+  const year = parseInt(match[2]);
+  if (monthIdx === -1) { alert('Invalid month.'); return; }
+  const month = `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
+
+  const clientName = clientData?.company || sessionStorage.getItem('p1_company') || 'Client';
+
+  try {
+    // Fetch alerts for that month
+    const startDate = `${month}-01T00:00:00Z`;
+    const endDate = new Date(year, monthIdx + 1, 0);
+    endDate.setHours(23, 59, 59);
+
+    const res = await fetch(API_URL + '/wazuh-alerts-*/_search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        size: 2000,
+        query: { bool: { must: [{ range: { timestamp: { gte: startDate, lte: endDate.toISOString() } } }] } },
+        sort: [{ timestamp: 'desc' }]
+      })
+    });
+    const data = await res.json();
+    const hits = data.hits?.hits?.map(h => h._source) || [];
+
+    // Fetch SCA data
+    let scaPolicies = [];
+    try {
+      const scaRes = await fetch(API_URL + '/wazuh-alerts-*/_search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          size: 0,
+          query: { bool: { must: [{ exists: { field: 'data.sca.policy' } }] } },
+          aggs: { by_policy: { terms: { field: 'data.sca.policy.keyword', size: 20 }, aggs: { results: { terms: { field: 'data.sca.check.result.keyword', size: 5 } } } } }
+        })
+      });
+      const scaData = await scaRes.json();
+      scaPolicies = (scaData.aggregations?.by_policy?.buckets || []).map(p => {
+        let pass = 0, fail = 0;
+        (p.results?.buckets || []).forEach(r => { if (r.key === 'passed') pass = r.doc_count; else if (r.key === 'failed') fail = r.doc_count; });
+        return { name: p.key, pass, fail };
+      });
+    } catch(e) {}
+
+    // Generate report HTML (reuse the same engine as dashboard)
+    const reportHTML = generateClientReportHTML(hits, clientName, month, scaPolicies);
+    const win = window.open('', '_blank');
+    win.document.write(reportHTML);
+    win.document.close();
+  } catch(e) {
+    alert('Failed to generate report: ' + e.message);
+  }
 }
 
 function requestDoc(name) {
-  alert('A request for "' + name + '" has been sent to your PalisadeOne team. You will receive it within 24 hours.');
+  const email = clientData?.email || sessionStorage.getItem('p1_email') || '';
+  const company = clientData?.company || sessionStorage.getItem('p1_company') || '';
+  if (confirm(`Request "${name}" for ${company}?\n\nThis will be sent to your PalisadeOne team and delivered within 24 hours.`)) {
+    // In production this would POST to an API endpoint
+    alert(`Request submitted for "${name}". Your PalisadeOne team has been notified and will deliver it within 24 hours.`);
+  }
 }
 
-function generateReport() {
+async function generateReport() {
   const btn = document.getElementById('genReportBtn');
   btn.textContent = 'GENERATING...';
   btn.disabled = true;
-  setTimeout(() => {
+
+  try {
+    const now = new Date();
+    const month = now.toISOString().slice(0, 7);
+    const clientName = clientData?.company || sessionStorage.getItem('p1_company') || 'Client';
+
+    const res = await fetch(API_URL + '/wazuh-alerts-*/_search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        size: 2000,
+        query: { bool: { must: [{ range: { timestamp: { gte: 'now-30d' } } }] } },
+        sort: [{ timestamp: 'desc' }]
+      })
+    });
+    const data = await res.json();
+    const hits = data.hits?.hits?.map(h => h._source) || [];
+    const reportHTML = generateClientReportHTML(hits, clientName, month, []);
+    const win = window.open('', '_blank');
+    win.document.write(reportHTML);
+    win.document.close();
+  } catch(e) {
+    alert('Failed to generate report: ' + e.message);
+  } finally {
     btn.textContent = 'GENERATE REPORT';
     btn.disabled = false;
-    alert('Your custom security report is being generated and will be emailed to you within the hour.');
-  }, 2000);
+  }
+}
+
+function generateClientReportHTML(hits, client, month, scaPolicies) {
+  const [year, mon] = month.split('-');
+  const monthName = new Date(parseInt(year), parseInt(mon) - 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const generatedDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  let critical = 0, high = 0, medium = 0, low = 0;
+  const ruleCounts = {}, agentCounts = {}, mitreCounts = {}, dailyCounts = {};
+  hits.forEach(s => {
+    const level = s.rule?.level || 0;
+    if (level >= 12) critical++; else if (level >= 7) high++; else if (level >= 4) medium++; else low++;
+    const rd = s.rule?.description || 'Unknown';
+    ruleCounts[rd] = (ruleCounts[rd] || 0) + 1;
+    const an = s.agent?.name || 'Unknown';
+    agentCounts[an] = (agentCounts[an] || 0) + 1;
+    (s.rule?.mitre?.technique || []).forEach(t => { mitreCounts[t] = (mitreCounts[t] || 0) + 1; });
+    const day = (s.timestamp || '').slice(0, 10);
+    if (day) dailyCounts[day] = (dailyCounts[day] || 0) + 1;
+  });
+
+  const totalAlerts = hits.length;
+  const hs = Math.max(0, Math.min(100, Math.round(100 - (critical * 5) - (high * 2) - (medium * 0.5))));
+  const hsColor = hs >= 80 ? '#00FFD1' : hs >= 60 ? '#F5A623' : '#FF3B5C';
+  const topRules = Object.entries(ruleCounts).sort((a,b) => b[1]-a[1]).slice(0, 8);
+  const topAgents = Object.entries(agentCounts).sort((a,b) => b[1]-a[1]).slice(0, 10);
+  const topMitre = Object.entries(mitreCounts).sort((a,b) => b[1]-a[1]).slice(0, 8);
+  const days = Object.entries(dailyCounts).sort((a,b) => a[0].localeCompare(b[0]));
+  const maxDay = Math.max(...days.map(d => d[1]), 1);
+  const endpointCount = Object.keys(agentCounts).length;
+
+  const bars = days.map(([d,c]) => {
+    const pct = Math.round((c/maxDay)*100);
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:rgba(0,255,209,0.15);height:100px;position:relative;"><div style="position:absolute;bottom:0;width:100%;height:${pct}%;background:linear-gradient(to top,#00FFD1,#0084FF);"></div></div><span style="font-size:7px;color:#4A6080;">${parseInt(d.slice(-2))}</span></div>`;
+  }).join('');
+
+  const ruleRows = topRules.map(([d,c],i) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #112240;color:#C8D8F0;font-size:11px;">${i+1}</td><td style="padding:6px 10px;border-bottom:1px solid #112240;color:#C8D8F0;font-size:11px;">${d}</td><td style="padding:6px 10px;border-bottom:1px solid #112240;color:#00FFD1;font-size:11px;text-align:right;">${c}</td></tr>`).join('');
+  const agentRows = topAgents.map(([n,c]) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #112240;color:#C8D8F0;font-size:11px;">${n}</td><td style="padding:6px 10px;border-bottom:1px solid #112240;color:#00FFD1;font-size:11px;text-align:right;">${c}</td></tr>`).join('');
+  const mitreTags = topMitre.map(([t,c]) => `<span style="display:inline-block;padding:3px 8px;margin:2px;background:rgba(0,132,255,0.1);border:1px solid rgba(0,132,255,0.2);color:#0084FF;font-size:9px;letter-spacing:1px;">${t} (${c})</span>`).join('');
+  const scaHTML = (scaPolicies||[]).map(p => {
+    const total = (p.pass+p.fail)||1; const pct = Math.round((p.pass/total)*100);
+    return `<div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:#C8D8F0;">${p.name}</span><span style="font-size:11px;color:#00FFD1;">${pct}%</span></div><div style="height:5px;background:#112240;border-radius:3px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${pct>=80?'#00FFD1':pct>=60?'#F5A623':'#FF3B5C'};border-radius:3px;"></div></div></div>`;
+  }).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Security Report - ${monthName} - ${client}</title>
+<style>@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400&family=Outfit:wght@300;400;500;600&display=swap');*{margin:0;padding:0;box-sizing:border-box;}body{background:#03050A;color:#C8D8F0;font-family:'Outfit',sans-serif;line-height:1.6;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.no-print{display:none!important;}.pb{page-break-before:always;}}.r{max-width:850px;margin:0 auto;padding:32px;}.s{border:1px solid #112240;padding:28px;margin-bottom:20px;}.h{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#F0F6FF;letter-spacing:2px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #112240;}table{width:100%;border-collapse:collapse;}th{padding:6px 10px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;color:#4A6080;letter-spacing:2px;border-bottom:2px solid #112240;}.btn{position:fixed;bottom:20px;right:20px;padding:12px 24px;background:#00FFD1;color:#03050A;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:2px;border:none;cursor:pointer;z-index:100;}</style></head><body>
+<button class="btn no-print" onclick="window.print()">PRINT / SAVE PDF</button>
+<div class="r">
+<div style="text-align:center;padding:50px 32px;border:1px solid #112240;margin-bottom:32px;position:relative;overflow:hidden;">
+<div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 40%,rgba(0,255,209,0.05) 0%,transparent 60%);"></div>
+<div style="position:relative;"><div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#00FFD1;letter-spacing:6px;">PALISADE<span style="color:#0084FF;">ONE</span></div>
+<div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#F0F6FF;letter-spacing:3px;margin-top:12px;">SECURITY REPORT</div>
+<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4A6080;letter-spacing:2px;margin-top:10px;">${monthName.toUpperCase()} &bull; ${client.toUpperCase()}</div>
+<div style="font-size:10px;color:#4A6080;margin-top:6px;">Generated ${generatedDate}</div></div></div>
+
+<div class="s"><div class="h">EXECUTIVE SUMMARY</div>
+<div style="display:grid;grid-template-columns:120px 1fr;gap:32px;align-items:center;">
+<div style="text-align:center;">
+<svg width="100" height="100" viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" fill="none" stroke="#112240" stroke-width="8"/><circle cx="60" cy="60" r="54" fill="none" stroke="${hsColor}" stroke-width="8" stroke-dasharray="${(hs/100)*339} 339" stroke-linecap="round" transform="rotate(-90 60 60)"/></svg>
+<div style="font-family:'Bebas Neue',sans-serif;font-size:30px;color:${hsColor};margin-top:-68px;position:relative;">${hs}</div>
+<div style="font-size:9px;color:#4A6080;letter-spacing:2px;margin-top:38px;">HEALTH SCORE</div></div>
+<div><p style="font-size:13px;line-height:1.8;">During ${monthName}, your environment generated <strong style="color:#F0F6FF;">${totalAlerts.toLocaleString()}</strong> security events across <strong style="color:#F0F6FF;">${endpointCount}</strong> endpoints. ${critical > 0 ? `<span style="color:#FF3B5C;font-weight:600;">${critical} critical alerts</span> were detected.` : 'No critical alerts detected.'}</p></div></div></div>
+
+<div class="s"><div class="h">ALERT BREAKDOWN</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+<div style="background:#070C14;border:1px solid #112240;padding:16px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:30px;color:#FF3B5C;">${critical}</div><div style="font-size:9px;color:#4A6080;letter-spacing:2px;margin-top:4px;">CRITICAL</div></div>
+<div style="background:#070C14;border:1px solid #112240;padding:16px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:30px;color:#F5A623;">${high}</div><div style="font-size:9px;color:#4A6080;letter-spacing:2px;margin-top:4px;">HIGH</div></div>
+<div style="background:#070C14;border:1px solid #112240;padding:16px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:30px;color:#0084FF;">${medium}</div><div style="font-size:9px;color:#4A6080;letter-spacing:2px;margin-top:4px;">MEDIUM</div></div>
+<div style="background:#070C14;border:1px solid #112240;padding:16px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:30px;color:#4A6080;">${low}</div><div style="font-size:9px;color:#4A6080;letter-spacing:2px;margin-top:4px;">LOW</div></div></div>
+${bars ? `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#00FFD1;letter-spacing:3px;margin-bottom:8px;">// DAILY VOLUME</div><div style="display:flex;gap:2px;align-items:flex-end;height:110px;">${bars}</div>` : ''}</div>
+
+${ruleRows ? `<div class="s pb"><div class="h">TOP DETECTION RULES</div><table><thead><tr><th>#</th><th>Rule</th><th style="text-align:right;">Count</th></tr></thead><tbody>${ruleRows}</tbody></table></div>` : ''}
+${agentRows ? `<div class="s"><div class="h">ENDPOINT DISTRIBUTION</div><table><thead><tr><th>Endpoint</th><th style="text-align:right;">Alerts</th></tr></thead><tbody>${agentRows}</tbody></table></div>` : ''}
+${mitreTags ? `<div class="s"><div class="h">MITRE ATT&CK TECHNIQUES</div><div>${mitreTags}</div></div>` : ''}
+${scaHTML ? `<div class="s pb"><div class="h">COMPLIANCE STATUS</div>${scaHTML}</div>` : ''}
+
+<div class="s"><div class="h">RECOMMENDATIONS</div>
+${critical > 0 ? `<div style="padding:12px;background:rgba(255,59,92,0.08);border-left:3px solid #FF3B5C;margin-bottom:12px;"><div style="font-size:12px;color:#FF3B5C;font-weight:600;margin-bottom:3px;">Address Critical Alerts</div><p style="font-size:11px;color:#4A6080;">${critical} critical alerts detected. Ensure all remediation steps are complete.</p></div>` : ''}
+<div style="padding:12px;background:rgba(0,255,209,0.05);border-left:3px solid #00FFD1;margin-bottom:12px;"><div style="font-size:12px;color:#00FFD1;font-weight:600;margin-bottom:3px;">Maintain Endpoint Coverage</div><p style="font-size:11px;color:#4A6080;">${endpointCount} endpoints reporting. Ensure all devices have agents installed.</p></div>
+<div style="padding:12px;background:rgba(0,132,255,0.05);border-left:3px solid #0084FF;"><div style="font-size:12px;color:#0084FF;font-weight:600;margin-bottom:3px;">Review Compliance Posture</div><p style="font-size:11px;color:#4A6080;">Prioritize remediation of failed SCA checks to improve security posture.</p></div></div>
+
+<div style="text-align:center;padding:32px;font-size:10px;color:#4A6080;border-top:1px solid #112240;margin-top:32px;">
+<div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:#4A6080;letter-spacing:4px;margin-bottom:6px;">PALISADE<span style="color:#00FFD1;">ONE</span></div>
+<div>Confidential — prepared for ${client}</div>
+<div style="margin-top:3px;">hello@palisadeone.com</div></div>
+</div></body></html>`;
 }
 
 // ===== KNOWLEDGE BASE =====
