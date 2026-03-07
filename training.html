@@ -7,8 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--black:#03050A;--deep:#070C14;--surface:#0B1220;--surface2:#0F1A2E;--border:#112240;--border2:#1A3060;--accent:#00FFD1;--accent2:#0084FF;--danger:#FF3B5C;--warning:#F5A623;--success:#00C896;--purple:#7B61FF;--text:#C8D8F0;--muted:#4A6080;--white:#F0F6FF}
-html[data-theme="light"]{--black:#EEF2F7;--deep:#E3EAF2;--surface:#FFFFFF;--surface2:#F5F8FC;--border:#CBD8E8;--border2:#ADC0D4;--accent:#008F7E;--accent2:#0070CC;--danger:#D42B47;--warning:#C47800;--success:#008F7E;--purple:#5B41DF;--text:#1E2E3D;--muted:#5A7A9A;--white:#0A1828}
+:root{--black:#060C18;--deep:#0A1225;--surface:#0E1A30;--surface2:#132038;--border:#1A2E50;--border2:#223860;--accent:#00FFD1;--accent2:#3B9EFF;--danger:#FF4466;--warning:#F5A623;--success:#00C896;--purple:#7B61FF;--text:#D8E8FA;--muted:#637C9E;--white:#F0F6FF}
+html[data-theme="light"]{--black:#F0F4FA;--deep:#E3EAF2;--surface:#FFFFFF;--surface2:#F5F8FC;--border:#CBD8E8;--border2:#ADC0D4;--accent:#00A882;--accent2:#0066CC;--danger:#D42B47;--warning:#C47800;--success:#008F7E;--purple:#5B41DF;--text:#1E2E3D;--muted:#5A7A9A;--white:#0A1828}
 html,body{height:100%;overflow:hidden}
 body{background:var(--black);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;cursor:none;display:flex;flex-direction:column}
 html[data-theme="light"] body{cursor:auto}
@@ -32,11 +32,11 @@ html[data-theme="light"] .topbar-back{cursor:pointer}
 .theme-toggle-btn:hover{border-color:var(--accent);color:var(--accent)}
 html[data-theme="light"] .theme-toggle-btn{cursor:pointer}
 .app-body{flex:1;display:flex;overflow:hidden;position:relative;z-index:1}
-.sidebar{width:220px;background:rgba(7,12,20,0.98);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar{width: 260px;background:rgba(7,12,20,0.98);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
 html[data-theme="light"] .sidebar{background:var(--deep)}
 .sidebar-section{padding:16px 0 8px}
 .sidebar-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:3px;padding:0 16px;margin-bottom:8px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:none;transition:all .15s;border-left:2px solid transparent;text-decoration:none;color:var(--text);font-size:12px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:none;transition:all .15s;border-left:2px solid transparent;text-decoration:none;color:var(--text);font-size: 14px}
 html[data-theme="light"] .nav-item{cursor:pointer}
 .nav-item:hover{background:var(--surface)}
 .nav-item.active{background:rgba(0,255,209,0.06);border-left-color:var(--accent);color:var(--white)}
@@ -176,7 +176,7 @@ html[data-theme="light"] .tpc{cursor:pointer}
 .emc-hval{font-size:12px;color:var(--text)}
 .emc-hval.em-from{color:var(--white);font-weight:500}
 .emc-hval.em-subj{color:var(--white);font-weight:600;font-size:13px}
-.emc-body{background:#ffffff;padding:0;color:#1a1a1a;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6}
+.emc-body{background:#ffffff;padding:0;color:#1a1a1a;font-family:Arial,Helvetica,sans-serif;font-size: 15px;line-height:1.6}
 .em-brand-bar{padding:16px 24px;color:#ffffff;font-size:18px;font-weight:700;letter-spacing:0.5px}
 .em-content{padding:24px 32px}
 .em-content p{margin:0 0 14px;color:#333333}
@@ -251,7 +251,7 @@ html[data-theme="light"] .tpc{cursor:pointer}
 .cv-tl-desc{font-size:13px;color:var(--text);margin-top:4px}
 .cv-email-mock{background:#ffffff;border:1px solid #ddd;padding:0;margin:16px 0;font-family:Arial,Helvetica,sans-serif;color:#333;overflow:hidden;animation:flipIn 0.8s ease forwards}
 .cv-email-mock-header{background:#f5f5f5;padding:12px 16px;border-bottom:1px solid #ddd;font-size:12px;color:#666}
-.cv-email-mock-body{padding:20px;font-size:14px;line-height:1.7}
+.cv-email-mock-body{padding:20px;font-size: 15px;line-height:1.7}
 .cv-email-mock .red-flag{background:rgba(255,59,92,0.1);border:1px dashed rgba(255,59,92,0.4);padding:2px 6px;color:var(--danger);font-size:11px;font-family:'JetBrains Mono',monospace;position:relative}
 .cv-do-dont{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
 .cv-do{background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.2);padding:16px}

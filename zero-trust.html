@@ -8,18 +8,18 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --black: #03050A; --deep: #070C14; --surface: #0B1220; --surface2: #0F1A2E;
-      --border: #112240; --border2: #1A3060;
-      --accent: #00FFD1; --accent2: #0084FF;
-      --danger: #FF3B5C; --warning: #F5A623; --success: #00FFD1;
-      --text: #C8D8F0; --muted: #4A6080; --white: #F0F6FF;
+      --black: #060C18; --deep: #0A1225; --surface: #0E1A30; --surface2: #132038;
+      --border: #1A2E50; --border2: #223860;
+      --accent: #00FFD1; --accent2: #3B9EFF;
+      --danger: #FF4466; --warning: #F5A623; --success: #00FFD1;
+      --text: #D8E8FA; --muted: #637C9E; --white: #F0F6FF;
       --purple: #A855F7; --orange: #FB923C;
     }
     html { scroll-behavior: smooth; }
     body { background: var(--black); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; overflow-x: hidden; min-height: 100vh; }
     body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,255,209,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,209,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
 
-    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; background: var(--deep); border-right: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; }
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; background: var(--deep); border-right: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; }
     .sidebar-logo { padding: 20px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; }
     .sidebar-logo-icon { width: 32px; height: 32px; background: rgba(0,255,209,0.1); border: 1px solid rgba(0,255,209,0.3); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
     .sidebar-logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: var(--white); letter-spacing: 3px; }
@@ -27,7 +27,7 @@
     .sidebar-logo-sub { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--purple); letter-spacing: 2px; margin-top: 2px; }
     .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
     .nav-section { padding: 12px 16px 4px; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; transition: all 0.2s; border-left: 2px solid transparent; color: var(--muted); font-size: 13px; font-weight: 400; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; transition: all 0.2s; border-left: 2px solid transparent; color: var(--muted); font-size: 14px; font-weight: 400; }
     .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.02); }
     .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,255,209,0.04); }
     .nav-icon { font-size: 15px; width: 18px; text-align: center; }
@@ -37,7 +37,7 @@
     .sidebar-footer a { font-size: 12px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
     .sidebar-footer a:hover { color: var(--accent); }
 
-    .main { margin-left: 220px; min-height: 100vh; position: relative; z-index: 1; }
+    .main { margin-left: 260px; min-height: 100vh; position: relative; z-index: 1; }
     .topbar { padding: 0 24px; height: 56px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(7,12,20,0.85); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 50; }
     .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--white); letter-spacing: 2px; }
     .topbar-right { display: flex; align-items: center; gap: 12px; }
@@ -53,7 +53,7 @@
 
     .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
     @media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(3, 1fr); } }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 18px; position: relative; overflow: hidden; transition: border-color 0.3s; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; position: relative; overflow: hidden; transition: border-color 0.3s; }
     .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
     .stat-card.red::before { background: linear-gradient(to right, transparent, var(--danger), transparent); }
     .stat-card.green::before { background: linear-gradient(to right, transparent, var(--accent), transparent); }
@@ -65,7 +65,7 @@
     .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1; color: var(--white); letter-spacing: 2px; }
     .stat-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
 
-    .panel { background: var(--surface); border: 1px solid var(--border); margin-bottom: 16px; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; }
     .panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .panel-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
     .panel-title::before { content: '//'; color: var(--muted); }
@@ -209,9 +209,9 @@
 
     /* LIGHT MODE */
     html[data-theme="light"] {
-      --black: #EEF2F7; --deep: #E3EAF2; --surface: #FFFFFF; --surface2: #F5F8FC;
+      --black: #F0F4FA; --deep: #E3EAF2; --surface: #FFFFFF; --surface2: #F5F8FC;
       --border: #CBD8E8; --border2: #ADC0D4;
-      --accent: #008F7E; --accent2: #0070CC;
+      --accent: #00A882; --accent2: #0066CC;
       --danger: #D42B47; --warning: #C47800; --success: #008F7E;
       --text: #1E2E3D; --muted: #5A7A9A; --white: #0A1828;
       --purple: #7C3AED; --orange: #EA580C;
@@ -481,7 +481,7 @@
     <div class="page-title" id="page-title">OVERVIEW</div>
     <div class="topbar-right">
       <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;padding:3px 8px;border:1px solid var(--border);color:var(--muted);" id="api-status">CONNECTING...</span>
-      <button class="topbar-btn" onclick="toggleTheme()">&#9790; THEME</button>
+      <button onclick="toggleTheme()" title="Toggle light/dark" style="background:var(--surface);border:1px solid var(--border);color:var(--text);width:38px;height:38px;border-radius:19px;cursor:pointer;font-size:17px;display:inline-flex;align-items:center;justify-content:center;transition:all 0.2s;margin-left:8px;"><span id="theme-icon">☀</span></button><button class="topbar-btn" onclick="toggleTheme()">&#9790; THEME</button>
       <span class="topbar-time" id="clock"></span>
     </div>
   </div>
