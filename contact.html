@@ -173,33 +173,38 @@
     </div>
 
     <div class="contact-form-wrap fade-up">
-      <div id="form-content">
+      <form id="form-content" action="https://formsubmit.co/camatta@palisadecg.com" method="POST">
+        <input type="hidden" name="_subject" value="New Demo Request — PalisadeOne">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_next" value="https://palisadeone.com/contact.html?success=1">
+        <input type="text" name="_honey" style="display:none">
         <div class="form-title">BOOK YOUR DEMO</div>
         <div class="form-sub">Tell us about your environment and we'll prepare a demo tailored to your specific needs.</div>
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label">First Name *</label>
-            <input type="text" class="form-input" id="firstName" placeholder="John" required>
+            <input type="text" class="form-input" name="First Name" id="firstName" placeholder="John" required>
           </div>
           <div class="form-group">
             <label class="form-label">Last Name *</label>
-            <input type="text" class="form-input" id="lastName" placeholder="Smith" required>
+            <input type="text" class="form-input" name="Last Name" id="lastName" placeholder="Smith" required>
           </div>
           <div class="form-group form-full">
             <label class="form-label">Business Email *</label>
-            <input type="email" class="form-input" id="email" placeholder="john@company.com" required>
+            <input type="email" class="form-input" name="Email" id="email" placeholder="john@company.com" required>
           </div>
           <div class="form-group form-full">
             <label class="form-label">Company Name *</label>
-            <input type="text" class="form-input" id="company" placeholder="Smith & Associates LLC" required>
+            <input type="text" class="form-input" name="Company" id="company" placeholder="Smith & Associates LLC" required>
           </div>
           <div class="form-group">
             <label class="form-label">Phone Number</label>
-            <input type="tel" class="form-input" id="phone" placeholder="(555) 000-0000">
+            <input type="tel" class="form-input" name="Phone" id="phone" placeholder="(555) 000-0000">
           </div>
           <div class="form-group">
             <label class="form-label">Number of Users</label>
-            <select class="form-select form-input" id="users">
+            <select class="form-select form-input" name="Number of Users" id="users">
               <option>1 – 10 users</option>
               <option>11 – 25 users</option>
               <option>26 – 50 users</option>
@@ -208,7 +213,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Industry</label>
-            <select class="form-select form-input" id="industry">
+            <select class="form-select form-input" name="Industry" id="industry">
               <option>Healthcare / Medical</option>
               <option>Legal / Law Firm</option>
               <option>Financial Services</option>
@@ -221,7 +226,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Service Interest</label>
-            <select class="form-select form-input" id="tier">
+            <select class="form-select form-input" name="Service Interest" id="tier">
               <option>Monitor (Tier 1)</option>
               <option>Defend (Tier 2)</option>
               <option>Dominate (Tier 3)</option>
@@ -230,14 +235,14 @@
           </div>
           <div class="form-group form-full">
             <label class="form-label">Current Security Setup</label>
-            <textarea class="form-textarea" id="message" placeholder="Tell us what security tools you currently use, any recent incidents, specific concerns, or compliance requirements (HIPAA, PCI, etc.)..."></textarea>
+            <textarea class="form-textarea" name="Current Security Setup" id="message" placeholder="Tell us what security tools you currently use, any recent incidents, specific concerns, or compliance requirements (HIPAA, PCI, etc.)..."></textarea>
           </div>
           <div class="form-full">
-            <button class="form-submit" onclick="submitForm()">Request Demo — We'll Respond Within 4 Hours →</button>
+            <button type="submit" class="form-submit">Request Demo — We'll Respond Within 4 Hours →</button>
           </div>
         </div>
-      </div>
-      <div class="form-success" id="form-success">
+      </form>
+      <div class="form-success" id="form-success" style="display:none;">
         <div style="font-size:48px;margin-bottom:16px;">✅</div>
         <h3>REQUEST RECEIVED</h3>
         <p>Thank you! We'll reach out within 4 business hours to confirm your demo time. Check your email for a confirmation.</p>
@@ -246,15 +251,7 @@
   </div>
 
   <script>
-    function submitForm() {
-      const required = ['firstName','lastName','email','company'];
-      let valid = true;
-      required.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el.value.trim()) { el.style.borderColor = 'var(--danger)'; valid = false; }
-        else el.style.borderColor = 'var(--border)';
-      });
-      if (!valid) return;
+    if (new URLSearchParams(window.location.search).get('success') === '1') {
       document.getElementById('form-content').style.display = 'none';
       document.getElementById('form-success').style.display = 'block';
     }
