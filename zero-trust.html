@@ -400,6 +400,7 @@
   <div class="topbar">
     <div class="page-title" id="page-title">OVERVIEW</div>
     <div class="topbar-right">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;padding:3px 8px;border:1px solid var(--border);color:var(--muted);" id="api-status">CONNECTING...</span>
       <button class="topbar-btn" onclick="toggleTheme()">&#9790; THEME</button>
       <span class="topbar-time" id="clock"></span>
     </div>
@@ -1053,8 +1054,37 @@
 <div id="zt-toast"></div>
 
 <script>
-// ========== MOCK DATA ==========
-const DEVICES = [
+// ========== API CONFIG ==========
+const ZT_API = 'https://api.palisadeone.com:9443/zt';
+const ZT_TOKEN = 'P1AdminKey2026!';
+const WAZUH_PROXY = 'https://api.palisadeone.com:9443';
+
+async function ztFetch(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ZT_TOKEN, ...(opts.headers || {}) };
+  try {
+    const r = await fetch(ZT_API + path, { ...opts, headers });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch(e) { console.warn('[ZT API]', path, e.message); return null; }
+}
+
+// ========== LIVE DATA (loaded from API, falls back to seed) ==========
+let DEVICES = [];
+let APPLICATIONS = [];
+let APPROVALS = [];
+let POLICIES = [];
+let RINGFENCES = [];
+let STORAGE_POLICIES = [];
+let ELEVATION_RULES = [];
+let NETWORK_RULES = [];
+let AUDIT_LOG = [];
+let ZT_SETTINGS = {};
+let HEALTH_SCORES = {};
+let DEVICE_MODES = {};
+let _apiConnected = false;
+
+// ========== SEED DATA (used when API has no data yet) ==========
+const SEED_DEVICES = [
   { id: 'd1', name: 'DESKTOP-CASEY01', os: 'Windows 11 Pro', ip: '192.168.1.105', mode: 'secured', appsDiscovered: 187, blocked24h: 3, learningSince: '2026-01-15', user: 'casey.m', group: 'HQ', readiness: 100, newApps7d: 0 },
   { id: 'd2', name: 'LAPTOP-SALES02', os: 'Windows 11 Home', ip: '192.168.1.112', mode: 'learning', appsDiscovered: 94, blocked24h: 0, learningSince: '2026-02-28', user: 'john.d', group: 'Sales', readiness: 42, newApps7d: 12 },
   { id: 'd3', name: 'SRV-DC01', os: 'Windows Server 2022', ip: '10.0.0.5', mode: 'secured', appsDiscovered: 312, blocked24h: 12, learningSince: '2025-12-01', user: 'SYSTEM', group: 'Servers', readiness: 100, newApps7d: 0 },
@@ -1065,7 +1095,7 @@ const DEVICES = [
   { id: 'd8', name: 'LAPTOP-HR01', os: 'Windows 11 Home', ip: '192.168.1.155', mode: 'learning', appsDiscovered: 41, blocked24h: 0, learningSince: '2026-03-04', user: 'sarah.w', group: 'HR', readiness: 15, newApps7d: 19 },
 ];
 
-const APPLICATIONS = [
+const SEED_APPLICATIONS = [
   { id: 'a1', name: 'Google Chrome', publisher: 'Google LLC', hash: 'a3f2e8...b91c', devices: 8, status: 'whitelisted', category: 'Browser', path: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', riskScore: 5, signed: true, aiVerdict: 'Trusted browser. Valid Google code signature. No behavioral anomalies.' },
   { id: 'a2', name: 'Microsoft Edge', publisher: 'Microsoft Corporation', hash: 'c7d1a4...e28f', devices: 8, status: 'whitelisted', category: 'Browser', path: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', riskScore: 3, signed: true, aiVerdict: 'Microsoft-signed system browser. Pre-approved.' },
   { id: 'a3', name: 'Microsoft Office', publisher: 'Microsoft Corporation', hash: 'b9e4f2...1a3c', devices: 6, status: 'whitelisted', category: 'Productivity', path: 'C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE', riskScore: 8, signed: true, aiVerdict: 'Trusted but supports macros. Ringfencing recommended to block macro-spawned processes.' },
@@ -1082,7 +1112,7 @@ const APPLICATIONS = [
   { id: 'a14', name: 'mimikatz.exe', publisher: 'Unknown', hash: '6d2e9f...a15c', devices: 0, status: 'blacklisted', category: 'Hacking Tool', path: 'C:\\Users\\*\\Downloads\\mimikatz.exe', riskScore: 99, signed: false, aiVerdict: 'CRITICAL THREAT: Known credential harvesting tool. Used in 90%+ of ransomware attacks. Extracts passwords from memory. MUST BE BLOCKED on all endpoints. Alert SOC immediately if detected.' },
 ];
 
-const APPROVALS = [
+const SEED_APPROVALS = [
   { id: 'r1', app: 'Wireshark', path: 'C:\\Program Files\\Wireshark\\Wireshark.exe', device: 'DESKTOP-DEV04', user: 'alex.k', time: '2026-03-06T09:42:00', reason: 'Network debugging for client issue', status: 'pending', hash: '5b1d9c...e73a', publisher: 'Wireshark Foundation' },
   { id: 'r2', app: 'nmap.exe', path: 'C:\\Program Files (x86)\\Nmap\\nmap.exe', device: 'DESKTOP-DEV04', user: 'alex.k', time: '2026-03-06T09:15:00', reason: 'Security audit scan', status: 'pending', hash: '3f7a1c...b48e', publisher: 'Nmap Project' },
   { id: 'r3', app: 'unknown_tool.exe', path: 'C:\\Users\\john.d\\Downloads\\unknown_tool.exe', device: 'LAPTOP-SALES02', user: 'john.d', time: '2026-03-06T08:30:00', reason: 'Client sent this tool for demo', status: 'pending', hash: '7a2b8e...9f1d', publisher: 'Unknown' },
@@ -1092,7 +1122,7 @@ const APPROVALS = [
   { id: 'r7', app: 'crypto_miner.exe', path: 'C:\\Users\\john.d\\AppData\\Temp\\crypto_miner.exe', device: 'LAPTOP-SALES02', user: 'john.d', time: '2026-03-05T11:45:00', reason: 'Blocked: known malware hash', status: 'denied', hash: '9f3a7b...c26e', publisher: 'Unknown' },
 ];
 
-const POLICIES = [
+const SEED_POLICIES = [
   { id: 'p1', name: 'Microsoft Signed Applications', type: 'publisher', match: 'Microsoft Corporation', action: 'allow', scope: 'All Devices', enabled: true, rules: 47 },
   { id: 'p2', name: 'Google Signed Applications', type: 'publisher', match: 'Google LLC', action: 'allow', scope: 'All Devices', enabled: true, rules: 12 },
   { id: 'p3', name: 'Block Remote Access Tools', type: 'blacklist', match: 'TeamViewer, AnyDesk, LogMeIn', action: 'deny', scope: 'All Devices', enabled: true, rules: 5 },
@@ -1103,7 +1133,7 @@ const POLICIES = [
   { id: 'p8', name: 'Temp: Allow Zoom (Expiring)', type: 'path', match: 'C:\\Users\\*\\AppData\\Roaming\\Zoom\\*', action: 'allow', scope: 'All Devices', enabled: true, rules: 1 },
 ];
 
-const RINGFENCES = [
+const SEED_RINGFENCES = [
   { app: 'PowerShell 7', network: 'Restricted', filesystem: 'Restricted', registry: 'Restricted', ipc: 'Blocked', enabled: true },
   { app: 'cmd.exe', network: 'None', filesystem: 'Restricted', registry: 'None', ipc: 'Blocked', enabled: true },
   { app: 'Google Chrome', network: 'Full', filesystem: 'Restricted', registry: 'None', ipc: 'Blocked', enabled: true },
@@ -1112,7 +1142,7 @@ const RINGFENCES = [
   { app: 'wscript.exe', network: 'None', filesystem: 'None', registry: 'None', ipc: 'Blocked', enabled: true },
 ];
 
-const STORAGE_POLICIES = [
+const SEED_STORAGE = [
   { name: 'Block USB Storage', desc: 'Prevent all USB mass storage devices', scope: 'All except IT', enabled: true },
   { name: 'Read-Only USB (Accounting)', desc: 'Allow reading but not writing to USB drives', scope: 'Accounting', enabled: true },
   { name: 'Block External HDD', desc: 'Prevent external hard drive connections', scope: 'All Devices', enabled: true },
@@ -1120,7 +1150,7 @@ const STORAGE_POLICIES = [
   { name: 'Block CD/DVD Write', desc: 'Prevent writing to optical media', scope: 'All Devices', enabled: true },
 ];
 
-const ELEVATION_RULES = [
+const SEED_ELEVATION = [
   { app: 'Software Installer (MSI)', desc: 'Allow MSI installers to run elevated when approved', scope: 'IT Staff', approval: 'Auto', enabled: true },
   { app: 'Printer Drivers', desc: 'Elevate printer driver installations', scope: 'All Users', approval: 'Auto', enabled: true },
   { app: 'Windows Update', desc: 'Allow Windows Update components to elevate', scope: 'All Devices', approval: 'Auto', enabled: true },
@@ -1128,7 +1158,7 @@ const ELEVATION_RULES = [
   { app: 'VS Code Extensions', desc: 'Elevate VS Code extension installations', scope: 'Engineering', approval: 'Request', enabled: false },
 ];
 
-const NETWORK_RULES = [
+const SEED_NETWORK = [
   { app: 'cmd.exe', rule: 'Block all outbound', ports: 'ALL', direction: 'Outbound', enabled: true },
   { app: 'PowerShell', rule: 'Block internet, allow internal', ports: '80, 443', direction: 'Outbound', enabled: true },
   { app: 'wscript.exe', rule: 'Block all network', ports: 'ALL', direction: 'Both', enabled: true },
@@ -1136,7 +1166,7 @@ const NETWORK_RULES = [
   { app: 'Chrome', rule: 'Allow all (whitelisted)', ports: 'ALL', direction: 'Both', enabled: true },
 ];
 
-const AUDIT_LOG = [
+const SEED_AUDIT = [
   { time: '2026-03-06T09:42:12', event: 'block', app: 'Wireshark', device: 'DESKTOP-DEV04', user: 'alex.k', detail: 'Blocked — not whitelisted. Approval requested.' },
   { time: '2026-03-06T09:38:05', event: 'allow', app: 'Google Chrome', device: 'DESKTOP-CASEY01', user: 'casey.m', detail: 'Allowed — publisher whitelisted (Google LLC)' },
   { time: '2026-03-06T09:15:33', event: 'block', app: 'nmap.exe', device: 'DESKTOP-DEV04', user: 'alex.k', detail: 'Blocked — uncategorized application' },
@@ -1150,6 +1180,107 @@ const AUDIT_LOG = [
   { time: '2026-03-05T09:15:00', event: 'policy', app: '--', device: '--', user: 'admin', detail: 'Device LAPTOP-HR01 set to Learning mode' },
   { time: '2026-03-04T17:00:00', event: 'allow', app: 'Microsoft Office', device: 'LAPTOP-EXEC01', user: 'augustus.c', detail: 'Allowed — publisher whitelisted (Microsoft Corporation)' },
 ];
+
+// ========== API DATA LOADER ==========
+async function loadAllData() {
+  const statusEl = document.getElementById('api-status');
+  if (statusEl) statusEl.textContent = 'CONNECTING...';
+  try {
+    const data = await ztFetch('/data');
+    if (data && data.version) {
+      _apiConnected = true;
+      if (statusEl) { statusEl.textContent = 'LIVE'; statusEl.style.color = 'var(--accent)'; }
+      ZT_SETTINGS = data.settings || {};
+      DEVICE_MODES = data.deviceModes || {};
+      // Merge API data with seed data as fallback
+      POLICIES = (data.policies && data.policies.length > 0) ? data.policies : SEED_POLICIES;
+      APPROVALS = (data.approvals && data.approvals.length > 0) ? data.approvals : SEED_APPROVALS;
+      APPLICATIONS = (data.applications && data.applications.length > 0) ? data.applications : SEED_APPLICATIONS;
+      RINGFENCES = (data.ringfences && data.ringfences.length > 0) ? data.ringfences : SEED_RINGFENCES;
+      STORAGE_POLICIES = (data.storagePolicies && data.storagePolicies.length > 0) ? data.storagePolicies : SEED_STORAGE;
+      ELEVATION_RULES = (data.elevationRules && data.elevationRules.length > 0) ? data.elevationRules : SEED_ELEVATION;
+      NETWORK_RULES = (data.networkRules && data.networkRules.length > 0) ? data.networkRules : SEED_NETWORK;
+      AUDIT_LOG = (data.auditLog && data.auditLog.length > 0) ? data.auditLog : SEED_AUDIT;
+      // Apply device modes to devices
+      DEVICES = SEED_DEVICES.map(d => {
+        const modeData = DEVICE_MODES[d.id] || DEVICE_MODES[d.name];
+        return modeData ? { ...d, mode: modeData.mode } : d;
+      });
+      // Also try loading real Wazuh agents
+      await loadWazuhDevices();
+      // Load health scores
+      const health = await ztFetch('/health');
+      if (health) HEALTH_SCORES = health;
+    } else {
+      throw new Error('Invalid API response');
+    }
+  } catch(e) {
+    console.warn('[ZT] API unavailable, using seed data:', e.message);
+    _apiConnected = false;
+    if (statusEl) { statusEl.textContent = 'OFFLINE'; statusEl.style.color = 'var(--danger)'; }
+    DEVICES = [...SEED_DEVICES];
+    APPLICATIONS = [...SEED_APPLICATIONS];
+    APPROVALS = [...SEED_APPROVALS];
+    POLICIES = [...SEED_POLICIES];
+    RINGFENCES = [...SEED_RINGFENCES];
+    STORAGE_POLICIES = [...SEED_STORAGE];
+    ELEVATION_RULES = [...SEED_ELEVATION];
+    NETWORK_RULES = [...SEED_NETWORK];
+    AUDIT_LOG = [...SEED_AUDIT];
+  }
+  renderOverview();
+}
+
+async function loadWazuhDevices() {
+  try {
+    const r = await fetch(WAZUH_PROXY + '/agents?limit=500', {
+      headers: { 'Authorization': 'Bearer ' + ZT_TOKEN }
+    });
+    if (!r.ok) return;
+    const result = await r.json();
+    const agents = result.data ? result.data.affected_items || result.data : (Array.isArray(result) ? result : []);
+    if (agents.length > 0) {
+      const wazuhDevices = agents.filter(a => a.id !== '000').map(a => {
+        const modeData = DEVICE_MODES[a.id] || DEVICE_MODES[a.name] || {};
+        return {
+          id: a.id, name: a.name || 'Agent-' + a.id,
+          os: (a.os && a.os.name) ? a.os.name + ' ' + (a.os.version || '') : 'Unknown',
+          ip: a.ip || 'N/A', mode: modeData.mode || 'learning',
+          appsDiscovered: 0, blocked24h: 0,
+          learningSince: modeData.updatedAt || new Date().toISOString().split('T')[0],
+          user: (a.os && a.os.name && a.os.name.includes('Server')) ? 'SYSTEM' : a.name.split('-')[0] || 'user',
+          group: a.group ? (Array.isArray(a.group) ? a.group[0] : a.group) : 'Default',
+          readiness: modeData.mode === 'secured' ? 100 : modeData.mode === 'monitor' ? 80 : 30,
+          newApps7d: 0, status: a.status || 'active', lastKeepAlive: a.lastKeepAlive
+        };
+      });
+      // Merge: real Wazuh agents take priority, keep seed devices for demo
+      const realIds = new Set(wazuhDevices.map(d => d.name));
+      const demoDevices = SEED_DEVICES.filter(d => !realIds.has(d.name));
+      DEVICES = [...wazuhDevices, ...demoDevices];
+    }
+  } catch(e) { console.warn('[ZT] Wazuh agents unavailable:', e.message); }
+}
+
+// Auto-refresh every 30 seconds
+setInterval(async () => {
+  if (!_apiConnected) return;
+  try {
+    const data = await ztFetch('/data');
+    if (data && data.version) {
+      APPROVALS = (data.approvals && data.approvals.length > 0) ? data.approvals : SEED_APPROVALS;
+      AUDIT_LOG = (data.auditLog && data.auditLog.length > 0) ? data.auditLog : SEED_AUDIT;
+      POLICIES = (data.policies && data.policies.length > 0) ? data.policies : SEED_POLICIES;
+      DEVICE_MODES = data.deviceModes || {};
+      const pending = APPROVALS.filter(a => a.status === 'pending').length;
+      const badge = document.getElementById('approval-badge');
+      if (badge) badge.textContent = pending;
+      if (currentView === 'overview') renderOverview();
+      if (currentView === 'audit') renderAudit();
+      if (currentView === 'approvals') renderApprovals();
+    }
+  } catch(e) {}
+}, 30000);
 
 // ========== STATE ==========
 let currentView = 'overview';
@@ -1186,7 +1317,8 @@ function renderOverview() {
   const secured = DEVICES.filter(d => d.mode === 'secured').length;
   const learning = DEVICES.filter(d => d.mode === 'learning').length;
   const pending = APPROVALS.filter(a => a.status === 'pending').length;
-  const blocked = AUDIT_LOG.filter(a => a.event === 'block' && a.time.startsWith('2026-03-06')).length;
+  const today = new Date().toISOString().split('T')[0];
+  const blocked = AUDIT_LOG.filter(a => a.event === 'block' && (a.time || '').startsWith(today)).length;
   document.getElementById('stat-secured').textContent = secured;
   document.getElementById('stat-learning').textContent = learning;
   document.getElementById('stat-pending').textContent = pending;
@@ -1291,21 +1423,21 @@ function renderApprovals() {
     }).join('');
 }
 
-function approveRequest(id, action) {
+async function approveRequest(id, action) {
   const req = APPROVALS.find(a => a.id === id);
   if (!req) return;
-  if (action === 'temp') {
-    req.status = 'approved';
-    toast(`${req.app} temporarily approved for 1 hour`, 'success');
-  } else if (action === 'ringfence') {
-    req.status = 'approved';
-    toast(`${req.app} approved with ringfencing restrictions`, 'success');
-  } else {
-    req.status = action;
-    toast(`${req.app} ${action}`, action === 'approved' ? 'success' : 'error');
-  }
+  const newStatus = (action === 'temp' || action === 'ringfence') ? 'approved' : action;
+  // Update locally immediately for responsiveness
+  req.status = newStatus;
+  if (action === 'temp') toast(`${req.app} temporarily approved for 1 hour`, 'success');
+  else if (action === 'ringfence') toast(`${req.app} approved with ringfencing restrictions`, 'success');
+  else toast(`${req.app} ${action}`, action === 'approved' ? 'success' : 'error');
   renderApprovals();
   renderOverview();
+  // Push to API
+  if (_apiConnected) {
+    await ztFetch('/approvals/' + id, { method: 'PUT', body: JSON.stringify({ status: newStatus, decidedBy: 'admin' }) });
+  }
 }
 
 // ========== POLICIES ==========
@@ -1325,17 +1457,24 @@ function renderPolicies() {
 
 function openPolicyModal() { document.getElementById('policy-modal').classList.add('show'); }
 function closePolicyModal() { document.getElementById('policy-modal').classList.remove('show'); }
-function savePolicy() {
+async function savePolicy() {
   const name = document.getElementById('pol-name').value.trim();
   if (!name) { toast('Policy name is required', 'error'); return; }
-  POLICIES.push({
-    id: 'p' + Date.now(), name,
+  const policy = {
+    name,
     type: document.getElementById('pol-type').value,
     match: document.getElementById('pol-match').value,
     action: document.getElementById('pol-action').value,
     scope: document.getElementById('pol-scope').value === 'all' ? 'All Devices' : document.getElementById('pol-scope').value,
     enabled: true, rules: 1
-  });
+  };
+  // Push to API first, get real ID back
+  if (_apiConnected) {
+    const result = await ztFetch('/policies', { method: 'POST', body: JSON.stringify(policy) });
+    if (result && result.id) policy.id = result.id;
+  }
+  if (!policy.id) policy.id = 'p' + Date.now();
+  POLICIES.push(policy);
   closePolicyModal();
   renderPolicies();
   toast('Policy "' + name + '" created', 'success');
@@ -1378,7 +1517,7 @@ function renderDevices() {
   }).join('');
 }
 
-function setDeviceMode(id, mode) {
+async function setDeviceMode(id, mode) {
   const dev = DEVICES.find(d => d.id === id);
   if (!dev) return;
   if (mode === 'secured' && dev.mode === 'learning') {
@@ -1388,6 +1527,10 @@ function setDeviceMode(id, mode) {
   renderDevices();
   renderOverview();
   toast(`${dev.name} set to ${mode.toUpperCase()} mode`, 'success');
+  // Push to API
+  if (_apiConnected) {
+    await ztFetch('/devices/' + id + '/mode', { method: 'POST', body: JSON.stringify({ mode, name: dev.name }) });
+  }
 }
 
 // ========== APPLICATIONS ==========
@@ -1427,12 +1570,16 @@ function renderApplications() {
   }).join('');
 }
 
-function setAppStatus(id, status) {
+async function setAppStatus(id, status) {
   const app = APPLICATIONS.find(a => a.id === id);
   if (!app) return;
   app.status = status;
   renderApplications();
   toast(`${app.name} ${status}`, status === 'whitelisted' ? 'success' : 'error');
+  // Push to API
+  if (_apiConnected) {
+    await ztFetch('/applications/' + id, { method: 'PUT', body: JSON.stringify({ status }) });
+  }
 }
 
 // ========== RINGFENCING ==========
@@ -1454,17 +1601,22 @@ function renderRingfencing() {
 
 function openRingfenceModal() { document.getElementById('ringfence-modal').classList.add('show'); }
 function closeRingfenceModal() { document.getElementById('ringfence-modal').classList.remove('show'); }
-function saveRingfence() {
+async function saveRingfence() {
   const app = document.getElementById('rf-app').value.trim();
   if (!app) { toast('Application name required', 'error'); return; }
-  RINGFENCES.push({
+  const rule = {
     app,
     network: document.getElementById('rf-network').value === 'none' ? 'None' : document.getElementById('rf-network').value === 'restricted' ? 'Restricted' : 'Full',
     filesystem: document.getElementById('rf-filesystem').value === 'none' ? 'None' : document.getElementById('rf-filesystem').value === 'restricted' ? 'Restricted' : document.getElementById('rf-filesystem').value === 'readonly' ? 'Restricted' : 'Full',
     registry: document.getElementById('rf-registry').value === 'none' ? 'None' : document.getElementById('rf-registry').value === 'restricted' ? 'Restricted' : 'Full',
     ipc: document.getElementById('rf-ipc-block').checked ? 'Blocked' : 'Full',
     enabled: true
-  });
+  };
+  if (_apiConnected) {
+    const result = await ztFetch('/ringfences', { method: 'POST', body: JSON.stringify(rule) });
+    if (result && result.id) rule.id = result.id;
+  }
+  RINGFENCES.push(rule);
   closeRingfenceModal();
   renderRingfencing();
   toast('Ringfence rule created for ' + app, 'success');
@@ -1686,14 +1838,19 @@ function runSandboxTest() {
 }
 
 // ========== HEALTH REPORT ==========
-function renderHealth() {
-  const securedPct = Math.round(DEVICES.filter(d=>d.mode==='secured').length / DEVICES.length * 100);
-  const policyCoverage = Math.round(POLICIES.filter(p=>p.enabled).length / POLICIES.length * 100);
-  const ringfencePct = Math.round(RINGFENCES.filter(r=>r.enabled).length / 6 * 100);
-  const storagePct = Math.round(STORAGE_POLICIES.filter(s=>s.enabled).length / STORAGE_POLICIES.length * 100);
-  const elevPct = Math.round(ELEVATION_RULES.filter(e=>e.enabled).length / ELEVATION_RULES.length * 100);
-  const appCategorizePct = Math.round(APPLICATIONS.filter(a=>a.status!=='uncategorized').length / APPLICATIONS.length * 100);
-  const overallScore = Math.round((securedPct + policyCoverage + ringfencePct + storagePct + appCategorizePct) / 5);
+async function renderHealth() {
+  // Try to load health from API
+  if (_apiConnected) {
+    const h = await ztFetch('/health');
+    if (h) HEALTH_SCORES = h;
+  }
+  const securedPct = HEALTH_SCORES.deviceSecurity || Math.round(DEVICES.filter(d=>d.mode==='secured').length / Math.max(DEVICES.length,1) * 100);
+  const policyCoverage = HEALTH_SCORES.policyCoverage || Math.round(POLICIES.filter(p=>p.enabled).length / Math.max(POLICIES.length,1) * 100);
+  const ringfencePct = HEALTH_SCORES.ringfencing || Math.round(RINGFENCES.filter(r=>r.enabled).length / 6 * 100);
+  const storagePct = HEALTH_SCORES.storageControl || Math.round(STORAGE_POLICIES.filter(s=>s.enabled).length / Math.max(STORAGE_POLICIES.length,1) * 100);
+  const elevPct = HEALTH_SCORES.elevationControl || Math.round(ELEVATION_RULES.filter(e=>e.enabled).length / Math.max(ELEVATION_RULES.length,1) * 100);
+  const appCategorizePct = HEALTH_SCORES.appCategorization || Math.round(APPLICATIONS.filter(a=>a.status!=='uncategorized').length / Math.max(APPLICATIONS.length,1) * 100);
+  const overallScore = HEALTH_SCORES.overall || Math.round((securedPct + policyCoverage + ringfencePct + storagePct + appCategorizePct) / 5);
 
   const bars = [
     { label: 'Devices Secured', pct: securedPct, color: 'var(--accent)' },
@@ -1857,7 +2014,8 @@ function renderCompliance() {
 }
 
 // INIT
-renderOverview();
+loadAllData();
+updateClock();
 </script>
 </body>
 </html>
