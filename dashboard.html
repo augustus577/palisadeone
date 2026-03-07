@@ -7414,47 +7414,181 @@ async function testNotification() {
 // ══════════════════════════════════════════════════════════════════════════════
 // THREAT INTELLIGENCE ENRICHMENT (alert panel)
 // ══════════════════════════════════════════════════════════════════════════════
-async function enrichWithTI(indicator, type) {
-  const resultEl = document.getElementById('ti-result');
-  if (!resultEl) return;
-  resultEl.innerHTML = '<div style="color:var(--muted);font-size:11px;">Querying threat intelligence...</div>';
+// Full Threat Intel modal — opens when clicking any hash/IP in an alert
+async function openTIModal(indicator, type) {
+  // Build the modal shell immediately so user sees it loading
+  const vtLink = type === 'hash'
+    ? `https://www.virustotal.com/gui/file/${encodeURIComponent(indicator)}`
+    : type === 'ip'
+    ? `https://www.virustotal.com/gui/ip-address/${encodeURIComponent(indicator)}`
+    : `https://www.virustotal.com/gui/domain/${encodeURIComponent(indicator)}`;
 
+  const typeLabel = type === 'hash' ? 'FILE HASH' : type === 'ip' ? 'IP ADDRESS' : 'DOMAIN';
+
+  const modal = document.createElement('div');
+  modal.id = 'ti-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:700;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--deep);border:1px solid var(--border2);width:660px;max-width:96vw;max-height:92vh;overflow-y:auto;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+      <div style="padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;position:sticky;top:0;background:var(--deep);z-index:1;">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--muted);">${typeLabel} · THREAT INTEL</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);margin-top:4px;word-break:break-all;">${escH(indicator)}</div>
+        </div>
+        <button onclick="document.getElementById('ti-modal').remove()" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;cursor:pointer;font-size:13px;flex-shrink:0;margin-left:12px;">✕</button>
+      </div>
+      <div id="ti-modal-body" style="padding:20px 22px;">
+        <div style="display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;font-family:'JetBrains Mono',monospace;">
+          <div class="loading-dot" style="width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1s infinite;"></div>
+          Querying VirusTotal + AbuseIPDB...
+        </div>
+      </div>
+      <div style="padding:12px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+        <a href="${vtLink}" target="_blank" style="font-size:11px;color:var(--muted);text-decoration:none;font-family:'JetBrains Mono',monospace;opacity:0.6;">View full report on VirusTotal ↗</a>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+
+  // Fetch TI data
   const endpoint = type === 'ip' ? 'ip' : type === 'hash' ? 'hash' : 'domain';
+  const body = document.getElementById('ti-modal-body');
   try {
     const r = await fetch(`${PROXY_URL}/threat-intel/${endpoint}?value=${encodeURIComponent(indicator)}`);
-    if (!r.ok) throw new Error('TI lookup failed');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
-
-    if (d.error) {
-      resultEl.innerHTML = `<div style="color:var(--warning);font-size:11px;">${escH(d.error)} — configure API keys in Settings.</div>`;
-      return;
-    }
-
-    // VirusTotal result
-    const vtPos = d.virustotal?.positives || d.virustotal?.data?.attributes?.last_analysis_stats?.malicious || 0;
-    const vtTotal = d.virustotal?.total || d.virustotal?.data?.attributes?.last_analysis_stats?.undetected || 0;
-    const abuseScore = d.abuseipdb?.data?.abuseConfidenceScore;
-
-    resultEl.innerHTML = `<div class="ti-result">
-      ${d.virustotal ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-size:11px;color:var(--muted);">VirusTotal</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${vtPos>0?'var(--danger)':'var(--accent)'};">${vtPos}/${vtTotal} detections</span>
-      </div>` : ''}
-      ${abuseScore !== undefined ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-size:11px;color:var(--muted);">AbuseIPDB Score</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${abuseScore>50?'var(--danger)':abuseScore>20?'var(--warning)':'var(--accent)'};">${abuseScore}%</span>
-      </div>` : ''}
-      ${d.abuseipdb?.data?.countryCode ? `<div style="display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:11px;color:var(--muted);">Country</span>
-        <span style="font-size:11px;color:var(--text);">${escH(d.abuseipdb.data.countryCode)} — ${escH(d.abuseipdb.data.isp||'Unknown ISP')}</span>
-      </div>` : ''}
-    </div>`;
+    if (d.error) { body.innerHTML = `<div style="color:var(--warning);font-size:12px;">${escH(d.error)}</div>`; return; }
+    body.innerHTML = renderTIModal(d, type, indicator);
   } catch(e) {
-    resultEl.innerHTML = `<div style="color:var(--danger);font-size:11px;">TI lookup failed: ${e.message}</div>`;
+    body.innerHTML = `<div style="color:var(--danger);font-size:12px;">Lookup failed: ${escH(e.message)}</div>`;
   }
 }
 
-// Inject TI enrichment section into alert panel body
+function renderTIModal(d, type, indicator) {
+  const vt = d.virustotal?.data?.attributes || d.virustotal || {};
+  const ab = d.abuseipdb?.data || {};
+  const stats = vt.last_analysis_stats || {};
+  const malicious = stats.malicious || 0;
+  const suspicious = stats.suspicious || 0;
+  const total = Object.values(stats).reduce((a,b)=>a+b,0) || 0;
+  const flagged = malicious + suspicious;
+  const verdict = malicious > 5 ? 'MALICIOUS' : malicious > 0 || suspicious > 2 ? 'SUSPICIOUS' : 'CLEAN';
+  const verdictColor = verdict === 'MALICIOUS' ? 'var(--danger)' : verdict === 'SUSPICIOUS' ? 'var(--warning)' : 'var(--accent)';
+  const barPct = total > 0 ? Math.round((flagged / total) * 100) : 0;
+
+  // Top flagging engines (max 8)
+  const engines = Object.entries(vt.last_analysis_results || {})
+    .filter(([,v]) => v.category === 'malicious' || v.category === 'suspicious')
+    .slice(0, 8);
+
+  // Malware names (deduplicated)
+  const malwareNames = [...new Set(
+    Object.values(vt.last_analysis_results || {})
+      .map(v => v.result)
+      .filter(r => r && r !== 'malicious' && r.length > 2)
+  )].slice(0, 6);
+
+  let html = '';
+
+  // Verdict block
+  html += `<div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding:18px;background:var(--surface);border:1px solid ${verdictColor}30;border-left:3px solid ${verdictColor};">
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:${verdictColor};line-height:1;letter-spacing:2px;">${verdict}</div>
+      ${total > 0 ? `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;">${flagged} of ${total} engines flagged</div>` : ''}
+    </div>
+    ${total > 0 ? `<div style="flex:1;">
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${barPct}%;background:${verdictColor};border-radius:4px;transition:width 0.6s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;">
+        <span style="font-size:10px;color:${verdictColor};font-family:'JetBrains Mono',monospace;">${flagged} detections</span>
+        <span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;">${total - flagged} clean</span>
+      </div>
+    </div>` : '<div style="font-size:12px;color:var(--muted);">No scan data available</div>'}
+  </div>`;
+
+  // Malware family names
+  if (malwareNames.length) {
+    html += `<div style="margin-bottom:20px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">IDENTIFIED AS</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${malwareNames.map(n => `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--danger);background:rgba(255,68,102,0.08);border:1px solid rgba(255,68,102,0.2);padding:3px 8px;">${escH(n)}</span>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Engine breakdown
+  if (engines.length) {
+    html += `<div style="margin-bottom:20px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">ENGINE DETECTIONS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+        ${engines.map(([eng, v]) => `
+          <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--surface);border:1px solid var(--border);">
+            <div style="width:6px;height:6px;border-radius:50%;background:${v.category==='malicious'?'var(--danger)':'var(--warning)'};flex-shrink:0;"></div>
+            <span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escH(eng)}">${escH(eng)}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // File-specific info (hash lookups)
+  if (type === 'hash') {
+    const name = vt.meaningful_name || vt.name;
+    const fileType = vt.type_description || vt.type_tag;
+    const size = vt.size;
+    const firstSeen = vt.first_submission_date ? new Date(vt.first_submission_date*1000).toLocaleDateString() : null;
+    const lastSeen = vt.last_analysis_date ? new Date(vt.last_analysis_date*1000).toLocaleDateString() : null;
+    if (name || fileType || size || firstSeen) {
+      html += `<div style="margin-bottom:20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">FILE DETAILS</div>
+        <div style="background:var(--surface);border:1px solid var(--border);padding:12px;">
+          ${name ? `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span style="font-size:11px;color:var(--muted);">Name</span><span style="font-size:11px;color:var(--text);font-family:'JetBrains Mono',monospace;">${escH(name)}</span></div>` : ''}
+          ${fileType ? `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span style="font-size:11px;color:var(--muted);">Type</span><span style="font-size:11px;color:var(--text);">${escH(fileType)}</span></div>` : ''}
+          ${size ? `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span style="font-size:11px;color:var(--muted);">Size</span><span style="font-size:11px;color:var(--text);font-family:'JetBrains Mono',monospace;">${(size/1024).toFixed(1)} KB</span></div>` : ''}
+          ${firstSeen ? `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span style="font-size:11px;color:var(--muted);">First seen</span><span style="font-size:11px;color:var(--text);">${firstSeen}</span></div>` : ''}
+          ${lastSeen ? `<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="font-size:11px;color:var(--muted);">Last scan</span><span style="font-size:11px;color:var(--text);">${lastSeen}</span></div>` : ''}
+        </div>
+      </div>`;
+    }
+  }
+
+  // IP-specific: AbuseIPDB
+  if (type === 'ip' && Object.keys(ab).length) {
+    const abuseScore = ab.abuseConfidenceScore ?? 0;
+    const abuseColor = abuseScore > 50 ? 'var(--danger)' : abuseScore > 20 ? 'var(--warning)' : 'var(--accent)';
+    const cats = {1:'DNS Compromise',2:'DNS Poisoning',3:'Fraud Orders',4:'DDoS Attack',5:'FTP Brute-Force',6:'Ping of Death',7:'Phishing',9:'Open Proxy',10:'Web Spam',11:'Email Spam',14:'Port Scan',15:'Hacking',16:'SQL Injection',17:'Spoofing',18:'Brute-Force',19:'Bad Web Bot',20:'Exploited Host',21:'Web App Attack',22:'SSH',23:'IoT Targeted'};
+    const reportedCats = (ab.usageType !== undefined ? [] : []).concat(ab.reports?.flatMap(r=>r.categories)||[]);
+    const uniqueCats = [...new Set(reportedCats)].slice(0,6);
+    html += `<div style="margin-bottom:20px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;">ABUSEIPDB REPUTATION</div>
+      <div style="background:var(--surface);border:1px solid var(--border);padding:12px;">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+          <div style="text-align:center;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;color:${abuseColor};line-height:1;">${abuseScore}</div>
+            <div style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;">ABUSE SCORE</div>
+          </div>
+          <div style="flex:1;">
+            <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px;">
+              <div style="height:100%;width:${abuseScore}%;background:${abuseColor};"></div>
+            </div>
+            ${ab.totalReports !== undefined ? `<div style="font-size:11px;color:var(--text);">${ab.totalReports} abuse reports</div>` : ''}
+            ${ab.countryCode ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${escH(ab.countryCode)}${ab.isp ? ` · ${escH(ab.isp)}` : ''}</div>` : ''}
+            ${ab.usageType ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${escH(ab.usageType)}</div>` : ''}
+          </div>
+        </div>
+        ${uniqueCats.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;">${uniqueCats.map(c=>`<span style="font-size:10px;color:var(--warning);background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);padding:2px 6px;font-family:'JetBrains Mono',monospace;">${escH(cats[c]||'Cat '+c)}</span>`).join('')}</div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  if (!html.includes('MALICIOUS') && !html.includes('CLEAN') && !html.includes('SUSPICIOUS')) {
+    html = '<div style="color:var(--muted);font-size:12px;">No threat data returned. The indicator may not be in the database yet.</div>';
+  }
+
+  return html;
+}
+
+// Inject TI enrichment section into alert panel body — indicators now clickable
 function injectTISection(hit) {
   const srcIp = hit.data?.srcip || hit.data?.win?.eventdata?.destinationIp || hit.data?.win?.eventdata?.sourceIp;
   const fileHash = hit.data?.win?.eventdata?.hashes?.split(',').find(h=>h.startsWith('SHA256='))?.replace('SHA256=','') ||
@@ -7468,15 +7602,23 @@ function injectTISection(hit) {
   if (fileHash) indicators.push({ type: 'hash', val: fileHash, label: 'File Hash' });
   if (domain) indicators.push({ type: 'domain', val: domain, label: 'Domain' });
 
+  // Store indicators for click handlers
+  window._tiIndicators = window._tiIndicators || {};
+  indicators.forEach((ind, i) => { window._tiIndicators['ti_'+i] = ind; });
+
   return `<div class="ap-section">
-    <div class="ap-section-title">Threat Intelligence Enrichment</div>
+    <div class="ap-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+      <span>Threat Intelligence</span>
+      <span style="font-size:10px;color:var(--muted);font-weight:400;font-family:'JetBrains Mono',monospace;">click to inspect →</span>
+    </div>
     ${indicators.map((ind, i) => `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);min-width:80px;">${ind.label}</span>
-        <code style="flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);background:var(--surface);padding:3px 6px;overflow:hidden;text-overflow:ellipsis;">${escH(ind.val)}</code>
-        <button onclick="enrichWithTI('${escH(ind.val)}','${ind.type}')" style="padding:3px 8px;background:transparent;border:1px solid var(--border2);color:var(--text);font-size:10px;cursor:pointer;white-space:nowrap;">Check TI</button>
+      <div onclick="openTIModal('${ind.val.replace(/'/g,"\\'")}','${ind.type}')"
+           style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:border-color 0.15s;"
+           onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);min-width:72px;letter-spacing:1px;">${ind.label.toUpperCase()}</span>
+        <code style="flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escH(ind.val)}</code>
+        <span style="font-size:10px;color:var(--muted);flex-shrink:0;">🔍</span>
       </div>`).join('')}
-    <div id="ti-result" style="margin-top:8px;"></div>
   </div>`;
 }
 
