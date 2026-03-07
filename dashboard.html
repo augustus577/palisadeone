@@ -323,6 +323,61 @@
       .stats-row { grid-template-columns: 1fr; }
       .content { padding: 16px; }
     }
+
+    /* VULNERABILITY SCANNER */
+    .vuln-tabs { display: flex; gap: 2px; margin-bottom: 20px; }
+    .vuln-tab { padding: 8px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .vuln-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .vuln-tab-content { display: none; }
+    .vuln-tab-content.active { display: block; }
+
+    .sev-badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .sev-critical { background: rgba(255,59,92,0.15); color: #FF3B5C; border: 1px solid rgba(255,59,92,0.3); }
+    .sev-high { background: rgba(245,100,0,0.15); color: #FF6400; border: 1px solid rgba(245,100,0,0.3); }
+    .sev-medium { background: rgba(245,166,35,0.15); color: #F5A623; border: 1px solid rgba(245,166,35,0.3); }
+    .sev-low { background: rgba(0,132,255,0.15); color: #0084FF; border: 1px solid rgba(0,132,255,0.3); }
+    .sev-info { background: rgba(74,96,128,0.15); color: #4A6080; border: 1px solid rgba(74,96,128,0.3); }
+
+    .vuln-row { display: grid; grid-template-columns: 90px 1fr 110px 80px 70px; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.15s; cursor: pointer; }
+    .vuln-row:hover { background: rgba(255,255,255,0.02); }
+    .vuln-row-header { display: grid; grid-template-columns: 90px 1fr 110px 80px 70px; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--border2); }
+    .vuln-row-header span { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+    .vuln-title { font-size: 12px; color: var(--text); line-height: 1.4; }
+    .vuln-cve { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent2); }
+    .vuln-host { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+    .vuln-cvss { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; }
+
+    .scan-form { display: grid; grid-template-columns: 1fr 160px 160px; gap: 12px; margin-bottom: 20px; align-items: end; }
+    .scan-form-group { display: flex; flex-direction: column; gap: 6px; }
+    .scan-form-group label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .scan-form-group input, .scan-form-group select { background: var(--surface); border: 1px solid var(--border); padding: 9px 12px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+    .scan-form-group input:focus, .scan-form-group select:focus { border-color: var(--accent); }
+    .scan-form-group select option { background: var(--deep); }
+    .scan-launch-btn { background: var(--accent); color: var(--black); padding: 9px 24px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; border: none; cursor: pointer; transition: all 0.2s; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); align-self: end; }
+    .scan-launch-btn:hover { background: var(--white); }
+    .scan-launch-btn:disabled { background: var(--muted); cursor: not-allowed; }
+
+    .scan-history-row { display: grid; grid-template-columns: 140px 1fr 120px 60px 60px 60px 90px 100px; gap: 8px; padding: 9px 14px; border-bottom: 1px solid var(--border); align-items: center; cursor: pointer; transition: background 0.15s; font-size: 12px; }
+    .scan-history-row:hover { background: rgba(255,255,255,0.02); }
+    .scan-history-header { display: grid; grid-template-columns: 140px 1fr 120px 60px 60px 60px 90px 100px; gap: 8px; padding: 7px 14px; border-bottom: 1px solid var(--border2); }
+    .scan-history-header span { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+    .scan-status-badge { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 2px 6px; }
+    .scan-status-running { color: var(--warning); background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.3); }
+    .scan-status-completed { color: var(--accent); background: rgba(0,255,209,0.08); border: 1px solid rgba(0,255,209,0.2); }
+    .scan-status-queued { color: var(--accent2); background: rgba(0,132,255,0.08); border: 1px solid rgba(0,132,255,0.2); }
+    .scan-status-error { color: var(--danger); background: rgba(255,59,92,0.08); border: 1px solid rgba(255,59,92,0.2); }
+
+    .finding-detail { background: var(--surface); border: 1px solid var(--border); padding: 16px; margin-bottom: 8px; }
+    .finding-detail-title { font-size: 13px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
+    .finding-detail-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+    .finding-detail-body { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .finding-detail-solution { font-size: 12px; color: var(--accent); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+    .ep-vuln-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .ep-vuln-info { flex: 1; min-width: 0; }
+    .ep-vuln-title { font-size: 12px; color: var(--text); }
+    .ep-vuln-pkg { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .ep-vuln-cve { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent2); }
   </style>
 </head>
 <body>
@@ -381,6 +436,11 @@
       <div class="nav-item" onclick="showView('clients')">
         <span class="nav-icon">👥</span>
         <span>Clients</span>
+      </div>
+      <div class="nav-item" onclick="showView('vulnerabilities')">
+        <span class="nav-icon">🛡️</span>
+        <span>Vulnerability Mgmt</span>
+        <span class="nav-badge" id="vuln-badge" style="display:none;background:var(--danger)">0</span>
       </div>
       <div class="nav-item" onclick="showView('compliance')">
         <span class="nav-icon">📋</span>
@@ -939,6 +999,146 @@
         </div>
       </div>
 
+      <!-- VULNERABILITY MANAGEMENT VIEW -->
+      <div class="view" id="view-vulnerabilities">
+
+        <div class="stats-row" style="margin-bottom:20px;">
+          <div class="stat-card red">
+            <div class="stat-label">CRITICAL CVEs</div>
+            <div class="stat-value danger" id="vs-critical">--</div>
+            <div class="stat-sub">Immediate action required</div>
+          </div>
+          <div class="stat-card" style="border-color:rgba(255,100,0,0.3);">
+            <div class="stat-label">HIGH</div>
+            <div class="stat-value" style="color:#FF6400" id="vs-high">--</div>
+            <div class="stat-sub">Patch within 7 days</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-label">MEDIUM</div>
+            <div class="stat-value" style="color:var(--warning)" id="vs-medium">--</div>
+            <div class="stat-sub">Patch within 30 days</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">TOTAL CVEs</div>
+            <div class="stat-value blue" id="vs-total">--</div>
+            <div class="stat-sub">Across all agents + scans</div>
+          </div>
+        </div>
+
+        <div class="vuln-tabs">
+          <div class="vuln-tab active" onclick="vulnTab('agent')" id="vtab-agent">ENDPOINT CVEs</div>
+          <div class="vuln-tab" onclick="vulnTab('scanner')" id="vtab-scanner">EXTERNAL SCANNER</div>
+        </div>
+
+        <!-- ENDPOINT CVEs TAB -->
+        <div class="vuln-tab-content active" id="vt-agent">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Agent Vulnerability Detection</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="vuln-agent-filter" onchange="loadAgentVulns()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-size:12px;outline:none;">
+                  <option value="">All Agents</option>
+                </select>
+                <div class="panel-action" onclick="loadAgentVulns()">↻ Refresh</div>
+              </div>
+            </div>
+            <div id="agent-vuln-loading" style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">Loading vulnerability data from Wazuh agents...</div>
+            <div id="agent-vuln-content" style="display:none;">
+              <div class="vuln-row-header">
+                <span>Severity</span><span>CVE / Title</span><span>Package</span><span>CVSS</span><span>Agent</span>
+              </div>
+              <div id="agent-vuln-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXTERNAL SCANNER TAB -->
+        <div class="vuln-tab-content" id="vt-scanner">
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-header">
+              <div class="panel-title">Launch Vulnerability Scan</div>
+            </div>
+            <div style="padding:16px;">
+              <div class="scan-form">
+                <div class="scan-form-group" style="grid-column:span 3;">
+                  <label>Targets — IPs, domains, CIDR ranges (comma or newline separated)</label>
+                  <input type="text" id="scan-targets" placeholder="192.168.1.0/24, example.com, 10.0.0.1" style="width:100%;">
+                </div>
+                <div class="scan-form-group">
+                  <label>Scan Type</label>
+                  <select id="scan-type">
+                    <option value="external">External — Full surface</option>
+                    <option value="webapp">Web App — HTTP/APIs</option>
+                    <option value="network">Network — Services/Ports</option>
+                  </select>
+                </div>
+                <div class="scan-form-group">
+                  <label>Profile</label>
+                  <select id="scan-profile">
+                    <option value="quick">Quick — Top 100 ports, critical CVEs</option>
+                    <option value="standard" selected>Standard — Top 1000 ports + CVEs</option>
+                    <option value="deep">Deep — All ports, all severity</option>
+                  </select>
+                </div>
+                <div class="scan-form-group">
+                  <label>Client Tag</label>
+                  <input type="text" id="scan-client" placeholder="Client name" style="width:100%;">
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:center;">
+                <button class="scan-launch-btn" onclick="launchScan()" id="scan-launch-btn">▶ LAUNCH SCAN</button>
+                <span id="scan-launch-status" style="font-size:12px;color:var(--muted);"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Scan History</div>
+              <div class="panel-action" onclick="loadScanHistory()">↻ Refresh</div>
+            </div>
+            <div id="scan-history-loading" style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">Loading scan history...</div>
+            <div id="scan-history-content" style="display:none;">
+              <div class="scan-history-header">
+                <span>Started</span><span>Targets</span><span>Client</span><span>C</span><span>H</span><span>M</span><span>Status</span><span>Findings</span>
+              </div>
+              <div id="scan-history-list"></div>
+            </div>
+          </div>
+
+          <!-- Scan Results Panel -->
+          <div id="scan-results-panel" style="display:none;">
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title" id="scan-results-title">Scan Results</div>
+                <div style="display:flex;gap:8px;">
+                  <select id="results-sev-filter" onchange="filterScanResults()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-size:12px;outline:none;">
+                    <option value="">All Severities</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                    <option value="info">Info</option>
+                  </select>
+                  <select id="results-src-filter" onchange="filterScanResults()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-size:12px;outline:none;">
+                    <option value="">All Sources</option>
+                    <option value="nuclei">Nuclei (CVEs)</option>
+                    <option value="nmap">Nmap (Ports)</option>
+                  </select>
+                  <div class="panel-action" onclick="document.getElementById('scan-results-panel').style.display='none'">✕ Close</div>
+                </div>
+              </div>
+              <div style="padding:12px 16px;display:flex;gap:16px;" id="scan-results-stats"></div>
+              <div class="vuln-row-header">
+                <span>Severity</span><span>Title / CVE</span><span>Host</span><span>CVSS</span><span>Source</span>
+              </div>
+              <div id="scan-results-list"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   </div>
 </div>
@@ -959,6 +1159,7 @@
   <div class="ep-tabs">
     <div class="ep-tab active" onclick="epTab('overview')" id="tab-overview">OVERVIEW</div>
     <div class="ep-tab" onclick="epTab('alerts')" id="tab-alerts">ALERTS</div>
+    <div class="ep-tab" onclick="epTab('vulns')" id="tab-vulns">VULNS</div>
     <div class="ep-tab" onclick="epTab('actions')" id="tab-actions">ACTIONS</div>
   </div>
   <div class="ep-body">
@@ -1022,6 +1223,20 @@
         </div>
       </div>
     </div>
+
+    <!-- VULNS TAB -->
+    <div class="ep-section" id="ep-vulns-section">
+      <div style="padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;">CVE Vulnerability Report</div>
+          <div class="panel-action" onclick="loadEpVulns(activeAgentId)">↻ Refresh</div>
+        </div>
+        <div id="ep-vulns-content">
+          <div style="color:var(--muted);font-size:12px;">Loading...</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 <div id="ep-toast"></div>
@@ -1111,6 +1326,7 @@ function showView(name) {
   if (name === 'compliance') loadCompliance();
   if (name === 'clients') loadClients();
   if (name === 'darkweb') initDarkWeb();
+  if (name === 'vulnerabilities') initVulnView();
 }
 
 function updatePreview() {
@@ -1750,9 +1966,11 @@ function epTab(tab) {
   document.querySelectorAll('.ep-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.ep-section').forEach(s => s.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  const map = { overview: 'ep-overview', alerts: 'ep-alerts-section', actions: 'ep-actions-section' };
-  document.getElementById(map[tab]).classList.add('active');
+  const map = { overview: 'ep-overview', alerts: 'ep-alerts-section', actions: 'ep-actions-section', vulns: 'ep-vulns-section' };
+  const el = document.getElementById(map[tab]);
+  if (el) el.classList.add('active');
   if (tab === 'alerts' && activeAgentId) loadEpAlertsTab(activeAgentId);
+  if (tab === 'vulns' && activeAgentId) loadEpVulns(activeAgentId);
 }
 
 async function loadEpMiniAlerts(agentId) {
@@ -2351,6 +2569,410 @@ function renderBreachList() {
         <div>${sev}</div>
       </div>`;
     }).join('');
+}
+
+// ============================================================
+// VULNERABILITY MANAGEMENT
+// ============================================================
+let activeScanId = null;
+let scanPollTimer = null;
+let currentScanFindings = [];
+
+function vulnTab(tab) {
+  document.querySelectorAll('.vuln-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.vuln-tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('vtab-' + tab).classList.add('active');
+  document.getElementById('vt-' + tab).classList.add('active');
+}
+
+async function initVulnView() {
+  // Populate agent dropdown
+  const sel = document.getElementById('vuln-agent-filter');
+  sel.innerHTML = '<option value="">All Agents</option>';
+  Object.values(agentsData).forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = a.name || a.id;
+    sel.appendChild(opt);
+  });
+
+  // Load both tabs in parallel
+  loadAgentVulns();
+  loadScanHistory();
+}
+
+async function loadAgentVulns() {
+  const loadEl = document.getElementById('agent-vuln-loading');
+  const contentEl = document.getElementById('agent-vuln-content');
+  const listEl = document.getElementById('agent-vuln-list');
+  const agentFilter = document.getElementById('vuln-agent-filter').value;
+
+  loadEl.style.display = 'block';
+  contentEl.style.display = 'none';
+
+  try {
+    // Query Wazuh vulnerability index via indexer
+    const query = agentFilter
+      ? { bool: { filter: [{ term: { 'agent.id': agentFilter } }] } }
+      : { match_all: {} };
+
+    const data = await indexerSearch('wazuh-states-vulnerabilities-*', {
+      size: 200,
+      sort: [{ 'vulnerability.severity': { order: 'desc' } }],
+      query
+    });
+
+    const hits = (data?.hits?.hits || []).map(h => h._source);
+
+    if (hits.length === 0) {
+      // Try alternate index name
+      const data2 = await indexerSearch('wazuh-vulnerabilities-*', {
+        size: 200,
+        sort: [{ timestamp: { order: 'desc' } }],
+        query
+      });
+      const hits2 = (data2?.hits?.hits || []).map(h => h._source);
+      renderAgentVulns(hits2);
+    } else {
+      renderAgentVulns(hits);
+    }
+  } catch(e) {
+    loadEl.textContent = 'Could not load vulnerability data: ' + e.message;
+    loadEl.style.display = 'block';
+  }
+}
+
+function renderAgentVulns(hits) {
+  const loadEl = document.getElementById('agent-vuln-loading');
+  const contentEl = document.getElementById('agent-vuln-content');
+  const listEl = document.getElementById('agent-vuln-list');
+
+  loadEl.style.display = 'none';
+  contentEl.style.display = 'block';
+
+  if (hits.length === 0) {
+    listEl.innerHTML = `<div style="padding:32px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);">
+      // No CVEs found — Wazuh vulnerability detector may still be loading feeds<br>
+      <span style="font-size:11px;opacity:0.6;display:block;margin-top:8px;">First scan can take 15-30 minutes after enabling</span>
+    </div>`;
+    updateVulnStats(0, 0, 0, 0);
+    return;
+  }
+
+  // Count severities
+  let critical = 0, high = 0, medium = 0, low = 0;
+  hits.forEach(h => {
+    const sev = (h.vulnerability?.severity || h.data?.vulnerability?.severity || '').toLowerCase();
+    if (sev === 'critical') critical++;
+    else if (sev === 'high') high++;
+    else if (sev === 'medium') medium++;
+    else if (sev === 'low') low++;
+  });
+  updateVulnStats(critical, high, medium, hits.length);
+
+  listEl.innerHTML = hits.map(h => {
+    const vuln = h.vulnerability || h.data?.vulnerability || {};
+    const agent = h.agent || {};
+    const sev = (vuln.severity || 'low').toLowerCase();
+    const cve = vuln.cve || vuln.id || '--';
+    const title = vuln.title || vuln.name || cve;
+    const pkg = vuln.package?.name || vuln.affected_packages?.[0]?.name || '--';
+    const cvss = vuln.cvss?.cvss3?.base_score || vuln.cvss?.cvss2?.base_score || '--';
+    const agentName = agent.name || agent.id || '--';
+    return `<div class="vuln-row" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      <span><span class="sev-badge sev-${sev}">${sev.toUpperCase()}</span></span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;">${escH(cve !== title ? cve : title)}</span>
+      <span style="font-size:12px;color:var(--text);">${escH(pkg)}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${cvss}</span>
+      <span style="font-size:12px;color:var(--muted);">${escH(agentName)}</span>
+    </div>
+    <div class="finding-detail" style="display:none;">
+      <div><strong>CVE:</strong> ${escH(cve)}</div>
+      <div><strong>Title:</strong> ${escH(title)}</div>
+      <div><strong>Package:</strong> ${escH(pkg)} ${escH(vuln.package?.version || '')}</div>
+      <div><strong>Published:</strong> ${vuln.published || vuln.detection_time || '--'}</div>
+      <div><strong>Description:</strong> ${escH(vuln.description || '--')}</div>
+      <div><strong>Solution:</strong> ${escH(vuln.reference || vuln.solution || 'Refer to vendor advisory')}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateVulnStats(critical, high, medium, total) {
+  const c = document.getElementById('vs-critical');
+  const h = document.getElementById('vs-high');
+  const m = document.getElementById('vs-medium');
+  const t = document.getElementById('vs-total');
+  if (c) c.textContent = critical;
+  if (h) h.textContent = high;
+  if (m) m.textContent = medium;
+  if (t) t.textContent = total;
+
+  // Update sidebar badge
+  const badge = document.getElementById('vuln-badge');
+  if (badge) {
+    if (critical > 0) {
+      badge.textContent = critical;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+}
+
+async function launchScan() {
+  const targetsRaw = document.getElementById('scan-targets').value.trim();
+  if (!targetsRaw) {
+    document.getElementById('scan-launch-status').textContent = '⚠ Enter at least one target';
+    document.getElementById('scan-launch-status').style.color = 'var(--danger)';
+    return;
+  }
+
+  const targets = targetsRaw.split(/[\n,]+/).map(t => t.trim()).filter(Boolean);
+  const type = document.getElementById('scan-type').value;
+  const profile = document.getElementById('scan-profile').value;
+  const clientName = document.getElementById('scan-client').value.trim();
+
+  const btn = document.getElementById('scan-launch-btn');
+  const statusEl = document.getElementById('scan-launch-status');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ LAUNCHING...';
+  statusEl.style.color = 'var(--muted)';
+  statusEl.textContent = 'Submitting scan...';
+
+  try {
+    const res = await fetch(`${PROXY_URL}/scan/start`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CLIENTS_ADMIN_TOKEN}` },
+      body: JSON.stringify({ targets, type, profile, clientName })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const scan = await res.json();
+    activeScanId = scan.id;
+    statusEl.textContent = `Scan ${scan.id} queued — targets: ${targets.join(', ')}`;
+    statusEl.style.color = 'var(--accent)';
+    btn.textContent = '▶ LAUNCH SCAN';
+    btn.disabled = false;
+
+    // Refresh history and start polling
+    loadScanHistory();
+    startScanPoll(scan.id);
+  } catch(e) {
+    statusEl.textContent = '✗ Failed: ' + e.message;
+    statusEl.style.color = 'var(--danger)';
+    btn.textContent = '▶ LAUNCH SCAN';
+    btn.disabled = false;
+  }
+}
+
+function startScanPoll(scanId) {
+  if (scanPollTimer) clearInterval(scanPollTimer);
+  scanPollTimer = setInterval(async () => {
+    try {
+      const res = await fetch(`${PROXY_URL}/scan/status/${scanId}`);
+      if (!res.ok) return;
+      const scan = await res.json();
+      // Refresh history row
+      const rowEl = document.getElementById(`scan-row-${scanId}`);
+      if (rowEl) rowEl.outerHTML = renderScanHistoryRow(scan);
+
+      if (scan.status === 'completed' || scan.status === 'error') {
+        clearInterval(scanPollTimer);
+        scanPollTimer = null;
+        loadScanHistory();
+        if (scan.status === 'completed') {
+          showToast(`Scan complete — ${scan.findings?.length || 0} findings`, 'success');
+          viewScanResults(scanId);
+        }
+      }
+    } catch(e) { /* silent */ }
+  }, 5000);
+}
+
+async function loadScanHistory() {
+  const loadEl = document.getElementById('scan-history-loading');
+  const contentEl = document.getElementById('scan-history-content');
+  const listEl = document.getElementById('scan-history-list');
+
+  loadEl.style.display = 'block';
+  contentEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`${PROXY_URL}/scan/list`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const scans = await res.json();
+
+    loadEl.style.display = 'none';
+    contentEl.style.display = 'block';
+
+    if (!scans.length) {
+      listEl.innerHTML = `<div style="padding:24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);">// No scans yet — launch your first scan above</div>`;
+      return;
+    }
+    listEl.innerHTML = scans.map(s => renderScanHistoryRow(s)).join('');
+  } catch(e) {
+    loadEl.textContent = 'Could not load scan history — scanner may be offline';
+    loadEl.style.display = 'block';
+  }
+}
+
+function renderScanHistoryRow(s) {
+  const statusClass = { queued: 'scan-status-queued', running: 'scan-status-running', completed: 'scan-status-done', error: 'scan-status-error' }[s.status] || '';
+  const statusLabel = { queued: '⏳ QUEUED', running: '▶ RUNNING', completed: '✓ DONE', error: '✗ ERROR' }[s.status] || s.status.toUpperCase();
+  const targets = (s.targets || []).join(', ').substring(0, 40) + ((s.targets || []).join(', ').length > 40 ? '…' : '');
+  const started = s.startedAt ? new Date(s.startedAt).toLocaleString() : '--';
+  const c = s.stats?.critical || 0;
+  const h = s.stats?.high || 0;
+  const m = s.stats?.medium || 0;
+
+  return `<div class="scan-history-row" id="scan-row-${s.id}" onclick="viewScanResults('${s.id}')">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${started}</span>
+    <span style="font-size:12px;color:var(--text);">${escH(targets)}</span>
+    <span style="font-size:12px;color:var(--muted);">${escH(s.clientName || '--')}</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--danger);font-weight:600;">${c || '--'}</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#FF6400;">${h || '--'}</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--warning);">${m || '--'}</span>
+    <span class="scan-status-badge ${statusClass}">${statusLabel}</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${s.findingCount ?? '--'}</span>
+  </div>`;
+}
+
+async function viewScanResults(scanId) {
+  const panel = document.getElementById('scan-results-panel');
+  const titleEl = document.getElementById('scan-results-title');
+  const statsEl = document.getElementById('scan-results-stats');
+  const listEl = document.getElementById('scan-results-list');
+
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  titleEl.textContent = 'Loading results...';
+  listEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px;">Fetching scan data...</div>`;
+
+  try {
+    const res = await fetch(`${PROXY_URL}/scan/results/${scanId}`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const scan = await res.json();
+    currentScanFindings = scan.findings || [];
+    activeScanId = scanId;
+
+    titleEl.textContent = `Scan Results — ${(scan.targets || []).join(', ')}`;
+
+    const st = scan.stats || {};
+    statsEl.innerHTML = [
+      ['CRITICAL', st.critical || 0, 'var(--danger)'],
+      ['HIGH', st.high || 0, '#FF6400'],
+      ['MEDIUM', st.medium || 0, 'var(--warning)'],
+      ['LOW', st.low || 0, 'var(--accent2)'],
+      ['INFO', st.info || 0, 'var(--muted)']
+    ].map(([label, count, color]) =>
+      `<div style="display:flex;flex-direction:column;align-items:center;min-width:60px;padding:8px 12px;background:var(--deep);border:1px solid var(--border);">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${color};">${count}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">${label}</div>
+      </div>`
+    ).join('');
+
+    filterScanResults();
+  } catch(e) {
+    listEl.innerHTML = `<div style="padding:24px;color:var(--danger);font-size:12px;">Failed to load results: ${e.message}</div>`;
+  }
+}
+
+function filterScanResults() {
+  const sevFilter = document.getElementById('results-sev-filter').value;
+  const srcFilter = document.getElementById('results-src-filter').value;
+  const listEl = document.getElementById('scan-results-list');
+
+  let findings = currentScanFindings;
+  if (sevFilter) findings = findings.filter(f => f.severity === sevFilter);
+  if (srcFilter) findings = findings.filter(f => f.source === srcFilter);
+
+  if (!findings.length) {
+    listEl.innerHTML = `<div style="padding:24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);">// No findings match filter</div>`;
+    return;
+  }
+
+  listEl.innerHTML = findings.map(f => {
+    const sev = (f.severity || 'info').toLowerCase();
+    const cve = f.cve ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);margin-left:6px;">${escH(f.cve)}</span>` : '';
+    const cvss = f.cvss ? f.cvss.toFixed(1) : '--';
+    return `<div class="vuln-row" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      <span><span class="sev-badge sev-${sev}">${sev.toUpperCase()}</span></span>
+      <span style="font-size:12px;color:var(--text);">${escH(f.title)}${cve}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${escH(f.host)}${f.port ? ':' + f.port : ''}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${cvss}</span>
+      <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">${f.source || '--'}</span>
+    </div>
+    <div class="finding-detail" style="display:none;">
+      <div><strong>Title:</strong> ${escH(f.title)}</div>
+      ${f.cve ? `<div><strong>CVE:</strong> ${escH(f.cve)}</div>` : ''}
+      ${f.cves?.length > 1 ? `<div><strong>Related CVEs:</strong> ${f.cves.map(c => escH(c)).join(', ')}</div>` : ''}
+      <div><strong>Host:</strong> ${escH(f.host)}${f.port ? ':' + f.port + '/' + (f.protocol || 'tcp') : ''}</div>
+      <div><strong>Service:</strong> ${escH(f.service || '--')} ${escH(f.version || '')}</div>
+      ${f.matched_at ? `<div><strong>Matched at:</strong> ${escH(f.matched_at)}</div>` : ''}
+      <div><strong>Description:</strong> ${escH(f.description || '--')}</div>
+      <div><strong>Solution:</strong> ${escH(f.solution || 'Refer to vendor advisory')}</div>
+      ${f.tags?.length ? `<div><strong>Tags:</strong> ${f.tags.map(t => `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--deep);padding:2px 5px;margin-right:3px;">${escH(t)}</span>`).join('')}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function loadEpVulns(agentId) {
+  const el = document.getElementById('ep-vulns-content');
+  el.innerHTML = '<div style="color:var(--muted);font-size:12px;font-family:\'JetBrains Mono\',monospace;">Loading CVEs...</div>';
+
+  try {
+    const data = await indexerSearch('wazuh-states-vulnerabilities-*', {
+      size: 50,
+      sort: [{ 'vulnerability.severity': { order: 'desc' } }],
+      query: { bool: { filter: [{ term: { 'agent.id': agentId } }] } }
+    });
+
+    let hits = (data?.hits?.hits || []).map(h => h._source);
+
+    // Try alternate index if empty
+    if (!hits.length) {
+      const data2 = await indexerSearch('wazuh-vulnerabilities-*', {
+        size: 50,
+        sort: [{ timestamp: { order: 'desc' } }],
+        query: { bool: { filter: [{ term: { 'agent.id': agentId } }] } }
+      });
+      hits = (data2?.hits?.hits || []).map(h => h._source);
+    }
+
+    if (!hits.length) {
+      el.innerHTML = `<div style="padding:16px 0;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;">
+        // No CVEs detected on this endpoint<br>
+        <span style="font-size:10px;opacity:0.6;">Wazuh vulnerability feeds may still be initializing (15-30 min)</span>
+      </div>`;
+      return;
+    }
+
+    let html = `<div style="display:grid;grid-template-columns:80px 1fr 60px;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;padding:4px 0 8px;border-bottom:1px solid var(--border);margin-bottom:4px;">
+      <span>SEV</span><span>CVE / Package</span><span>CVSS</span>
+    </div>`;
+
+    hits.forEach(h => {
+      const vuln = h.vulnerability || h.data?.vulnerability || {};
+      const sev = (vuln.severity || 'low').toLowerCase();
+      const cve = vuln.cve || vuln.id || '--';
+      const pkg = vuln.package?.name || '--';
+      const cvss = vuln.cvss?.cvss3?.base_score || vuln.cvss?.cvss2?.base_score || '--';
+      html += `<div class="ep-vuln-row" style="display:grid;grid-template-columns:80px 1fr 60px;gap:6px;padding:6px 0;border-bottom:1px solid rgba(17,34,64,0.5);">
+        <span><span class="sev-badge sev-${sev}" style="font-size:9px;padding:2px 5px;">${sev.slice(0,4).toUpperCase()}</span></span>
+        <span style="font-size:11px;color:var(--text);">${escH(cve)}<br><span style="font-size:10px;color:var(--muted);">${escH(pkg)}</span></span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${cvss}</span>
+      </div>`;
+    });
+
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = `<div style="padding:8px 0;font-size:12px;color:var(--muted);">Could not load: ${e.message}</div>`;
+  }
+}
+
+function escH(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>
