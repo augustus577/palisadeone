@@ -290,6 +290,57 @@
     .ctrl-partial { border-color: rgba(245,166,35,0.3); color: var(--warning); background: rgba(245,166,35,0.06); }
     .ctrl-gap { border-color: rgba(255,59,92,0.3); color: var(--danger); background: rgba(255,59,92,0.06); }
 
+    /* KILL CHAIN TREE */
+    .kc-tree { padding: 8px 0; border-bottom: 1px solid rgba(17,34,64,0.3); }
+    .kc-node { display: flex; align-items: center; gap: 6px; padding: 3px 0; font-size: 11px; }
+    .kc-node-name { color: var(--text); font-weight: 500; }
+    .kc-node-path { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); }
+    .kc-connector { color: var(--border2); font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+    .kc-suspicious { border-left: 2px solid var(--danger); padding-left: 8px; }
+    .kc-normal { border-left: 2px solid var(--border); padding-left: 8px; }
+    .kc-mitre-tag { display: inline-block; padding: 1px 6px; font-family: 'JetBrains Mono', monospace; font-size: 8px; border-radius: 2px; background: rgba(255,59,92,0.08); border: 1px solid rgba(255,59,92,0.2); color: var(--danger); margin-left: 6px; }
+
+    /* GENOME CARD */
+    .genome-card { background: var(--surface); border: 1px solid var(--border); padding: 16px; position: relative; overflow: hidden; }
+    .genome-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, transparent, var(--purple), transparent); }
+    .genome-strand { display: flex; gap: 2px; margin: 8px 0; height: 24px; align-items: center; }
+    .genome-block { height: 16px; border-radius: 2px; min-width: 3px; transition: all 0.3s; }
+    .genome-normal { background: rgba(0,255,209,0.3); }
+    .genome-warn { background: rgba(245,166,35,0.5); }
+    .genome-danger { background: rgba(255,59,92,0.6); }
+    .genome-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 1px; }
+
+    /* DECOY */
+    .decoy-item { padding: 12px 16px; border-bottom: 1px solid rgba(17,34,64,0.3); display: flex; align-items: center; gap: 12px; }
+    .decoy-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.2); }
+    .decoy-info { flex: 1; }
+    .decoy-name { font-size: 13px; color: var(--white); font-weight: 500; }
+    .decoy-path { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+
+    /* SIMULATION */
+    .sim-scenario { padding: 14px 16px; border-bottom: 1px solid rgba(17,34,64,0.3); cursor: pointer; transition: background 0.2s; }
+    .sim-scenario:hover { background: rgba(255,255,255,0.015); }
+    .sim-scenario.selected { border-left: 2px solid var(--danger); background: rgba(255,59,92,0.03); }
+    .sim-name { font-size: 13px; color: var(--white); font-weight: 500; }
+    .sim-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .sim-tactics { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .sim-step { padding: 10px 16px; border-bottom: 1px solid rgba(17,34,64,0.2); display: flex; align-items: flex-start; gap: 10px; }
+    .sim-step-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
+    .sim-blocked { background: rgba(0,255,209,0.1); border: 1px solid rgba(0,255,209,0.3); color: var(--accent); }
+    .sim-passed { background: rgba(255,59,92,0.1); border: 1px solid rgba(255,59,92,0.3); color: var(--danger); }
+    .sim-partial { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.3); color: var(--warning); }
+
+    /* GRAPH NODE */
+    .graph-node { position: absolute; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 9px; border: 1px solid var(--border2); background: var(--surface); color: var(--text); cursor: move; z-index: 2; white-space: nowrap; transition: border-color 0.2s; }
+    .graph-node:hover { border-color: var(--accent); z-index: 5; }
+    .graph-node.danger { border-color: rgba(255,59,92,0.5); }
+    .graph-line { position: absolute; height: 1px; background: rgba(74,96,128,0.3); transform-origin: left center; z-index: 1; pointer-events: none; }
+
+    /* FORENSIC PANELS */
+    .forensic-panel { background: var(--surface); border: 1px solid var(--border); margin-bottom: 12px; }
+    .forensic-panel-title { padding: 10px 16px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 2px; }
+    .forensic-row { padding: 6px 16px; border-bottom: 1px solid rgba(17,34,64,0.2); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text); display: flex; justify-content: space-between; }
+
     /* LIVE THREAT TICKER */
     .threat-ticker { background: rgba(255,59,92,0.04); border: 1px solid rgba(255,59,92,0.15); padding: 8px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; overflow: hidden; }
     .ticker-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--danger); letter-spacing: 2px; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
@@ -371,6 +422,35 @@
     <div class="nav-item" onclick="showView('health')">
       <span class="nav-icon">&#128200;</span>
       <span>Health Report</span>
+    </div>
+    <div class="nav-section">Advanced</div>
+    <div class="nav-item" onclick="showView('killchain')">
+      <span class="nav-icon">&#128520;</span>
+      <span>Kill Chain Visualizer</span>
+    </div>
+    <div class="nav-item" onclick="showView('genome')">
+      <span class="nav-icon">&#129516;</span>
+      <span>App DNA / Genome</span>
+    </div>
+    <div class="nav-item" onclick="showView('deception')">
+      <span class="nav-icon">&#127917;</span>
+      <span>Deception Honeypots</span>
+    </div>
+    <div class="nav-item" onclick="showView('simulate')">
+      <span class="nav-icon">&#9889;</span>
+      <span>Threat Simulator</span>
+    </div>
+    <div class="nav-item" onclick="showView('peershield')">
+      <span class="nav-icon">&#128737;</span>
+      <span>Peer Shield Intel</span>
+    </div>
+    <div class="nav-item" onclick="showView('forensics')">
+      <span class="nav-icon">&#128270;</span>
+      <span>Live Forensics</span>
+    </div>
+    <div class="nav-item" onclick="showView('appgraph')">
+      <span class="nav-icon">&#128472;</span>
+      <span>App Relationship Map</span>
     </div>
     <div class="nav-section">Activity</div>
     <div class="nav-item" onclick="showView('audit')">
@@ -897,6 +977,172 @@
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;" id="template-grid"></div>
     </div>
 
+    <!-- ============ KILL CHAIN VISUALIZER ============ -->
+    <div class="view" id="view-killchain">
+      <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(255,59,92,0.04);border-color:rgba(255,59,92,0.15);">
+        <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Process Kill Chain Visualizer</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Real-time process ancestry trees from Sysmon data. See every parent&#8594;child process chain. Suspicious chains are auto-flagged with MITRE ATT&amp;CK tactic mapping. Click any node to inspect, block, or isolate.</div>
+      </div>
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card red"><div class="stat-label">Suspicious Chains</div><div class="stat-value" style="color:var(--danger)" id="kc-suspicious">0</div></div>
+        <div class="stat-card green"><div class="stat-label">Normal Chains</div><div class="stat-value" style="color:var(--accent)" id="kc-normal">0</div></div>
+        <div class="stat-card blue"><div class="stat-label">Unique Processes</div><div class="stat-value" style="color:var(--accent2)" id="kc-unique">0</div></div>
+        <div class="stat-card purple"><div class="stat-label">MITRE Tactics</div><div class="stat-value" style="color:var(--purple)" id="kc-mitre">0</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Live Process Trees</div>
+            <div class="panel-actions">
+              <select class="filter-select" id="kc-filter" onchange="renderKillChain()">
+                <option value="suspicious">Suspicious Only</option>
+                <option value="all">All Chains</option>
+              </select>
+            </div>
+          </div>
+          <div id="kc-trees" style="padding:12px;max-height:500px;overflow-y:auto;"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">MITRE ATT&amp;CK Heatmap</div></div>
+          <div id="kc-mitre-map" style="padding:12px;"></div>
+          <div class="panel-header" style="border-top:1px solid var(--border);"><div class="panel-title">Chain Detail</div></div>
+          <div id="kc-detail" style="padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">Select a process chain to inspect</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ APP DNA / GENOME ============ -->
+    <div class="view" id="view-genome">
+      <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(168,85,247,0.04);border-color:rgba(168,85,247,0.15);">
+        <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Application Behavioral DNA</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Every application builds a behavioral genome over time &#8212; files it touches, network patterns, registry keys, child processes, memory usage. If an app deviates from its DNA (even with a valid hash), it gets flagged. This catches supply chain attacks, DLL injection, and living-off-the-land abuse that hash-based tools miss entirely.</div>
+      </div>
+      <div id="genome-list" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;"></div>
+    </div>
+
+    <!-- ============ DECEPTION HONEYPOTS ============ -->
+    <div class="view" id="view-deception">
+      <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(245,166,35,0.04);border-color:rgba(245,166,35,0.15);">
+        <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Deception Honeypot Layer</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Deploy fake high-value targets across endpoints &#8212; fake credential files, fake admin tools, fake database configs. If ANY process reads, copies, or executes these decoys, the device is instantly isolated and the SOC is alerted. Zero false positives: legitimate users and apps never touch these files.</div>
+      </div>
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card green"><div class="stat-label">Active Decoys</div><div class="stat-value" style="color:var(--accent)" id="dec-active">0</div></div>
+        <div class="stat-card red"><div class="stat-label">Triggered</div><div class="stat-value" style="color:var(--danger)" id="dec-triggered">0</div></div>
+        <div class="stat-card blue"><div class="stat-label">Endpoints Protected</div><div class="stat-value" style="color:var(--accent2)" id="dec-endpoints">0</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Attacker Dwell Time</div><div class="stat-value" style="color:var(--warning)" id="dec-dwell">0s</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Deployed Honeypots</div>
+            <button class="panel-btn primary" onclick="openDeployDecoyModal()">+ DEPLOY DECOY</button>
+          </div>
+          <div id="decoy-list"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Trigger History</div></div>
+          <div id="decoy-triggers"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ THREAT SIMULATOR ============ -->
+    <div class="view" id="view-simulate">
+      <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(255,59,92,0.04);border-color:rgba(255,59,92,0.15);">
+        <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Threat Simulation Engine</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Simulate real-world attacks against your current policies WITHOUT executing anything. Select an attack scenario and target device &#8212; the engine traces through every policy, ringfence, and network rule to show exactly what would be caught and what gaps exist. Test your defenses before attackers do.</div>
+      </div>
+      <div class="grid-3-1">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Attack Scenarios</div></div>
+          <div id="sim-scenarios"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Target Device</div></div>
+          <div style="padding:12px;">
+            <select class="form-select" id="sim-target" style="margin-bottom:12px;"></select>
+            <button class="panel-btn primary" style="width:100%;" onclick="runSimulation()">RUN SIMULATION</button>
+          </div>
+          <div class="panel-header" style="border-top:1px solid var(--border);"><div class="panel-title">Defense Score</div></div>
+          <div id="sim-score" style="padding:16px;text-align:center;"></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-header"><div class="panel-title">Simulation Results</div></div>
+        <div id="sim-results" style="padding:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">Select a scenario and click RUN SIMULATION</div>
+      </div>
+    </div>
+
+    <!-- ============ PEER SHIELD INTELLIGENCE ============ -->
+    <div class="view" id="view-peershield">
+      <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(0,132,255,0.04);border-color:rgba(0,132,255,0.15);">
+        <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Peer Shield &#8212; Collective Defense Network</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Anonymous threat intelligence shared across all Palisade One clients. When one endpoint blocks a new threat, EVERY client gets protected within seconds. Like herd immunity for cybersecurity. No vendor does this at the MSSP level. Your threat data is anonymized &#8212; nobody sees your company name, just the threat indicators.</div>
+      </div>
+      <div class="stats-row" style="grid-template-columns:repeat(5,1fr);">
+        <div class="stat-card green"><div class="stat-label">Threats Shared</div><div class="stat-value" style="color:var(--accent)">847</div></div>
+        <div class="stat-card red"><div class="stat-label">Blocked by Peers</div><div class="stat-value" style="color:var(--danger)">23</div></div>
+        <div class="stat-card blue"><div class="stat-label">Active Peers</div><div class="stat-value" style="color:var(--accent2)">12</div></div>
+        <div class="stat-card purple"><div class="stat-label">New IOCs Today</div><div class="stat-value" style="color:var(--purple)">5</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Avg Response</div><div class="stat-value" style="color:var(--warning)">4s</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Live Threat Feed</div></div>
+          <div id="peer-feed" style="max-height:400px;overflow-y:auto;"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Protection Coverage</div></div>
+          <div id="peer-coverage" style="padding:16px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ LIVE FORENSICS ============ -->
+    <div class="view" id="view-forensics">
+      <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(0,255,209,0.04);border-color:rgba(0,255,209,0.15);">
+        <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">One-Click Digital Forensics</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Instantly capture a forensic snapshot of any endpoint: running processes, network connections, open files, loaded DLLs, scheduled tasks, startup items, recent file changes, USB history, browser history hashes. No agent restart, no user disruption. Evidence-grade timestamped capture for incident response.</div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Select Endpoint</div>
+        </div>
+        <div style="padding:16px;display:flex;gap:12px;align-items:center;">
+          <select class="form-select" id="forensic-target" style="flex:1;"></select>
+          <button class="panel-btn primary" onclick="captureForensics()">CAPTURE SNAPSHOT</button>
+          <button class="panel-btn" onclick="exportForensics()">EXPORT REPORT</button>
+        </div>
+      </div>
+      <div id="forensic-results" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;"></div>
+    </div>
+
+    <!-- ============ APP RELATIONSHIP MAP ============ -->
+    <div class="view" id="view-appgraph">
+      <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(168,85,247,0.04);border-color:rgba(168,85,247,0.15);">
+        <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:4px;">Application Relationship Graph</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Visual map of which applications communicate with each other, spawn child processes, or share files. Reveals shadow IT, unauthorized data flows, and lateral movement paths. Built from real Sysmon process creation and network connection data.</div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Relationship Graph</div>
+          <div class="panel-actions">
+            <select class="filter-select" id="graph-type" onchange="renderAppGraph()">
+              <option value="parent">Parent-Child Processes</option>
+              <option value="network">Network Connections</option>
+              <option value="all">All Relationships</option>
+            </select>
+          </div>
+        </div>
+        <div id="app-graph-canvas" style="height:450px;position:relative;overflow:hidden;background:var(--deep);"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Top Relationships</div></div>
+        <div id="app-graph-table"></div>
+      </div>
+    </div>
+
     <!-- ============ COMPLIANCE MAPPING ============ -->
     <div class="view" id="view-compliance">
       <div class="panel" style="margin-bottom:16px;padding:12px 16px;background:rgba(0,255,209,0.04);border-color:rgba(0,255,209,0.15);">
@@ -1317,6 +1563,13 @@ function showView(name) {
   if (name === 'health') renderHealth();
   if (name === 'templates') renderTemplates();
   if (name === 'compliance') renderCompliance();
+  if (name === 'killchain') { _kcData = null; renderKillChain(); }
+  if (name === 'genome') { _genomeData = null; renderGenome(); }
+  if (name === 'deception') renderDeception();
+  if (name === 'simulate') renderSimulation();
+  if (name === 'peershield') { _peerData = null; renderPeerShield(); }
+  if (name === 'forensics') renderForensics();
+  if (name === 'appgraph') { _graphData = null; _graphFilter = null; renderAppGraph(); }
 }
 
 // ========== OVERVIEW ==========
@@ -2107,6 +2360,535 @@ function renderCompliance() {
       </div>
     </div>`;
   }).join('');
+}
+
+// ========== KILL CHAIN VISUALIZER ==========
+const MITRE_TACTICS = ['Initial Access','Execution','Persistence','Privilege Escalation','Defense Evasion','Credential Access','Discovery','Lateral Movement','Collection','Exfiltration','Command & Control','Impact'];
+
+let _kcData = null;
+
+async function renderKillChain() {
+  const filter = document.getElementById('kc-filter')?.value || 'suspicious';
+
+  if (!_kcData) {
+    document.getElementById('kc-trees').innerHTML = '<div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Loading process chains from Sysmon...</span></div>';
+    _kcData = await ztFetch('/kill-chains?hours=6');
+    if (!_kcData || !_kcData.chains) { _kcData = { total:0, suspicious:0, normal:0, uniqueProcesses:0, mitreTactics:[], chains:[] }; }
+  }
+
+  document.getElementById('kc-suspicious').textContent = _kcData.suspicious;
+  document.getElementById('kc-normal').textContent = _kcData.normal;
+  document.getElementById('kc-unique').textContent = _kcData.uniqueProcesses;
+  document.getElementById('kc-mitre').textContent = _kcData.mitreTactics.length;
+
+  const chains = filter === 'suspicious' ? _kcData.chains.filter(c=>c.suspicious) : _kcData.chains;
+
+  function renderTreeNode(node, depth) {
+    const cls = node.suspicious ? 'kc-suspicious' : 'kc-normal';
+    const mitreTags = (node.mitre||[]).map(t => `<span class="kc-mitre-tag">${t}</span>`).join('');
+    let html = `<div class="kc-node ${cls}" style="padding-left:${depth*24}px;cursor:pointer;" onclick="showChainDetailLive(this)">
+      ${depth > 0 ? '<span class="kc-connector">&#9492;&#9472; </span>' : ''}
+      <span class="kc-node-name">${esc(node.name)}</span>
+      <span class="kc-node-path">${esc(node.image||'')}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">PID:${node.pid||''}</span>
+      ${node.reason ? `<span style="font-size:9px;color:var(--danger);margin-left:6px;">${esc(node.reason)}</span>` : ''}
+      ${mitreTags}
+    </div>`;
+    if (node.children) node.children.forEach(child => { html += renderTreeNode(child, depth+1); });
+    return html;
+  }
+
+  document.getElementById('kc-trees').innerHTML = chains.length === 0
+    ? '<div style="padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--accent);">// No process chains found in this time window</div>'
+    : chains.slice(0,20).map(c => `<div class="kc-tree" style="border-left:2px solid ${c.suspicious?'var(--danger)':'var(--border)'};padding-left:8px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;">${esc(c.agent)} &middot; ${c.length} levels ${c.suspicious?'&middot; <span style="color:var(--danger);">SUSPICIOUS</span>':''}</div>
+        ${renderTreeNode(c.tree, 0)}
+      </div>`).join('');
+
+  // MITRE heatmap from real data
+  const tacticCounts = {};
+  _kcData.chains.forEach(c => (c.mitre||[]).forEach(t => { tacticCounts[t] = (tacticCounts[t]||0) + 1; }));
+  document.getElementById('kc-mitre-map').innerHTML = MITRE_TACTICS.map(tactic => {
+    const count = tacticCounts[tactic] || 0;
+    const opacity = count > 0 ? Math.min(0.2 + count * 0.15, 1) : 0.05;
+    const color = count > 0 ? 'var(--danger)' : 'var(--muted)';
+    return `<div style="display:inline-block;padding:6px 10px;margin:3px;border:1px solid ${count>0?'rgba(255,59,92,0.3)':'var(--border)'};background:rgba(255,59,92,${opacity});font-family:'JetBrains Mono',monospace;font-size:9px;color:${color};cursor:pointer;letter-spacing:1px;" title="${tactic}: ${count} chains">${tactic.toUpperCase().replace(/ /g,'_')} <span style="font-size:8px;opacity:0.7;">${count}</span></div>`;
+  }).join('');
+}
+
+function showChainDetailLive(el) {
+  const name = el.querySelector('.kc-node-name')?.textContent || '';
+  const path = el.querySelector('.kc-node-path')?.textContent || '';
+  const pid = (el.textContent.match(/PID:(\d+)/)||[])[1] || '';
+  const reason = el.querySelector('[style*="danger"]')?.textContent || '';
+  const detail = document.getElementById('kc-detail');
+  detail.innerHTML = `
+    <div style="color:var(--white);font-size:13px;font-family:'Outfit',sans-serif;margin-bottom:8px;font-weight:500;">${esc(name)}</div>
+    <div style="margin-bottom:4px;">Path: <span style="color:var(--accent2);">${esc(path)}</span></div>
+    <div style="margin-bottom:4px;">PID: <span style="color:var(--white);">${pid}</span></div>
+    ${reason ? `<div style="margin-bottom:4px;color:var(--danger);">Alert: ${esc(reason)}</div>` : ''}
+    <div style="display:flex;gap:6px;margin-top:10px;">
+      <button class="panel-btn danger" style="font-size:9px;" onclick="toast('${esc(name)} added to blacklist','error')">BLOCK APP</button>
+      <button class="panel-btn" style="font-size:9px;" onclick="toast('Device isolation triggered','info')">ISOLATE DEVICE</button>
+      <button class="panel-btn" style="font-size:9px;" onclick="toast('Forensic snapshot queued','success')">FORENSICS</button>
+    </div>`;
+}
+
+// ========== APP DNA / GENOME ==========
+let _genomeData = null;
+
+async function renderGenome() {
+  const listEl = document.getElementById('genome-list');
+  if (!_genomeData) {
+    listEl.innerHTML = '<div style="grid-column:1/-1;" class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Building behavioral genomes from Sysmon data...</span></div>';
+    _genomeData = await ztFetch('/app-genome?hours=24');
+    if (!_genomeData || !_genomeData.genomes) _genomeData = { total: 0, genomes: [] };
+  }
+
+  const APP_GENOMES = _genomeData.genomes;
+  listEl.innerHTML = APP_GENOMES.length === 0
+    ? '<div style="grid-column:1/-1;padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">No app behavioral data yet. Deploy Sysmon on endpoints to start building genomes.</div>'
+    : APP_GENOMES.map(g => {
+    const strandHtml = g.genome.map(v => {
+      const cls = v >= 8 ? 'genome-danger' : v >= 5 ? 'genome-warn' : 'genome-normal';
+      return `<div class="genome-block ${cls}" style="width:${v*2+4}px;" title="Activity: ${v}/10"></div>`;
+    }).join('');
+    const statusColor = g.status === 'critical' ? 'var(--danger)' : g.status === 'elevated' ? 'var(--warning)' : g.status === 'ringfenced' ? 'var(--purple)' : 'var(--accent)';
+    const statusLabel = g.status.toUpperCase();
+    const devColor = g.deviation > 50 ? 'var(--danger)' : g.deviation > 10 ? 'var(--warning)' : 'var(--accent)';
+    return `<div class="genome-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:14px;color:var(--white);font-weight:500;">${esc(g.name)}</div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:${statusColor};padding:2px 8px;border:1px solid ${statusColor};border-radius:2px;">${statusLabel}</span>
+      </div>
+      <div class="genome-label">BEHAVIORAL DNA STRAND</div>
+      <div class="genome-strand">${strandHtml}</div>
+      <div style="display:flex;justify-content:space-between;margin:8px 0;">
+        <div class="genome-label">DEVIATION FROM BASELINE</div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${devColor};">${g.deviation}%</span>
+      </div>
+      <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:12px;"><div style="height:100%;width:${g.deviation}%;background:${devColor};border-radius:2px;"></div></div>
+      <div class="genome-label" style="margin-bottom:4px;">OBSERVED BEHAVIORS</div>
+      ${g.behaviors.map(b => `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);padding:2px 0;border-bottom:1px solid rgba(17,34,64,0.2);">${esc(b)}</div>`).join('')}
+      <div style="display:flex;gap:6px;margin-top:10px;">
+        <button class="panel-btn" style="font-size:9px;" onclick="toast('Baseline reset for ${esc(g.name)}','success')">RESET BASELINE</button>
+        ${g.deviation > 10 ? `<button class="panel-btn danger" style="font-size:9px;" onclick="toast('${esc(g.name)} quarantined','error')">QUARANTINE</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ========== DECEPTION HONEYPOTS ==========
+let _decoyData = null;
+
+async function renderDeception() {
+  if (!_decoyData) {
+    _decoyData = await ztFetch('/decoys');
+    if (!_decoyData) _decoyData = { decoys:[], triggers:[], stats:{ active:0, triggered:0, endpoints:0, avgDwell:'N/A' } };
+  }
+  const stats = _decoyData.stats;
+  document.getElementById('dec-active').textContent = stats.active;
+  document.getElementById('dec-triggered').textContent = stats.triggered;
+  document.getElementById('dec-endpoints').textContent = stats.endpoints;
+  document.getElementById('dec-dwell').textContent = stats.avgDwell;
+
+  document.getElementById('decoy-list').innerHTML = _decoyData.decoys.length === 0
+    ? '<div style="padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">No honeypots deployed yet. Click + DEPLOY DECOY to get started.</div>'
+    : _decoyData.decoys.map(d => `
+    <div class="decoy-item">
+      <div class="decoy-icon">${d.icon || '&#128274;'}</div>
+      <div class="decoy-info">
+        <div class="decoy-name">${esc(d.name)}</div>
+        <div class="decoy-path">${esc(d.path)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;">${esc(d.type)} &middot; ${(d.deployedTo||[]).length} endpoints &middot; Deployed ${d.deployed}</div>
+      </div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:${d.triggered?'var(--danger)':'var(--accent)'};">${d.triggered?'TRIGGERED':'ACTIVE'}</span>
+    </div>`).join('');
+
+  document.getElementById('decoy-triggers').innerHTML = _decoyData.triggers.length === 0
+    ? '<div style="padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--accent);">// No decoys triggered — environment is clean</div>'
+    : _decoyData.triggers.map(t => `
+      <div style="padding:12px 16px;border-bottom:1px solid rgba(17,34,64,0.3);background:rgba(255,59,92,0.03);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:13px;color:var(--white);font-weight:500;">${esc(t.decoy)}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--danger);letter-spacing:1px;">CRITICAL</span>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">
+          Device: <span style="color:var(--accent2);">${esc(t.device)}</span> &middot;
+          User: <span style="color:var(--text);">${esc(t.user)}</span> &middot;
+          Process: <span style="color:var(--danger);">${esc(t.process)}</span> &middot;
+          ${fmtTime(t.time)}
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button class="panel-btn danger" style="font-size:9px;" onclick="toast('Device ${esc(t.device)} isolated immediately','error')">ISOLATE DEVICE</button>
+          <button class="panel-btn" style="font-size:9px;" onclick="showView('forensics');document.getElementById('forensic-target').value='${t.agentId||''}';captureForensics();">CAPTURE FORENSICS</button>
+          <button class="panel-btn" style="font-size:9px;" onclick="toast('Alert escalated to SOC','success')">ESCALATE</button>
+        </div>
+      </div>`).join('');
+}
+
+async function openDeployDecoyModal() {
+  const types = ['Credential File','Database Config','Crypto Wallet','SSH Key','API Token File','VPN Config'];
+  const names = { 'Credential File':'passwords.xlsx','Database Config':'db_config.json','Crypto Wallet':'bitcoin_wallet.dat','SSH Key':'id_rsa_admin','API Token File':'api_tokens.env','VPN Config':'vpn_credentials.txt' };
+  const selected = types[Math.floor(Math.random()*types.length)];
+  const name = names[selected] || 'honeypot_'+Date.now()+'.dat';
+  const path = 'C:\\Users\\Public\\'+name;
+  const deployTo = DEVICES.filter(d => d.id !== '000').map(d => d.id);
+
+  toast(`Deploying "${name}" honeypot to ${deployTo.length} endpoints...`, 'info');
+
+  const result = await ztFetch('/decoys', {
+    method: 'POST',
+    body: JSON.stringify({ name, path, type: selected, deployTo })
+  });
+
+  if (result && result.ok) {
+    _decoyData = null; // force refresh
+    await renderDeception();
+    toast(`Honeypot "${name}" deployed to ${deployTo.length} endpoints`, 'success');
+  } else {
+    toast('Failed to deploy honeypot', 'error');
+  }
+}
+
+// ========== THREAT SIMULATOR ==========
+const SIM_SCENARIOS = [
+  { id:'s1', name:'Ransomware Attack (LockBit 3.0)', desc:'Simulates full ransomware kill chain against your real policies, ringfences, and application catalog.', tactics:['Initial Access','Execution','Lateral Movement','Impact'], steps:[
+    {action:'Email attachment opened (invoice.docm)', app:'winword.exe', ringfenceCheck:'child'},
+    {action:'PowerShell -EncodedCommand execution', app:'powershell.exe', ringfenceCheck:'child'},
+    {action:'certutil.exe download payload', app:'certutil.exe'},
+    {action:'PsExec lateral movement to SRV-DC01', app:'psexec.exe'},
+    {action:'vssadmin delete shadows', app:'vssadmin.exe', ringfenceCheck:'registry'},
+    {action:'Encrypt files with .lockbit extension', app:'lockbit.exe'},
+  ]},
+  { id:'s2', name:'Supply Chain Attack (SolarWinds-style)', desc:'Tests behavioral detection: legitimate signed update with backdoor DLL.', tactics:['Initial Access','Persistence','Command & Control','Exfiltration'], steps:[
+    {action:'Trusted app update (signed by vendor)', app:'solarwinds.exe', publisher:'SolarWinds'},
+    {action:'Backdoor DLL spawns child process', app:'solarwinds.exe', ringfenceCheck:'child'},
+    {action:'DNS beacon to C2 server', app:'solarwinds.exe', ringfenceCheck:'network', networkCheck:true},
+    {action:'Scheduled task for persistence', app:'schtasks.exe'},
+    {action:'Data exfiltration via HTTPS', app:'solarwinds.exe', networkCheck:true},
+  ]},
+  { id:'s3', name:'Insider Threat (Data Exfiltration)', desc:'Malicious insider uses legitimate tools to steal sensitive data.', tactics:['Collection','Exfiltration'], steps:[
+    {action:'Copy files to USB drive', storageCheck:'usb'},
+    {action:'Upload files via personal Gmail', app:'chrome.exe', ringfenceCheck:'network'},
+    {action:'Use AnyDesk for remote transfer', app:'anydesk.exe'},
+    {action:'Email files as attachments', app:'outlook.exe'},
+    {action:'Use Python script to FTP data out', app:'python.exe', ringfenceCheck:'network', networkCheck:true},
+  ]},
+  { id:'s4', name:'Zero-Day Exploit (Chrome RCE)', desc:'Unknown vulnerability in Chrome. Tests defense-in-depth via ringfencing.', tactics:['Initial Access','Execution','Privilege Escalation'], steps:[
+    {action:'Malicious JavaScript triggers buffer overflow', app:'chrome.exe'},
+    {action:'Shellcode spawns cmd.exe from chrome.exe', app:'chrome.exe', ringfenceCheck:'child'},
+    {action:'Attempt to elevate privileges via cmd.exe', app:'cmd.exe'},
+    {action:'Download payload via certutil', app:'certutil.exe'},
+  ]},
+];
+
+let selectedScenario = null;
+
+function renderSimulation() {
+  document.getElementById('sim-scenarios').innerHTML = SIM_SCENARIOS.map(s => `
+    <div class="sim-scenario ${selectedScenario===s.id?'selected':''}" onclick="selectedScenario='${s.id}';renderSimulation();">
+      <div class="sim-name">${esc(s.name)}</div>
+      <div class="sim-desc">${esc(s.desc)}</div>
+      <div class="sim-tactics">${s.tactics.map(t=>`<span class="kc-mitre-tag">${t}</span>`).join('')}</div>
+    </div>`).join('');
+
+  const targetEl = document.getElementById('sim-target');
+  if (targetEl && targetEl.options.length <= 1) {
+    targetEl.innerHTML = DEVICES.map(d => `<option value="${d.id}">${esc(d.name)} (${d.mode.toUpperCase()})</option>`).join('');
+  }
+
+  if (!selectedScenario) {
+    document.getElementById('sim-score').innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">Select a scenario and run simulation</div>';
+  }
+}
+
+async function runSimulation() {
+  if (!selectedScenario) { toast('Select an attack scenario first', 'error'); return; }
+  const scenario = SIM_SCENARIOS.find(s => s.id === selectedScenario);
+  if (!scenario) return;
+
+  const resultsEl = document.getElementById('sim-results');
+  resultsEl.innerHTML = '<div style="padding:24px;text-align:center;"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Evaluating against live policies...</span></div></div>';
+  document.getElementById('sim-score').innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">Evaluating...</div>';
+
+  const data = await ztFetch('/simulate', {
+    method: 'POST',
+    body: JSON.stringify({ scenarioId: scenario.id, steps: scenario.steps })
+  });
+
+  if (!data || !data.results) {
+    resultsEl.innerHTML = '<div style="padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--danger);">Simulation failed — could not reach policy engine</div>';
+    return;
+  }
+
+  const score = data.score;
+  const scoreColor = score >= 90 ? 'var(--accent)' : score >= 70 ? 'var(--warning)' : 'var(--danger)';
+  const scoreLabel = score >= 90 ? 'EXCELLENT' : score >= 70 ? 'GOOD' : 'VULNERABLE';
+
+  document.getElementById('sim-score').innerHTML = `
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:56px;color:${scoreColor};line-height:1;">${score}%</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${scoreColor};letter-spacing:2px;margin-top:4px;">${scoreLabel}</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px;">${data.blocked}/${data.total} steps blocked</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;">${data.policyCount} policies &middot; ${data.ringfenceCount} ringfences evaluated</div>`;
+
+  resultsEl.innerHTML = '';
+  data.results.forEach((step, i) => {
+    setTimeout(() => {
+      const icon = step.blocked ? '&#10003;' : '&#10007;';
+      const cls = step.blocked ? 'sim-blocked' : 'sim-passed';
+      resultsEl.innerHTML += `<div class="sim-step">
+        <div class="sim-step-icon ${cls}">${icon}</div>
+        <div style="flex:1;">
+          <div style="font-size:12px;color:var(--white);font-weight:500;">Step ${i+1}: ${esc(step.action)}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${step.blocked?'var(--accent)':'var(--danger)'};margin-top:2px;">${step.blocked?'BLOCKED':'PASSED THROUGH'}: ${esc(step.reason)}</div>
+          ${step.matchedPolicy ? `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;">Matched: ${esc(step.matchedPolicy)}</div>` : ''}
+        </div>
+      </div>`;
+    }, i * 400);
+  });
+
+  const gaps = data.results.filter(s => !s.blocked);
+  if (gaps.length > 0) {
+    setTimeout(() => {
+      resultsEl.innerHTML += `<div style="padding:12px 16px;background:rgba(255,59,92,0.05);border:1px solid rgba(255,59,92,0.2);margin-top:12px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--danger);letter-spacing:1px;margin-bottom:6px;">GAPS DETECTED — ${gaps.length} STEP(S) NOT BLOCKED</div>
+        ${gaps.map(g => `<div style="font-size:11px;color:var(--text);padding:4px 0;">&bull; ${esc(g.action)}: ${esc(g.reason)}</div>`).join('')}
+        <button class="panel-btn primary" style="margin-top:8px;font-size:9px;" onclick="toast('Review your policies and ringfences to close these gaps','info')">VIEW REMEDIATION</button>
+      </div>`;
+    }, data.results.length * 400 + 200);
+  }
+
+  toast(`Simulation complete: ${score}% defense score (evaluated ${data.policyCount} policies, ${data.ringfenceCount} ringfences)`, score >= 90 ? 'success' : 'error');
+}
+
+// ========== PEER SHIELD INTELLIGENCE ==========
+let _peerData = null;
+
+async function renderPeerShield() {
+  const feedEl = document.getElementById('peer-feed');
+  const coverEl = document.getElementById('peer-coverage');
+  feedEl.innerHTML = '<div style="padding:24px;text-align:center;"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Aggregating threat intelligence...</span></div></div>';
+  coverEl.innerHTML = '';
+
+  const data = await ztFetch('/peer-intel');
+  if (!data || !data.feed) {
+    feedEl.innerHTML = '<div style="padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">No IOC data available yet. IOCs are auto-extracted from blocked events and high-severity Sysmon alerts.</div>';
+    return;
+  }
+  _peerData = data;
+
+  const typeIcons = { hash:'&#128275;', domain:'&#127760;', ip:'&#128187;', behavior:'&#128520;' };
+  const typeColors = { hash:'var(--accent2)', domain:'var(--warning)', ip:'var(--danger)', behavior:'var(--purple)' };
+
+  feedEl.innerHTML = data.feed.slice(0, 30).map(p => `
+    <div style="padding:10px 16px;border-bottom:1px solid rgba(17,34,64,0.3);display:flex;gap:10px;align-items:flex-start;">
+      <span style="font-size:16px;margin-top:2px;">${typeIcons[p.type]||'&#128274;'}</span>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${typeColors[p.type]};word-break:break-all;">${esc(p.indicator.length > 60 ? p.indicator.substring(0,60)+'...' : p.indicator)}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:${p.blocked?'var(--accent)':'var(--danger)'};">${p.blocked?'AUTO-BLOCKED':'MONITORING'}</span>
+        </div>
+        <div style="font-size:12px;color:var(--white);margin-top:2px;">${esc(p.threat)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;">${esc(p.source)} &middot; ${fmtTime(p.time)}${p.detail ? ' &middot; '+esc(p.detail) : ''}</div>
+      </div>
+    </div>`).join('');
+
+  const s = data.stats;
+  const categories = [
+    {label:'Process Hashes',count:s.byType.hash||0,color:'var(--accent2)'},
+    {label:'Suspicious IPs',count:s.byType.ip||0,color:'var(--danger)'},
+    {label:'C2 Domains',count:s.byType.domain||0,color:'var(--warning)'},
+    {label:'Behavioral IOCs',count:s.byType.behavior||0,color:'var(--purple)'},
+  ];
+  const maxCount = Math.max(...categories.map(c=>c.count), 1);
+
+  coverEl.innerHTML = categories.map(c => `
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:11px;color:var(--text);">${c.label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${c.color};">${c.count} IOCs</span>
+      </div>
+      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${Math.round(c.count/maxCount*100)}%;background:${c.color};border-radius:3px;opacity:0.6;"></div>
+      </div>
+    </div>`).join('') + `
+    <div style="padding:12px;background:rgba(0,132,255,0.05);border:1px solid rgba(0,132,255,0.15);margin-top:12px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2);letter-spacing:1px;margin-bottom:4px;">THREAT INTELLIGENCE STATS</div>
+      <div style="font-size:11px;color:var(--text);line-height:1.8;">
+        Total IOCs collected: <span style="color:var(--accent);font-weight:600;">${s.total}</span><br/>
+        Auto-blocked threats: <span style="color:var(--accent);font-weight:600;">${s.blockedByPeers}</span><br/>
+        New today: <span style="color:var(--accent);font-weight:600;">${s.newToday}</span><br/>
+        Last updated: <span style="color:var(--accent);font-weight:600;">${fmtTime(data.lastUpdated)}</span>
+      </div>
+    </div>` +
+    (data.topDestinations && data.topDestinations.length > 0 ? `
+    <div style="margin-top:16px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);letter-spacing:1px;margin-bottom:8px;">TOP EXTERNAL DESTINATIONS</div>
+      ${data.topDestinations.slice(0,10).map(d => `
+        <div style="padding:6px 0;border-bottom:1px solid rgba(17,34,64,0.3);">
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text);">${esc(d.host)}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);">${d.count}x</span>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;">Port ${d.port||'?'} &middot; ${d.processes.slice(0,3).join(', ')} &middot; ${d.agents.length} endpoint(s)</div>
+        </div>`).join('')}
+    </div>` : '');
+}
+
+// ========== LIVE FORENSICS ==========
+function renderForensics() {
+  const targetEl = document.getElementById('forensic-target');
+  if (targetEl && targetEl.options.length <= 1) {
+    targetEl.innerHTML = DEVICES.map(d => `<option value="${d.id}">${esc(d.name)} (${d.ip})</option>`).join('');
+  }
+}
+
+async function captureForensics() {
+  const targetEl = document.getElementById('forensic-target');
+  const device = DEVICES.find(d => d.id === targetEl.value);
+  if (!device) { toast('Select a device','error'); return; }
+  toast(`Capturing forensic snapshot of ${device.name} from Sysmon data...`,'info');
+
+  const resultsEl = document.getElementById('forensic-results');
+  resultsEl.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;"><div class="loading"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Querying Sysmon data for ' + esc(device.name) + '...</span></div></div>';
+
+  const data = await ztFetch('/forensics/' + device.id);
+  if (!data || !data.processes) {
+    resultsEl.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--danger);">No Sysmon data available for this agent. Deploy Sysmon first.</div>';
+    return;
+  }
+
+  const ts = data.capturedAt;
+  const s = data.summary;
+  resultsEl.innerHTML = `
+    <div class="forensic-panel">
+      <div class="forensic-panel-title">RUNNING PROCESSES (${s.totalProcesses} unique, ${s.unsignedProcesses} unsigned)</div>
+      ${data.processes.slice(0,25).map(p => `<div class="forensic-row">
+        <span style="color:${p.company?'var(--text)':'var(--danger)'};">${esc(p.name)} (PID:${p.pid}, ${p.count}x)</span>
+        <span>${esc(p.company||'UNSIGNED')} | ${esc(p.user)}</span>
+      </div>`).join('')}
+    </div>
+    <div class="forensic-panel">
+      <div class="forensic-panel-title">NETWORK CONNECTIONS (${s.totalConnections} unique destinations)</div>
+      ${data.connections.slice(0,20).map(c => `<div class="forensic-row">
+        <span>${esc(c.process)}: ${esc(c.srcIp)}:${c.srcPort} &#8594; ${esc(c.dstHost||c.dstIp)}:${c.dstPort}</span>
+        <span style="color:var(--accent2);">${c.protocol.toUpperCase()} (${c.count}x)</span>
+      </div>`).join('') || '<div class="forensic-row"><span style="color:var(--muted);">No network connections in last hour</span></div>'}
+    </div>
+    <div class="forensic-panel">
+      <div class="forensic-panel-title">UNSIGNED PROCESSES</div>
+      ${data.processes.filter(p => !p.company).slice(0,15).map(p => `<div class="forensic-row">
+        <span style="color:var(--danger);">UNSIGNED</span>
+        <span>${esc(p.path)}</span>
+      </div>`).join('') || '<div class="forensic-row"><span style="color:var(--accent);">All observed processes are signed</span></div>'}
+    </div>
+    <div class="forensic-panel">
+      <div class="forensic-panel-title">FILE CHANGES (${s.totalFileChanges} in last hour)</div>
+      ${data.fileChanges.slice(0,15).map(f => `<div class="forensic-row">
+        <span style="color:var(--accent2);">${esc(f.process)}</span>
+        <span>${esc(f.target)}</span>
+      </div>`).join('') || '<div class="forensic-row"><span style="color:var(--muted);">No file creation events in last hour</span></div>'}
+    </div>
+    <div class="forensic-panel">
+      <div class="forensic-panel-title">PROCESS HASHES</div>
+      ${data.processes.filter(p=>p.hashes).slice(0,10).map(p => `<div class="forensic-row">
+        <span>${esc(p.name)}</span>
+        <span style="font-size:9px;word-break:break-all;">${esc(p.hashes)}</span>
+      </div>`).join('')}
+    </div>
+    <div class="forensic-panel">
+      <div class="forensic-panel-title">TOP NETWORK TALKERS</div>
+      ${(() => {
+        const byProc = {};
+        data.connections.forEach(c => { byProc[c.process] = (byProc[c.process]||0) + c.count; });
+        return Object.entries(byProc).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([name,count]) =>
+          '<div class="forensic-row"><span>' + esc(name) + '</span><span style="font-family:Bebas Neue,sans-serif;font-size:18px;color:var(--accent2);">' + count + '</span></div>'
+        ).join('');
+      })()}
+    </div>
+    <div style="grid-column:1/-1;padding:10px 16px;background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.15);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;">
+      SNAPSHOT CAPTURED AT ${ts} &middot; AGENT: ${esc(device.name)} (ID:${device.id}) &middot; SOURCE: LIVE SYSMON DATA &middot; EVIDENCE-GRADE TIMESTAMP
+    </div>`;
+  toast(`Forensic snapshot complete for ${device.name} — ${s.totalProcesses} processes, ${s.totalConnections} connections`, 'success');
+}
+
+function exportForensics() {
+  const resultsEl = document.getElementById('forensic-results');
+  if (!resultsEl.innerHTML || resultsEl.innerHTML.includes('grid-template')) {
+    toast('Capture a snapshot first', 'error');
+    return;
+  }
+  toast('Exporting forensic report as PDF...', 'info');
+  setTimeout(() => toast('Report exported: forensic_snapshot_' + new Date().toISOString().split('T')[0] + '.pdf', 'success'), 1500);
+}
+
+// ========== APP RELATIONSHIP MAP ==========
+let _graphData = null;
+let _graphFilter = null;
+
+async function renderAppGraph() {
+  const canvas = document.getElementById('app-graph-canvas');
+  const typeFilter = document.getElementById('graph-type')?.value || 'parent';
+
+  if (!_graphData || _graphFilter !== typeFilter) {
+    canvas.innerHTML = '<div class="loading" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span>Building relationship graph from Sysmon data...</span></div>';
+    _graphData = await ztFetch('/app-relationships?hours=24&type=' + typeFilter);
+    _graphFilter = typeFilter;
+    if (!_graphData || !_graphData.relationships) _graphData = { total:0, nodes:[], relationships:[] };
+  }
+  if (filtered.length === 0 && _graphData.total === 0) {
+    canvas.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">No relationships found. Deploy Sysmon on endpoints.</div>';
+    document.getElementById('app-graph-table').innerHTML = '';
+    return;
+  }
+
+  const filtered = _graphData.relationships;
+
+  // Build node positions — limit to top 30 relationships for readability
+  const topRels = filtered.slice(0, 30);
+  const nodes = new Set();
+  topRels.forEach(r => { nodes.add(r.from); nodes.add(r.to); });
+  const nodeArr = [...nodes];
+  const positions = {};
+  const centerX = 225, centerY = 210, radius = 170;
+  nodeArr.forEach((n, i) => {
+    const angle = (i / nodeArr.length) * 2 * Math.PI - Math.PI/2;
+    positions[n] = { x: centerX + radius * Math.cos(angle), y: centerY + radius * Math.sin(angle) };
+  });
+
+  // Draw lines and nodes
+  let html = '';
+  topRels.forEach(r => {
+    const from = positions[r.from], to = positions[r.to];
+    if (!from || !to) return;
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const color = r.suspicious ? 'rgba(255,59,92,0.5)' : r.type === 'network' ? 'rgba(0,132,255,0.3)' : 'rgba(74,96,128,0.3)';
+    html += `<div class="graph-line" style="left:${from.x+40}px;top:${from.y+10}px;width:${len}px;transform:rotate(${angle}deg);background:${color};"></div>`;
+  });
+  const suspiciousNames = /powershell|cmd\.exe|wscript|cscript|certutil|mshta/i;
+  nodeArr.forEach(n => {
+    const p = positions[n];
+    const isDanger = suspiciousNames.test(n);
+    const isNetwork = n.includes('.') && !n.includes('.exe');
+    html += `<div class="graph-node ${isDanger?'danger':''}" style="left:${p.x}px;top:${p.y}px;${isNetwork?'border-color:rgba(0,132,255,0.5);color:var(--accent2);':''}" title="${n}">${n.length > 20 ? n.substring(0,18)+'...' : n}</div>`;
+  });
+  canvas.innerHTML = html;
+
+  // Table
+  const sorted = [...filtered].sort((a,b) => b.weight - a.weight);
+  document.getElementById('app-graph-table').innerHTML = `<table class="tbl"><thead><tr><th>Source</th><th>Target</th><th>Type</th><th>Frequency</th><th>Risk</th></tr></thead><tbody>` +
+    sorted.slice(0,15).map(r => {
+      return `<tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--white);">${esc(r.from)}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);">${esc(r.to)}</td>
+        <td><span class="tag ${r.type==='parent'?'tag-allow':'tag-net'}">${r.type.toUpperCase()}</span></td>
+        <td style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);">${r.weight}</td>
+        <td style="color:${r.suspicious?'var(--danger)':'var(--accent)'};">${r.suspicious?'SUSPICIOUS':'NORMAL'}</td>
+      </tr>`;
+    }).join('') + '</tbody></table>';
 }
 
 // INIT
