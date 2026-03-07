@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Security Awareness Training — Palisade One</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#0a0e1a;color:#c8d8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .container{max-width:720px;width:100%}
+    .alert-box{background:linear-gradient(135deg,rgba(255,59,92,0.15),rgba(255,59,92,0.05));border:2px solid rgba(255,59,92,0.4);border-radius:12px;padding:40px;text-align:center;margin-bottom:32px}
+    .alert-icon{font-size:64px;margin-bottom:16px}
+    .alert-title{font-size:28px;font-weight:700;color:#ff4466;margin-bottom:12px}
+    .alert-subtitle{font-size:16px;color:#9ab;line-height:1.6}
+    .card{background:rgba(14,26,48,0.9);border:1px solid rgba(26,46,80,0.6);border-radius:12px;padding:32px;margin-bottom:24px}
+    .card-title{font-size:20px;font-weight:700;color:#f0f6ff;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+    .card-title .num{background:#00ffd1;color:#0a0e1a;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+    .tips{list-style:none}
+    .tips li{padding:12px 0;border-bottom:1px solid rgba(26,46,80,0.4);display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.6}
+    .tips li:last-child{border-bottom:none}
+    .tips .icon{font-size:18px;flex-shrink:0;margin-top:2px}
+    .tips strong{color:#f0f6ff}
+    .example{background:rgba(255,59,92,0.08);border:1px solid rgba(255,59,92,0.2);border-radius:8px;padding:16px;margin:12px 0;font-family:monospace;font-size:13px;color:#f99;word-break:break-all}
+    .example.good{background:rgba(0,255,209,0.08);border-color:rgba(0,255,209,0.2);color:#0fa}
+    .bottom-bar{background:rgba(0,255,209,0.08);border:1px solid rgba(0,255,209,0.2);border-radius:12px;padding:24px;text-align:center}
+    .bottom-bar p{font-size:14px;color:#9ab;margin-bottom:12px}
+    .brand{font-size:18px;font-weight:700;color:#00ffd1;letter-spacing:2px}
+    a.btn{display:inline-block;background:#00ffd1;color:#0a0e1a;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;margin-top:8px;transition:all .2s}
+    a.btn:hover{background:#f0f6ff;transform:translateY(-1px)}
+    @media(max-width:600px){.alert-box{padding:24px}.card{padding:20px}.alert-title{font-size:22px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="alert-box">
+      <div class="alert-icon">&#9888;&#65039;</div>
+      <div class="alert-title">This Was a Phishing Simulation</div>
+      <div class="alert-subtitle">
+        You clicked a link in a simulated phishing email. Don't worry — this was a <strong>security awareness test</strong> conducted by your IT security team. No data was compromised.
+        <br><br>
+        This is a learning opportunity. Read below to learn how to spot phishing in the future.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="num">1</span> What Just Happened?</div>
+      <ul class="tips">
+        <li><span class="icon">&#128233;</span>You received a simulated phishing email designed to look like a legitimate message.</li>
+        <li><span class="icon">&#128070;</span>You clicked on a link in that email. In a real attack, this could have installed malware, stolen your credentials, or given an attacker access to your company's systems.</li>
+        <li><span class="icon">&#128274;</span>This was a <strong>safe test</strong> — nothing was actually compromised. But in a real attack, one click can lead to ransomware, data theft, or financial fraud.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="num">2</span> How to Spot Phishing Emails</div>
+      <ul class="tips">
+        <li><span class="icon">&#128269;</span><div><strong>Check the sender's email address carefully.</strong> Phishing emails often use lookalike domains.<div class="example">no-reply@microsft-security.com (fake)<br>no-reply@microsoft.com (real)</div></div></li>
+        <li><span class="icon">&#9888;&#65039;</span><div><strong>Be suspicious of urgency.</strong> "Your account will be deleted in 24 hours" or "Immediate action required" are classic manipulation tactics.</div></li>
+        <li><span class="icon">&#128279;</span><div><strong>Hover over links before clicking.</strong> The displayed text may say "microsoft.com" but the actual URL goes somewhere else entirely. On mobile, long-press the link to see the real URL.</div></li>
+        <li><span class="icon">&#128100;</span><div><strong>Verify unexpected requests.</strong> If your "CEO" emails asking for a wire transfer or your "IT department" wants your password, call them on the phone to verify. Don't reply to the email.</div></li>
+        <li><span class="icon">&#128230;</span><div><strong>Don't open unexpected attachments.</strong> Especially .exe, .zip, .docm, or .xlsm files. Even PDFs can be malicious.</div></li>
+        <li><span class="icon">&#127919;</span><div><strong>Look for generic greetings.</strong> "Dear User" or "Dear Customer" instead of your actual name is a red flag.</div></li>
+        <li><span class="icon">&#128172;</span><div><strong>Watch for poor grammar and spelling.</strong> While modern phishing is getting better, many attacks still have subtle errors.</div></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="num">3</span> What to Do If You Suspect Phishing</div>
+      <ul class="tips">
+        <li><span class="icon">&#9989;</span><div><strong>DO:</strong> Report it to your IT/security team immediately. Most email clients have a "Report Phishing" button.</div></li>
+        <li><span class="icon">&#9989;</span><div><strong>DO:</strong> Delete the email after reporting it.</div></li>
+        <li><span class="icon">&#9989;</span><div><strong>DO:</strong> If you already clicked a link or entered credentials, change your password immediately and notify IT.</div></li>
+        <li><span class="icon">&#10060;</span><div><strong>DON'T:</strong> Click any links or download attachments.</div></li>
+        <li><span class="icon">&#10060;</span><div><strong>DON'T:</strong> Reply to the email or forward it to coworkers.</div></li>
+        <li><span class="icon">&#10060;</span><div><strong>DON'T:</strong> Enter your username, password, or any personal information.</div></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="num">4</span> Real-World Examples</div>
+      <ul class="tips">
+        <li><span class="icon">&#128176;</span><div><strong>Average ransomware payment (SMB):</strong> $170,000. Most ransomware starts with a single phishing click.</div></li>
+        <li><span class="icon">&#128200;</span><div><strong>91% of cyberattacks</strong> begin with a phishing email. You are the first line of defense.</div></li>
+        <li><span class="icon">&#128197;</span><div><strong>Average downtime after a breach:</strong> 21 days. That's 3 weeks your business can't operate normally.</div></li>
+        <li><span class="icon">&#127961;&#65039;</span><div><strong>60% of small businesses</strong> that suffer a major breach close within 6 months.</div></li>
+      </ul>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="brand">PALISADE ONE</div>
+      <p>This phishing simulation was conducted by <strong>Palisade One</strong> as part of your organization's security awareness program. Regular testing helps build a security-aware culture and dramatically reduces the risk of real attacks succeeding.</p>
+      <p style="font-size:12px;color:#678;margin-top:8px">Questions about this test? Contact your IT administrator or reach out to us at camatta@palisadeone.com</p>
+    </div>
+  </div>
+
+  <script>
+    // Log that user reached this page (training completed)
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get('uid');
+    const cid = params.get('cid');
+    if (uid && cid) {
+      fetch('http://soc.palisadeone.com:5678/webhook/phish-training-complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, campaignId: cid, type: 'training-viewed', timestamp: new Date().toISOString() })
+      }).catch(() => {});
+    }
+  </script>
+</body>
+</html>

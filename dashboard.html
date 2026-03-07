@@ -8958,6 +8958,431 @@ ${high > 10 ? `<div style="padding:16px;background:rgba(245,166,35,0.08);border-
 <div style="margin-top:4px;">hello@palisadeone.com &bull; palisadeone.com</div></div>
 </div></body></html>`;
 }
+
+// ============================================================
+// PHISHING SIMULATION ENGINE
+// ============================================================
+const PHISH_WEBHOOK = 'http://soc.palisadeone.com:5678/webhook';
+const PHISH_STORAGE_KEY = 'p1_phish_campaigns';
+
+// Template library — full email bodies
+const PHISH_TEMPLATES = {
+  'm365-password': {
+    name: 'M365 Password Expiry', difficulty: 'Easy', subject: 'Your password expires in 24 hours',
+    senderName: 'Microsoft 365 Team', senderEmail: 'no-reply@microsft-security.com',
+    body: `<div style="font-family:Segoe UI,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<div style="background:#0078d4;padding:16px 24px;color:white;font-size:18px;font-weight:600">Microsoft 365</div>
+<div style="padding:24px;border:1px solid #ddd;border-top:none">
+<p>Your Microsoft 365 password will expire in <strong>24 hours</strong>.</p>
+<p>To avoid losing access to your email and files, please update your password immediately.</p>
+<p style="text-align:center;margin:28px 0"><a href="{{CLICK_URL}}" style="background:#0078d4;color:white;padding:12px 32px;text-decoration:none;border-radius:4px;font-weight:600">Update Password Now</a></p>
+<p style="color:#666;font-size:13px">If you did not request this change, please disregard this email.</p>
+<p style="color:#999;font-size:12px;margin-top:24px">Microsoft 365 Security Team</p>
+</div></div>`
+  },
+  'sharepoint-doc': {
+    name: 'SharePoint Document', difficulty: 'Medium', subject: '{{SENDER}} shared a document with you',
+    senderName: 'Microsoft SharePoint', senderEmail: 'sharepoint@microsoft-notifications.com',
+    body: `<div style="font-family:Segoe UI,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<div style="padding:16px 24px;border-bottom:3px solid #0078d4"><img src="https://img.icons8.com/color/28/microsoft.png" style="vertical-align:middle"> <strong>SharePoint Online</strong></div>
+<div style="padding:24px;border:1px solid #eee;border-top:none">
+<p><strong>{{SENDER}}</strong> shared a file with you</p>
+<div style="background:#f4f4f4;padding:16px;margin:16px 0;border-left:4px solid #0078d4">
+<strong>Q4 Budget Review - FINAL.xlsx</strong><br><span style="color:#666;font-size:13px">This document requires you to sign in to view.</span>
+</div>
+<p style="text-align:center"><a href="{{CLICK_URL}}" style="background:#0078d4;color:white;padding:12px 32px;text-decoration:none;border-radius:4px;font-weight:600">Open Document</a></p>
+<p style="color:#999;font-size:12px;margin-top:24px">Microsoft SharePoint Online — You received this because a file was shared from your organization's SharePoint.</p>
+</div></div>`
+  },
+  'mfa-reset': {
+    name: 'MFA Verification Alert', difficulty: 'Hard', subject: 'Action Required: Verify your identity',
+    senderName: 'Microsoft Security', senderEmail: 'security-noreply@microsoft.com.alerts-center.com',
+    body: `<div style="font-family:Segoe UI,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<div style="padding:16px 24px;border-bottom:2px solid #d83b01"><strong style="font-size:18px">&#9888; Security Alert</strong></div>
+<div style="padding:24px;border:1px solid #eee;border-top:none">
+<p>We detected an unusual sign-in to your Microsoft 365 account.</p>
+<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">
+<tr><td style="padding:8px;color:#666;border-bottom:1px solid #eee">Location:</td><td style="padding:8px;border-bottom:1px solid #eee"><strong>Moscow, Russia</strong></td></tr>
+<tr><td style="padding:8px;color:#666;border-bottom:1px solid #eee">Device:</td><td style="padding:8px;border-bottom:1px solid #eee">Unknown Linux Device</td></tr>
+<tr><td style="padding:8px;color:#666">Time:</td><td style="padding:8px">${new Date().toLocaleString()}</td></tr>
+</table>
+<p>If this wasn't you, your account may be compromised.</p>
+<p style="text-align:center;margin:24px 0"><a href="{{CLICK_URL}}" style="background:#d83b01;color:white;padding:12px 32px;text-decoration:none;border-radius:4px;font-weight:600">Verify My Identity</a></p>
+<p style="color:#999;font-size:12px">Microsoft Corporation, One Microsoft Way, Redmond, WA 98052</p>
+</div></div>`
+  },
+  'salary-adjustment': {
+    name: 'Salary Adjustment Notice', difficulty: 'Hard', subject: 'Salary Adjustment Notice — Confidential',
+    senderName: '{{COMPANY}} HR', senderEmail: 'hr@{{DOMAIN}}',
+    body: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<p>Dear {{NAME}},</p>
+<p>Following the annual compensation review, your salary has been adjusted effective next pay period.</p>
+<p>To view your updated compensation details, please log in to the HR portal:</p>
+<p style="text-align:center;margin:24px 0"><a href="{{CLICK_URL}}" style="background:#2e7d32;color:white;padding:12px 32px;text-decoration:none;border-radius:4px;font-weight:600">View Compensation Update</a></p>
+<p style="color:#999;font-size:13px"><em>This information is confidential. Please do not share or forward this email.</em></p>
+<p>Human Resources<br>{{COMPANY}}</p></div>`
+  },
+  'docusign': {
+    name: 'DocuSign Document', difficulty: 'Hard', subject: '{{SENDER}} sent you a document to review and sign',
+    senderName: 'DocuSign', senderEmail: 'dse@docusign-mail.com',
+    body: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#f5f5f5">
+<div style="background:white;padding:32px;text-align:center">
+<div style="font-size:24px;font-weight:bold;color:#2b2b2b;margin-bottom:24px">DocuSign</div>
+<p><strong>{{SENDER}}</strong> sent you a document</p>
+<div style="background:#fdf6ec;padding:16px;margin:20px 0;border:1px solid #f0d9a8;border-radius:4px;text-align:left">
+<strong>REVIEW DOCUMENT</strong><br>
+<span style="color:#666">NDA - {{COMPANY}} - Confidential Agreement.pdf</span>
+</div>
+<a href="{{CLICK_URL}}" style="display:inline-block;background:#ffc832;color:#1b1b1b;padding:14px 48px;text-decoration:none;border-radius:4px;font-weight:bold;font-size:16px">REVIEW DOCUMENT</a>
+<p style="color:#999;font-size:11px;margin-top:24px">Do Not Forward: This email contains a secure link to DocuSign.</p>
+</div></div>`
+  },
+  'ceo-wire': {
+    name: 'CEO Wire Transfer Request', difficulty: 'Hard', subject: 'Urgent — wire transfer needed',
+    senderName: '{{CEO_NAME}}', senderEmail: '{{CEO_EMAIL}}',
+    body: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<p>{{NAME}},</p>
+<p>I need you to process a wire transfer today. It's for a vendor payment that's past due and they're threatening to cut off service.</p>
+<p>Amount: $18,500<br>Bank: JPMorgan Chase<br>Account: 482917364<br>Routing: 021000021</p>
+<p>Please handle this ASAP and confirm when done. I'm in meetings all day so just email me back.</p>
+<p>Thanks,<br>{{CEO_NAME}}</p>
+<p style="color:#999;font-size:11px">Sent from my iPhone</p></div>`
+  },
+  'fedex-delivery': {
+    name: 'FedEx Delivery Failed', difficulty: 'Easy', subject: 'FedEx: Delivery attempt failed — action required',
+    senderName: 'FedEx', senderEmail: 'tracking@fedex-delivery-notice.com',
+    body: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<div style="background:#4d148c;padding:16px 24px;color:white;font-size:20px;font-weight:bold">FedEx</div>
+<div style="padding:24px;border:1px solid #ddd;border-top:none">
+<p>We attempted to deliver your package but no one was available.</p>
+<table style="width:100%;margin:16px 0;font-size:14px">
+<tr><td style="padding:6px 0;color:#666">Tracking Number:</td><td>7891-2345-6780</td></tr>
+<tr><td style="padding:6px 0;color:#666">Status:</td><td><strong style="color:#d63b01">Delivery Failed — Address Issue</strong></td></tr>
+</table>
+<p style="text-align:center;margin:24px 0"><a href="{{CLICK_URL}}" style="background:#ff6200;color:white;padding:12px 32px;text-decoration:none;border-radius:4px;font-weight:600">Reschedule Delivery</a></p>
+</div></div>`
+  },
+  'mandatory-training': {
+    name: 'Mandatory Training Due', difficulty: 'Medium', subject: 'Required: Annual Compliance Training — Due Friday',
+    senderName: '{{COMPANY}} Training', senderEmail: 'training@{{DOMAIN}}',
+    body: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<p>Hi {{NAME}},</p>
+<p>You have <strong>not completed</strong> your annual compliance training. This is required for all employees and must be completed by <strong>this Friday</strong>.</p>
+<p style="color:#c62828"><strong>Failure to complete by the deadline may result in disciplinary action.</strong></p>
+<p style="text-align:center;margin:24px 0"><a href="{{CLICK_URL}}" style="background:#1565c0;color:white;padding:12px 32px;text-decoration:none;border-radius:4px;font-weight:600">Start Training Now</a></p>
+<p>HR Training Department<br>{{COMPANY}}</p></div>`
+  },
+  'bonus-payout': {
+    name: 'Q1 Bonus Payout', difficulty: 'Hard', subject: 'Q1 Bonus Payout — Action Required',
+    senderName: '{{COMPANY}} Payroll', senderEmail: 'payroll@{{DOMAIN}}',
+    body: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<p>Hi {{NAME}},</p>
+<p>Congratulations! Based on Q1 performance, you are eligible for a bonus payout.</p>
+<div style="background:#e8f5e9;border:1px solid #a5d6a7;padding:16px;margin:16px 0;border-radius:4px">
+<strong>Bonus Amount: $2,400.00</strong><br>Payout Date: Next pay period
+</div>
+<p>To receive your bonus, please confirm your direct deposit information:</p>
+<p style="text-align:center;margin:24px 0"><a href="{{CLICK_URL}}" style="background:#2e7d32;color:white;padding:12px 32px;text-decoration:none;border-radius:4px;font-weight:600">Confirm Deposit Info</a></p>
+<p>Payroll Department<br>{{COMPANY}}</p></div>`
+  },
+  'bank-transaction': {
+    name: 'Bank Suspicious Transaction', difficulty: 'Hard', subject: 'Alert: Unusual transaction on your account',
+    senderName: 'Bank of America', senderEmail: 'alerts@bankofamerica-secure.com',
+    body: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<div style="background:#c41230;padding:16px 24px;color:white;font-size:18px;font-weight:bold">Bank of America</div>
+<div style="padding:24px;border:1px solid #ddd;border-top:none">
+<p>We detected an unusual transaction on your account.</p>
+<table style="width:100%;margin:16px 0;font-size:14px;border-collapse:collapse">
+<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666">Amount:</td><td style="padding:8px;border-bottom:1px solid #eee"><strong>$2,847.00</strong></td></tr>
+<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666">Merchant:</td><td style="padding:8px;border-bottom:1px solid #eee">WIRE TRANSFER - INTERNATIONAL</td></tr>
+<tr><td style="padding:8px;color:#666">Status:</td><td style="padding:8px"><span style="color:#c41230;font-weight:bold">Pending</span></td></tr>
+</table>
+<p>If you DID NOT authorize this, please verify your identity immediately to cancel it.</p>
+<p style="text-align:center;margin:24px 0"><a href="{{CLICK_URL}}" style="background:#c41230;color:white;padding:12px 32px;text-decoration:none;border-radius:4px;font-weight:600">Cancel Transaction</a></p>
+<p style="color:#999;font-size:11px">Member FDIC. Equal Housing Lender.</p>
+</div></div>`
+  },
+  'amazon-order': {
+    name: 'Amazon Unauthorized Order', difficulty: 'Medium', subject: 'Your Amazon order has shipped',
+    senderName: 'Amazon', senderEmail: 'ship-confirm@amazn-orders.com',
+    body: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<div style="background:#131921;padding:12px 24px"><span style="color:#ff9900;font-size:22px;font-weight:bold">amazon</span></div>
+<div style="padding:24px;border:1px solid #ddd;border-top:none">
+<p>Your order has shipped!</p>
+<div style="background:#f7f7f7;padding:16px;margin:16px 0;border-radius:4px">
+<strong>Apple AirPods Pro (2nd Gen) — Qty: 3</strong><br>
+Order #112-4738291-5829473<br>
+<strong>Total: $747.00</strong>
+</div>
+<p style="text-align:center;margin:20px 0">
+<a href="{{CLICK_URL}}" style="background:#ff9900;color:#111;padding:10px 24px;text-decoration:none;border-radius:20px;font-weight:600;margin:0 8px">Track Package</a>
+<a href="{{CLICK_URL}}" style="background:#c41230;color:white;padding:10px 24px;text-decoration:none;border-radius:20px;font-weight:600;margin:0 8px">Didn't Order This? Cancel</a>
+</p></div></div>`
+  },
+  'it-password-reset': {
+    name: 'IT Password Reset Required', difficulty: 'Hard', subject: '{{COMPANY}} IT: Password reset required',
+    senderName: 'IT Help Desk', senderEmail: 'helpdesk@{{DOMAIN}}',
+    body: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+<p>Hi {{NAME}},</p>
+<p>As part of our quarterly security update, all employees are required to reset their password by <strong>end of day tomorrow</strong>.</p>
+<p>Please use the link below to reset your password:</p>
+<p style="text-align:center;margin:24px 0"><a href="{{CLICK_URL}}" style="background:#1565c0;color:white;padding:12px 32px;text-decoration:none;border-radius:4px;font-weight:600">Reset Password</a></p>
+<p style="color:#666;font-size:13px">If you have questions, contact the help desk at ext. 4100.</p>
+<p>IT Department<br>{{COMPANY}}</p></div>`
+  }
+};
+
+function getPhishCampaigns() {
+  return JSON.parse(localStorage.getItem(PHISH_STORAGE_KEY) || '[]');
+}
+function savePhishCampaigns(campaigns) {
+  localStorage.setItem(PHISH_STORAGE_KEY, JSON.stringify(campaigns));
+}
+
+function loadPhishCampaigns() {
+  const campaigns = getPhishCampaigns();
+  const tbody = document.getElementById('phish-campaigns-tbody');
+  if (!campaigns.length) {
+    tbody.innerHTML = '<tr><td colspan="10" style="padding:40px;text-align:center;color:var(--muted);font-size:13px">No campaigns yet. Click "+ NEW CAMPAIGN" to create your first phishing simulation.</td></tr>';
+    document.getElementById('phish-total-campaigns').textContent = '0';
+    document.getElementById('phish-total-sent').textContent = '0';
+    document.getElementById('phish-avg-click').textContent = '0%';
+    document.getElementById('phish-avg-submit').textContent = '0%';
+    return;
+  }
+
+  let totalSent = 0, totalClicked = 0, totalSubmitted = 0;
+  tbody.innerHTML = campaigns.map((c, i) => {
+    const sent = c.employees.length;
+    const opened = c.employees.filter(e => e.opened).length;
+    const clicked = c.employees.filter(e => e.clicked).length;
+    const submitted = c.employees.filter(e => e.submitted).length;
+    const reported = c.employees.filter(e => e.reported).length;
+    totalSent += sent; totalClicked += clicked; totalSubmitted += submitted;
+    const clickPct = sent ? Math.round(clicked/sent*100) : 0;
+    const submitPct = sent ? Math.round(submitted/sent*100) : 0;
+    const status = c.status === 'active' ? '<span style="color:var(--accent)">Active</span>' : '<span style="color:var(--muted)">Completed</span>';
+    return `<tr style="cursor:pointer" onclick="showPhishDetail(${i})">
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:500;color:var(--white)">${c.name}</td>
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border)">${c.client}</td>
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border)"><span style="font-family:'JetBrains Mono',monospace;font-size:11px">${c.templateName}</span></td>
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border)">${sent}</td>
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border)">${opened}</td>
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border);color:var(--warning)">${clicked} (${clickPct}%)</td>
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border);color:var(--danger)">${submitted} (${submitPct}%)</td>
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border);color:var(--success)">${reported}</td>
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border)">${status}</td>
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border)">
+        <button class="action-btn" onclick="event.stopPropagation();endPhishCampaign(${i})" style="font-size:11px;padding:4px 10px">${c.status==='active'?'END':'DELETE'}</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('phish-total-campaigns').textContent = campaigns.length;
+  document.getElementById('phish-total-sent').textContent = totalSent;
+  document.getElementById('phish-avg-click').textContent = totalSent ? Math.round(totalClicked/totalSent*100) + '%' : '0%';
+  document.getElementById('phish-avg-submit').textContent = totalSent ? Math.round(totalSubmitted/totalSent*100) + '%' : '0%';
+}
+
+function showPhishDetail(idx) {
+  const c = getPhishCampaigns()[idx];
+  if (!c) return;
+  document.getElementById('phish-detail-panel').style.display = 'block';
+  document.getElementById('phish-detail-name').textContent = c.name;
+  document.getElementById('phish-detail-meta').textContent = `${c.client} — ${c.templateName} — ${new Date(c.created).toLocaleDateString()}`;
+
+  const sent = c.employees.length;
+  const opened = c.employees.filter(e => e.opened).length;
+  const clicked = c.employees.filter(e => e.clicked).length;
+  const submitted = c.employees.filter(e => e.submitted).length;
+  const reported = c.employees.filter(e => e.reported).length;
+
+  document.getElementById('phish-d-sent').textContent = sent;
+  document.getElementById('phish-d-opened').textContent = opened;
+  document.getElementById('phish-d-clicked').textContent = clicked;
+  document.getElementById('phish-d-submitted').textContent = submitted;
+  document.getElementById('phish-d-reported').textContent = reported;
+
+  document.getElementById('phish-detail-tbody').innerHTML = c.employees.map(e => {
+    const statusBadge = e.submitted ? '<span style="background:var(--danger);color:white;padding:2px 8px;border-radius:10px;font-size:10px">COMPROMISED</span>' :
+      e.clicked ? '<span style="background:var(--warning);color:var(--black);padding:2px 8px;border-radius:10px;font-size:10px">CLICKED</span>' :
+      e.opened ? '<span style="background:var(--accent2);color:white;padding:2px 8px;border-radius:10px;font-size:10px">OPENED</span>' :
+      e.reported ? '<span style="background:var(--success);color:var(--black);padding:2px 8px;border-radius:10px;font-size:10px">REPORTED</span>' :
+      '<span style="background:var(--border);color:var(--muted);padding:2px 8px;border-radius:10px;font-size:10px">SENT</span>';
+    const ts = t => t ? new Date(t).toLocaleString() : '—';
+    return `<tr>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--border);color:var(--white)">${e.name || '—'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:12px">${e.email}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px">${ts(e.sentAt)}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px">${ts(e.openedAt)}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--warning)">${ts(e.clickedAt)}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--danger)">${ts(e.submittedAt)}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--success)">${ts(e.reportedAt)}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--border)">${statusBadge}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('phish-detail-panel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function parseEmployeeList(text) {
+  return text.trim().split('\n').filter(l => l.trim()).map(line => {
+    const parts = line.split(',').map(p => p.trim());
+    if (parts.length >= 2) {
+      return { name: parts[0], email: parts[1], uid: crypto.randomUUID() };
+    }
+    return { name: '', email: parts[0], uid: crypto.randomUUID() };
+  });
+}
+
+function previewPhishEmail() {
+  const templateId = document.getElementById('phish-template').value;
+  const template = PHISH_TEMPLATES[templateId];
+  if (!template) return;
+
+  const client = document.getElementById('phish-campaign-client').value || 'Acme Corp';
+  let html = template.body
+    .replace(/\{\{CLICK_URL\}\}/g, '#')
+    .replace(/\{\{NAME\}\}/g, 'John Smith')
+    .replace(/\{\{COMPANY\}\}/g, client)
+    .replace(/\{\{DOMAIN\}\}/g, client.toLowerCase().replace(/\s+/g,'') + '.com')
+    .replace(/\{\{SENDER\}\}/g, 'Jane Manager')
+    .replace(/\{\{CEO_NAME\}\}/g, 'Robert CEO')
+    .replace(/\{\{CEO_EMAIL\}\}/g, 'robert@' + client.toLowerCase().replace(/\s+/g,'') + '.com');
+
+  const preview = document.getElementById('phish-preview-modal');
+  preview.style.display = 'block';
+  document.getElementById('phish-preview-content').innerHTML = `
+    <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px"><strong>From:</strong> ${template.senderName} &lt;${template.senderEmail}&gt;</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px"><strong>Subject:</strong> ${template.subject.replace(/\{\{SENDER\}\}/g,'Jane Manager')}</div>
+      <div style="font-size:12px;color:var(--muted)"><strong>Difficulty:</strong> <span style="color:${template.difficulty==='Easy'?'var(--success)':template.difficulty==='Medium'?'var(--warning)':'var(--danger)'}">${template.difficulty}</span></div>
+    </div>
+    <div style="background:white;color:#333;padding:20px;border-radius:4px">${html}</div>
+  `;
+  preview.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function launchPhishCampaign() {
+  const name = document.getElementById('phish-campaign-name').value.trim();
+  const client = document.getElementById('phish-campaign-client').value.trim();
+  const templateId = document.getElementById('phish-template').value;
+  const landing = document.getElementById('phish-landing').value;
+  const employeeText = document.getElementById('phish-employee-list').value.trim();
+  const senderName = document.getElementById('phish-sender-name').value.trim();
+  const senderEmail = document.getElementById('phish-sender-email').value.trim();
+  const schedule = document.getElementById('phish-schedule').value;
+
+  if (!name || !client || !employeeText) {
+    alert('Please fill in campaign name, client, and employee list.');
+    return;
+  }
+
+  const template = PHISH_TEMPLATES[templateId];
+  const employees = parseEmployeeList(employeeText).map(e => ({
+    ...e,
+    opened: false, openedAt: null,
+    clicked: false, clickedAt: null,
+    submitted: false, submittedAt: null,
+    reported: false, reportedAt: null,
+    sentAt: new Date().toISOString()
+  }));
+
+  const campaign = {
+    id: crypto.randomUUID(),
+    name, client, templateId,
+    templateName: template ? template.name : templateId,
+    landing, senderName: senderName || (template ? template.senderName : ''),
+    senderEmail: senderEmail || (template ? template.senderEmail : ''),
+    schedule, status: 'active',
+    created: new Date().toISOString(),
+    employees
+  };
+
+  // Save locally
+  const campaigns = getPhishCampaigns();
+  campaigns.unshift(campaign);
+  savePhishCampaigns(campaigns);
+
+  // Send to n8n webhook to actually dispatch emails
+  try {
+    await fetch(PHISH_WEBHOOK + '/phish-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(campaign)
+    });
+  } catch (err) {
+    console.log('n8n webhook not reachable — campaign saved locally. Configure n8n to send emails.');
+  }
+
+  // Reset form and reload
+  document.getElementById('phish-new-campaign').style.display = 'none';
+  document.getElementById('phish-campaign-name').value = '';
+  document.getElementById('phish-campaign-client').value = '';
+  document.getElementById('phish-employee-list').value = '';
+  document.getElementById('phish-sender-name').value = '';
+  document.getElementById('phish-sender-email').value = '';
+  loadPhishCampaigns();
+
+  showToast(`Campaign "${name}" launched with ${employees.length} targets`);
+}
+
+function endPhishCampaign(idx) {
+  const campaigns = getPhishCampaigns();
+  if (campaigns[idx].status === 'active') {
+    campaigns[idx].status = 'completed';
+  } else {
+    if (!confirm('Delete this campaign?')) return;
+    campaigns.splice(idx, 1);
+  }
+  savePhishCampaigns(campaigns);
+  loadPhishCampaigns();
+  document.getElementById('phish-detail-panel').style.display = 'none';
+}
+
+function filterPhishCampaigns(filter, btn) {
+  document.querySelectorAll('.phish-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const rows = document.querySelectorAll('#phish-campaigns-tbody tr');
+  const campaigns = getPhishCampaigns();
+  rows.forEach((row, i) => {
+    if (filter === 'all' || !campaigns[i]) { row.style.display = ''; return; }
+    row.style.display = campaigns[i].status === filter ? '' : 'none';
+  });
+}
+
+// Poll for tracking updates from n8n (checks every 30s)
+function pollPhishTracking() {
+  fetch(PHISH_WEBHOOK + '-results/phish-results', { method: 'GET' })
+    .then(r => r.json())
+    .then(results => {
+      if (!results || !results.length) return;
+      const campaigns = getPhishCampaigns();
+      results.forEach(r => {
+        const campaign = campaigns.find(c => c.id === r.campaignId);
+        if (!campaign) return;
+        const emp = campaign.employees.find(e => e.uid === r.uid);
+        if (!emp) return;
+        if (r.type === 'open' && !emp.opened) { emp.opened = true; emp.openedAt = r.timestamp; }
+        if (r.type === 'click' && !emp.clicked) { emp.clicked = true; emp.clickedAt = r.timestamp; }
+        if (r.type === 'submit' && !emp.submitted) { emp.submitted = true; emp.submittedAt = r.timestamp; }
+        if (r.type === 'report' && !emp.reported) { emp.reported = true; emp.reportedAt = r.timestamp; }
+      });
+      savePhishCampaigns(campaigns);
+      if (currentView === 'phishing') loadPhishCampaigns();
+    })
+    .catch(() => {}); // n8n not reachable — ignore
+}
+setInterval(pollPhishTracking, 30000);
+
+function showToast(msg) {
+  const toast = document.getElementById('ep-toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--accent);color:var(--black);padding:12px 24px;border-radius:4px;font-weight:600;font-size:13px;z-index:9999;transition:opacity .3s';
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+}
 </script>
 </body>
 </html>
