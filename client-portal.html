@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Client Portal — PalisadeOne</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #03050A; --deep: #070C14; --surface: #0B1220;
+      --border: #112240; --border2: #1A3060;
+      --accent: #00FFD1; --accent2: #0084FF;
+      --danger: #FF3B5C; --warning: #F5A623;
+      --text: #C8D8F0; --muted: #4A6080; --white: #F0F6FF;
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--black); color: var(--text);
+      font-family: 'Outfit', sans-serif; font-weight: 300;
+      display: flex; overflow: hidden;
+    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+    ::-webkit-scrollbar-track { background: var(--deep); }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 260px; min-width: 260px;
+      background: var(--deep); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      height: 100vh; overflow-y: auto;
+    }
+    .sidebar-header {
+      padding: 24px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sidebar-logo svg { width: 32px; height: 32px; }
+    .sidebar-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px; letter-spacing: 2px; color: var(--white);
+    }
+    .sidebar-brand span { color: var(--accent); }
+
+    .client-badge {
+      margin: 16px 20px; padding: 12px 16px;
+      background: rgba(0,255,209,0.04); border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    .client-name {
+      font-weight: 600; color: var(--white); font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .client-tier {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    }
+    .tier-monitor { color: var(--accent2); }
+    .tier-defend { color: var(--accent); }
+    .tier-dominate { color: var(--warning); }
+
+    .nav-section {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted); padding: 20px 20px 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; cursor: pointer; transition: all 0.15s;
+      font-size: 13px; color: var(--text); border-left: 2px solid transparent;
+    }
+    .nav-item:hover { background: rgba(0,255,209,0.04); color: var(--white); }
+    .nav-item.active { background: rgba(0,255,209,0.06); color: var(--accent); border-left-color: var(--accent); }
+    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .nav-item.locked { opacity: 0.3; pointer-events: none; }
+    .nav-item.locked::after {
+      content: 'UPGRADE'; margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px; letter-spacing: 1px; color: var(--muted);
+      background: var(--surface); padding: 2px 6px; border-radius: 2px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto; padding: 16px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .user-info {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--accent2); display: flex; align-items: center;
+      justify-content: center; font-weight: 600; font-size: 12px;
+      color: var(--white);
+    }
+    .user-name { font-size: 13px; color: var(--white); }
+    .user-email { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    .logout-btn {
+      width: 100%; background: transparent; border: 1px solid var(--border);
+      color: var(--muted); padding: 8px; font-size: 11px; cursor: pointer;
+      font-family: 'JetBrains Mono', monospace; letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ===== MAIN ===== */
+    .main {
+      flex: 1; display: flex; flex-direction: column;
+      height: 100vh; overflow: hidden;
+    }
+    .topbar {
+      height: 56px; min-height: 56px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; background: var(--deep);
+    }
+    .topbar-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px; letter-spacing: 2px; color: var(--white);
+    }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-status {
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--accent); letter-spacing: 1px;
+    }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+    .content {
+      flex: 1; overflow-y: auto; padding: 24px;
+      background: var(--black);
+    }
+
+    /* ===== CARDS ===== */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px; margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 20px; position: relative; overflow: hidden;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 1px; background: linear-gradient(to right, transparent, var(--accent), transparent);
+    }
+    .stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 2px; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .stat-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px; color: var(--white); line-height: 1;
+    }
+    .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .stat-icon {
+      position: absolute; top: 16px; right: 16px;
+      font-size: 24px; opacity: 0.15;
+    }
+
+    /* ===== PANELS ===== */
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      margin-bottom: 24px; overflow: hidden;
+    }
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+    }
+    .panel-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px; color: var(--white);
+    }
+    .panel-body { padding: 20px; }
+
+    /* ===== ALERTS TABLE ===== */
+    .alert-table { width: 100%; border-collapse: collapse; }
+    .alert-table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 2px; color: var(--muted);
+      text-align: left; padding: 8px 12px;
+      border-bottom: 1px solid var(--border); text-transform: uppercase;
+    }
+    .alert-table td {
+      padding: 10px 12px; font-size: 13px;
+      border-bottom: 1px solid rgba(17,34,64,0.5);
+    }
+    .alert-table tr:hover td { background: rgba(0,255,209,0.02); }
+    .severity-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; padding: 3px 8px; border-radius: 2px;
+      letter-spacing: 1px; font-weight: 600;
+    }
+    .sev-critical { background: rgba(255,59,92,0.15); color: var(--danger); }
+    .sev-high { background: rgba(245,166,35,0.15); color: var(--warning); }
+    .sev-medium { background: rgba(0,132,255,0.15); color: var(--accent2); }
+    .sev-low { background: rgba(0,255,209,0.1); color: var(--accent); }
+
+    /* ===== COMPLIANCE BARS ===== */
+    .compliance-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 12px 0; border-bottom: 1px solid rgba(17,34,64,0.3);
+    }
+    .compliance-name {
+      width: 120px; font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--text); letter-spacing: 1px;
+    }
+    .compliance-bar {
+      flex: 1; height: 8px; background: var(--deep);
+      border-radius: 4px; overflow: hidden;
+    }
+    .compliance-fill {
+      height: 100%; border-radius: 4px;
+      transition: width 0.8s ease;
+    }
+    .compliance-pct {
+      width: 50px; text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--white);
+    }
+
+    /* ===== EMPTY / UPGRADE ===== */
+    .empty-state {
+      text-align: center; padding: 60px 20px;
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+    .empty-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px; color: var(--white); letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    .empty-text { font-size: 14px; color: var(--muted); max-width: 400px; margin: 0 auto 20px; }
+    .upgrade-btn {
+      display: inline-block; background: var(--accent); color: var(--black);
+      padding: 12px 32px; font-weight: 700; font-size: 12px;
+      letter-spacing: 2px; text-transform: uppercase; border: none;
+      cursor: pointer; transition: all 0.2s;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    }
+    .upgrade-btn:hover { background: var(--white); transform: translateY(-1px); }
+
+    /* ===== VIEW TOGGLE ===== */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ===== DEVICE CARDS ===== */
+    .device-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .device-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 16px; transition: border-color 0.2s;
+    }
+    .device-card:hover { border-color: var(--accent); }
+    .device-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .device-name { font-weight: 600; color: var(--white); font-size: 14px; }
+    .device-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; letter-spacing: 1px; padding: 3px 8px;
+      border-radius: 2px;
+    }
+    .ds-online { background: rgba(0,255,209,0.1); color: var(--accent); }
+    .ds-offline { background: rgba(255,59,92,0.1); color: var(--danger); }
+    .device-meta {
+      font-size: 12px; color: var(--muted); line-height: 1.8;
+    }
+    .device-meta span { color: var(--text); }
+
+    /* ===== LOADING ===== */
+    @keyframes dotPulse { 0%,80%,100%{opacity:0.3}40%{opacity:1} }
+    .loading-dots { display: flex; gap: 6px; justify-content: center; padding: 40px; }
+    .loading-dots span {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+      animation: dotPulse 1.4s infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    /* ===== TRAINING ===== */
+    .training-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .training-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 20px; transition: border-color 0.2s;
+    }
+    .training-card:hover { border-color: var(--accent2); }
+    .training-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 8px;
+    }
+    .training-title {
+      font-weight: 600; color: var(--white); font-size: 15px; margin-bottom: 8px;
+    }
+    .training-desc { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+    .training-progress {
+      height: 4px; background: var(--deep); border-radius: 2px; overflow: hidden;
+    }
+    .training-progress-fill {
+      height: 100%; background: var(--accent2); border-radius: 2px;
+      transition: width 0.5s;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; left: -260px; z-index: 100; transition: left 0.3s; }
+      .sidebar.open { left: 0; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 36 36" fill="none">
+        <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" stroke="#00FFD1" stroke-width="1.5" fill="rgba(0,255,209,0.05)"/>
+        <polygon points="18,8 28,13 28,23 18,28 8,23 8,13" stroke="#00FFD1" stroke-width="1" fill="rgba(0,255,209,0.08)" opacity="0.6"/>
+        <circle cx="18" cy="18" r="3" fill="#00FFD1"/>
+      </svg>
+    </div>
+    <span class="sidebar-brand">PALISADE<span>ONE</span></span>
+  </div>
+
+  <div class="client-badge" id="clientBadge">
+    <div class="client-name" id="clientName">Loading...</div>
+    <div class="client-tier" id="clientTier">---</div>
+  </div>
+
+  <div class="nav-section">Security</div>
+  <div class="nav-item active" data-view="overview" onclick="showView('overview')">
+    <span class="nav-icon">&#9632;</span> <span>Overview</span>
+  </div>
+  <div class="nav-item" data-view="alerts" onclick="showView('alerts')">
+    <span class="nav-icon">&#9888;</span> <span>Threat Alerts</span>
+  </div>
+  <div class="nav-item" data-view="devices" onclick="showView('devices')">
+    <span class="nav-icon">&#9881;</span> <span>Endpoints</span>
+  </div>
+
+  <div class="nav-section">Compliance</div>
+  <div class="nav-item" data-view="assessment" data-min-tier="defend" onclick="showView('assessment')">
+    <span class="nav-icon">&#9733;</span> <span>Cyber Assessment</span>
+  </div>
+  <div class="nav-item" data-view="compliance" data-min-tier="defend" onclick="showView('compliance')">
+    <span class="nav-icon">&#10003;</span> <span>Compliance</span>
+  </div>
+
+  <div class="nav-section">Tools</div>
+  <div class="nav-item" data-view="training" data-min-tier="defend" onclick="showView('training')">
+    <span class="nav-icon">&#9998;</span> <span>Security Training</span>
+  </div>
+  <div class="nav-item" data-view="darkweb" data-min-tier="defend" onclick="showView('darkweb')">
+    <span class="nav-icon">&#9775;</span> <span>Dark Web Monitor</span>
+  </div>
+  <div class="nav-item" data-view="vulnscan" data-min-tier="dominate" onclick="showView('vulnscan')">
+    <span class="nav-icon">&#9760;</span> <span>Vulnerability Scanner</span>
+  </div>
+  <div class="nav-item" data-view="zerotrust" data-min-tier="dominate" onclick="showView('zerotrust')">
+    <span class="nav-icon">&#128274;</span> <span>Zero Trust</span>
+  </div>
+  <div class="nav-item" data-view="reports" data-min-tier="dominate" onclick="showView('reports')">
+    <span class="nav-icon">&#128202;</span> <span>Executive Reports</span>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div>
+        <div class="user-name" id="userName">---</div>
+        <div class="user-email" id="userEmail">---</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">SIGN OUT</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="viewTitle">SECURITY OVERVIEW</div>
+    <div class="topbar-right">
+      <div class="topbar-status">
+        <div class="status-dot"></div>
+        PROTECTED
+      </div>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+
+    <!-- OVERVIEW -->
+    <div class="view active" id="view-overview">
+      <div class="stats-grid" id="overviewStats">
+        <div class="stat-card">
+          <div class="stat-label">Security Score</div>
+          <div class="stat-value" id="secScore">--</div>
+          <div class="stat-sub">out of 100</div>
+          <div class="stat-icon">&#9733;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Alerts</div>
+          <div class="stat-value" id="alertCount">--</div>
+          <div class="stat-sub">last 24 hours</div>
+          <div class="stat-icon">&#9888;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Endpoints</div>
+          <div class="stat-value" id="deviceCount">--</div>
+          <div class="stat-sub">monitored</div>
+          <div class="stat-icon">&#9881;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Tasks Complete</div>
+          <div class="stat-value" id="taskPct">--</div>
+          <div class="stat-sub">remediation progress</div>
+          <div class="stat-icon">&#10003;</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">RECENT ALERTS</div>
+        </div>
+        <div class="panel-body">
+          <table class="alert-table">
+            <thead>
+              <tr><th>Time</th><th>Severity</th><th>Description</th><th>Agent</th></tr>
+            </thead>
+            <tbody id="recentAlerts">
+              <tr><td colspan="4"><div class="loading-dots"><span></span><span></span><span></span></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">COMPLIANCE POSTURE</div>
+        </div>
+        <div class="panel-body" id="complianceOverview">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="view" id="view-alerts">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">THREAT ALERTS</div>
+        </div>
+        <div class="panel-body">
+          <table class="alert-table">
+            <thead>
+              <tr><th>Time</th><th>Level</th><th>Rule ID</th><th>Description</th><th>Agent</th></tr>
+            </thead>
+            <tbody id="allAlerts">
+              <tr><td colspan="5"><div class="loading-dots"><span></span><span></span><span></span></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEVICES -->
+    <div class="view" id="view-devices">
+      <div class="device-grid" id="deviceGrid">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
+    <!-- ASSESSMENT -->
+    <div class="view" id="view-assessment">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">CYBER RISK ASSESSMENT</div>
+        </div>
+        <div class="panel-body">
+          <div class="empty-state" id="assessmentContent">
+            <div class="empty-icon">&#9733;</div>
+            <div class="empty-title">START YOUR ASSESSMENT</div>
+            <div class="empty-text">Evaluate your organization's security posture across 7 compliance frameworks with 200+ questions.</div>
+            <button class="upgrade-btn" onclick="window.open('cyber-assessment.html','_blank')">Launch Assessment Tool</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPLIANCE -->
+    <div class="view" id="view-compliance">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">COMPLIANCE DASHBOARD</div>
+        </div>
+        <div class="panel-body" id="complianceDetail">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRAINING -->
+    <div class="view" id="view-training">
+      <div class="training-grid" id="trainingGrid">
+        <div class="training-card">
+          <div class="training-tag">AWARENESS</div>
+          <div class="training-title">Phishing Identification</div>
+          <div class="training-desc">Learn to identify and report phishing emails, social engineering tactics, and business email compromise.</div>
+          <div class="training-progress"><div class="training-progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="training-card">
+          <div class="training-tag">POLICY</div>
+          <div class="training-title">Password & MFA Best Practices</div>
+          <div class="training-desc">Understanding password hygiene, multi-factor authentication, and credential management.</div>
+          <div class="training-progress"><div class="training-progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="training-card">
+          <div class="training-tag">COMPLIANCE</div>
+          <div class="training-title">Data Handling & Privacy</div>
+          <div class="training-desc">Proper handling of sensitive data, PII, PHI, and compliance with privacy regulations.</div>
+          <div class="training-progress"><div class="training-progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="training-card">
+          <div class="training-tag">INCIDENT RESPONSE</div>
+          <div class="training-title">Reporting Security Incidents</div>
+          <div class="training-desc">What to do when you suspect a security incident. Reporting procedures and escalation paths.</div>
+          <div class="training-progress"><div class="training-progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="training-card">
+          <div class="training-tag">TECHNICAL</div>
+          <div class="training-title">Secure Remote Work</div>
+          <div class="training-desc">VPN usage, public Wi-Fi risks, securing home networks, and BYOD policies.</div>
+          <div class="training-progress"><div class="training-progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="training-card">
+          <div class="training-tag">EXECUTIVE</div>
+          <div class="training-title">Ransomware Preparedness</div>
+          <div class="training-desc">Understanding ransomware attack vectors, business impact, and organizational response planning.</div>
+          <div class="training-progress"><div class="training-progress-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK WEB -->
+    <div class="view" id="view-darkweb">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">DARK WEB MONITORING</div>
+        </div>
+        <div class="panel-body" id="darkwebContent">
+          <div class="empty-state">
+            <div class="empty-icon">&#9775;</div>
+            <div class="empty-title">DARK WEB MONITORING ACTIVE</div>
+            <div class="empty-text">We continuously scan dark web marketplaces, paste sites, and breach databases for your organization's credentials and data.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VULN SCAN -->
+    <div class="view" id="view-vulnscan">
+      <div class="empty-state">
+        <div class="empty-icon">&#9760;</div>
+        <div class="empty-title">VULNERABILITY SCANNING</div>
+        <div class="empty-text">Continuous vulnerability assessment of your external and internal infrastructure. Available on the Dominate tier.</div>
+        <button class="upgrade-btn" onclick="alert('Contact PalisadeOne to schedule a scan.')">Request Scan</button>
+      </div>
+    </div>
+
+    <!-- ZERO TRUST -->
+    <div class="view" id="view-zerotrust">
+      <div class="empty-state">
+        <div class="empty-icon">&#128274;</div>
+        <div class="empty-title">ZERO TRUST FRAMEWORK</div>
+        <div class="empty-text">Comprehensive zero trust architecture assessment and implementation roadmap. Available on the Dominate tier.</div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="view" id="view-reports">
+      <div class="empty-state">
+        <div class="empty-icon">&#128202;</div>
+        <div class="empty-title">EXECUTIVE REPORTS</div>
+        <div class="empty-text">Board-ready security reports, risk assessments, and compliance documentation. Available on the Dominate tier.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://api.palisadeone.com:9443';
+const TIER_LEVELS = { monitor: 1, defend: 2, dominate: 3 };
+const VIEW_TITLES = {
+  overview: 'SECURITY OVERVIEW', alerts: 'THREAT ALERTS', devices: 'ENDPOINTS',
+  assessment: 'CYBER RISK ASSESSMENT', compliance: 'COMPLIANCE DASHBOARD',
+  training: 'SECURITY TRAINING', darkweb: 'DARK WEB MONITORING',
+  vulnscan: 'VULNERABILITY SCANNER', zerotrust: 'ZERO TRUST FRAMEWORK',
+  reports: 'EXECUTIVE REPORTS'
+};
+
+let authToken = null;
+let currentUser = null;
+let clientData = null;
+let clientTier = 'monitor';
+
+// ===== AUTH CHECK =====
+function init() {
+  authToken = sessionStorage.getItem('p1_token');
+  if (!authToken) { window.location.href = 'portal.html'; return; }
+
+  try {
+    currentUser = JSON.parse(sessionStorage.getItem('p1_user') || '{}');
+    const clientInfo = JSON.parse(sessionStorage.getItem('p1_client') || '{}');
+    clientTier = clientInfo.tier || 'monitor';
+
+    // If admin, redirect to dashboard
+    if (currentUser.role === 'admin') { window.location.href = 'dashboard.html'; return; }
+
+    // Set UI
+    document.getElementById('clientName').textContent = clientInfo.name || 'Client';
+    const tierEl = document.getElementById('clientTier');
+    tierEl.textContent = clientTier.toUpperCase() + ' TIER';
+    tierEl.className = 'client-tier tier-' + clientTier;
+
+    document.getElementById('userName').textContent = currentUser.name || currentUser.email;
+    document.getElementById('userEmail').textContent = currentUser.email || '';
+    document.getElementById('userAvatar').textContent = (currentUser.name || currentUser.email || '?')[0].toUpperCase();
+
+    applyTierGating();
+    loadOverviewData();
+  } catch(e) {
+    console.error('Init error:', e);
+    window.location.href = 'portal.html';
+  }
+}
+
+function applyTierGating() {
+  const level = TIER_LEVELS[clientTier] || 1;
+  document.querySelectorAll('.nav-item[data-min-tier]').forEach(item => {
+    const required = TIER_LEVELS[item.dataset.minTier] || 1;
+    if (level < required) {
+      item.classList.add('locked');
+    }
+  });
+}
+
+function showView(name) {
+  const navItem = document.querySelector(`.nav-item[data-view="${name}"]`);
+  if (navItem && navItem.classList.contains('locked')) return;
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const view = document.getElementById('view-' + name);
+  if (view) view.classList.add('active');
+  if (navItem) navItem.classList.add('active');
+  document.getElementById('viewTitle').textContent = VIEW_TITLES[name] || name.toUpperCase();
+
+  if (name === 'alerts') loadAlerts();
+  if (name === 'devices') loadDevices();
+  if (name === 'darkweb') loadDarkWeb();
+  if (name === 'compliance') loadComplianceDetail();
+}
+
+function apiHeaders() {
+  return { 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' };
+}
+
+async function logout() {
+  try { await fetch(API_URL + '/auth/logout', { method: 'POST', headers: apiHeaders() }); } catch(e) {}
+  sessionStorage.clear();
+  window.location.href = 'portal.html';
+}
+
+// ===== DATA LOADING =====
+async function loadOverviewData() {
+  try {
+    // Load client portal data
+    const res = await fetch(API_URL + '/auth/my-data', { headers: apiHeaders() });
+    if (res.status === 401) { logout(); return; }
+    clientData = await res.json();
+
+    // Security score from assessment
+    const score = clientData.latestAssessment?.scores?.overall || '--';
+    document.getElementById('secScore').textContent = typeof score === 'number' ? Math.round(score) : score;
+
+    // Task completion
+    const tasks = clientData.taskSummary || {};
+    const pct = tasks.total > 0 ? Math.round((tasks.done / tasks.total) * 100) + '%' : '--';
+    document.getElementById('taskPct').textContent = pct;
+  } catch(e) {
+    console.error('Portal data error:', e);
+  }
+
+  // Load alerts count & recent alerts from Wazuh
+  loadRecentAlerts();
+  loadDeviceCount();
+  loadComplianceOverview();
+}
+
+async function loadRecentAlerts() {
+  try {
+    const body = JSON.stringify({
+      size: 10,
+      sort: [{ "timestamp": { "order": "desc" } }],
+      query: { range: { "rule.level": { gte: 4 } } }
+    });
+    const res = await fetch(API_URL + '/wazuh-alerts-*/_search', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body
+    });
+    const data = await res.json();
+    const hits = data.hits?.hits || [];
+
+    document.getElementById('alertCount').textContent = data.hits?.total?.value || 0;
+
+    const tbody = document.getElementById('recentAlerts');
+    if (hits.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No recent alerts</td></tr>';
+      return;
+    }
+    tbody.innerHTML = hits.slice(0, 5).map(h => {
+      const s = h._source;
+      const level = s.rule?.level || 0;
+      const sevClass = level >= 12 ? 'sev-critical' : level >= 7 ? 'sev-high' : level >= 4 ? 'sev-medium' : 'sev-low';
+      const sevLabel = level >= 12 ? 'CRITICAL' : level >= 7 ? 'HIGH' : level >= 4 ? 'MEDIUM' : 'LOW';
+      const time = s.timestamp ? new Date(s.timestamp).toLocaleString() : '--';
+      return `<tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${time}</td>
+        <td><span class="severity-badge ${sevClass}">${sevLabel}</span></td>
+        <td>${s.rule?.description || 'Unknown'}</td>
+        <td>${s.agent?.name || '--'}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('alertCount').textContent = '--';
+    document.getElementById('recentAlerts').innerHTML = '<tr><td colspan="4" style="color:var(--muted);padding:20px;text-align:center">Unable to load alerts</td></tr>';
+  }
+}
+
+async function loadAlerts() {
+  try {
+    const body = JSON.stringify({
+      size: 50,
+      sort: [{ "timestamp": { "order": "desc" } }],
+      query: { range: { "rule.level": { gte: 3 } } }
+    });
+    const res = await fetch(API_URL + '/wazuh-alerts-*/_search', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body
+    });
+    const data = await res.json();
+    const hits = data.hits?.hits || [];
+    const tbody = document.getElementById('allAlerts');
+    if (hits.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No alerts found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = hits.map(h => {
+      const s = h._source;
+      const level = s.rule?.level || 0;
+      const sevClass = level >= 12 ? 'sev-critical' : level >= 7 ? 'sev-high' : level >= 4 ? 'sev-medium' : 'sev-low';
+      const time = s.timestamp ? new Date(s.timestamp).toLocaleString() : '--';
+      return `<tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${time}</td>
+        <td><span class="severity-badge ${sevClass}">L${level}</span></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${s.rule?.id || '--'}</td>
+        <td>${s.rule?.description || 'Unknown'}</td>
+        <td>${s.agent?.name || '--'}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('allAlerts').innerHTML = '<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px">Unable to load alerts</td></tr>';
+  }
+}
+
+async function loadDeviceCount() {
+  try {
+    const res = await fetch(API_URL + '/agents?agents_list=all&limit=500', { headers: apiHeaders() });
+    const data = await res.json();
+    const agents = data.data?.affected_items || [];
+    document.getElementById('deviceCount').textContent = agents.length;
+  } catch(e) {
+    document.getElementById('deviceCount').textContent = '--';
+  }
+}
+
+async function loadDevices() {
+  const grid = document.getElementById('deviceGrid');
+  try {
+    const res = await fetch(API_URL + '/agents?agents_list=all&limit=500', { headers: apiHeaders() });
+    const data = await res.json();
+    const agents = data.data?.affected_items || [];
+    if (agents.length === 0) {
+      grid.innerHTML = '<div class="empty-state"><div class="empty-icon">&#9881;</div><div class="empty-title">NO ENDPOINTS</div><div class="empty-text">No monitored endpoints found.</div></div>';
+      return;
+    }
+    grid.innerHTML = agents.map(a => {
+      const online = a.status === 'active';
+      return `<div class="device-card">
+        <div class="device-header">
+          <div class="device-name">${a.name || 'Unknown'}</div>
+          <span class="device-status ${online ? 'ds-online' : 'ds-offline'}">${online ? 'ONLINE' : 'OFFLINE'}</span>
+        </div>
+        <div class="device-meta">
+          OS: <span>${a.os?.name || '--'} ${a.os?.version || ''}</span><br>
+          IP: <span>${a.ip || '--'}</span><br>
+          Last Seen: <span>${a.lastKeepAlive ? new Date(a.lastKeepAlive).toLocaleString() : '--'}</span>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-text" style="color:var(--muted)">Unable to load endpoints</div></div>';
+  }
+}
+
+function loadComplianceOverview() {
+  const container = document.getElementById('complianceOverview');
+  const frameworks = [
+    { name: 'NIST CSF', score: 0 }, { name: 'SOC 2', score: 0 },
+    { name: 'HIPAA', score: 0 }, { name: 'PCI-DSS', score: 0 },
+    { name: 'ISO 27001', score: 0 }, { name: 'CMMC', score: 0 }
+  ];
+
+  // Pull from assessment if available
+  if (clientData?.latestAssessment?.scores) {
+    const s = clientData.latestAssessment.scores;
+    if (s.nistcsf) frameworks[0].score = s.nistcsf;
+    if (s.soc2) frameworks[1].score = s.soc2;
+    if (s.hipaa) frameworks[2].score = s.hipaa;
+    if (s.pci) frameworks[3].score = s.pci;
+    if (s.iso) frameworks[4].score = s.iso;
+    if (s.cmmc) frameworks[5].score = s.cmmc;
+  }
+
+  container.innerHTML = frameworks.map(f => {
+    const color = f.score >= 80 ? 'var(--accent)' : f.score >= 50 ? 'var(--warning)' : 'var(--danger)';
+    return `<div class="compliance-row">
+      <div class="compliance-name">${f.name}</div>
+      <div class="compliance-bar">
+        <div class="compliance-fill" style="width:${f.score}%;background:${color}"></div>
+      </div>
+      <div class="compliance-pct">${f.score}%</div>
+    </div>`;
+  }).join('');
+}
+
+function loadComplianceDetail() {
+  const container = document.getElementById('complianceDetail');
+  container.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">&#10003;</div>
+      <div class="empty-title">COMPLIANCE TRACKING</div>
+      <div class="empty-text">Complete your cyber assessment to see detailed compliance scores across all frameworks.</div>
+      <button class="upgrade-btn" onclick="showView('assessment')">Go to Assessment</button>
+    </div>`;
+}
+
+async function loadDarkWeb() {
+  const container = document.getElementById('darkwebContent');
+  try {
+    const clientInfo = JSON.parse(sessionStorage.getItem('p1_client') || '{}');
+    const domain = clientInfo.name ? clientInfo.name.toLowerCase().replace(/\s+/g, '') + '.com' : '';
+    if (!domain) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-text">No domain configured for monitoring.</div></div>';
+      return;
+    }
+    const res = await fetch(API_URL + '/breach-search?domain=' + encodeURIComponent(domain));
+    const data = await res.json();
+    const results = data.results || [];
+    if (results.length === 0) {
+      container.innerHTML = `<div class="empty-state">
+        <div class="empty-icon" style="color:var(--accent)">&#10003;</div>
+        <div class="empty-title" style="color:var(--accent)">NO BREACHES FOUND</div>
+        <div class="empty-text">No exposed credentials or data found for ${domain} in our dark web intelligence database.</div>
+      </div>`;
+      return;
+    }
+    container.innerHTML = `<p style="margin-bottom:16px;color:var(--warning)">Found ${results.length} exposed record(s) for ${domain}</p>
+      <table class="alert-table"><thead><tr><th>Source</th><th>Date</th><th>Type</th></tr></thead>
+      <tbody>${results.slice(0, 20).map(r => `<tr>
+        <td>${r.source || '--'}</td>
+        <td>${r.date || '--'}</td>
+        <td>${r.type || 'credentials'}</td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch(e) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-text">Unable to query dark web database.</div></div>';
+  }
+}
+
+// Init on load
+init();
+</script>
+</body>
+</html>

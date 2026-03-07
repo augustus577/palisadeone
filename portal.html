@@ -326,19 +326,44 @@
     // Enter key
     document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
 
-function handleLogin() {
+const API_URL = 'https://api.palisadeone.com:9443';
+
+async function handleLogin() {
   const email = document.getElementById('loginEmail').value;
   const pass = document.getElementById('loginPassword').value;
   const err = document.getElementById('errorMsg');
-  if (!email || !pass) { err.style.display = 'block'; err.textContent = '⚠ Please enter your email and password.'; return; }
+  const btn = document.querySelector('.login-btn');
+  if (!email || !pass) { err.style.display = 'block'; err.textContent = '!! Please enter your email and password.'; return; }
   err.style.display = 'none';
-  if (email === 'admin@palisadeone.com' && pass === 'PalisadeOne2026!') {
+  btn.textContent = 'AUTHENTICATING...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(API_URL + '/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      err.style.display = 'block';
+      err.textContent = '!! ' + (data.error || 'Invalid credentials. Please try again.');
+      document.getElementById('loginPassword').value = '';
+      btn.textContent = 'Access Portal \u2192';
+      btn.disabled = false;
+      return;
+    }
+    // Store auth token and user info
     sessionStorage.setItem('p1_auth', 'true');
-    window.location.href = 'dashboard.html';
-  } else {
+    sessionStorage.setItem('p1_token', data.token);
+    sessionStorage.setItem('p1_user', JSON.stringify(data.user));
+    if (data.client) sessionStorage.setItem('p1_client', JSON.stringify(data.client));
+    // Route based on role
+    window.location.href = data.redirect || (data.user.role === 'admin' ? 'dashboard.html' : 'client-portal.html');
+  } catch(e) {
     err.style.display = 'block';
-    err.textContent = '⚠ Invalid credentials. Please try again.';
-    document.getElementById('loginPassword').value = '';
+    err.textContent = '!! Connection error. Please try again.';
+    btn.textContent = 'Access Portal \u2192';
+    btn.disabled = false;
   }
 }
 

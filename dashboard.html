@@ -1038,10 +1038,10 @@
                 <div style="font-size:11px;color:var(--muted);margin-top:5px;">Leave blank to auto-generate. Used to filter this client's agents.</div>
               </div>
             </div>
-            <div style="margin-top:20px;padding:14px;background:rgba(0,255,209,0.04);border:1px solid rgba(0,255,209,0.15);">
-              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:6px;">PORTAL ACCESS TOKEN</div>
-              <div id="ac-token-display" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--white);letter-spacing:2px;"></div>
-              <div style="font-size:11px;color:var(--muted);margin-top:5px;">Auto-generated. Share this token with the client so they can access <strong style="color:var(--text);">palisadeone.com/client-view.html</strong></div>
+            <div style="margin-top:14px;">
+              <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:7px;">Portal Login Password *</label>
+              <input type="text" id="ac-password" placeholder="Auto-generated" style="width:100%;background:var(--deep);border:1px solid var(--border);padding:10px 14px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;letter-spacing:1px;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
+              <div style="font-size:11px;color:var(--muted);margin-top:5px;">Client logs in at <strong style="color:var(--text);">palisadeone.com/portal.html</strong> → auto-routes to client portal</div>
             </div>
             <div id="ac-status" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-top:12px;min-height:18px;"></div>
           </div>
@@ -1980,11 +1980,28 @@ function updateTime() {
 setInterval(updateTime, 1000);
 updateTime();
 
-function doLogin() {
+async function doLogin() {
   const user = document.getElementById('login-user').value;
   const pass = document.getElementById('login-pass').value;
   const status = document.getElementById('login-status');
-  if (user === PORTAL_USER && pass === PORTAL_PASS) {
+  status.textContent = '// AUTHENTICATING...';
+  try {
+    const res = await fetch(PROXY_URL + '/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user, password: pass })
+    });
+    const data = await res.json();
+    if (!res.ok || data.user?.role !== 'admin') {
+      status.textContent = data.user?.role === 'client'
+        ? '// CLIENT ACCOUNTS USE portal.html'
+        : '// AUTHENTICATION FAILED — INVALID CREDENTIALS';
+      document.getElementById('login-pass').value = '';
+      return;
+    }
+    sessionStorage.setItem('p1_auth', 'true');
+    sessionStorage.setItem('p1_token', data.token);
+    sessionStorage.setItem('p1_user', JSON.stringify(data.user));
     document.getElementById('login-screen').style.opacity = '0';
     document.getElementById('login-screen').style.transition = 'opacity 0.5s';
     setTimeout(() => {
@@ -1992,21 +2009,31 @@ function doLogin() {
       document.getElementById('app').style.display = 'block';
       initDashboard();
     }, 500);
-  } else {
-    status.textContent = '// AUTHENTICATION FAILED — INVALID CREDENTIALS';
-    document.getElementById('login-pass').value = '';
+  } catch(e) {
+    // Fallback to hardcoded for offline
+    if (user === PORTAL_USER && pass === PORTAL_PASS) {
+      document.getElementById('login-screen').style.opacity = '0';
+      document.getElementById('login-screen').style.transition = 'opacity 0.5s';
+      setTimeout(() => {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        initDashboard();
+      }, 500);
+    } else {
+      status.textContent = '// CONNECTION ERROR — CHECK NETWORK';
+      document.getElementById('login-pass').value = '';
+    }
   }
 }
 document.addEventListener('keypress', (e) => { if (e.key === 'Enter') doLogin(); });
 
 function logout() {
-  sessionStorage.removeItem('p1_auth');
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-screen').style.opacity = '1';
-  document.getElementById('login-user').value = '';
-  document.getElementById('login-pass').value = '';
-  document.getElementById('login-status').textContent = '';
+  const token = sessionStorage.getItem('p1_token');
+  if (token) {
+    fetch(PROXY_URL + '/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }).catch(() => {});
+  }
+  sessionStorage.clear();
+  window.location.href = 'portal.html';
   window.location.href = 'portal.html';
 }
 
@@ -2295,6 +2322,42 @@ function generateCmdContent(clientName, wazuhGroup) {
     "$p1cr2 = $p1cs.CompileAssemblyFromSource($p1cp2, $unisolateSrc)",
     "if ($p1cr2.Errors.Count -gt 0) { Write-Log 'unisolate-win.exe compile failed' 'WARN' } else { Write-Log 'unisolate-win.exe compiled OK' 'SUCCESS' }",
     "Write-Log 'Isolation executables compiled and installed.' 'SUCCESS'",
+    "",
+    "# Step 4.5 — Download kill-suspicious.cmd AR script",
+    "Write-Log 'Downloading kill-suspicious active-response script...'",
+    "try {",
+    "    $killCmdUrl = 'https://api.palisadeone.com:9443/ar-scripts/kill-suspicious.cmd'",
+    "    $killCmdPath = \"$arBin\\kill-suspicious.cmd\"",
+    "    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12",
+    "    (New-Object System.Net.WebClient).DownloadFile($killCmdUrl, $killCmdPath)",
+    "    Write-Log 'kill-suspicious.cmd installed.' 'SUCCESS'",
+    "} catch { Write-Log \"kill-suspicious.cmd download failed: $($_.Exception.Message)\" 'WARN' }",
+    "",
+    "# Step 5 — Sysmon (enhanced process telemetry for EDR)",
+    "Write-Log 'Installing Sysmon for EDR process telemetry...'",
+    "try {",
+    "    $sysmonExe = 'C:\\Windows\\Sysmon64.exe'",
+    "    $sysmonCfg = \"$env:TEMP\\p1-sysmon-config.xml\"",
+    "    # Download our Sysmon config from proxy",
+    "    (New-Object System.Net.WebClient).DownloadFile('https://api.palisadeone.com:9443/ar-scripts/sysmon-config.xml', $sysmonCfg)",
+    "    if (Test-Path $sysmonExe) {",
+    "        # Already installed — just update config",
+    "        Start-Process $sysmonExe -ArgumentList '-c',$sysmonCfg,'-accepteula' -Wait -NoNewWindow -ErrorAction SilentlyContinue",
+    "        Write-Log 'Sysmon config updated.' 'SUCCESS'",
+    "    } else {",
+    "        # Download Sysmon from Sysinternals",
+    "        $sysmonZip = \"$env:TEMP\\Sysmon.zip\"",
+    "        (New-Object System.Net.WebClient).DownloadFile('https://download.sysinternals.com/files/Sysmon.zip', $sysmonZip)",
+    "        Expand-Archive -Path $sysmonZip -DestinationPath \"$env:TEMP\\Sysmon\" -Force",
+    "        $sysmon64 = Get-Item \"$env:TEMP\\Sysmon\\Sysmon64.exe\" -ErrorAction SilentlyContinue",
+    "        if ($sysmon64) {",
+    "            Start-Process $sysmon64.FullName -ArgumentList '-i',$sysmonCfg,'-accepteula' -Wait -NoNewWindow",
+    "            Write-Log 'Sysmon installed and configured.' 'SUCCESS'",
+    "        } else { Write-Log 'Sysmon64.exe not found in zip.' 'WARN' }",
+    "        Remove-Item $sysmonZip -Force -ErrorAction SilentlyContinue",
+    "    }",
+    "    Remove-Item $sysmonCfg -Force -ErrorAction SilentlyContinue",
+    "} catch { Write-Log \"Sysmon install skipped: $($_.Exception.Message)\" 'WARN' }",
     "",
     'Write-Host ""',
     'Write-Host "  ================================================" -ForegroundColor Green',
@@ -3708,7 +3771,7 @@ function renderClientCard(client, deviceCount) {
     </div>
     <div class="client-actions">
       <button class="client-btn" onclick="copyClientToken('${safeToken}')">📋 TOKEN</button>
-      <button class="client-btn" onclick="window.open('client-view.html','_blank')">PORTAL</button>
+      <button class="client-btn" onclick="window.open('client-portal.html','_blank')">PORTAL</button>
       <button class="client-btn" onclick="openClientInstaller('${(client.name||'').replace(/'/g,"\\'")}','${(client.wazuh_group||'').replace(/'/g,"\\'")}')">⬇ INSTALLER</button>
       <button class="client-btn danger" onclick="deleteClient('${client.id}')">✕ REMOVE</button>
     </div>
@@ -3727,13 +3790,18 @@ function openClientInstaller(clientName, wazuhGroup) {
 }
 
 function openAddClient() {
-  const token = generateToken();
-  document.getElementById('ac-token-display').textContent = token;
-  document.getElementById('ac-token-display').dataset.token = token;
   ['ac-name', 'ac-email', 'ac-group', 'ac-mrr'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('ac-tier').value = 'defend';
+  document.getElementById('ac-password').value = generatePassword();
   document.getElementById('ac-status').textContent = '';
   document.getElementById('add-client-modal').style.display = 'flex';
+}
+
+function generatePassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
+  let p = 'P1-';
+  for (let i = 0; i < 12; i++) p += chars[Math.floor(Math.random() * chars.length)];
+  return p;
 }
 
 function closeAddClient() {
@@ -3746,6 +3814,7 @@ function generateToken() {
   for (let i = 0; i < 32; i++) t += chars[Math.floor(Math.random() * chars.length)];
   return t;
 }
+// generateToken still used for backward-compat with clients.json tokens
 
 async function saveClient() {
   const name = document.getElementById('ac-name').value.trim();
@@ -3753,30 +3822,49 @@ async function saveClient() {
   const tier = document.getElementById('ac-tier').value;
   const mrr = parseInt(document.getElementById('ac-mrr').value) || 0;
   const groupInput = document.getElementById('ac-group').value.trim();
-  const token = document.getElementById('ac-token-display').dataset.token;
+  const password = document.getElementById('ac-password').value.trim();
   const statusEl = document.getElementById('ac-status');
 
-  if (!name) { statusEl.textContent = '⚠ Company name is required'; statusEl.style.color = 'var(--danger)'; return; }
-  if (!email) { statusEl.textContent = '⚠ Contact email is required'; statusEl.style.color = 'var(--danger)'; return; }
+  if (!name) { statusEl.textContent = '!! Company name is required'; statusEl.style.color = 'var(--danger)'; return; }
+  if (!email) { statusEl.textContent = '!! Contact email is required'; statusEl.style.color = 'var(--danger)'; return; }
+  if (!password) { statusEl.textContent = '!! Portal password is required'; statusEl.style.color = 'var(--danger)'; return; }
 
   const group = groupInput || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-  statusEl.textContent = 'Saving...';
+  statusEl.textContent = 'Creating client...';
   statusEl.style.color = 'var(--muted)';
   try {
+    // 1. Save to existing clients.json system
+    const token = generateToken();
     const existing = await fetchClients();
     existing.push({ id: 'c_' + Date.now(), name, tier, contact: email, mrr, wazuh_group: group, token, created: new Date().toISOString() });
-    const ok = await pushClients(existing);
-    if (ok) {
-      statusEl.textContent = '✓ Client created!';
-      statusEl.style.color = 'var(--accent)';
-      setTimeout(() => { closeAddClient(); loadClients(); }, 1000);
-    } else {
-      statusEl.textContent = '✗ Save failed';
-      statusEl.style.color = 'var(--danger)';
-    }
+    await pushClients(existing);
+
+    // 2. Create client + user in auth API for portal login
+    statusEl.textContent = 'Setting up portal access...';
+    const adminToken = sessionStorage.getItem('p1_token');
+    const authHeaders = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken };
+
+    // Create client in auth DB
+    const clientRes = await fetch(PROXY_URL + '/auth/clients', {
+      method: 'POST', headers: authHeaders,
+      body: JSON.stringify({ name, industry: 'technology', tier, employees: '1-50', contact_email: email, contact_name: name })
+    });
+    const clientData = await clientRes.json();
+    if (!clientRes.ok) throw new Error(clientData.error || 'Failed to create client');
+
+    // Create user for this client
+    const userRes = await fetch(PROXY_URL + '/auth/users', {
+      method: 'POST', headers: authHeaders,
+      body: JSON.stringify({ email, password, client_id: clientData.id, name: name + ' Admin', role: 'client' })
+    });
+    const userData = await userRes.json();
+    if (!userRes.ok) throw new Error(userData.error || 'Failed to create user');
+
+    statusEl.innerHTML = '<span style="color:var(--accent)">Client created! Portal credentials:</span><br><span style="font-size:12px;color:var(--text)">Email: ' + email + '<br>Password: ' + password + '</span>';
+    setTimeout(() => { closeAddClient(); loadClients(); }, 3000);
   } catch(e) {
-    statusEl.textContent = '✗ Error: ' + e.message;
+    statusEl.textContent = '!! Error: ' + e.message;
     statusEl.style.color = 'var(--danger)';
   }
 }
@@ -4490,7 +4578,7 @@ function escH(str) {
 
 let edrTelemetryTimer = null;
 let edrWatchlist = JSON.parse(localStorage.getItem('edr_watchlist') || '[]');
-let edrIncidents = JSON.parse(localStorage.getItem('edr_incidents') || '[]');
+let edrIncidents = []; // loaded from server via /incidents API
 
 const HUNT_SAVED_QUERIES = [
   { label: 'PowerShell Encoded CMD', field: 'data.win.eventdata.commandLine', op: 'wildcard', value: '*-EncodedCommand*', time: 'now-24h' },
@@ -4567,7 +4655,13 @@ async function loadEdrStats() {
       })
     ]);
 
-    const openInc = edrIncidents.filter(i => i.status === 'open').length;
+    let openInc = 0;
+    try {
+      const incRes = await fetch(`${PROXY_URL}/incidents`);
+      const allInc = await incRes.json();
+      edrIncidents = allInc;
+      openInc = allInc.filter(i => i.status === 'open').length;
+    } catch(e) { openInc = edrIncidents.filter(i => i.status === 'open').length; }
     document.getElementById('edr-stat-incidents').textContent = openInc;
 
     const highRisk = (behavData?.aggregations?.by_agent?.buckets || []).filter(b => b.doc_count >= 5).length;
@@ -4790,16 +4884,25 @@ async function autoCorrelateIncidents() {
       }).filter(Boolean);
 
     edrIncidents = [...newIncidents, ...edrIncidents].slice(0, 100);
-    localStorage.setItem('edr_incidents', JSON.stringify(edrIncidents));
+    // Persist to server
+    await fetch(`${PROXY_URL}/incidents`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(edrIncidents)
+    });
     loadIncidents();
     loadEdrStats();
     showToast(`Correlated ${newIncidents.length} new incident(s) from ${hits.length} alerts.`, 'success');
   } catch(e) { showToast('Correlation failed: ' + e.message, 'error'); }
 }
 
-function loadIncidents() {
+async function loadIncidents() {
   const el = document.getElementById('incident-list');
   if (!el) return;
+  el.innerHTML = '<div style="padding:24px;text-align:center;"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div></div>';
+  try {
+    const res = await fetch(`${PROXY_URL}/incidents`);
+    edrIncidents = await res.json();
+  } catch(e) { edrIncidents = []; }
   if (!edrIncidents.length) {
     el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-family:\'JetBrains Mono\',monospace;font-size:11px;">// Click AUTO-CORRELATE to group recent alerts into incidents</div>';
     return;
@@ -4859,9 +4962,18 @@ function openIncident(id) {
   document.getElementById('incident-modal').classList.add('open');
 }
 
-function updateIncidentStatus(id, status) {
-  const inc = edrIncidents.find(i => i.id === id);
-  if (inc) { inc.status = status; localStorage.setItem('edr_incidents', JSON.stringify(edrIncidents)); openIncident(id); loadIncidents(); loadEdrStats(); }
+async function updateIncidentStatus(id, status) {
+  try {
+    const res = await fetch(`${PROXY_URL}/incidents/${id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    const updated = await res.json();
+    const idx = edrIncidents.findIndex(i => i.id === id);
+    if (idx !== -1) edrIncidents[idx] = updated;
+  } catch(e) {}
+  openIncident(id);
+  loadEdrStats();
 }
 
 function runPlaybookForIncident(id) {
