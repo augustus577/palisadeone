@@ -343,7 +343,7 @@
   <div class="footer">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#4A6080;letter-spacing:4px;margin-bottom:8px;">PALISADE<span style="color:#00FFD1;">ONE</span></div>
     <div>This report is confidential and intended for ${client} only.</div>
-    <div style="margin-top:4px;">hello@palisadeone.com &bull; palisadeone.com</div>
+    <div style="margin-top:4px;">contactus@palisadeone.com &bull; palisadeone.com</div>
   </div>
 </div>
 </body>
@@ -565,7 +565,7 @@ function generateSecurityReport(alertData, options = {}) {
   <div class="ft">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#4A6080;letter-spacing:4px;margin-bottom:8px;">PALISADE<span style="color:#00FFD1;">ONE</span></div>
     <div>This report is confidential and intended for ${client} only.</div>
-    <div style="margin-top:4px;">hello@palisadeone.com &bull; palisadeone.com</div>
+    <div style="margin-top:4px;">contactus@palisadeone.com &bull; palisadeone.com</div>
   </div>
 </div>
 </body>

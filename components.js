@@ -122,7 +122,7 @@ function injectFooter() {
         </div>
         <div class="footer-col">
           <div class="footer-col-title">Contact</div>
-          <a href="mailto:hello@palisadeone.com">hello@palisadeone.com</a>
+          <a href="mailto:contactus@palisadeone.com">contactus@palisadeone.com</a>
           <a href="contact.html">Book a Demo</a>
           <span style="color:#4A6080;font-size:12px;">24/7 SOC Monitoring</span>
         </div>
