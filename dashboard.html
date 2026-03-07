@@ -3341,6 +3341,24 @@ function generateCmdContent(clientName, wazuhGroup) {
     "            Start-Process powershell.exe -ArgumentList \"-ExecutionPolicy Bypass -WindowStyle Hidden -File `\"C:\\ProgramData\\PalisadeOne\\run-fds.ps1`\"\" -WindowStyle Hidden",
     "            PLog '[FDS] Background scan process started'",
     "        }",
+    "    } elseif ($data.action -eq 'deploy-wdac') {",
+    "        $wdacMode = if ($data.params.mode) { $data.params.mode } else { 'audit' }",
+    "        PLog \"[WDAC] WDAC $wdacMode deployment requested\"",
+    "        Log \"WDAC $wdacMode deployment from ZT dashboard\"",
+    "        try {",
+    "            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12",
+    "            [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}",
+    "            $wdacScript = (New-Object Net.WebClient).DownloadString(\"$url/ar-scripts/deploy-wdac.ps1\")",
+    "            Set-Content 'C:\\ProgramData\\PalisadeOne\\WDAC\\deploy-wdac.ps1' $wdacScript -Force",
+    "            $psi = New-Object System.Diagnostics.ProcessStartInfo",
+    "            $psi.FileName = 'powershell.exe'",
+    "            $psi.Arguments = \"-ExecutionPolicy Bypass -File `\"C:\\ProgramData\\PalisadeOne\\WDAC\\deploy-wdac.ps1`\" $wdacMode\"",
+    "            $psi.UseShellExecute = $false; $psi.RedirectStandardOutput = $true; $psi.CreateNoWindow = $true",
+    "            $proc = [System.Diagnostics.Process]::Start($psi)",
+    "            $out = $proc.StandardOutput.ReadToEnd()",
+    "            $proc.WaitForExit(60000)",
+    "            PLog \"[WDAC] Result: $($out.Trim().Substring(0, [Math]::Min($out.Trim().Length, 300)))\"",
+    "        } catch { PLog \"[WDAC] Error: $_\" }",
     "    } elseif ($data.action -eq 'deploy-sysmon') {",
     "        PLog '[SYSMON] Deployment requested'; Log 'Sysmon deployment from SOC dashboard'",
     "        try {",
@@ -8955,7 +8973,7 @@ ${high > 10 ? `<div style="padding:16px;background:rgba(245,166,35,0.08);border-
 <div style="text-align:center;padding:40px;font-size:11px;color:#4A6080;border-top:1px solid #112240;margin-top:40px;">
 <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#4A6080;letter-spacing:4px;margin-bottom:8px;">PALISADE<span style="color:#00FFD1;">ONE</span></div>
 <div>This report is confidential and intended for ${client} only.</div>
-<div style="margin-top:4px;">hello@palisadeone.com &bull; palisadeone.com</div></div>
+<div style="margin-top:4px;">contactus@palisadeone.com &bull; palisadeone.com</div></div>
 </div></body></html>`;
 }
 

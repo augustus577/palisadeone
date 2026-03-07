@@ -390,35 +390,38 @@ async function handleZTRoute(req, res, urlPath, readBodyFn) {
     return true;
   }
 
-  // POST /zt/deploy/sysmon — Trigger Sysmon deployment on an agent
+  // POST /zt/deploy/sysmon — Trigger Sysmon deployment via polling
   if (urlPath === "/zt/deploy/sysmon" && req.method === "POST") {
     if (!checkAuth(req)) { res.writeHead(401); res.end('{"error":"Unauthorized"}'); return true; }
     const body = await readBodyFn(req);
     const { agentId, agentName } = JSON.parse(body);
-    // Trigger via Wazuh API active response
-    const result = await triggerActiveResponse(agentId, "deploy-sysmon");
+    // Queue via polling mechanism (same as dashboard actions)
+    if (!global._agentActions) global._agentActions = {};
+    global._agentActions[agentId] = { action: "deploy-sysmon", params: null, timestamp: Date.now() };
     const data = readZT();
     addAuditEntry(data, { event:"policy", app:"Sysmon", device: agentName || agentId, user:"admin", detail:"Sysmon deployment triggered on " + (agentName || agentId) });
     writeZT(data);
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ ok: true, agentId, action: "deploy-sysmon", result }));
+    res.end(JSON.stringify({ ok: true, agentId, action: "deploy-sysmon", note: "Queued via polling — agent will pick up within 60s" }));
     return true;
   }
 
-  // POST /zt/deploy/wdac — Trigger WDAC policy deployment
+  // POST /zt/deploy/wdac — Trigger WDAC policy deployment via polling
   if (urlPath === "/zt/deploy/wdac" && req.method === "POST") {
     if (!checkAuth(req)) { res.writeHead(401); res.end('{"error":"Unauthorized"}'); return true; }
     const body = await readBodyFn(req);
     const { agentId, agentName, mode } = JSON.parse(body);
     const wdacMode = mode || "audit";
+    // Queue via polling mechanism
+    if (!global._agentActions) global._agentActions = {};
+    global._agentActions[agentId] = { action: "deploy-wdac", params: { mode: wdacMode }, timestamp: Date.now() };
     const data = readZT();
     addAuditEntry(data, { event:"policy", app:"WDAC", device: agentName || agentId, user:"admin", detail:"WDAC " + wdacMode + " mode deployment triggered on " + (agentName || agentId) });
-    // Update device mode
     if (!data.deviceModes) data.deviceModes = {};
     data.deviceModes[agentId] = { mode: wdacMode === "enforce" ? "secured" : "learning", name: agentName || agentId, updatedAt: new Date().toISOString(), wdacMode };
     writeZT(data);
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ ok: true, agentId, wdacMode, note: "WDAC policy will be deployed via shared agent config" }));
+    res.end(JSON.stringify({ ok: true, agentId, wdacMode, note: "Queued via polling — agent will pick up within 60s" }));
     return true;
   }
 
